@@ -8,6 +8,7 @@
 .sod29-watch-btn:disabled{cursor:progress}
 .sod29-watch-btn-secondary{background:transparent;color:var(--s29-accent-text);border-color:var(--s29-line-strong)}
 .sod29-watch-note{color:var(--s29-muted);font-size:var(--s29-type-small,16px);line-height:1.5;max-width:56ch}
+.sod29-watch-slot{display:grid}.sod29-watch-slot>span{grid-area:1/1}.sod29-watch-slot>[data-hidden]{visibility:hidden}
 .sod29-watch-alert{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;color:var(--s29-ink);font-size:var(--s29-type-small,16px);line-height:1.5;border:1px solid var(--s29-line-strong);border-radius:12px;background:var(--s29-panel-soft);padding:8px 12px}
 .sod29-watch-retry{min-height:44px;min-width:44px;border:0;background:transparent;color:var(--s29-accent-text);font:inherit;font-size:var(--s29-type-ui,16px);font-weight:700;text-decoration:underline;text-underline-offset:4px;cursor:pointer}
 .sod29-watch-card{display:grid;gap:8px;justify-items:start;border:1px dashed var(--s29-line-strong);border-radius:16px;background:var(--s29-panel-soft);padding:12px 14px;max-width:100%}

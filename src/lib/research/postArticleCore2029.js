@@ -201,7 +201,26 @@ export function postArticleImages2029(html, { cover = "", facts = null } = {}) {
     image.setAttribute("decoding", "async");
     if (clean(cover) || index > 0) image.setAttribute("loading", "lazy");
   });
+  markPostMediaRows2029(template.content);
   return template.innerHTML;
+}
+// Centred media (ZURIEL 25.11.2026: "אם בדפים האלו יש תמונות תמרכז אותם"). A WordPress paragraph or block that holds only media (images,
+// video, embedded frames, their links, with no words) is a media row: post2029-reading.css centres it. Images side by side stay side by side,
+// a paragraph with words keeps its alignment, floated images (alignleft/alignright) keep their wrap. An attribute write, so the server DOM and the
+// browser produce the same markup.
+const MEDIA_ROW_BLOCKS = "p,div,figure,center,li,td,h1,h2,h3,h4,h5,h6";
+export function markPostMediaRows2029(root) {
+  for (const media of root.querySelectorAll("img,video,iframe")) {
+    // No block around it: the media (or its link) stands at the top of the article and is its own row.
+    let top = media; while (top.parentElement) top = top.parentElement;
+    const block = media.parentElement?.closest(MEDIA_ROW_BLOCKS);
+    const wordNext = node => node && node.nodeType === 3 && node.textContent.replace(/[\s\u00a0\u200b-\u200f]+/g, "");
+    if (!block && (wordNext(top.previousSibling) || wordNext(top.nextSibling))) continue;   // words beside it: it stays in their line
+    const row = block || top;
+    if (row.hasAttribute("data-post-media-row") || row.querySelector("table,ul,ol,p,blockquote,h1,h2,h3,h4,h5,h6")) continue;
+    if (row.textContent.replace(/[\s\u00a0\u200b-\u200f]+/g, "")) continue;
+    row.setAttribute("data-post-media-row", "true");
+  }
 }
 // An image of the article that copies apply to: its size is reserved by the markup and its file is a Storage original.
 function copiesApply(image) {

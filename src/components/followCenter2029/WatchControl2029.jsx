@@ -21,8 +21,12 @@ export default function WatchControl2029({
       <NavigationIcon2029 name={following ? "check" : "add"} size={20} />
       <span>{busy ? (following ? "מעדכן…" : "מבטל…") : following ? (followLabel || "עוקב") : (label || "מעקב")}</span>
     </button>
-    {unknown ? <p className="sod29-watch-note" role="status">בודק את מצב המעקב…</p> : null}
-    {!following && explainer && !unknown ? <p className="sod29-watch-note">{explainer}</p> : null}
+    {/* S-59 (25.11.2026): with an explainer, the live check and the explainer share one slot. The explainer keeps the slot's height while the
+        check runs (hidden, with the visible status over it), so the box does not grow 24 px when the state arrives. */}
+    {explainer && !following ? <p className="sod29-watch-note sod29-watch-slot">
+      <span data-hidden={unknown || undefined} aria-hidden={unknown || undefined}>{explainer}</span>
+      {unknown ? <span role="status">בודק את מצב המעקב…</span> : null}
+    </p> : unknown ? <p className="sod29-watch-note" role="status">בודק את מצב המעקב…</p> : null}
     {message ? <p className="sod29-watch-alert" role="alert">{message}{!busy ? <button type="button" className="sod29-watch-retry" onClick={onRetry}>ניסיון נוסף</button> : null}</p> : null}
     {confirmed ? <p className="sod29-watch-note" role="status">המעקב אושר. ערוץ עדכון נבחר בנפרד, בהסכמה מפורשת.</p> : null}
     {identityRequired && !signedIn ? <div className="sod29-watch-card">

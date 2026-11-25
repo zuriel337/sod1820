@@ -1327,17 +1327,17 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-17T23:45:00Z",
-    "main": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+    "checked_at": "2026-11-25T01:05:00Z",
+    "main": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
     "production": {
-      "deployment": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
-      "sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+      "deployment": "dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw",
+      "sha": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "evidence": "assign_alias of the three domains to dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5 (old: dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2) at 2026-11-17T23:23:42Z (get_alias updatedAt); the live document names entry /assets/2029-DqC-bFSR.js and source 736dd285b8cf0473601aaf3c429a61f1a5deb99e (read 2026-11-17T23:25Z)"
+      "evidence": "assign_alias of the three domains to dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw on 2026-11-25 (oldDeploymentId dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp, the rollback point); build log ran the ignore-step for the exact SHA; live entry /assets/2029-B6IVrh0A.js; Post-Deploy Canary success on ae6e52d"
     },
     "build_evidence": [
       {
@@ -1994,7 +1994,7 @@
         "guard": [
           "tests/world2029-release.spec.cjs (CLS gate, 2029-isolation-gate.yml) [exists on origin/main; CI: .github/workflows/2029-isolation-gate.yml]"
         ],
-        "open": "Field CLS by surface: posts p75 0.008 / other pages 0.051 (14-day field, PR #1365 branch doc) — not an accepted before/after.",
+        "open": "Field CLS by surface: posts p75 0.008 / other pages 0.051 (14-day field, PR #1365 branch doc) — not an accepted before/after. | 25.11.2026 field: Posts CLS p75 0.000 phone / 0.009 desktop (7 days); of samples above 0.1, the shifted node on phones is footer.f29 (14 samples in 4 days) and on desktop div.sod29-root.closed-shell.native-frame (5). See S-59.",
         "next_owner": "Experience Governance",
         "relates_to_groups": []
       },
@@ -3367,7 +3367,7 @@
         "guard": [
           "test/article-first-document-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
         ],
-        "open": "O1/O3 cover still 151->157 KB on phone in the lab; warming is a paid release step (Speed Law 6).",
+        "open": "O1/O3 cover still 151->157 KB on phone in the lab; warming is a paid release step (Speed Law 6). | 25.11.2026: the copies work; separate SEO gap on old image addresses — S-56.",
         "next_owner": "Experience Governance",
         "relates_to_groups": [
           "F23"
@@ -3418,7 +3418,7 @@
           "test/content-first-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
           "test/content-first-2029.browser.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
         ],
-        "open": "Expected measurement change: GA/Meta do not see readers who leave before content (PR #1372 body).",
+        "open": "Expected measurement change: GA/Meta do not see readers who leave before content (PR #1372 body). | 25.11.2026: the start is after the content (as designed), but on a phone the two third parties still dominate main-thread blocking after load: lab Lighthouse 12.2.1 mobile, Facebook ~585 ms + Google Tag ~330 ms of TBT 710–920 ms on four old Posts. See S-58.",
         "next_owner": "Traffic Intelligence",
         "relates_to_groups": [
           "F26"
@@ -3718,7 +3718,7 @@
         "deployed_in_created": "2026-11-17T16:59:56Z",
         "in_current_production": true,
         "live_verified": "yes",
-        "live_evidence": "Released 17.11.2026 (ZURIEL \"תעלה\"), work_log POST_DOCUMENT_FRESHNESS_20261117 AFTER: migration applied in one transaction (guard md5 matched), Vault secret sod_post_document_purge_key and Vercel Production variable SOD_POST_DOCUMENT_PURGE_KEY set before the build; dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo (bootstrap entry /assets/2029-B6373d0f.js, sourceSha 890efa204). Live: /post/chosen-one stale, stale, then a clean MISS (x-sod-document-cache post-cdn-v1) and a HIT in 0.21 s; / and /gematria untouched; purge endpoint without key 401, wrong key 401, GET 405; a purge sent from the database with the Vault key answered 200 {\"purged\":[\"post-document-5077\"]} and the next request was REVALIDATED. The freshness watch runs inside fn_health_watch (heartbeat post_documents:freshness_watch 18:15 UTC: status idle, purge_configured true, 0 failed). Post-Deploy Canary 44132316392 success (attempt 2; attempt 1 cancelled by a GitHub checkout timeout before any site check). Still in Production after #1377 (890efa204 is an ancestor of 84bdb23f9).",
+        "live_evidence": "Released 17.11.2026 (ZURIEL \"תעלה\"), work_log POST_DOCUMENT_FRESHNESS_20261117 AFTER: migration applied in one transaction (guard md5 matched), Vault secret sod_post_document_purge_key and Vercel Production variable SOD_POST_DOCUMENT_PURGE_KEY set before the build; dpl_AMu81pcZfCwZmyoEsXFSaJ4mdaBo (bootstrap entry /assets/2029-B6373d0f.js, sourceSha 890efa204). Live: /post/chosen-one stale, stale, then a clean MISS (x-sod-document-cache post-cdn-v1) and a HIT in 0.21 s; / and /gematria untouched; purge endpoint without key 401, wrong key 401, GET 405; a purge sent from the database with the Vault key answered 200 {\"purged\":[\"post-document-5077\"]} and the next request was REVALIDATED. The freshness watch runs inside fn_health_watch (heartbeat post_documents:freshness_watch 18:15 UTC: status idle, purge_configured true, 0 failed). Post-Deploy Canary 44132316392 success (attempt 2; attempt 1 cancelled by a GitHub checkout timeout before any site check). Still in Production after #1377 (890efa204 is an ancestor of 84bdb23f9). | Re-checked 2026-11-25 (Production 3a6cabe): works as designed for a burst of the same Post — /post/chosen-one six reads 0.5 s apart: first byte 0.418 s, then 0.106–0.304 s. A single read of a Post (a visitor's first open, or a crawler reading many different Posts) is still built by the origin every time (by design, post-document-freshness.js: the change list is read only during a burst): Googlebot-agent reads of /שמע-ישראל-מבצע… and other old Posts answered with first byte 0.88–1.55 s, no x-vercel-cache. The visible headers carry no X-Sod-Document-Cache (not exposed on the public answer).",
         "measurement": {
           "kind": "lab",
           "before": "server wait 880 ms (field median, Posts, phones): first byte 936, FCP 1,420, readable 3,333 (p75 3,493), LCP 5,222 (p75 5,972), CLS 0.0018",
@@ -3733,7 +3733,7 @@
           "test/article-first-browser-2029.browser.mjs: a Post no longer public loses the document's article, a failed read keeps it [on origin/main]",
           "test/speed-centre-2029.test.mjs (freshness attention) [on origin/main]"
         ],
-        "open": "Field impact: needs samples from build 2029-B6373d0f or later on Posts, compared by page kind and device with the window before (Speed Law rule 7); expected reach is small (repeated reads of the same Post within seconds). Remaining windows (README section 12.6): purge failed at most 6.5 s, only for repeated reads of that Post on an edge instance that read its list before the change; writes with triggers off up to 6 min (run admin_post_document_bypass_all and purge post-document). The Home and /community/chat documents (19% of document requests) are not kept: experiment approved 17.11 (isolated branch and protected Preview only).",
+        "open": "Field impact: needs samples from build 2029-B6373d0f or later on Posts, compared by page kind and device with the window before (Speed Law rule 7); expected reach is small (repeated reads of the same Post within seconds). Remaining windows (README section 12.6): purge failed at most 6.5 s, only for repeated reads of that Post on an edge instance that read its list before the change; writes with triggers off up to 6 min (run admin_post_document_bypass_all and purge post-document). The Home and /community/chat documents (19% of document requests) are not kept: experiment approved 17.11 (isolated branch and protected Preview only). | 25.11.2026: the long tail is not covered — field first byte for Posts p75 phones 1,328 ms / desktop 1,470 ms (7 days to 25.11, events web_vital, one row per sample). See S-55.",
         "next_owner": "Traffic Intelligence (field check) · Experience Governance (Home / community documents)",
         "relates_to_groups": [],
         "reach": "Vercel observability 16.11.2026 (29,573 document requests): with this policy about 3.2-4.5% of the requests outside '/' and '/community/chat' (Posts and junk addresses) would be CDN answers per hour, about 70% for the four most-read Posts in fra1; '/' and '/community/chat' (19% of all document requests, ~89% repeat within the hour) are not kept by this change. With the freshness package (17.11): kept copies are used only for repeated reads of the same Post within 5 s on the same edge instance; quiet traffic and crawlers are built fresh with no extra call."
@@ -3827,7 +3827,7 @@
         "deployed_in_created": "2026-11-17T20:59:33Z",
         "in_current_production": true,
         "live_verified": "yes",
-        "live_evidence": "Released 17.11.2026 (ZURIEL \"תעלה את שניהם\"), work_log EDGE_AND_PAGE_CDN_RELEASE_20261117 AFTER: live 21:01-21:03 UTC \"/\" MISS then HIT then HIT with x-sod-document-cache page-cdn-v1 and bootstrap sourceSha cff521e86; \"/community/chat\" MISS then HIT; \"/?fbclid=\" not kept; Googlebot and facebookexternalhit got the kept copy with vb=goodbot set per request; /gematria not kept. Post-Deploy Canary 44175286624 success.",
+        "live_evidence": "Released 17.11.2026 (ZURIEL \"תעלה את שניהם\"), work_log EDGE_AND_PAGE_CDN_RELEASE_20261117 AFTER: live 21:01-21:03 UTC \"/\" MISS then HIT then HIT with x-sod-document-cache page-cdn-v1 and bootstrap sourceSha cff521e86; \"/community/chat\" MISS then HIT; \"/?fbclid=\" not kept; Googlebot and facebookexternalhit got the kept copy with vb=goodbot set per request; /gematria not kept. Post-Deploy Canary 44175286624 success. | Re-checked 2026-11-25: / four reads 0.669, 0.119, 0.167, 0.133 s (x-vercel-cache HIT, age 5); /community/chat 0.110–0.158 s.",
         "measurement": {
           "kind": "lab",
           "before": "first byte from the test machine (edge cle1, next to iad1): \"/\" p50 232 / p75 271 ms, \"/community/chat\" p50 220 / p75 260 ms (built by the function)",
@@ -3942,15 +3942,18 @@
       },
       {
         "id": "S-52",
-        "title_he": "הקוד המשותף שכל עמוד מוריד ירד ב־46.8KB דחוסים (329.5 → 282.6KB): קובץ המסד, חלונית רזיאל, חלקי המסגרת והצעת ההתקנה נטענים לפי צורך (ניסוי, לא מוזג)",
+        "title_he": "הקוד המשותף שכל עמוד מוריד ירד ב־46.8KB דחוסים (329.5 → 282.6KB): קובץ המסד, חלונית רזיאל, חלקי המסגרת והצעת ההתקנה נטענים לפי צורך",
         "problem": "Every page downloaded ~329 KB gzip of shared code (entry 219.8 KB + System Frame 74.5 KB + frame CSS 35.2 KB) before its own code, including ~200 database actions (admin ones included), the Raziel conversation panel, the footer, share, video, account-link and live-feed parts that most pages never use at first paint.",
         "surface": "all",
         "source": {
           "task_keys": [
             "SHELL_WEIGHT_REDUCTION_20261118"
           ],
-          "prs": [],
-          "merged_via_pr": null,
+          "prs": [
+            1383,
+            1385
+          ],
+          "merged_via_pr": 1385,
           "commits": [
             "d8818a136",
             "2d6c326c3",
@@ -3963,19 +3966,19 @@
           "head_branch": "ccr-dcadb071-v1z5ol-shell-weight"
         },
         "code_now": [
-          "src/lib/supabase.js :: shared client + the reads every page needs; src/lib/supabaseApi2029.js :: the other database actions (branch only)",
-          "src/components/experience2029/RazielPanel2029.jsx :: Raziel conversation panel, React.lazy in the panel Suspense (branch only)",
-          "src/components/experience2029/SystemFrame2029.jsx :: footer in its own file requested with the frame, account offer for signed-in, share row with the inspect panel, ribbon on open, orb ELS line when Raziel is open (branch only)",
-          "src/components/experience2029/useSystemFeed2029.js :: feed row helpers and tier readers load with the feed data (branch only)",
-          "src/lib/installMenu2029.js :: install menu (browser family, steps) with the \"עוד\" panel; installOffer2029.js keeps the entry-time capture (branch only)"
+          "src/lib/supabase.js :: shared client + the reads every page needs; src/lib/supabaseApi2029.js :: the other database actions",
+          "src/components/experience2029/RazielPanel2029.jsx :: Raziel conversation panel, React.lazy in the panel Suspense",
+          "src/components/experience2029/SystemFrame2029.jsx :: footer in its own file requested with the frame, account offer for signed-in, share row with the inspect panel, ribbon on open, orb ELS line when Raziel is open",
+          "src/components/experience2029/useSystemFeed2029.js :: feed row helpers and tier readers load with the feed data",
+          "src/lib/installMenu2029.js :: install menu (browser family, steps) with the \"עוד\" panel; installOffer2029.js keeps the entry-time capture"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Local builds only (not deployed): main 736dd285b vs branch d437ea12c served by the same local server; see docs/reviews/shell-weight-reduction-20261118/README.md.",
+        "merged": true,
+        "merge_commit": "3f3355613e43062810815ea2d973187f65ea209a",
+        "deployed": true,
+        "deployed_in": "dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp (current Production; the first deployment that carried it was not re-derived)",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Re-checked 2026-11-25: PR #1383 merged 18.11.2026 inside release package #1385 (3f3355613, ancestor of main 70b3a29 and of Production 3a6cabe). Live entry /assets/2029-tEXUp6Oe.js (369,253 B raw, 116,028 B gzip -9) references supabaseApi2029-*.js and InstallSuggestion2029-*.js as separate on-demand files. Shell budget baseline now eager 176,524 / frame 45,966 / frame CSS 33,850 gzip (lowered again after this entry).",
         "measurement": {
           "kind": "lab",
           "before": "main 736dd285b, shared code 329,473 B gzip (entry 219,766 + frame 74,539 + frame CSS 35,168); light lab p50: phone Post text 6,846 ms, phone Home largest paint 5,496 ms, phone Home card 4,961 ms; desktop largest paint Home 840 / Post 2,492 ms; blocking time desktop Home 188 / Post 1,212 ms",
@@ -3984,16 +3987,17 @@
           "source": "docs/reviews/shell-weight-reduction-20261118/README.md (gate numbers per step from scripts/test-2029-shell-budget.mjs, both builds)"
         },
         "guard": [
-          "scripts/test-2029-shell-budget.mjs (baseline lowered by the ratchet after each step: eager 202,469 / frame 46,345 / CSS 33,850 default; 3 frame files) [branch only]",
-          "test/footer-loading-cls-2029.test.mjs (the one-viewport reservation now in systemFrame2029.css, not tied to the on-demand footer) [branch only]"
+          "scripts/test-2029-shell-budget.mjs (baseline lowered by the ratchet after each step: eager 202,469 / frame 46,345 / CSS 33,850 default; 3 frame files)",
+          "test/footer-loading-cls-2029.test.mjs (the one-viewport reservation now in systemFrame2029.css, not tied to the on-demand footer)"
         ],
         "open": "Not changed: on-demand panel CSS (measured < 1 KB), analytics (11.4 KB, no loss-free split; open gap by ZURIEL rule), research store (~20 KB, synchronous state), Auth (33.8 KB, needs full auth acceptance), Raziel session (~6 KB, may serve members on ELS/Life-Journey). Target ~210 KB not reached.",
         "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
-        "relates_to_groups": []
+        "relates_to_groups": [],
+        "deployed_in_sha": "3a6cabe8b84835e5a6e7482560ee28b820b298ba"
       },
       {
         "id": "S-53",
-        "title_he": "ברשת איטית קובץ ה־worker כבר לא ממתין מאחורי ~70 רמזי טעינה: הרמזים יוצאים מיד בביקור חוזר, ובביקור ראשון רק כשהרישום מחזיק את ה־worker (ניסוי, לא מוזג)",
+        "title_he": "ברשת איטית קובץ ה־worker כבר לא ממתין מאחורי ~70 רמזי טעינה: הרמזים יוצאים מיד בביקור חוזר, ובביקור ראשון רק כשהרישום מחזיק את ה־worker",
         "problem": "On a first visit the document requested up to ~70 hints (17 entry-graph modulepreloads in the markup + 51 Home hints on /) before the bootstrap registered sw.js; on a slow line they shared the bandwidth with sw.js inside the one 10 s public-reading deadline (lab Slow 3G Home: sw.js done at 10.4 s), which is how 'העמוד לא נפתח' appears on slow networks.",
         "surface": "all",
         "source": {
@@ -4001,9 +4005,10 @@
             "SLOW_NET_SW_PRIORITY_20261121"
           ],
           "prs": [
-            1466
+            1466,
+            1467
           ],
-          "merged_via_pr": null,
+          "merged_via_pr": 1467,
           "commits": [
             "7bd18aebb"
           ],
@@ -4011,16 +4016,16 @@
           "head_branch": "ccr-dcadb071-v1z5ol-slow-net-sw-priority"
         },
         "code_now": [
-          "public-reading-deploy/route-preload.js :: sodHintLoader2029 / hintLoaderScript2029 (classic inline loader; controlled page -> hints at once, first visit -> when the registration holds a worker, no SW API -> none); the Home comment carries __sodHints (branch only)",
-          "scripts/build-public-reading-production.mjs :: the markup modulepreloads move into the loader list, entry first and once (branch only)"
+          "public-reading-deploy/route-preload.js :: sodHintLoader2029 / hintLoaderScript2029 (classic inline loader; controlled page -> hints at once, first visit -> when the registration holds a worker, no SW API -> none); the Home comment carries __sodHints",
+          "scripts/build-public-reading-production.mjs :: the markup modulepreloads move into the loader list, entry first and once"
         ],
-        "merged": false,
-        "merge_commit": null,
-        "deployed": false,
-        "deployed_in": null,
-        "in_current_production": false,
-        "live_verified": "no",
-        "live_evidence": "Local lab only (not deployed): main 36c69db02 vs branch 7bd18aebb on the same HTTP/2 lab server; functional check with the real database on the branch merged with claude/sod1820-no-sw-reading-y5ph01 (5f9e1d752); see docs/reviews/slow-net-sw-priority-20261121/README.md.",
+        "merged": true,
+        "merge_commit": "1eaea36eb724c8aaba128525fa8f98f93b101914",
+        "deployed": true,
+        "deployed_in": "dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp (current Production; the first deployment that carried it was not re-derived)",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Re-checked 2026-11-25: PR #1466 merged 21.11.2026 inside release package #1467 (1eaea36eb, ancestor of main and of Production 3a6cabe). Live Home document (phone browser agent): 0 rel=modulepreload in the markup, the hint loader present (sodHintLoader2029/__sodHints, 4 matches). Field effect on slow lines not separated yet (no per-network field split).",
         "measurement": {
           "kind": "lab",
           "before": "main 36c69db02, cold phone, medians: Slow 3G Home first paint 4,746 / sw.js 10,415 / open 11,008 ms; 3G Home 2,718 / 5,710 / 6,290; Slow 4G Home 1,408 / 2,716 / 3,282; Slow 3G CLS up to 0.034",
@@ -4028,12 +4033,309 @@
           "conditions": "one shared emulated line (Slow 4G 1600/150, 3G 750/300, Slow 3G 400/400 kbps/ms), 390 px phone, supabase answered [], 2 runs (3 fast); lab numbers, not field results"
         },
         "guard": [
-          "test/home-route-preload-2029.test.mjs (loader: controlled -> at once, first visit waits for the registration's worker, no SW API -> none) [branch only]",
-          "test/public-reading-production-artifact.test.mjs (entry first hint once, no markup modulepreload, loader before the bootstrap) [branch only]",
-          "test/public-reading-entry-preload.browser.mjs (entry requested once and consumed, cold and controlled) [branch only]"
+          "test/home-route-preload-2029.test.mjs (loader: controlled -> at once, first visit waits for the registration's worker, no SW API -> none)",
+          "test/public-reading-production-artifact.test.mjs (entry first hint once, no markup modulepreload, loader before the bootstrap)",
+          "test/public-reading-entry-preload.browser.mjs (entry requested once and consumed, cold and controlled)"
         ],
         "open": "The price: the full app opens 2-7% later on a first visit on a slow line. Not checked on protected Preview or live. The 10 s deadline is kept (registration ends ~2.3 s on Slow 3G after the change). Integration with the reading-preservation fix (1259417ab) checked locally only.",
-        "next_owner": "ZURIEL decision (merge + deploy are separate approvals; together with the SW session's fix)",
+        "next_owner": "speed session: a field split by connection type before claiming a field effect",
+        "relates_to_groups": [],
+        "deployed_in_sha": "3a6cabe8b84835e5a6e7482560ee28b820b298ba"
+      },
+      {
+        "id": "S-54",
+        "title_he": "תמונות, וידאו ושילובים במרכז הטור בכל הפוסטים (שורת מדיה מסומנת בצינור המאמר האחד; עמוד ומסמך ראשון זהים)",
+        "problem": "WordPress images narrower than the reading column (alignnone/no class) were drawn at the column's start: post 1201 at 1440px had its 387px and 399px images 94px and 88px off the centre; 674 posts carry images.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [
+            1550
+          ],
+          "merged_via_pr": 1550,
+          "commits": [
+            "f6744d061"
+          ],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "src/lib/research/postArticleCore2029.js :: markPostMediaRows2029 (called by postArticleImages2029; branch only)",
+          "src/pages/post2029-reading.css :: [data-post-media-row] centring",
+          "public-reading-deploy/article-first-proven.json + article-first-vocabulary.json :: rebuilt"
+        ],
+        "merged": true,
+        "merge_commit": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+        "deployed": true,
+        "deployed_in": "dpl_GGS7hqRq9fnj9zjxUVnzV6ZHLdCw",
+        "deployed_in_sha": "ae6e52d969fb4f811603c6cebeda4442d35297f0",
+        "deployed_in_created": "2026-11-25T00:29:22Z",
+        "in_current_production": true,
+        "live_verified": "yes",
+        "live_evidence": "Released 25.11.2026 (ZURIEL approval of ae6e52d). Live: the post reading chunk carries data-post-media-row; post 1201 at 1440px — the 387px and 399px images centred (offset 0, before 94 / 88 px), phone 0; scroll CLS post 1201 phone 0.000, desktop 0.007 (Playwright, analytics requests blocked).",
+        "measurement": {
+          "kind": "lab",
+          "before": "live Production 3a6cabe, 1440px: post 1201 image centre offsets 94 / 88 px for the 387 / 399 px images (others 0); phone 0 (images fill the column)",
+          "after": "live Production ae6e52d (dpl_GGS7…): offsets 0 at 1440 and phone; scroll CLS 0.000 / 0.007; local build before release: proofs 1,297/1,297, eagerJsGzip 177,514 = main",
+          "conditions": "Playwright Chromium, Pixel 5 and 1440×1000, live public data, local vite preview of the public build; not field data",
+          "source": "commit f6744d061; test/post-article-images-2029.test.mjs (9/9)"
+        },
+        "guard": [
+          "test/post-article-images-2029.test.mjs (media row, side-by-side row, words keep alignment, nested block, list item, top-level media, image between words)",
+          "test/article-first-proof-fresh.test.mjs"
+        ],
+        "open": "Floated images (alignleft/alignright, 15 posts) intentionally unchanged.",
+        "next_owner": null,
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-55",
+        "title_he": "ממצא פתוח: פוסט שנפתח פעם אחת (וגוגל) עדיין נבנה בשרת בכל בקשה — זמן תגובת שרת ~1–1.5 שניות",
+        "problem": "S-47 keeps a Post only during a burst of the same address; a single open and a crawler never get a kept copy. Field first byte for Posts p75 (7 days to 25.11): phones 1,328 ms, desktop 1,470 ms (good ≤ 800 ms). Other pages: phones 1,167, desktop 885.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "public-reading-deploy/api/public-document.js :: POST_DOCUMENT_CDN_CACHE",
+          "post-document-freshness.js :: burst-only list read",
+          "post-document-freshness.js :: createPostDocumentGate — refresh on any candidate request (S-55 step 2) (branch only)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Finding, read live 2026-11-25: Googlebot-agent single reads 0.88–1.55 s first byte, no x-vercel-cache; a burst of /post/chosen-one 0.42 → 0.11–0.30 s.",
+        "measurement": {
+          "kind": "field",
+          "before": "2–16.11 (map field_snapshot, original-address Posts, all devices): TTFB p75 2,045 ms, LCP p75 5,827 ms",
+          "after": "18–25.11 (7 days): Posts phones TTFB p75 1,328 / LCP p75 2,386 / FCP p75 2,013 ms (n=346); Posts desktop TTFB 1,470 / LCP 3,352 / FCP 2,312 ms (n=163)",
+          "conditions": "events surface=performance web_vital, one row per sample_id (final preferred), is_bot not true; mixed builds; not a controlled before/after",
+          "source": "canonical Supabase read 2026-11-25"
+        },
+        "guard": [],
+        "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy. | 25.11.2026 after release: sitemap catalog part 9.6 s on a cold read (it now also reads the Or HaGeula collection, 14 pages ≈ 4 s), then kept 1 h; content part 4.4 s cold. | 25.11.2026 STEP 2 IMPLEMENTED (option א, ZURIEL; branch claude/work-public-discovery-log-read-ryfcnx, PR #1551): the change list is refreshed on any Post request when missing or older than refreshAfterMs (2 s), not only in a burst; one read in flight per instance, at most one per 2 s, no timer, an instance that serves no Post makes no call; lease 5 s, 20-minute list, fail closed and the copy's life (300 s + 60 s) unchanged (no longer life, as instructed). BEFORE (24 h to 25.11 01:30 UTC, Vercel observability + Supabase logs): /api/public-document 28,476 requests — MISS 86.7% / HIT 9.0% / STALE 4.4%; list reads 44/day; one list read = 1.46 ms DB time (pg_stat_statements, n=412); function 8.21 GB-h/day; middleware CPU 505 s/day; Posts field TTFB p75 phone 1,328 / desktop 1,470 ms. Bound: at most one read per Post request (≈28k/day worst case ≈ 41 s DB time/day, vs ≈300k REST requests/day). Live lab: a single read is always 'stale' (MISS); a burst reaches 'clean' then HIT from the 4th request. AFTER: to be measured with the same queries 24 h after deployment (not deployed).",
+        "next_owner": "ZURIEL decision",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-56",
+        "title_he": "תמונות שבורות: כתובות התמונות הישנות /wp-content/uploads מפנות בקפיצה אחת לעותק השמור (רק תמונות שפוסט ציבורי מציג; ענף, לא מוזג)",
+        "problem": "Old WordPress image URLs (e.g. /wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg and the i0.wp.com copy) answer 404 with no redirect; post images are served from linswmnnkjxvweumprav.supabase.co; many alt texts are file names (fb_img_…). Image-only post 1201 (11 images) fell from ~90 impressions/day to 0 after 5.11.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125",
+            "S56_LEGACY_UPLOADS_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "public-reading-deploy/legacy-upload-redirect.js :: legacyUploadKey / legacyUploadTarget / legacyUploadPublicNow (the migration's own naming rule; lazy allow list as a fast first filter; every redirect confirmed live against the public Posts with publicPostOnlyFilter, fail closed; browser no-store, CDN 5 min, no stale) + the public WordPress archive images that no Post uses, redirected directly; the earlier original-name copy by one HEAD; 'closed' for draft-only images (branch only)",
+          "public-reading-deploy/api/public-document.js :: one branch before any document work: 308 to the stored copy, otherwise unchanged (branch only)",
+          "public-reading-deploy/legacy-upload-public-keys.json :: 3,448 stored image keys that public Posts show (branch only)",
+          "scripts/build-legacy-upload-redirects.mjs :: generator from public Posts (anonymous read) + --check HEAD of every copy without following redirects (branch only)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Not deployed.",
+        "measurement": {
+          "kind": "lab",
+          "before": "live Production ae6e52d: /wp-content/uploads/2016/09/FB_IMG_1461616903968.jpg (post 1201) → 404; every old upload address 404 (no redirect existed)",
+          "after": "branch: the same address → 308 to https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/media/uploads/2016/09/03d475b5ed0008fe.jpg, which answers 200 image/jpeg with no further redirect; size variants (-387x1024) and both percent-encodings of Hebrew names reach the same copy; unknown addresses keep the same 404 document; all 3,448 listed copies HEAD 200 image/* without following redirects; no document, metadata or data work on a redirect; eagerJsGzip 177,514 = main (the list is read only on an old address)",
+          "conditions": "naming rule verified on all 4,357 migrated rows (dest = first 16 hex of sha256(decoded path) + lower-case extension, 4,357/4,357); coverage: every distinct public migrated image key (3,068 in the database) is on the list (per month ≥, June 2015 exact 63/63); unit + handler tests 6/6; public-reading-asset-miss 6/6",
+          "source": "tests test/legacy-upload-redirect-2029.test.mjs, test/public-reading-asset-miss.test.mjs; generator output"
+        },
+        "guard": [
+          "test/legacy-upload-redirect-2029.test.mjs [branch only]",
+          "test/public-reading-asset-miss.test.mjs (unknown old addresses keep the 2029 not-found document)",
+          "test/legacy-upload-redirect-2029.test.mjs: address/encoding tricks (.., %2e, double encoding, case, NFD, %00, size variants) reach only listed hashed keys; a listed image whose Post stops being public is not redirected; a failed check redirects nothing (existing 404). Live 25.11: a hidden-only image (post 103, 2024/08/1946b8e3a370147e.jpg) refused; 41/41 sampled listed keys still public (≈0.45 s each, once per address per CDN hour)."
+        ],
+        "open": "Scope: images only (jpg, jpeg, png, gif, webp), as approved. Not included: old documents/audio/archives (pdf, doc, mp3, rar…) and images that no public Post shows (386 migrated files referenced by no public page stay 404 — no private media exposed). The i0.wp.com copies are WordPress.com's, not ours. Image alt texts that are file names (fb_img_…) are a separate content item. Re-run the generator after posts with old images are published. | 25.11.2026 privacy before cache (ZURIEL): the 308 is never kept by the browser (Cache-Control no-store); the CDN keeps it 300 s (Vercel-CDN-Cache-Control, the Post document's fresh window). Separate finding, not changed here: media/uploads is a public bucket — 15,027 objects: 3,945 shown by a public Post, 1 only in a hidden Post (post 103), 11,081 in no Post (10,145 images, likely WordPress size variants/library); all readable at their direct storage address, names derivable from the original path. Changing it is a storage permission decision. | 25.11.2026 openness (ZURIEL: the whole historical public archive is open, old images included; protected only personal data, drafts, the life journey). The earlier '386 excluded' was a count of name spellings: media_migration_queue has 3,857 migrated image rows = 3,454 distinct files (403 rows are a second percent-encoding of the same name). Of the 3,454: 3,446 shown by public Posts (all redirect); 7 library images no Post uses — looked at, public research images — now redirect directly ('archive' in the list, no database read); 1 only in draft post 103 stays closed. 32 images were never migrated (WordPress 404): 20 of them are referenced by 10 public Posts, and 19 of those were never ours (hotlinked through i0.wp.com from ha-zohar.info, zohar-war.com, jdn.co.il, jewsnews.co.il). Separate content findings (not changed): post 2 has one stored image with '&#038;ssl=1' glued to its address (400; the file exists); about 16 external images in 13 public Posts are dead at their source (zohar-war, jdn, jewsnews, har-habait, bhol, hwcdn, trekearth, sodtorah, some twimg/hidabroot). 0 public Posts link to sod1820.co.il/wp-content/uploads, so the redirect serves outside links and Google, not in-page images. media/uploads also holds an earlier copy of the WordPress library under original (transliterated) names — most of the 11,081 objects no Post references; public archive, left as is. | 25.11.2026 restoration completed in code: the earlier copy of the WordPress library in the same bucket (original ASCII names; 11,066 objects, 10,131 images, 9,018 originals the hashed copy does not cover) is now reached by one HEAD to the public object after the lists miss — no list, no database read; a sample of 48 looked at: news and calculator screenshots, Torah texts, archive graphics. 'closed' holds the one draft-only image under both stored names (post 103: hashed copy and original-name copy). No hidden Post references the earlier copy.",
+        "next_owner": "ZURIEL decision (merge + deploy are separate approvals)",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-57",
+        "title_he": "ממצא פתוח (SEO/הפניות): פוסטים מקוריים של 2029 בכתובת השורש מגישים מעטפת דלה עם canonical ל־/post/… — הכתובת הישנה ירדה וה־/post לא תפסה את מקומה",
+        "problem": "publicPostUrls.js gives native posts (source ai etc., wp_id > 36935) the /post/<slug> address; their root address still answers 200 with ~100 characters of text and rel=canonical to /post. Google dropped the root URLs: 'תפילה וסגולה לזיווג לאישה' 981 impressions (14.10–3.11) → 0, its /post URL ~5/day; yenuka-dodim 80 → 2; harav-yosef-biton 77 → 2.",
+        "surface": "post",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "src/lib/publicPostUrls.js :: publicPostAddress (REVIEWED_MODERN_ROOT_IDS keeps 4 posts at root)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Not deployed.",
+        "measurement": {
+          "kind": "field",
+          "before": "14.10–3.11 root-address impressions (examples above)",
+          "after": "10–21.11 (examples above)",
+          "conditions": "gsc_metrics dimension=page",
+          "source": "canonical Supabase gsc_metrics read 2026-11-25"
+        },
+        "guard": [],
+        "open": "Decision needed: 301 root → /post for these posts, or keep the root address canonical for posts Google already knew (extend REVIEWED_MODERN_ROOT_IDS by evidence). Changes addresses → ZURIEL approval. Not a speed change; listed here at ZURIEL's request (25.11). | STAGED PLAN 25.11 — decision only, no change without a separate ZURIEL decision (canonical): evidence 25.11 — about 90 native posts were known to Google only by their root address (14.10–3.11; e.g. 2603: 981 impressions root / 0 /post; 5006: 149 / 0; 5085: 138 / 0), and since the cutover most lost them while /post gained for a few (2603 /post 44, 5006 /post 100, 5122 /post 43). Option A (preserve what Google knew): extend the existing REVIEWED_MODERN_ROOT_IDS rule in publicPostUrls.js to the native posts with root impressions before 4.11, so the root is canonical again and /post/<slug> points to it — no new mechanism, one list. Option B: permanent redirect root → /post for those posts. Recommendation A. Also /start: since 4.11 a 'closed capability' placeholder (publicReadingRelease2029.js) with noindex, nofollow, noarchive, ~50 characters, not in the sitemap; Google knew it (1.9–5.11: 2,844 impressions, position 3.8, 15 clicks). Not content today, so the Open Index Law §3 allows noindex; but the address had value — options: restore a real 'start here' page (content decision) or a permanent redirect /start → /map (the placeholder's own link). Address change → ZURIEL decision. | 25.11.2026: /start — ZURIEL chose to restore a public 'כאן מתחילים' page; a local preview (flagship video, Beit Midrash, free sign-up, the three latest צפונות בתורה videos, click-to-load players) awaits a separate design approval; +34 B gzip on the entry for the route line (within the budget, S-60). | 25.11.2026 /start 'כאן מתחילים' implemented as its own commit in PR #1551 for ZURIEL's design approval: public, index, server metadata, sitemap, registry/footer link; screenshots in the handoff. Can be dropped before merge if not approved.",
+        "next_owner": "ZURIEL decision",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-58",
+        "title_he": "ממצא פתוח: בטלפון שני הצדדים השלישיים (Facebook Pixel ו־Google Tag) הם רוב זמן החסימה — מעבדה 78–82 במקום 100",
+        "problem": "Lab mobile performance 78–82 on four old Posts is held by Total Blocking Time 710–920 ms; Facebook ~585 ms and Google Tag ~330 ms of blocking, plus the entry bundle ~1.27 s scripting. Desktop 98–100. They already start after the content (S-41).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "src/lib/tracking.js / analytics bootstrap (unchanged)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Not deployed.",
+        "measurement": {
+          "kind": "lab",
+          "before": "Lighthouse 12.2.1 local, mobile preset, 2 runs × 4 Posts (1687, 1201, 1216, 1190), Production 3a6cabe: perf 78–82, LCP 1,538–2,138 ms, CLS 0, TBT 712–922 ms, FCP 973–1,178 ms; desktop perf 98–100, LCP 395–563 ms, CLS 0.006, TBT 33–104 ms",
+          "after": "—",
+          "conditions": "local Lighthouse against the live domain (PageSpeed API quota exhausted, 429); field INP p75 phones 232 ms on Posts, 296 ms elsewhere",
+          "source": "session 25.11.2026 lab files (scratchpad)"
+        },
+        "guard": [],
+        "open": "Analytics are not changed without a ZURIEL decision (Speed Law §8). Reported impact only; options: load the Pixel on interaction/idle-after-interaction, or not on post pages. | STAGED PLAN 25.11 — decision only (Speed Law §8, analytics session): options measured in the lab before any change — Pixel after the first interaction or after idle-after-load, Pixel not on post pages, Google Tag unchanged; each option with its measurement loss stated. Nothing changes without a separate ZURIEL decision.",
+        "next_owner": "ZURIEL decision (analytics)",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-59",
+        "title_he": "ממצא פתוח: יציבות — פוסטים יציבים (CLS p75 0.000 בטלפון), אבל הצ'אט הקהילתי, הבית וחלק מהפוסטים עדיין קופצים",
+        "problem": "Field 7 days to 25.11: Posts CLS p75 phone 0.000 (3% of samples > 0.1), desktop 0.009 (5%); other pages phone 0.041 (16%), desktop 0.022 (10%). Samples above 0.1 in 4 days: /community/chat phone 81 (avg 0.382, community-thread-group/thread), desktop 33; / phone 16 (k29-reveal, footer); Posts phone 14 (footer.f29), desktop 5 (closed-shell.native-frame → app); /gematria and /code a few. Search Console's '75% of pages CLS' is a 28-day field window that includes 16.11 (phone p75 0.138).",
+        "surface": "all",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "src/components/experience2029/systemFrame2029.css :: footer reservation (S-12)",
+          "/community/chat thread list"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Not deployed.",
+        "measurement": {
+          "kind": "field",
+          "before": "16.11 phone CLS p75 0.138 (28% of samples > 0.1)",
+          "after": "17–24.11 phone p75 0.001–0.047; 7 days Posts 0.000 / other 0.041",
+          "conditions": "events web_vital (cls, cls_shift_sources); one row per sample",
+          "source": "canonical Supabase read 2026-11-25"
+        },
+        "guard": [],
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package.",
+        "next_owner": "speed session",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-60",
+        "title_he": "ממצא פתוח: שולי תקציב המעטפת כמעט נגמרו — 25 בתים",
+        "problem": "eagerJsGzip measures 177,523 B against a baseline of 176,524 and a tolerance of 1,024 (limit 177,548): any new eager byte above 25 fails the build gate. The baseline was lowered after S-52 while later merges added ~1 KB.",
+        "surface": "build",
+        "source": {
+          "task_keys": [
+            "SEO_IMPRESSIONS_AUDIT_20261125"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "scripts/test-2029-shell-budget.mjs",
+          "scripts/2029-shell-budget-baseline.json"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Not deployed.",
+        "measurement": {
+          "kind": "budget",
+          "before": "baseline 176,524 B (after S-52)",
+          "after": "main 70b3a29 build 177,526; branch f6744d061 177,523",
+          "conditions": "npm run build, gate output",
+          "source": "build logs 25.11.2026"
+        },
+        "guard": [
+          "scripts/test-2029-shell-budget.mjs"
+        ],
+        "open": "Find what grew ~1 KB in the entry since the baseline and move it behind a lazy load; never raise the baseline without ZURIEL. | STAGED PLAN 25.11 — step 3: find the ~1 KB the entry gained since the S-52 baseline (manifest diff of the entry graph main 70b3a29 vs the baseline build) and move it behind an on-demand load; target ≥ 2 KB headroom without raising the baseline. Approval: merge + deploy. | 25.11.2026 ANALYSIS (no change made): eager JS 177,501–177,507 / limit 177,548 (41–47 B); frame CSS 34,355 / 34,362 (7 B). Source-map attribution of the entry: the only movable non-first-paint code outside Raziel, research engines and measurement is FeatureClosedNotice2029 (0.7 KB), but SystemFrame2029 imports it statically, so moving it saves nothing per page. Real headroom needs a ZURIEL decision on one of: (a) split razielNavigationButton out of razielSessionSeam2029.js so supabase/functions/_shared/siteLinkRegistry.js (2.6 KB gzip) leaves the entry — a pure import move in Raziel code (excluded from this package); (b) move the workspace-panel rules of myWorkspace2029.css (2.6 KB gzip, shared with 7 frame classes) into the lazy WorkspaceProjection2029 after a rule-by-rule visual check. The baseline was not raised.",
+        "next_owner": "speed session",
         "relates_to_groups": []
       }
     ],
@@ -4397,29 +4699,30 @@
     ],
     "summary": {
       "counts": {
-        "total": 53,
-        "merged": 51,
-        "deployed_true": 51,
+        "total": 60,
+        "merged": 54,
+        "deployed_true": 54,
         "live_unknown": 25,
-        "live_no": 4,
-        "live_yes": 24,
-        "branch_only": 2
+        "live_no": 8,
+        "live_yes": 27,
+        "branch_only": 1,
+        "open_findings": 5
       },
       "by_author": {
         "gpt": 10,
-        "claude": 39,
+        "claude": 46,
         "codex": 4
       },
       "by_surface": {
         "world": 1,
         "home": 6,
-        "post": 12,
-        "all": 21,
+        "post": 16,
+        "all": 23,
         "number": 2,
         "server": 4,
         "measurement": 2,
         "community": 3,
-        "build": 2
+        "build": 3
       }
     },
     "field_snapshot": {
@@ -4518,6 +4821,92 @@
         "what": "S-53 added as branch-only (draft PR #1466, 7bd18aebb); lab before/after on Slow 4G / 3G / Slow 3G; counts recomputed from the entries.",
         "previous": {
           "counts_total": 52
+        }
+      },
+      {
+        "at": "2026-11-25T01:30:00Z",
+        "task": "SPEED_MAP_RECONCILE_20261125",
+        "by": "CLAUDE (ZURIEL 25.11: \"מעתה כל עבודת המהירות תתנהל לפי מפת המהירות הקיימת ... עדכן את 53 הסעיפים ... בפרט S-47, S-52 ו־S-53 ... שלב באותה מפה גם את ממצאי הביקורת האחרונה\")",
+        "what": "All 53 entries re-checked against GitHub and Production: every merge commit is an ancestor of main 70b3a29 and of Production 3a6cabe (dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp), and every file named in code_now/guard exists on main. S-52 and S-53 were stale (marked not merged): both merged (#1385 / #1467) and are live — re-verified on the live site. S-47 and S-49 re-measured live (burst works; single reads of a Post are not kept). Notes added to S-12, S-40, S-41. New: S-54 (media centring, branch only f6744d061) and open findings S-55…S-60 from the 25.11 audit (single-read TTFB, old image addresses, native-post root addresses, third-party blocking time, field stability, shell headroom). Entries marked live 'unknown' stay unknown: their code is in Production, their behaviour was not re-tested one by one.",
+        "previous": {
+          "checked_at": "2026-11-17T23:45:00Z",
+          "main": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+          "production": {
+            "deployment": "dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5",
+            "sha": "736dd285b8cf0473601aaf3c429a61f1a5deb99e",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "assign_alias of the three domains to dpl_6BM8mXr7yNnJu6yX69dZQHZDVUR5 (old: dpl_7HPjAYYNurcuiUtSN84m9HeA9aF2) at 2026-11-17T23:23:42Z (get_alias updatedAt); the live document names entry /assets/2029-DqC-bFSR.js and source 736dd285b8cf0473601aaf3c429a61f1a5deb99e (read 2026-11-17T23:25Z)"
+          },
+          "counts_total": 53,
+          "summary_counts": {
+            "total": 53,
+            "merged": 51,
+            "deployed_true": 51,
+            "live_unknown": 25,
+            "live_no": 4,
+            "live_yes": 24,
+            "branch_only": 2
+          },
+          "S-52": {
+            "merged": false,
+            "merge_commit": null,
+            "deployed": false,
+            "deployed_in": null,
+            "in_current_production": false,
+            "live_verified": "no",
+            "live_evidence": "Local builds only (not deployed): main 736dd285b vs branch d437ea12c served by the same local server; see docs/reviews/shell-weight-reduction-20261118/README.md."
+          },
+          "S-53": {
+            "merged": false,
+            "merge_commit": null,
+            "deployed": false,
+            "deployed_in": null,
+            "in_current_production": false,
+            "live_verified": "no",
+            "live_evidence": "Local lab only (not deployed): main 36c69db02 vs branch 7bd18aebb on the same HTTP/2 lab server; functional check with the real database on the branch merged with claude/sod1820-no-sw-reading-y5ph01 (5f9e1d752); see docs/reviews/slow-net-sw-priority-20261121/README.md."
+          },
+          "S-47_live_evidence_len": 1037
+        }
+      },
+      {
+        "at": "2026-11-25T00:20:00Z",
+        "task": "SEO_STAGED_PLAN_20261125",
+        "by": "CLAUDE (ZURIEL 25.11: \"הכן תוכנית תיקון מדורגת ... כל שלב יובא לאישור\" + \"סדר העדיפויות הוא תיקון התמונות השבורות, שיפור מטמון הפוסטים ויצירת מרווח בתקציב המהירות\")",
+        "what": "Staged plan written into S-56 (step 1), S-55 (step 2), S-60 (step 3), S-57 (decision: native-post root addresses and /start) and S-58 (decision: pixels). No code change in this revision.",
+        "previous": {
+          "counts_total": 60
+        }
+      },
+      {
+        "at": "2026-11-25T01:05:00Z",
+        "task": "S56_LEGACY_UPLOADS_20261125",
+        "by": "CLAUDE (ZURIEL 25.11: \"אני מאשר להכין את S-56 ... עדכן את מפת המהירות, כולל השלמת S-54 והממצאים שנותרו\")",
+        "what": "Production and main → ae6e52d (dpl_GGS7…). S-54 released and verified live. S-56 implemented on the branch with before/after. Notes added to S-55 (sitemap cold read), S-57 (/start preview), S-59 (Home phone scroll CLS 0.118 after release).",
+        "previous": {
+          "checked_at": "2026-11-25T01:30:00Z",
+          "main": "70b3a29fbd50c0b0a42e1f7a02f8316444d0f660",
+          "production": {
+            "deployment": "dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp",
+            "sha": "3a6cabe8b84835e5a6e7482560ee28b820b298ba",
+            "aliases": [
+              "sod1820.co.il",
+              "www.sod1820.co.il",
+              "sod1820.vercel.app"
+            ],
+            "evidence": "get_alias sod1820.co.il -> dpl_Fwn8LBAMLA9dzYnQHGpxDeVYz6wp (READY, target production, githubCommitSha 3a6cabe8b, Merge PR #1543), read 2026-11-25; the live document names entry /assets/2029-tEXUp6Oe.js"
+          },
+          "S-54": {
+            "merged": false,
+            "merge_commit": null,
+            "deployed": false,
+            "deployed_in": null,
+            "live_verified": "no"
+          },
+          "S-56_open_len": 938
         }
       }
     ]

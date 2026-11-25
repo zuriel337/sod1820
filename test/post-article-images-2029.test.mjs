@@ -71,3 +71,31 @@ test("the originals copies apply to (cover and reserved-size Storage images), an
   } finally { delete globalThis.document; }
   assert.deepEqual(postImageFactsFor2029([STORE, "https://x"], { [STORE]: [1024, 683, 151000], "https://y": [10, 10, 1] }), { [STORE]: 1024 });
 });
+
+// Centred media (ZURIEL 25.11.2026): a block that holds only media is marked, so post2029-reading.css centres it; words, lists and floats are not.
+test("a block of media alone is a centred media row; a paragraph with words, a list and a nested block are not", () => {
+  const root = run(`<p id="one"><img src="${STORE}" width="387" height="1024"></p>`
+    + `<p id="pair"><a href="#"><img src="${STORE}" width="105" height="187"></a>&nbsp; <img src="${STORE}" width="387" height="187"></p>`
+    + `<p id="video"><iframe src="https://www.youtube.com/embed/x"></iframe></p>`
+    + `<p id="words">שמע ישראל <img src="${STORE}" width="10" height="10"></p>`
+    + `<div id="outer"><p>טקסט</p><img src="${STORE}" width="10" height="10"></div>`
+    + `<ul><li id="item"><img src="${STORE}" width="10" height="10"></li></ul>`, { cover: "c" });
+  const marked = id => root.querySelector("#" + id).getAttribute("data-post-media-row");
+  assert.equal(marked("one"), "true"); assert.equal(marked("pair"), "true", "side-by-side images stay one row"); assert.equal(marked("video"), "true");
+  assert.equal(marked("words"), null, "a paragraph with words keeps its alignment");
+  assert.equal(marked("outer"), null, "a block that holds other blocks is not a media row");
+  assert.equal(marked("item"), "true");
+  assert.equal(root.querySelectorAll("[data-post-media-row]").length, 4);
+});
+
+test("media at the top of the article, with no block around it, is its own centred row", () => {
+  const root = run(`<img id="bare" src="${STORE}" width="387" height="1024"><a id="linked" href="#"><img src="${STORE}" width="10" height="10"></a><p>מילים</p>`, { cover: "c" });
+  assert.equal(root.querySelector("#bare").getAttribute("data-post-media-row"), "true");
+  assert.equal(root.querySelector("#linked").getAttribute("data-post-media-row"), "true");
+  assert.equal(root.querySelector("p").hasAttribute("data-post-media-row"), false);
+});
+
+test("an image between words with no block around it stays in their line", () => {
+  const root = run(`שמע <img id="inline" src="${STORE}" width="10" height="10"> ישראל`, {});
+  assert.equal(root.querySelector("#inline").hasAttribute("data-post-media-row"), false);
+});

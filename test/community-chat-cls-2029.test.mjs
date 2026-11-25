@@ -19,10 +19,14 @@ test("the two-reply preview is asked far enough ahead to land below the screen",
   assert.doesNotMatch(live, /if \(previewInRange\.current\) show\(\);\s*\}, \{ rootMargin: "200px" \}\);/);
 });
 
-test("the pinned strip keeps its place while it loads and disappears only when there is nothing to pin", () => {
-  assert.match(live, /const \[treeHints, setTreeHints\] = useState\(null\);/);
-  assert.match(live, /setTreeHints\(items \|\| \[\]\)/);
-  assert.match(live, /\.catch\(\(\) => \{ if \(live\) setTreeHints\(\[\]\);/);
+// S-59 (ZURIEL 25.11.2026): the table of pinned hints is empty, so a strip reserved on every visit collapsed on every visit (lab, live
+// /community/chat on a phone: the composer, the tools and the feed moved up 58 px at about 3 s). The place is now kept only when this
+// browser saw pins last time; whatever the answer, it is remembered for the next visit.
+test("the pinned strip keeps its place only when this browser last saw pins, and remembers each answer", () => {
+  assert.match(live, /const \[treeHints, setTreeHints\] = useState\(\(\) => treePinsLastSeen\(\) \? null : \[\]\);/);
+  assert.match(live, /const settle = items => \{ if \(!live\) return; rememberTreePins\(items\.length > 0\); setTreeHints\(items\); \};/);
+  assert.match(live, /\.then\(items => settle\(items \|\| \[\]\)\)\.catch\(\(\) => settle\(\[\]\)/);
+  assert.match(live, /function treePinsLastSeen\(\) \{ try \{ return globalThis\.localStorage\?\.getItem\(TREE_PINS_SEEN_KEY\) === "1"; \} catch \{ return false; \} \}/);
   assert.match(live, /new Set\(\(treeHints \|\| \[\]\)\.map\(item => item\.id\)\)/);
   assert.match(pins, /if \(hints === null\) return <section className="sod29-tree-pins is-pending" aria-hidden="true" data-tree-pins="pending" \/>;/);
   assert.match(css, /\.sod29-tree-pins\.is-pending\{min-height:46px;box-sizing:border-box;border-color:transparent;background:transparent\}/);

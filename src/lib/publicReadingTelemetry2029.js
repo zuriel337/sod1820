@@ -17,7 +17,8 @@ export function readingTelemetryPath(value) {
   if (/^\/old-wordpress-post(?:-[a-z0-9-]+)?$/i.test(path)) return "/post/:item";
   const number = /^\/(?:2029\/)?number(?:\/([^/]+))?$/.exec(path);
   if (number) return number[1] ? "/number/:value" : "/number";
-  if (["/", "/world", "/gallery", "/map", "/privacy", "/books", "/community", "/community/chat", "/community/calculator", "/or-geula", "/contact"].includes(path)) return path;
+  // Single-segment public routes ("/world", "/or-geula", ...) and "/" take the generic projection below, which returns them unchanged.
+  if (path === "/community/chat" || path === "/community/calculator") return path;
   for (const family of ["post", "tag", "category", "topic", "book", "video", "researcher", "number"])
     if (path.startsWith("/" + family + "/") && path.split("/").length === 3) return "/" + family + (family === "number" ? "/:value" : "/:item");
   // Broad site coverage: retain safe static route names; collapse dynamic
@@ -112,7 +113,9 @@ export function readingWebVitalBody(body) {
 // the validator. Self-contained (serialized into the public request worker together with readingTelemetryPath).
 export function readingActionSpec() {
   const T = "token", B = "bool", I = "int";
-  return {
+  // Families loaded on demand join this one list (measurementFamilies2029.js): added, never replacing one another, and written
+  // before the built-in families below so they can never replace one of those either.
+  return { ...globalThis.sodSpecs,
     activity_2029: { events: ["typing", "search", "compute", "select", "save", "share", "view"],
       fields: { operation_id: T, method: T, number: I, word_id: T, section: T } },
     calculator_2029: { events: ["calculator_view", "result_selected", "first_compute", "new_compute_from_share", "raziel_opened", "method_opened",
