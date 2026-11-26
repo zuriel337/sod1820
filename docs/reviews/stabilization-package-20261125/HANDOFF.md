@@ -107,3 +107,24 @@
 
 ### סגירת פערים אחרונים בפוסט (26.11.2026, החלטת ZURIEL)
 הפעמון העליון והזמנה לפני התגובות פותחים אותה חלונית (`RoyalSheet2029` דרך `PostFollowDialog2029`); שורת "המשך קריאה" אחת (סדרה, ובהעדרה קטגוריה); תגובה מהפוסט מופיעה בקהילה עם קישור מדויק חזרה (`attachCommunityPostLinks`); חבילת הפעלה נפרדת למעקבים ציבוריים (`docs/reviews/follow-public-activation-20261126/`, מתג רדום). v14 אושר עקרונית ולא הוחל (`docs/reviews/design-language-gap-map-20261125/law-v14-exact.sql`). הפוסט הקודם בסעיף "מעקבים בפוסט" שאמר שהפעמון העליון לא משתנה **הוחלף** בהחלטה זו.
+
+## מפת יכולות המחקר שהוסתרו או נותקו מחזית הפוסט — מצב, מיקום ושחזור (26.11.2026, ZURIEL)
+**עיקרון:** שום קוד, נתון או נכס לא נמחק (`git diff --diff-filter=D` על #1561: אפס קבצים). אין מערכת דגלים חדשה ואין הפעלה עכשיו. כל משפחה חוזרת בנפרד, בתשתית הקיימת (`toolOnOpen2029` / `toolOnApproach2029` / `React.lazy` ב־`Post2029Page.jsx`, הרשאת `isAdmin`, משתנה הבנייה הקיים `VITE_MAP_READING_RELEASE`), ובטעינה לפי דרישה. "בסיס" = `ce408e5a3` (לפני #1561); מספרי שורה הם בקובץ `src/pages/Post2029Page.jsx` שם (`git show ce408e5a3:src/pages/Post2029Page.jsx`). מיזוג #1561: `f6f1051d3`.
+
+| משפחה | מצב עכשיו | איפה הקוד | שחזור (בלי דגל חדש) |
+|---|---|---|---|
+| **עץ ניווט** (מפת התוכן, אזורי המקור, `postOutline`) | מחושב ונדחף למעטפת; לא מוצג (הסרגל מוסתר ב־CSS) | `postOutline`/`useOutline` נשארו בדף; עץ ההקשר ב־`SystemFrame2029.jsx` (`sod29-surface-context-rail`) | להסיר את שלושת כללי `.sod29-main-stage.has-context-rail:has(.sod29-reading-post)` בסוף `post2029-reading.css` |
+| **סרגל ההקשרים** (rail, companion, הקשר בטלפון) | מוסתר (`display:none`), נשאר ב־DOM; כפתור ההקשר בטלפון הוסר מה־JSX | CSS: `systemFrame2029.css`; הכפתור והגיליון (`map29-mobile-post-context`, בסיס 1608–1615) ב־`MapUnitContext2029.jsx`, ייבוא עצל נשאר בשורה 111 (מאחורי `VITE_MAP_READING_RELEASE`) | להחזיר את בלוק ה־JSX מהבסיס; הטעינה כבר עצלה |
+| **מקורות** (שורת מקור, מדיה, "מקורות וקשרים") | גוש "מקורות וקשרים" (`details#post-research`) למנהל בלבד; שורת המקור הציבורית נשארה ב"פרטי הפוסט" | `researchDisclosure` (שורה ~1393), מוצג ב־`isAdmin === true` (שורות ~1575 ו־1589) | להחליף את התנאי `isAdmin === true` בתנאי הרצוי (גם `researchRef`, `researchOpen`, `researchStarted` נשארו) |
+| **קשרים** ("הסיפור ממשיך מכאן", `contextualConnections`, `#source-region-post-connections`) | בתוך גוש המחקר, כלומר מנהל בלבד; החישוב נשאר | שורות ~1415–1440 | כנ"ל; עוגן החזרה המדויק (`#source-region-post-connections`) חוזר לעבוד מעצמו |
+| **ציר זמן** (`visibleTimeline`, ציר הפוסט, ציר בנט) | בתוך גוש המחקר (מנהל בלבד); ציר בנט למנהל בלבד | `visibleTimeline`, `bennettTimeline`, `PostTimeline*` | כנ"ל |
+| **מדדי המחקר** (`PostConvergenceMeasures2029`, `#post-measures`) | בתוך גוש המחקר; נטען רק כשהגוש נפתח (`researchStarted`) | שורה ~1403 | כנ"ל; הטעינה לפי דרישה נשמרת |
+| **פס העדכונים** (`sod29-update-strip`, "עדכון במקור") | ה־JSX הוסר מהדף; החישוב (`sourceUpdates`) נשאר; תאריך "עודכן" בשורת הכותרת בא במקומו | בסיס 1625 (`aside.sod29-update-strip`); CSS נשאר ב־`post2029-reading.css` ו־`post2029-reality-map-royal.css` | להחזיר את בלוק ה־`aside` מהבסיס (פוסט מקור בלבד) |
+| **פעולות מחקר ברמת היחידה** (`PostReadingActions2029`, `postActionUnits2029`, `readingUnits`, `?unit=`) | נותקו מה־JSX; הרכיב והחישוב נשארו; הקישורים `?unit=…` נפתחים לפוסט (ראו בדיקה) | `PostReadingActions2029.jsx` (בסיס 1607); `readingUnits` שורה ~334; טיפול ב־`?unit` שורה ~944 | להחזיר שורה אחת מהבסיס; פעולת "הוסף למחקר" ברמת הפוסט נשארת בשורת הפעולות |
+| **שאר מה שהוסר** (מקרא, לשוניות, "קופסת המספרים", תיבת מעקב, שיתוף סיום, "להמשיך לגלות") | הוסרו מה־JSX; הרכיבים והסגנונות נשארו | `PostSemanticLegend2029`, `SurfaceSectionNav2029`, `PostFollowBox`, `PostEndShare2029` (קבצים קיימים); בסיס 1589, 1642, 1644, 1707, 1708, 1711 | לפי הצורך, כל אחד בנפרד |
+
+**שמור במכוון:** שורת הפעולות (שמירה · שיתוף · מעקב · הוסף למחקר), הפעולה "הוסף למחקר" נפתחת רק כשמרחב המחקר פתוח; מספרים בטקסט (`data-contextual-number-focus`) ממשיכים לפתוח את אותה בדיקה, והזרימה (מיקוד, trace עצל, חזרה מדויקת) נבדקת ב־Release Visual Gate.
+
+**בדיקת קישורים (26.11.2026, בנייה מקומית של #1561, פוסט ציבורי אמיתי, אורח, 390px):** כל 12 הצורות נפתחות עם סטטוס 200, הפוסט מוצג, ללא שגיאות דף: ללא עוגן, `#post-research`, `#post-connections`, `#source-region-post-connections`, `#post-measures`, `#post-classification`, `#post-sources`, `#timeline`, `?unit=u1`, `?unit=u1#post-research`, `?part=7#post-story`, וקישור חזרה מהעולם עם `from`/`selection`. לאורח, עוגני המחקר נוחתים בראש הפוסט (אין יעד לגלול אליו); למנהל הם מגיעים ליעד. **לא נבדק:** כניסת מנהל (אי אפשר להתחבר בסביבה זו) וסקריפטי ה־preview הידניים `test-posts-continuation-preview.mjs` / `test-home-world-flight-preview.mjs` (דורשים דגל מפה ופיקסטורות).
+
+**החלטה פתוחה:** חזרה מדויקת מהעולם או מההיכל אל `#source-region-post-connections` לאורח נוחתת בראש הפוסט, כל עוד גוש המחקר מוסתר. זו התנהגות מוצהרת של "פוסט נקי"; אם תרצה עוגן שמור לאורח, הוא יחזור עם משפחת "קשרים" בלבד.
