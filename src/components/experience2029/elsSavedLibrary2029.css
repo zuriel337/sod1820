@@ -74,3 +74,5 @@
 .els29-native-save form>button[type=submit]{width:100%}
 .els29-native-save .els29-native-hit-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
 .els29-native-save .els29-native-save-result a{justify-self:start}
+.els29-native-save label.els29-native-save-private{min-height:44px}
+@media (max-width:640px){.els29-native-save{gap:8px}.els29-native-save form{flex:0 0 auto;gap:6px}.els29-native-save form>label:has(textarea){flex:0 0 auto}.els29-native-save textarea{min-height:64px;height:64px}.els29-native-save input:not([type=checkbox]),.els29-native-save textarea{padding:9px 12px}.els29-native-save label{gap:4px}}

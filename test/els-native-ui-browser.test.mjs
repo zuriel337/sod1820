@@ -2388,7 +2388,7 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('לא הושלמה'));
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note);
     await page.evaluate(()=>window.__saveFails=false);await activate(page,'שמירת צופן');
-    await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר בענן'));
+    await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('הצופן נשמר'));
     if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'save-mobile.png')});
     const saved=await page.evaluate(()=>window.__savedRows[0]);
     const state=await page.evaluate(()=>window.__state);

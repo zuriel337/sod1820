@@ -67,7 +67,7 @@ test('foreign and published records create a copy with a fresh explanation and p
   }
 });
 
-test('guest cannot submit; unverified, busy, pending and short-description states reject even direct submit', async t => {
+test('guest cannot submit; unverified, busy, pending and empty-description states reject even direct submit', async t => {
   const f = await mount(t);
   for (const props of [{ state: { ...state, verification: { state: 'MISMATCH' } } }, { busy: true }, { pending: true }]) {
     await f.update({ state, busy: false, pending: false, ...props });
@@ -75,7 +75,7 @@ test('guest cannot submit; unverified, busy, pending and short-description state
     await f.submit();
   }
   await f.update({ state, busy: false, pending: false });
-  await act(async () => f.root.root.findByType('textarea').props.onChange({ target: { value: ' קצר ' } }));
+  await act(async () => f.root.root.findByType('textarea').props.onChange({ target: { value: '   ' } }));
   await f.submit(); assert.equal(f.saves.length, 0);
   await f.update({ user: null });
   assert.equal(f.root.root.findAllByType('form').length, 0);

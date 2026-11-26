@@ -12,7 +12,7 @@ test("save panel: a guest sees a sign-in link, only a member gets the form and t
   // ZURIEL 19.11.2026: new saves request publication, private is an explicit choice;
   // updates of an existing private record stay private. Mounted coverage lives in els-save-panel-lifecycle.
   assert.match(panel, /isPublic: !updating && !keepPrivate/);
-  assert.match(panel, /descriptionLength >= 12 && descriptionLength <= maxDescriptionLength/);
+  assert.match(panel, /descriptionLength >= 1 && descriptionLength <= maxDescriptionLength/);
 });
 
 test("library: owner actions exist only on the personal, non-compact view", async () => {
