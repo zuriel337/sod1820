@@ -23,5 +23,6 @@ q -f "$D/els-publication-tiers-pre.sql" >/dev/null
 q -f "$D/apply.sql"
 q -f "$D/els-publication-tiers-post.sql" >/dev/null
 q -f "$D/rollback.sql"
-q -c "begin; set local role anon; select test_expect((select count(*)=1 from els_records where id='a0000000-0000-0000-0000-000000000001'),'ROLLBACK restores the previous policy'); commit;" >/dev/null
+q -c "begin; set local role anon; select test_expect((select count(*)=0 from els_records where id='a0000000-0000-0000-0000-000000000001'),'ROLLBACK keeps the leak closed: the private row stays unreadable'); commit;" >/dev/null
+q -c "reset role; insert into els_records(search_term,visibility,self_published,status,owner_user_id) values ('rb-private','private',true,'draft','00000000-0000-0000-0000-000000000001'); begin; set local role anon; select test_expect((select count(*)=0 from els_records where search_term='rb-private'),'ROLLBACK: the old flag on a private row never exposes it'); commit;" >/dev/null
 echo 'els-publication-tiers SQL: ok'

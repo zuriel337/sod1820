@@ -1,4 +1,7 @@
--- Reverts apply.sql exactly. Rows created meanwhile keep their values (no data rewrite).
+-- Reverts the functions and drops the CHECK, but deliberately KEEPS the hardened read policy
+-- (self_published = true AND visibility = 'public'): rolling back must never reopen the privacy leak
+-- (ZURIEL 26.11.2026). Rows created meanwhile keep their values (no data rewrite). The old functions keep working
+-- because the CHECK is dropped; a private row they flag stays unreadable through the policy.
 begin;
 do $guard$ begin
   if (select pg_get_expr(polqual, polrelid) from pg_policy where polrelid='public.els_records'::regclass and polname='public_read_self_published_els') is distinct from '((self_published = true) AND (visibility = ''public''::text))' then raise exception 'apply.sql not in place'; end if;
@@ -9,9 +12,9 @@ drop function if exists public.detect_els_strong_ciphers();
 drop function if exists public.els_my_strong_ciphers();
 drop function if exists public.els_strong_cipher_assessment(public.els_records);
 drop function if exists public.els_text_looks_sensitive(text);
+drop function if exists public.els_resolve_suggestions(uuid, text);
 alter table public.els_records drop constraint if exists els_records_private_not_self_published_chk;
-drop policy public_read_self_published_els on public.els_records;
-create policy public_read_self_published_els on public.els_records for select using (self_published = true);
+-- policy public_read_self_published_els is intentionally left as applied (hardened).
 CREATE OR REPLACE FUNCTION public.save_els_matrix(p_term text, p_scope text DEFAULT 'torah'::text, p_skip integer DEFAULT NULL::integer, p_direction text DEFAULT NULL::text, p_positions jsonb DEFAULT NULL::jsonb, p_image_url text DEFAULT NULL::text, p_title text DEFAULT NULL::text, p_note text DEFAULT NULL::text, p_public boolean DEFAULT true, p_from_topic text DEFAULT NULL::text, p_corpus_id text DEFAULT NULL::text, p_term_norm text DEFAULT NULL::text, p_start_index integer DEFAULT NULL::integer, p_engine_detail jsonb DEFAULT NULL::jsonb)
  RETURNS uuid
  LANGUAGE plpgsql

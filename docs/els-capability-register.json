@@ -2840,7 +2840,8 @@
    ],
    "tests": [
     "test/els-saved-cipher-owner-actions.test.mjs",
-    "test/els-publication-tiers.test.mjs"
+    "test/els-publication-tiers.test.mjs",
+    "test/els-cipher-tier.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2852,7 +2853,7 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "Three publication tiers decided 26.11.2026 (fix prepared, not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row); target: private / my page (no approval) / central library (admin approval), plus an owner-only strong-cipher recommendation."
+   "note": "Three publication tiers decided 26.11.2026 (fix prepared, not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row); target: private / my page (no approval) / central library (admin approval), plus an owner-only strong-cipher recommendation (preliminary metric only). Rollback keeps the leak closed; every public cipher has a permanent address with the existing ShareActions; library requests use the existing pending queue and system_suggestions."
   },
   {
    "id": "G07",

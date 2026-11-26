@@ -137,6 +137,15 @@ begin
 end;
 $function$;
 
+-- Keeps the EXISTING suggestions queue consistent with the record: when a cipher is approved, declined, withdrawn or stops being a page cipher,
+-- its open library-request / strong-cipher suggestion is closed (never deleted; history stays). Internal only.
+create or replace function public.els_resolve_suggestions(p_id uuid, p_status text) returns void language sql security definer set search_path to 'public' as $f$
+  update public.system_suggestions
+     set status = p_status, decided_at = now()
+   where detector in ('els_library_request','els_strong_cipher') and observed->>'els_record_id' = p_id::text and status in ('pending','later');
+$f$;
+revoke all on function public.els_resolve_suggestions(uuid, text) from public, anon, authenticated;
+
 create or replace function public.self_publish_matrix(p_id uuid, p_on boolean default true)
  returns jsonb
  language plpgsql
@@ -160,6 +169,7 @@ begin
     return jsonb_build_object('ok', true, 'id', p_id, 'self_published', true, 'visibility', 'public', 'status', r.status);
   end if;
   -- Withdrawal returns an owner-published record to private (a pending library request is withdrawn too). An approved cipher keeps its library access.
+  perform public.els_resolve_suggestions(p_id, 'rejected');
   update public.els_records
      set self_published = false,
          visibility = case when r.status = 'published' then r.visibility else 'private' end,
@@ -198,6 +208,9 @@ begin
     set status = p_status,
         visibility = case when p_status='published' then 'public' else visibility end
     where id = p_id returning * into r;
+  if p_status in ('published','draft','hidden') then
+    perform public.els_resolve_suggestions(p_id, case when p_status = 'published' then 'accepted' else 'rejected' end);
+  end if;
   if p_status='published' and r.owner_user_id is not null then
     insert into public.user_notifications (user_id, email, kind, title, body, link)
     select r.owner_user_id, lower(u.email), 'matrix_approved', 'הצופן שלך אושר! 🔠',
@@ -231,7 +244,8 @@ begin
   if v_find >= 2 then v_reasons := v_reasons || to_jsonb(format('הצטלבות של %s מילים בממצא', v_find)); end if;
   return jsonb_build_object('strong', v_strong, 'verified', v_gate = 'MATCH', 'sensitive', v_sens, 'stars', v_stars, 'score', v_score,
     'findings', v_find, 'certainty', 'indicative', 'calibrated', false, 'reasons', v_reasons,
-    'note', 'היוריסטיקה מבוססת דירוג המנוע; אין עדיין מדיניות דירוג מכוילת. זו המלצה ולא קביעה מחקרית.');
+    'metric', 'preliminary',
+    'note', 'מדד ראשוני בלבד: היוריסטיקה מבוססת דירוג המנוע, ללא מדיניות דירוג מכוילת. זו המלצה ולא קביעה מחקרית, ולא תחליף לבדיקה של אדם.');
 end $f$;
 revoke all on function public.els_strong_cipher_assessment(public.els_records) from public, anon, authenticated;
 
@@ -252,10 +266,16 @@ grant execute on function public.els_my_strong_ciphers() to authenticated;
 
 -- Administrator-facing candidates through the EXISTING system_suggestions engine (suggest_add: dedupe, 30-day rejection memory, no notification
 -- because no severity is set). Only PUBLIC page-level ciphers that are strong, verified and not sensitive; private rows are never candidates.
+-- Consent, not text screening, is the gate: the owner's own publication on their page is the consent. The sensitive-text screen is only an extra exclusion and is never relied on alone.
 -- Attribution stays with the original researcher (observed carries owner and author; nothing is rewritten). Bounded to 5 per run.
 create or replace function public.detect_els_strong_ciphers() returns jsonb language plpgsql security definer set search_path to 'public' as $f$
 declare r public.els_records; a jsonb; n int := 0; v_id bigint;
 begin
+  -- Close open suggestions whose cipher was deleted or stopped being an owner-published page cipher (nothing private lingers in the queue).
+  update public.system_suggestions s set status = 'rejected', decided_at = now()
+   where s.detector in ('els_library_request','els_strong_cipher') and s.status in ('pending','later')
+     and not exists (select 1 from public.els_records e where e.id::text = s.observed->>'els_record_id'
+                       and e.visibility = 'public' and coalesce(e.self_published,false) and e.status in ('draft','pending'));
   for r in select * from public.els_records e
             where e.visibility = 'public' and coalesce(e.self_published,false) and e.status = 'draft' and e.owner_user_id is not null
             order by e.created_at desc limit 40 loop
@@ -288,14 +308,19 @@ begin
     if r.visibility <> 'public' or not coalesce(r.self_published, false) then return jsonb_build_object('ok', false, 'error', 'not_public'); end if;
     if r.status not in ('draft','pending') then return jsonb_build_object('ok', false, 'error', 'withheld'); end if;
     update public.els_records set status = 'pending' where id = p_id;
+    -- One open request per record; a request after an earlier decision or withdrawal is a new request (own key, so the 30-day rejection memory of the detector does not swallow it).
+    if exists (select 1 from public.system_suggestions where detector = 'els_library_request' and observed->>'els_record_id' = r.id::text and status in ('pending','later')) then
+      return jsonb_build_object('ok', true, 'id', p_id, 'status', 'pending');
+    end if;
     perform public.suggest_add('research', 'els_library_request',
       format('בקשת הוספה לספרייה המרכזית: «%s»', coalesce(nullif(r.title,''), r.search_term)),
       'הבעלים ביקש להוסיף את הצופן לספרייה המרכזית. אין בבקשה אישור: ההחלטה למנהל (moderate_els_matrix).',
       jsonb_build_object('els_record_id', r.id, 'slug', r.slug, 'owner_user_id', r.owner_user_id, 'author_name', r.author_name, 'source', 'owner_request'),
-      100, 1, 'קבלה לספרייה המרכזית — רק באישור מנהל', 'els_library_request:' || r.id::text);
+      100, 1, 'קבלה לספרייה המרכזית — רק באישור מנהל', 'els_library_request:' || r.id::text || ':' || (select count(*) from public.system_suggestions where detector = 'els_library_request' and observed->>'els_record_id' = r.id::text)::text);
     return jsonb_build_object('ok', true, 'id', p_id, 'status', 'pending');
   end if;
   if r.status = 'pending' then update public.els_records set status = 'draft' where id = p_id; end if;
+  perform public.els_resolve_suggestions(p_id, 'rejected');
   return jsonb_build_object('ok', true, 'id', p_id, 'status', case when r.status = 'pending' then 'draft' else r.status end);
 end $f$;
 grant execute on function public.request_els_library_review(uuid, boolean) to authenticated;

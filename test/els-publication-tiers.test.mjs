@@ -26,15 +26,17 @@ test('the proposal reuses the existing mechanisms: no new table, trigger or appr
   assert.match(sql, /revoke[^;]*els_strong_cipher_assessment/);
   assert.match(sql, /calibrated/, 'certainty is declared indicative, not calibrated');
   const rollback = read(dir + 'rollback.sql');
-  assert.match(rollback, /using \(self_published = true\)/);
+  assert.doesNotMatch(code(rollback), /create policy public_read_self_published_els/, 'rollback never recreates the leaking policy');
+  assert.match(rollback, /drop constraint if exists els_records_private_not_self_published_chk/);
   assert.doesNotMatch(read(dir + 'optional-data-fix-one-row.sql'), /delete|drop/i);
 });
 
 test('owner wording separates the three states and never presents a request as approval', () => {
   const lib = read('src/components/experience2029/ElsSavedLibrary2029.jsx');
-  for (const text of ['פרטי', 'בדף שלי (ציבורי)', 'ממתין לאישור הספרייה', 'בספרייה המרכזית']) assert.ok(lib.includes(text), text);
+  const tiers = read('src/lib/elsSavedMatrix.js');
+  for (const text of ['פרטי', 'בדף שלי (ציבורי)', 'ממתין לאישור הספרייה', 'בספרייה המרכזית']) assert.ok(tiers.includes(text), text);
   assert.match(lib, /הוספה לספרייה המרכזית נעשית רק באישור המנהל/);
-  assert.match(lib, /ההערכה מכוונת ואינה מכוילת/);
+  assert.match(lib, /מדד ראשוני בלבד/);
 });
 
 test('isolated PostgreSQL proof: private never readable, page tier, library request/approval, strong detector, existing ciphers untouched, rollback', { skip: !readdirSync('/usr/lib').includes('postgresql') && 'local PostgreSQL unavailable', timeout: 180000 }, () => {

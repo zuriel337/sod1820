@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { deleteMyMatrix, getMatrixLibraryPage, getMyStrongCiphers, renameMyMatrix, requestLibraryReview, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
+import { cipherTier, hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import { thumb } from "../../lib/img.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
@@ -43,15 +43,6 @@ function useCipherLibrary({ view, query = "", pageSize = 24, enabled = true, rev
     retry: () => rows.length ? load(rows.length, true, generation.current) : setRetry(value => value + 1),
     next: () => load(rows.length, true, generation.current),
     reload: () => setRetry(value => value + 1) };
-}
-
-// Three separate states of one cipher (ZURIEL 26.11.2026): private / on my page (open to everyone) / in the central library.
-// Page publication needs no approval; the library needs the administrator's approval, requested through the existing queue.
-export function cipherTier(row) {
-  if (row.status === "published" && row.visibility === "public") return { key: "library", label: "בספרייה המרכזית" };
-  if (row.visibility === "public" && row.self_published && row.status === "pending") return { key: "requested", label: "בדף שלי · ממתין לאישור הספרייה" };
-  if (row.visibility === "public" && row.self_published) return { key: "page", label: "בדף שלי (ציבורי)" };
-  return { key: "private", label: "פרטי" };
 }
 
 const OWNER_ERRORS = {
@@ -203,12 +194,12 @@ function StrongCipherSuggestions({ onChanged }) {
     finally { setBusyId(null); }
   };
   return <section className="els29-library-owner" aria-label="צפנים חזקים שלך">
-    <p><strong>צפנים חזקים שלך</strong> · המלצה פרטית, גלויה רק לך. ההערכה מכוונת ואינה מכוילת, והיא לא משתפת ולא מפרסמת דבר בלי הבחירה שלך.</p>
+    <p><strong>צפנים חזקים שלך</strong> · מדד ראשוני בלבד. ההמלצה פרטית וגלויה רק לך, אינה מכוילת, ואינה משתפת או מפרסמת דבר בלי הבחירה שלך.</p>
     {shown.map(row => {
       const a = row.assessment || {};
       return <div key={row.id} className="els29-library-owner-form">
         <p><strong>{row.title}</strong>{Array.isArray(a.reasons) && a.reasons.length ? <> · למה נבחר: {a.reasons.join(" · ")}</> : null}</p>
-        <p className="els29-native-muted">{a.verified ? "נבדק: הממצא שוחזר במנוע." : "לא נבדק."} רמת ודאות: מכוונת בלבד. {row.visibility === "public" ? "הצופן כבר בדף שלך." : "הצופן פרטי כעת."}</p>
+        <p className="els29-native-muted">{a.verified ? "נבדק: הממצא שוחזר במנוע." : "לא נבדק."} רמת ודאות: מדד ראשוני בלבד, לא מכויל. {row.visibility === "public" ? "הצופן כבר בדף שלך." : "הצופן פרטי כעת."}</p>
         {row.visibility !== "public" ? <button type="button" className="sod29-action" disabled={busyId === row.id} onClick={() => publish(row)}>פרסם בדף שלי</button> : null}
         <button type="button" className="sod29-action" onClick={() => setHidden(current => new Set(current).add(row.id))}>לא עכשיו</button>
       </div>;
@@ -233,6 +224,7 @@ export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, o
         <label>חיפוש בצפנים<input value={draft} onChange={event => setDraft(event.target.value)} maxLength={120} placeholder="מילה או שם הצופן" /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" />חפש בספרייה</button>
       </form> : null}
     </div>
+    {personal && data.user ? <p className="els29-library-order"><a className="sod29-action" href="/community/researcher/me">הדף הציבורי שלי ושיתוף שלו</a> · צפנים שפרסמתם בדף שלי מופיעים בו ובקישור קבוע לכל צופן.</p> : null}
     {personal && data.user ? <StrongCipherSuggestions onChanged={data.reload} /> : null}
     <div className="els29-library-order">האחרונים שנשמרו מופיעים ראשונים</div>
     <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} onChanged={data.reload} workspaceMode={workspaceMode} />)}</div>
