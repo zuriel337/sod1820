@@ -147,9 +147,40 @@ F "$P/20261126190200_traffic_daily_page_engagement_PROPOSAL.sql" >/dev/null 2>&1
 # the original function is back in place above (to compare); re-apply the proposal and roll it back exactly
 Q -c "select count(*) from pg_proc where proname='refresh_traffic_daily_range_v1'" >/dev/null
 check "$(FE "$P/20261126190200_traffic_daily_page_engagement_PROPOSAL.sql" | grep -c 'ERROR')" 0 'p4: re-applying over its own state is a quiet idempotent re-run (no error)'
+Q -c "update public.analytics_cache set payload = jsonb_build_object('first_full_day','2026-11-27') where cache_key='traffic_daily_page_metrics_cutover'; select public.refresh_traffic_daily_range_v1(date '2026-11-26', date '2026-11-28')" >/dev/null
+SNAPQ="select md5(string_agg((to_jsonb(t) - 'updated_at')::text, '|' order by day)) from public.traffic_daily t"
+SNAP=$(Q -c "$SNAPQ")
 F "$P/20261126190200_traffic_daily_page_engagement_ROLLBACK.sql" >/dev/null
-check "$(Q -c "select md5(prosrc) from pg_proc where proname='refresh_traffic_daily_range_v1'")|$(Q -c "select count(*) from information_schema.columns where table_name='traffic_daily' and column_name in ('page_views','page_engaged','page_bounces','engagement_sessions','anomalous')")|$(Q -c "select count(*) from public.analytics_cache where cache_key='traffic_daily_page_metrics_cutover'")" '97616f75277d4e4b0eaa1c63c82967f5|0|0' 'p4: the rollback restores the exact original function text (same md5), drops the five columns and the cutover row'
+check "$(Q -c "select md5(prosrc) from pg_proc where proname='refresh_traffic_daily_range_v1'")|$(Q -c "select count(*) from information_schema.columns where table_name='traffic_daily' and column_name in ('page_views','page_engaged','page_bounces','engagement_sessions','anomalous')")|$(Q -c "select count(*) from public.analytics_cache where cache_key='traffic_daily_page_metrics_cutover'")" '97616f75277d4e4b0eaa1c63c82967f5|5|1' 'p4 rollback: the exact original function text is back (same md5); the five columns and the cutover row are KEPT'
+check "$(Q -c "$SNAPQ")" "$SNAP" 'p4 rollback: not one stored value of traffic_daily changed (every row, legacy and page_* columns, identical except the refresh timestamp): no measurement history is lost'
+Q -c "select public.refresh_traffic_daily_range_v1(date '2026-11-26', date '2026-11-28')" >/dev/null
+check "$(Q -c "$SNAPQ")" "$SNAP" 'p4 rollback: the restored original refresh leaves the page_* values already written untouched (it does not know the columns)'
+check "$(FE "$P/20261126190200_traffic_daily_page_engagement_ROLLBACK.sql" | grep -c 'is not the P4 version')" 1 'p4 rollback: rolling back twice is refused (the live function is no longer the P4 version), never a silent overwrite'
+F "$P/20261126190200_traffic_daily_page_engagement_PROPOSAL.sql" >/dev/null; Q -c "select public.refresh_traffic_daily_range_v1(date '2026-11-26', date '2026-11-28')" >/dev/null
+check "$(Q -c "select page_bounces||'/'||page_engaged from public.traffic_daily where day='2026-11-27'")" '2/1' 'p4 rollback: re-applying after a rollback continues from the same cutover with the same values'
+F "$P/20261126190200_traffic_daily_page_engagement_ROLLBACK.sql" >/dev/null
 Q -c "create or replace function public.refresh_traffic_daily_range_v1(p_from date, p_to date) returns integer language plpgsql as \$\$ begin return 0; end \$\$"
 check "$(FE "$P/20261126190200_traffic_daily_page_engagement_PROPOSAL.sql" | grep -c 'refresh_traffic_daily_range_v1 drift')" 1 'p4: a drifted refresh function makes the file FAIL (P0001)'
 F "$P/20261126190100_session_anomaly_axis_ROLLBACK.sql" >/dev/null; check "$(Q -c "select count(*) from pg_proc where proname='fn_ti_session_anomaly_v1'")" 0 'p3: rollback removes the function'
+
+# ───────────── load of the separate automation counter (P1): pgbench, 8 clients x 400 requests, each request its own transaction (as PostgREST runs them)
+F "$P/20261126190000_ingest_request_evidence_PROPOSAL.sql" >/dev/null 2>&1 || true
+Q -c "truncate public.events, public.crawl_daily"
+mkscript() { # $1 = file, $2 = user agent, $3 = tag
+  cat > "$1" <<PGB
+\set n random(1,1000000000)
+select public.ingest_event('sod-$3-' || :n || '-aaaa','page','view','/post/:item',null,null,'chrome',null,'s-$3-' || :n || '-aaaa',null,null,null,jsonb_build_object('measurement', jsonb_build_object('version',2,'page_path','/post/x','visitor_id','vid-$3-aaaa')),false) from (select set_config('request.headers', '{"user-agent":"$2","referer":"https://www.google.com/"}', true)) h;
+PGB
+}
+mkscript "$TMP/drop.pgb" "$HC" drop; mkscript "$TMP/keep.pgb" "$CHROME" keep
+PGBENCH="$(dirname "$PG_BIN/psql")/pgbench"; [ -x "$PGBENCH" ] || PGBENCH=$(command -v pgbench)
+runb() { "$PGBENCH" -h "$TMP" -p 54398 -U postgres -n -c 8 -j 4 -t 400 -f "$1" review 2>&1 | grep -E "latency average|tps =|number of failed|transactions actually" | tr '\n' ' '; }
+DROP_OUT=$(runb "$TMP/drop.pgb")
+check "$(Q -c "select count(*) from public.events")|$(Q -c "select count(*)||':'||sum(hits) from public.crawl_daily")" '0|1:3200' 'load: 3,200 concurrent automation-declared requests (own transactions) store no event and the single counter row is exact (no lost update, no deadlock)'
+KEEP_OUT=$(runb "$TMP/keep.pgb")
+check "$(Q -c "select count(*) from public.events")" 3200 'load: the same number of ordinary requests are stored as before'
+echo "INFO load automation-declared (counted, not stored): $DROP_OUT"
+echo "INFO load ordinary (stored):                         $KEEP_OUT"
+DROP_LAT=$(echo "$DROP_OUT" | sed -n 's/.*latency average = \([0-9.]*\) ms.*/\1/p')
+check "$(python3 -c "print(1 if float('$DROP_LAT') < 50 else 0)")" 1 'load: the counted-not-stored path stays under 50 ms average per request with 8 concurrent clients, on this small machine'
 echo "TRAFFIC WAVE CLASSIFICATION 20261126 REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated)"

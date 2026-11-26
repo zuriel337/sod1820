@@ -1,6 +1,8 @@
 -- Rollback of 20261126190200_traffic_daily_page_engagement_PROPOSAL.sql: restores the exact original refresh_traffic_daily_range_v1 (md5 of prosrc
--- 97616f75277d4e4b0eaa1c63c82967f5), removes the cutover row and drops the five derived columns (their values are recomputable from events while it retains them).
--- The legacy columns are not touched. Fails if the live function is not the one this proposal installed (drift) so a later change is never overwritten.
+-- 97616f75277d4e4b0eaa1c63c82967f5). It deliberately DOES NOT drop the five columns and DOES NOT delete the cutover row: the values already written for the days on or after
+-- the cutover stay in traffic_daily (inert once the function is restored), so a rollback never removes measurement history. Re-applying the proposal later continues from the
+-- same cutover. Dropping the columns would be a separate, explicitly approved data deletion; it is not part of this file.
+-- The legacy columns are not touched. Fails if the live function is not the one this proposal installed (drift), so a later change is never overwritten.
 do $migration$
 begin
   perform set_config('lock_timeout', '3s', true);
@@ -52,8 +54,3 @@ begin
   return n;
 end;
 $function$;
-
-delete from public.analytics_cache where cache_key = 'traffic_daily_page_metrics_cutover';
-alter table public.traffic_daily
-  drop column if exists page_views, drop column if exists page_engaged, drop column if exists page_bounces,
-  drop column if exists engagement_sessions, drop column if exists anomalous;
