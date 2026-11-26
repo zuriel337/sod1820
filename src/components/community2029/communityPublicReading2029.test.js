@@ -430,7 +430,7 @@ test("a guest can only comment (reply-only); a member always sees publish", asyn
     // A guest never gets to type their own name; every guest comment publishes as plain "אורח".
     assert.equal(tree.some(node => node.props?.name === "guest-name"), false);
     assert.ok(tree.some(node => node.props?.className === "sod29-community-typing"));
-    const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("sod29-community-auth-btn"));
+    const authLinks = tree.filter(node => String(node.props?.className || "").startsWith("r29-btn") && String(node.props?.to || "").startsWith("/login?returnTo="));
     assert.equal(authLinks.length, guest ? 2 : 0);
     if (guest) assert.deepEqual(authLinks.map(node => node.props.children.join("")), ["התחברות", "הרשמה"]);
   }
