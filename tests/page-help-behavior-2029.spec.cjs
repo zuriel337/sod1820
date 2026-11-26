@@ -6,6 +6,7 @@ const { installPublicReadOnlyEgress, disposePublicReadOnlyEgress } = require('./
 // it opens one disclosure over the page, Escape closes it with focus back on the button, and "סגירת ההסבר" does the same. It explains the page, never a finding.
 const BASE = 'http://127.0.0.1:4173';
 
+const THEMES = ['light', 'parchment', 'dark'];   // the three display themes (themePreset2029.js)
 test.beforeEach(async ({ context }) => {
   await installPublicReadOnlyEgress(context, { baseUrl: BASE });
   await installStorageEgressGuard(context);
@@ -50,6 +51,15 @@ async function assertPageHelp(page, { width }) {
     await expect(close).toBeHidden();
     expect(await focusedIsTrigger(page)).toBe(true);
   }
+  // While OPEN the panel is whole on screen: no edge is cut, on any width (the live bug: it was cut on the left on a phone).
+  await button.click();
+  await expect(close).toBeVisible({ timeout: 20_000 });
+  const panel = await page.locator('.sod29-learn-mark-disclosure').first().boundingBox();
+  const viewport = await page.evaluate(() => ({ w: document.documentElement.clientWidth, h: window.innerHeight }));
+  expect(panel.x).toBeGreaterThanOrEqual(-0.5);
+  expect(panel.x + panel.width).toBeLessThanOrEqual(viewport.w + 0.5);
+  await close.click();
+  await expect(close).toBeHidden();
   // The explanation never pushes the page: no horizontal overflow, the button keeps its place.
   const after = await button.boundingBox();
   expect(Math.abs(after.x - box.x)).toBeLessThanOrEqual(1);
@@ -57,18 +67,22 @@ async function assertPageHelp(page, { width }) {
   expect(width).toBeGreaterThan(0);
 }
 
-for (const width of [390, 1440]) {
-  test(`page help behaves the same on the Biblical Cipher at ${width}px`, async ({ page }) => {
+for (const theme of THEMES) for (const width of [320, 390, 1440]) {
+  const setTheme = (page) => page.addInitScript((value) => { try { localStorage.setItem('sod2029:theme-preset', value); localStorage.setItem('sod2029:theme-preset-seeded', '1'); } catch {} }, theme);
+  test(`page help stays whole on screen on the Biblical Cipher at ${width}px (${theme})`, async ({ page }) => {
+    await setTheme(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/code`, { waitUntil: 'domcontentloaded' });
     await assertPageHelp(page, { width });
   });
-  test(`page help behaves the same on the World at ${width}px`, async ({ page }) => {
+  test(`page help stays whole on screen on the World at ${width}px (${theme})`, async ({ page }) => {
+    await setTheme(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
     await assertPageHelp(page, { width });
   });
-  test(`page help behaves the same on a Post at ${width}px`, async ({ page }) => {
+  test(`page help stays whole on screen on a Post at ${width}px (${theme})`, async ({ page }) => {
+    await setTheme(page);
     await routeBennettPost(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/post/bennett-melach-631-78`, { waitUntil: 'domcontentloaded' });
