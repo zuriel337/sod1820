@@ -131,3 +131,37 @@ test("one number anchor read is shared by everyone asking at the same moment, an
   const failing = async () => new Response("{}", { status: 500 });
   await assert.rejects(numberAnchorRows2029(7, failing), /first_words_source_unavailable/);
 });
+
+test("a set that changes between two pages is never used: the pages do not add up, the single read answers, and the next read of the set is not tried inside the backoff", async () => {
+  _resetAdmittedNumbersForTests();
+  let calls = 0;
+  const fetchImpl = async url => {
+    calls += 1;
+    const offset = Number(new URL(url).searchParams.get("offset"));
+    const rows = (offset === 0 ? ALL.slice(0, 1000) : [...ALL.slice(1000), 99999]).map(value => ({ value }));
+    return new Response(JSON.stringify(rows), { status: 206, headers: { "content-range": `${offset}-${offset + rows.length - 1}/${ALL.length}` } });
+  };
+  await assert.rejects(readAdmittedNumbers2029({ supabaseUrl: URL_BASE, headers, fetchImpl }), /admitted_numbers_incomplete/);
+  const { log, perKey } = reads();
+  let t = 0;
+  for (let i = 0; i < 10; i += 1) { t += 1000; await numberIndexable2029(10, { perKey, supabaseUrl: URL_BASE, headers, fetchImpl, now: () => t }); }
+  await settle();
+  assert.equal(log.length, 10, "all ten calls were answered by the single read; a partial set never answered one");
+});
+
+test("a hidden number: a quiet instance stops saying indexable at once, a crawled instance within the stale bound, and never from a partial set", async () => {
+  _resetAdmittedNumbersForTests();
+  let admitted = new Set([10, 11, 12]), t = 0;
+  const fetchImpl = async () => { const rows = [...admitted].map(value => ({ value })); return new Response(JSON.stringify(rows), { status: 206, headers: { "content-range": `0-${rows.length - 1}/${rows.length}` } }); };
+  const perKey = async () => admitted.has(12);
+  const ask = () => numberIndexable2029(12, { perKey, supabaseUrl: URL_BASE, headers, fetchImpl, now: () => t });
+  t += 1; assert.equal(await ask(), true);
+  admitted.delete(12);
+  t += 1; assert.equal(await ask(), false, "a quiet instance reads the one number every time: the hidden number is not indexable at once");
+  for (let i = 0; i < ADMITTED_NUMBERS.burstLookups; i += 1) { t += 1; await ask(); }
+  await settle();
+  t += 1; assert.equal(await ask(), false, "the set it reads after the change no longer has the number");
+  admitted.add(12);                           // published again: the kept set is used for FRESH, then replaced
+  t += ADMITTED_NUMBERS.freshMs + 1; await ask(); await settle();
+  t += 1; assert.equal(await ask(), true, "and is admitted again within the stale bound");
+});
