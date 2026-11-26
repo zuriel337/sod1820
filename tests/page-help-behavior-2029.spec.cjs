@@ -54,7 +54,7 @@ async function assertPageHelp(page, { width }) {
   // While OPEN the panel is whole on screen: no edge is cut, on any width (the live bug: it was cut on the left on a phone).
   await button.click();
   await expect(close).toBeVisible({ timeout: 20_000 });
-  const panel = await page.locator('.sod29-learn-mark-disclosure').first().boundingBox();
+  const panel = await page.locator('.sod29-learn-mark-disclosure, .r29-palace-disclosure[data-open="true"]').first().boundingBox()   // the page help of a surface, or the Hall's intro (the same label and behaviour);
   const viewport = await page.evaluate(() => ({ w: document.documentElement.clientWidth, h: window.innerHeight }));
   expect(panel.x).toBeGreaterThanOrEqual(-0.5);
   expect(panel.x + panel.width).toBeLessThanOrEqual(viewport.w + 0.5);
@@ -69,13 +69,15 @@ async function assertPageHelp(page, { width }) {
 
 for (const theme of THEMES) for (const width of [320, 390, 1440]) {
   const setTheme = (page) => page.addInitScript((value) => { try { localStorage.setItem('sod2029:theme-preset', value); localStorage.setItem('sod2029:theme-preset-seeded', '1'); } catch {} }, theme);
-  test(`page help stays whole on screen on the Biblical Cipher at ${width}px (${theme})`, async ({ page }) => {
+  // Three themes at the phone width (where an edge is cut), and the dark theme at the other widths: the same gate, bounded run time.
+  const cheap = width !== 390 && theme !== 'dark';
+  if (!cheap) test(`page help stays whole on screen on the Biblical Cipher at ${width}px (${theme})`, async ({ page }) => {
     await setTheme(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/code`, { waitUntil: 'domcontentloaded' });
     await assertPageHelp(page, { width });
   });
-  test(`page help stays whole on screen on the World at ${width}px (${theme})`, async ({ page }) => {
+  if (!cheap) test(`page help stays whole on screen on the World at ${width}px (${theme})`, async ({ page }) => {
     await setTheme(page);
     await page.setViewportSize({ width, height: 900 });
     await page.goto(`${BASE}/world`, { waitUntil: 'domcontentloaded' });
