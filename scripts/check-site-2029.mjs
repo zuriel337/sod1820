@@ -106,6 +106,7 @@ async function sitemapExamples(context) {
 
 async function guest(browser, devices) {
   let failed = false;
+  const blocked = [];   // profiles the edge refused (401/403/429): reported as open coverage, never bypassed
   for (const [profile, options] of [
     ['desktop-1440', { viewport: { width: 1440, height: 900 } }],
     ['phone-390', { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }],
@@ -124,6 +125,7 @@ async function guest(browser, devices) {
           routes = [...core, ...otherPublic];
         }
       }
+      let refused = false;
       for (const [path, heading] of routes) {
         try {
           await publicPage(page, path, heading);
@@ -135,10 +137,15 @@ async function guest(browser, devices) {
         } catch (error) {
           const networkError = error.message.match(/net::ERR_[A-Z_]+/)?.[0];
           console.log(`FAIL ${profile} ${path} (${error.actual ?? networkError ?? error.name})`);
-          if ([401, 403, 429].includes(error.actual) || /^net::ERR_(CERT|PROXY|TUNNEL)/.test(networkError ?? '')) return true;
+          if ([401, 403, 429].includes(error.actual) || /^net::ERR_(CERT|PROXY|TUNNEL)/.test(networkError ?? '')) {
+            blocked.push(`${profile} (${error.actual ?? networkError})`);
+            refused = true;
+            break;   // this profile is refused at the edge: stop it, keep testing the next profiles
+          }
           failed = true;
         }
       }
+      if (refused) continue;
       try {
         await goto(page, production, '/2029/me/messages');
         await page.getByRole('heading', { name: 'צריך להתחבר כדי לראות את האזור האישי' }).waitFor({ timeout });
@@ -150,6 +157,10 @@ async function guest(browser, devices) {
     } finally {
       await context.close();
     }
+  }
+  if (blocked.length) {
+    console.log(`BLOCKED_AT_EDGE ${blocked.join(', ')}: coverage of these profiles is open; no protection was changed or bypassed`);
+    return true;
   }
   return failed;
 }

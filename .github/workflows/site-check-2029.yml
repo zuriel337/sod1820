@@ -1,0 +1,49 @@
+name: Site check (guest)
+
+# "בדוק את האתר" on a GitHub runner (ZURIEL 26.11.2026): the public site as a guest, no login, no writes, no secrets.
+# Agent containers cannot reach the site (the edge answers them 403), so the same script that docs/site-check-2029.md describes runs here.
+# One script (scripts/check-site-2029.mjs); this file only provides the network. The account check stays in site-account-check-2029.yml.
+# No protection is changed or bypassed: an edge refusal is reported as open coverage.
+
+on:
+  # TEMPORARY (remove before merge): proves the runner from this branch; a dispatchable workflow must exist on main first.
+  push:
+    branches: [claude/biblical-cipher-audit-zspg77]
+    paths: [.github/workflows/site-check-2029.yml, scripts/check-site-2029.mjs]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check-guest
+  cancel-in-progress: false
+
+jobs:
+  guest:
+    if: github.repository == 'zuriel337/sod1820'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install Chromium (the Playwright version the CI browser checks already use)
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Check the site as a guest
+        run: |
+          set +e
+          node scripts/check-site-2029.mjs 2>&1 | tee site-check.log
+          code=${PIPESTATUS[0]}
+          {
+            echo '### בדיקת האתר כאורח'
+            echo '```'
+            grep -E '^(PASS|FAIL|BLOCKED_AT_EDGE)' site-check.log
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit $code

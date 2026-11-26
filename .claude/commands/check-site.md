@@ -1,15 +1,12 @@
 ---
-description: "בדוק את האתר" — one command: runs the read-only Site Check on a GitHub runner and reports in Hebrew. No logins, no writes, no passwords or codes in chat.
+description: "בדוק את האתר" — one command: runs the guest site check on a GitHub runner (the agent containers are refused by the edge) and reports in Hebrew. No logins, no writes, no passwords or codes in chat.
 ---
 
-Run the Site Check against the public site and report to ZURIEL in Hebrew only. Read-only: do not log in, do not save, do not ask for a password or a login code, do not change any protection.
+Run the guest site check and report to ZURIEL in Hebrew only. Read-only: do not log in, do not save, do not ask for a password or a login code, do not change or bypass any protection. The procedure and its limits are in `docs/site-check-2029.md`; this is its single entry point.
 
-1. Start it (the target is the production site unless ZURIEL named another of the three public origins):
-   `gh api -X POST repos/zuriel337/sod1820/actions/workflows/site-check.yml/dispatches -f ref=main -f url=https://sod1820.co.il`
-   (add `-f expected_sha=<SHA>` to require an exact source SHA; use `-f ref=<branch>` for a branch that carries a newer version of the check).
-2. Find the run: `gh api "repos/zuriel337/sod1820/actions/workflows/site-check.yml/runs?per_page=1" --jq '.workflow_runs[0]|"\(.id) \(.status) \(.conclusion)"'`, and wait until its status is `completed`.
-3. Read the report from the job log between `SITE-CHECK-REPORT-BEGIN` and `SITE-CHECK-REPORT-END`:
-   `gh api repos/zuriel337/sod1820/actions/jobs/<JOB_ID>/logs | sed -n '/SITE-CHECK-REPORT-BEGIN/,/SITE-CHECK-REPORT-END/p'` (job id: `gh api repos/zuriel337/sod1820/actions/runs/<RUN_ID>/jobs --jq '.jobs[0].id'`). Screenshots are in the run's artifact `site-check-<run id>`.
-4. Report: result, observed source SHA, every failed check with its detail, what was NOT checked (login, save, write, real device), and the run link. A 403/429 from the edge is a finding to report, never something to bypass.
+1. Start it on the runner: `gh api -X POST repos/zuriel337/sod1820/actions/workflows/site-check-2029.yml/dispatches -f ref=main`.
+2. Wait for the run: `gh api "repos/zuriel337/sod1820/actions/workflows/site-check-2029.yml/runs?per_page=1" --jq '.workflow_runs[0]|"\(.id) \(.status) \(.conclusion)"'`.
+3. Read the result lines: `gh api repos/zuriel337/sod1820/actions/jobs/<JOB_ID>/logs | grep -E '^[^ ]+ (PASS|FAIL|BLOCKED_AT_EDGE)'` (job id: `gh api repos/zuriel337/sod1820/actions/runs/<RUN_ID>/jobs --jq '.jobs[0].id'`).
+4. Report: what passed per profile (desktop 1440, phone 390, Pixel 7), every FAIL, any `BLOCKED_AT_EDGE` as open coverage (an edge refusal is a finding, never something to work around), what was NOT checked (login, saving, a real device), and the run link. If the source SHA matters, compare it with the Vercel alias before and after.
 
-A member (write) check is a separate step that needs ZURIEL's protected secret and reviewer approval; it is not part of this command (CLAUDE.md 0.6).
+A check with a login needs the isolated QA backend, a dedicated account and a protected GitHub environment (docs/site-check-2029.md); it is not part of this command.
