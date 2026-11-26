@@ -362,8 +362,10 @@ test('public cipher documents reuse the admitted record and preserve page links 
     assert.equal(url.pathname, '/rest/v1/els_records');
     const query = url.searchParams;
     calls.push(query);
-    assert.equal(query.get('status'), 'eq.published');
     assert.equal(query.get('visibility'), 'eq.public');
+    // The exact-slug read admits the library tier and the owner's page tier; lists stay library-only (ZURIEL 26.11.2026).
+    if (query.has('slug')) assert.equal(query.get('and'), '(or(status.eq.published,self_published.eq.true))');
+    else assert.equal(query.get('status'), 'eq.published');
     if (query.has('slug')) return json(query.get('slug') === 'eq.research-result' ? [cipher] : []);
     return json(query.get('offset') === '24' ? [cipher] : []);
   }, async () => {
@@ -409,7 +411,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
     }
     if (value.includes("/topic_cards_public?")) return json([{ slug: "subject" }]);
     if (value.includes("/contributors?")) { assert.match(value, /active=eq.true.*visibility.eq.public/); return json([{ slug: "writer", code: "2042" }]); }
-    if (value.includes("/els_records?")) { assert.match(value, /status=eq.published.*visibility=eq.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
+    if (value.includes("/els_records?")) { assert.match(value, /or=\(status\.eq\.published,self_published\.eq\.true\)&visibility=eq\.public/); assert.doesNotMatch(value, /source.neq.research/); return json([{ slug: 'published-cipher' }, { slug: 'published-research-cipher' }]); }
     if (value.includes("/nodes?")) { assert.match(value, /type=eq.book.*is_active=eq.true/); return json([]); }
     if (value.includes("/video_media_assets_v1?")) return json([{ public_id: assetId, title: "שיעור על סוד הגאולה", google_indexable: true,
       primary_source_type: "channel_update", primary_source_id: "00000000-0000-4000-8000-000000000001",

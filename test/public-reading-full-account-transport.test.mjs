@@ -587,8 +587,16 @@ test('Bible code save: a verified member saves to their own library with the exa
   const w=worker({authError:true});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:name.startsWith('rename')?owned:{p_id:update.p_id}})).status,403,name);
   assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
  }
- // moderation and publication stay administrator-only
- for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix','self_publish_matrix']){
+ // page publication and the library request: a verified member, exact body only; forged identity or extra fields never reach the server
+ for(const name of ['self_publish_matrix','request_els_library_review']){
+  const ok=worker({role:'user',anonKey:'anon-key'});assert.equal((await ok.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_on:true}})).status,200,name);
+  for(const body of [{p_id:update.p_id},{p_id:update.p_id,p_on:'yes'},{p_id:'nope',p_on:true},{p_id:update.p_id,p_on:true,p_status:'published'}]){
+   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body})).status,403,name);assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
+  }
+  const f=worker({authError:true});assert.equal((await f.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_on:true}})).status,403,name);assert.ok(!f.calls.some(c=>c.url.includes(name)),name);
+ }
+ // moderation stays administrator-only
+ for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix']){
   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
  }
 });

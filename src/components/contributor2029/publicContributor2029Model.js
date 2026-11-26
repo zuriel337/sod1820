@@ -207,7 +207,7 @@ export function appendContributorPublicationCatalog(view, catalogue, identity) {
   }
   for (const row of catalogue.ciphers?.rows || []) {
     const submitted = isOwnSubmittedCipher(row, identity?.user_id);
-    if (!row.slug || (!submitted && (row.status !== "published" || row.visibility !== "public"))) continue;
+    if (!row.slug || (!submitted && ((row.status !== "published" && row.self_published !== true) || row.visibility !== "public"))) continue;
     const mediaUrl = safePublicUrl(row.image_url);
     put({ id: `els:${row.id}`, sourceRef: `els_records:${row.id}`,
       type: row.attributionBasis === "source_author_credit" ? "findings" : "sources",
