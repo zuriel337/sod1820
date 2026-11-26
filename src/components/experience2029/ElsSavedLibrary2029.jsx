@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { deleteMyMatrix, getMatrixLibraryPage, renameMyMatrix, selfPublishMatrix } from "../../lib/elsMatrices.js";
-import { hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
+import { deleteMyMatrix, getMatrixLibraryPage, getMyStrongCiphers, renameMyMatrix, requestLibraryReview, selfPublishMatrix } from "../../lib/elsMatrices.js";
+import { cipherTier, hasExactSavedMatrix, savedMatrixWorkspaceHref } from "../../lib/elsSavedMatrix.js";
 import { thumb } from "../../lib/img.js";
-import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import "./elsSavedLibrary2029.css";
@@ -51,6 +50,9 @@ const OWNER_ERRORS = {
   not_owner: "אפשר לנהל רק צפנים שאתם שמרתם.",
   not_authenticated: "נדרשת התחברות לחשבון.",
   not_found: "הצופן כבר לא קיים.",
+  withheld: "הצופן הוסתר או הועבר לארכיון ואי אפשר לפרסם אותו כאן.",
+  unavailable: "האפשרות הזו עדיין לא זמינה. נסו שוב מאוחר יותר.",
+  not_public: "קודם יש לפרסם את הצופן בדף שלי, ואז אפשר לבקש הוספה לספרייה.",
   invalid_title: "כתבו שם של עד 160 תווים.",
 };
 
@@ -61,10 +63,9 @@ function CipherOwnerActions({ row, onChanged }) {
   const [title, setTitle] = useState(row.title || row.search_term || "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState(null);
-  const { isAdmin } = useAuth();
   const approved = row.status === "published";
-  // In the public release, publication is administrator-only; members rename and delete their own private ciphers.
-  const noPublishToggle = (approved && row.visibility === "public") || publicReadingActionsLocked(isAdmin);
+  const tier = cipherTier(row).key;
+  // Publishing on my own page is the member's decision; the library is requested, never self-granted.
   const run = async (action, done) => {
     if (busy) return;
     setBusy(true);setMessage(null);
@@ -79,19 +80,26 @@ function CipherOwnerActions({ row, onChanged }) {
   return <div className="els29-library-owner">
     <div className="els29-library-owner-row">
       {approved ? null : <button type="button" className="sod29-action" disabled={busy} aria-expanded={mode === "rename"} onClick={() => { setTitle(row.title || row.search_term || "");setMode(mode === "rename" ? null : "rename"); }}>שנה שם</button>}
-      {noPublishToggle ? null : <button type="button" className="sod29-action" disabled={busy} aria-pressed={!!row.self_published}
-        onClick={() => mode === "publish" || row.self_published
-          ? run(() => selfPublishMatrix(row.id, !row.self_published), row.self_published ? "הצופן הוסר מהתיק הציבורי." : "הצופן מוצג בתיק הציבורי שלך.")
-          : setMode("publish")}>{row.self_published ? "הסר מהתיק הציבורי" : "הצג בתיק הציבורי"}</button>}
+      {approved ? null : <button type="button" className="sod29-action" disabled={busy} aria-pressed={tier !== "private"}
+        onClick={() => tier !== "private"
+          ? run(() => selfPublishMatrix(row.id, false), "הצופן חזר להיות פרטי.")
+          : setMode("publish")}>{tier !== "private" ? "החזר לפרטי" : "פרסם בדף שלי"}</button>}
+      {tier === "page" ? <button type="button" className="sod29-action" disabled={busy} aria-expanded={mode === "library"} onClick={() => setMode(mode === "library" ? null : "library")}>בקש הוספה לספרייה</button> : null}
+      {tier === "requested" ? <button type="button" className="sod29-action" disabled={busy} onClick={() => run(() => requestLibraryReview(row.id, false), "הבקשה לספרייה בוטלה. הצופן נשאר בדף שלי.")}>בטל בקשה לספרייה</button> : null}
       {approved ? null : <button type="button" className="sod29-action is-danger" disabled={busy} aria-expanded={mode === "delete"} onClick={() => setMode(mode === "delete" ? null : "delete")}>מחק</button>}
     </div>
     {mode === "rename" ? <form className="els29-library-owner-form" onSubmit={event => { event.preventDefault();run(() => renameMyMatrix(row.id, title), "השם עודכן."); }}>
       <label>שם הצופן<input value={title} maxLength={160} onChange={event => setTitle(event.target.value)} disabled={busy} /></label>
       <button type="submit" className="sod29-action primary" disabled={busy || !title.trim()}>{busy ? "שומר…" : "שמור שם"}</button>
     </form> : null}
-    {mode === "publish" ? <div className="els29-library-owner-form" role="group" aria-label="אישור הצגה בתיק הציבורי">
-      <p>הצגה בתיק הציבורי תאפשר לכל מבקר לראות את הצופן, את ההסבר ואת הממצאים שלו. אפשר להסיר אותו משם בכל עת.</p>
-      <button type="button" className="sod29-action primary" disabled={busy} onClick={() => run(() => selfPublishMatrix(row.id, true), "הצופן מוצג בתיק הציבורי שלך.")}>הצג בתיק הציבורי</button>
+    {mode === "publish" ? <div className="els29-library-owner-form" role="group" aria-label="אישור פרסום בדף שלי">
+      <p>פרסום בדף שלי פתוח לכל אדם ולגוגל: כל מבקר יוכל לראות את הצופן, את ההסבר ואת הממצאים שלו, ולשתף קישור קבוע. זה לא דורש אישור, והצופן לא נכנס בכך לספרייה המרכזית ואינו הופך לממצא מאושר. אפשר להחזיר אותו לפרטי בכל עת.</p>
+      <button type="button" className="sod29-action primary" disabled={busy} onClick={() => run(() => selfPublishMatrix(row.id, true), "הצופן פורסם בדף שלי.")}>פרסם בדף שלי</button>
+      <button type="button" className="sod29-action" disabled={busy} onClick={() => setMode(null)}>ביטול</button>
+    </div> : null}
+    {mode === "library" ? <div className="els29-library-owner-form" role="group" aria-label="בקשת הוספה לספרייה המרכזית">
+      <p>הבקשה נשלחת למנהל האתר. הצופן נשאר בדף שלי בשמך גם בזמן הבדיקה, והוספה לספרייה המרכזית נעשית רק באישור המנהל. אפשר לבטל את הבקשה בכל עת.</p>
+      <button type="button" className="sod29-action primary" disabled={busy} onClick={() => run(() => requestLibraryReview(row.id, true), "הבקשה נשלחה. הצופן ממתין לאישור הספרייה.")}>שלח בקשה לספרייה</button>
       <button type="button" className="sod29-action" disabled={busy} onClick={() => setMode(null)}>ביטול</button>
     </div> : null}
     {mode === "delete" ? <div className="els29-library-owner-form" role="group" aria-label="אישור מחיקה">
@@ -123,7 +131,7 @@ function CipherCard({ row, personal, compact = false, onOpen, onChanged, workspa
         <p className="els29-library-meta">{row.scope === "tanakh" ? "תנ״ך" : "תורה"} · דילוג <bdi>{row.direction === "back" ? "−" : ""}{row.skip_distance}</bdi></p>
         {!compact && row.description ? <p className="els29-library-description">{row.description}</p> : null}
         <div className="els29-library-tags"><span>{exact ? "מיקום שמור" : "צופן ותיק · חיפוש מחדש"}</span>
-          {personal ? <span>{row.status === "published" && row.visibility === "public" ? "פורסם" : row.self_published ? "בתיק הציבורי" : "אישי"}</span> : null}</div>
+          {personal ? <span data-tier={cipherTier(row).key}>{cipherTier(row).label}</span> : null}</div>
         {validDate ? <time dateTime={date.toISOString()}>נשמר ב־{dateFormat.format(date)}</time> : null}
         <span className="els29-library-open">{workspaceMode === "classic" ? "פתח בקלאסי" : exact ? "המשך מחקר" : "פתח למחקר"}<span aria-hidden="true">←</span></span>
       </div>
@@ -164,6 +172,43 @@ export function ElsRecentCiphers2029({ onOpen, onLibrary, workspaceMode, collaps
   </section>;
 }
 
+// Owner-only recommendation: strong ciphers of the signed-in researcher. Indicative, not calibrated; nothing is shared or published from here.
+function StrongCipherSuggestions({ onChanged }) {
+  const [rows, setRows] = useState([]);
+  const [hidden, setHidden] = useState(() => new Set());
+  const [busyId, setBusyId] = useState(null);
+  const [message, setMessage] = useState(null);
+  useEffect(() => {
+    let live = true;
+    getMyStrongCiphers().then(list => { if (live) setRows(list); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
+  const shown = rows.filter(row => !hidden.has(row.id) && !(row.visibility === "public" && row.self_published && row.status === "pending"));
+  if (!shown.length && !message) return null;
+  const publish = async row => {
+    setBusyId(row.id);setMessage(null);
+    try {
+      const result = await selfPublishMatrix(row.id, true);
+      if (result?.ok === false) setMessage({ error: true, text: OWNER_ERRORS[result.error] || "הפעולה לא הושלמה. נסו שוב." });
+      else { setHidden(current => new Set(current).add(row.id));setMessage({ error: false, text: "הצופן פורסם בדף שלי." });onChanged?.(); }
+    } catch { setMessage({ error: true, text: "הפעולה לא הושלמה. נסו שוב." }); }
+    finally { setBusyId(null); }
+  };
+  return <section className="els29-library-owner" aria-label="צפנים חזקים שלך">
+    <p><strong>צפנים חזקים שלך</strong> · מדד ראשוני בלבד. ההמלצה פרטית וגלויה רק לך, אינה מכוילת, ואינה משתפת או מפרסמת דבר בלי הבחירה שלך.</p>
+    {shown.map(row => {
+      const a = row.assessment || {};
+      return <div key={row.id} className="els29-library-owner-form">
+        <p><strong>{row.title}</strong>{Array.isArray(a.reasons) && a.reasons.length ? <> · למה נבחר: {a.reasons.join(" · ")}</> : null}</p>
+        <p className="els29-native-muted">{a.verified ? "נבדק: הממצא שוחזר במנוע." : "לא נבדק."} רמת ודאות: מדד ראשוני בלבד, לא מכויל. {row.visibility === "public" ? "הצופן כבר בדף שלך." : "הצופן פרטי כעת."}</p>
+        {row.visibility !== "public" ? <button type="button" className="sod29-action" disabled={busyId === row.id} onClick={() => publish(row)}>פרסם בדף שלי</button> : null}
+        <button type="button" className="sod29-action" onClick={() => setHidden(current => new Set(current).add(row.id))}>לא עכשיו</button>
+      </div>;
+    })}
+    {message ? <p role={message.error ? "alert" : "status"} className="els29-library-owner-message">{message.text}</p> : null}
+  </section>;
+}
+
 export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, onClose, workspaceMode }) {
   const [draft, setDraft] = useState("");
   const [query, setQuery] = useState("");
@@ -180,6 +225,8 @@ export default function ElsSavedLibrary2029({ view = "public", onView, onOpen, o
         <label>חיפוש בצפנים<input value={draft} onChange={event => setDraft(event.target.value)} maxLength={120} placeholder="מילה או שם הצופן" /></label><button className="sod29-action" type="submit"><NavigationIcon2029 name="search" />חפש בספרייה</button>
       </form> : null}
     </div>
+    {personal && data.user ? <p className="els29-library-order"><a className="sod29-action" href="/community/researcher/me">הדף הציבורי שלי ושיתוף שלו</a> · צפנים שפרסמתם בדף שלי מופיעים בו ובקישור קבוע לכל צופן.</p> : null}
+    {personal && data.user ? <StrongCipherSuggestions onChanged={data.reload} /> : null}
     <div className="els29-library-order">האחרונים שנשמרו מופיעים ראשונים</div>
     <div className="els29-library-grid">{data.rows.map(row => <CipherCard key={row.id} row={row} personal={personal} onOpen={onOpen} onChanged={data.reload} workspaceMode={workspaceMode} />)}</div>
     <LibraryStatus data={data} personal={personal} query={query} />

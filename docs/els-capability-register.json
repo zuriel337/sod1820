@@ -58,7 +58,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A02",
@@ -98,7 +106,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A03",
@@ -140,7 +156,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A04",
@@ -180,7 +204,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A05",
@@ -211,7 +243,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: centering and fit exist in the native matrix (unverified)"
+    }
+   }
   },
   {
    "id": "A06",
@@ -252,7 +296,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A07",
@@ -275,7 +327,21 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "2029 frame themes replace the engine themes; names Day/Parchment/Night not verified on the cipher surface"
+   "note": "2029 frame themes replace the engine themes; names Day/Parchment/Night not verified on the cipher surface",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "theme",
+     "canvas-card",
+     "body-class"
+    ],
+    "removal": "migrate-first",
+    "detail": "Engine theme button (royal). SUPERSEDED in the table, but still drives st.theme, the three canvas card builders and the Classic UI.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
+   }
   },
   {
    "id": "A08",
@@ -298,7 +364,21 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "same as A07"
+   "note": "same as A07",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "theme",
+     "canvas-card",
+     "body-class"
+    ],
+    "removal": "migrate-first",
+    "detail": "Engine theme button (classic/light); same dependency as A07.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
+   }
   },
   {
    "id": "A09",
@@ -321,7 +401,21 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "same as A07"
+   "note": "same as A07",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "theme",
+     "canvas-card",
+     "body-class"
+    ],
+    "removal": "migrate-first",
+    "detail": "Engine theme button (klaf/parchment); same dependency as A07.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
+   }
   },
   {
    "id": "A10",
@@ -362,7 +456,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A11",
@@ -401,7 +503,19 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "finding-colors"
+    ],
+    "removal": "migrate-first",
+    "detail": "Engine assigns 12 legacy slot colours that are stored in saved findings; the 2029 matrix projects them through projectFindingColor, the card builders do not.",
+    "plan": {
+     "slice": "S3",
+     "note": "the renderer applies projectFindingColor at draw time; stored slot colours stay as data"
+    }
+   }
   },
   {
    "id": "A12",
@@ -444,7 +558,19 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "colour choice reaches update-findings; the picker click path was not traced"
+   "note": "colour choice reaches update-findings; the picker click path was not traced",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "finding-colors"
+    ],
+    "removal": "migrate-first",
+    "detail": "Colour change reaches update-findings with engine slot colours; the 2029 projection is presentation only.",
+    "plan": {
+     "slice": "S3",
+     "note": "same projection; the picker path is traced in S1"
+    }
+   }
   },
   {
    "id": "A13",
@@ -486,7 +612,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A14",
@@ -530,7 +664,15 @@
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
    ],
-   "note": "absorbed: native line explorer replaces the classic line strip"
+   "note": "absorbed: native line explorer replaces the classic line strip",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A15",
@@ -571,7 +713,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "absorbed: native hit list replaces buildOccPanel"
+   "note": "absorbed: native hit list replaces buildOccPanel",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A16",
@@ -609,7 +759,13 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "2029 code only; no engine UI dependency."
+   }
   },
   {
    "id": "A17",
@@ -650,7 +806,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A18",
@@ -691,7 +855,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A19",
@@ -732,7 +904,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A20",
@@ -763,7 +943,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "engine 3D tilt is reachable only from the classic UI; no native path (MatrixStack3D is on a separate branch)"
+   "note": "engine 3D tilt is reachable only from the classic UI; no native path (MatrixStack3D is on a separate branch)",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "A21",
@@ -795,7 +981,19 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "absorbed: native camera mode; the engine function is classic-only"
+   "note": "absorbed: native camera mode; the engine function is classic-only",
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: progressive reveal exists inside native presentation (unverified)"
+    }
+   }
   },
   {
    "id": "A22",
@@ -827,7 +1025,19 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "absorbed: native presentation/camera mode; the engine function is classic-only"
+   "note": "absorbed: native presentation/camera mode; the engine function is classic-only",
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: presentationPlan / steps exist natively (unverified)"
+    }
+   }
   },
   {
    "id": "A23",
@@ -869,7 +1079,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "A24",
@@ -900,7 +1118,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: verse context lens exists (SourceLens); the span control is unverified"
+    }
+   }
   },
   {
    "id": "A25",
@@ -932,7 +1162,23 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "share card is built at save; no native PNG download (downloadMatrixPNG is classic-only)"
+   "note": "share card is built at save; no native PNG download (downloadMatrixPNG is classic-only)",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "canvas-card",
+     "theme",
+     "colors",
+     "fonts",
+     "logo"
+    ],
+    "removal": "migrate-first",
+    "detail": "buildShareCard / buildCipherCanvas / buildCipherGrid draw by st.theme (royal/klaf/classic), Georgia/Arial, engine slot colours and a text-only brand; not the 2029 matrix, palette or Brand Core.",
+    "plan": {
+     "slice": "S3",
+     "note": "replaced by the single 2029 renderer; builders retire in S6"
+    }
+   }
   },
   {
    "id": "A26",
@@ -970,7 +1216,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "absorbed: native share component"
+   "note": "absorbed: native share component",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B01",
@@ -1014,7 +1268,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B02",
@@ -1058,7 +1320,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B03",
@@ -1099,7 +1369,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B04",
@@ -1132,7 +1410,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: scope selector and scope labels exist (unverified)"
+    }
+   }
   },
   {
    "id": "B05",
@@ -1165,7 +1455,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: tanakh scope exists natively (unverified)"
+    }
+   }
   },
   {
    "id": "B06",
@@ -1209,7 +1511,15 @@
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
    ],
-   "note": "two axes plus an optional third are native; N-term crossFindMulti is classic-only"
+   "note": "two axes plus an optional third are native; N-term crossFindMulti is classic-only",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B07",
@@ -1241,7 +1551,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "pure kernel exists; runCrossFree is bound to the classic DOM"
+   "note": "pure kernel exists; runCrossFree is bound to the classic DOM",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B08",
@@ -1271,7 +1587,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic-only caller (xbridge)"
+   "note": "classic-only caller (xbridge)",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B09",
@@ -1301,7 +1623,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic-only caller"
+   "note": "classic-only caller",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B10",
@@ -1344,7 +1672,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B11",
@@ -1374,7 +1710,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic-only; only reversal spellings are native"
+   "note": "classic-only; only reversal spellings are native",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B12",
@@ -1419,7 +1761,15 @@
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
    ],
-   "note": "range search and exact skip are live; findAtSkips (arbitrary skip list) still has no caller"
+   "note": "range search and exact skip are live; findAtSkips (arbitrary skip list) still has no caller",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B13",
@@ -1441,7 +1791,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "no Fibonacci/prime/power-of-2 search anywhere"
+   "note": "no Fibonacci/prime/power-of-2 search anywhere",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "B14",
@@ -1463,7 +1819,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "scope is torah or tanakh only"
+   "note": "scope is torah or tanakh only",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "B15",
@@ -1493,7 +1855,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "pure kernel exists; lensPattern is bound to the classic DOM"
+   "note": "pure kernel exists; lensPattern is bound to the classic DOM",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B16",
@@ -1523,7 +1891,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "pure kernel exists; lensRadius is bound to the classic DOM"
+   "note": "pure kernel exists; lensRadius is bound to the classic DOM",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "B17",
@@ -1564,7 +1938,15 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "same path as B10"
+   "note": "same path as B10",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B18",
@@ -1586,7 +1968,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "no non-Hebrew derivation"
+   "note": "no non-Hebrew derivation",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "B19",
@@ -1627,7 +2015,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "B20",
@@ -1649,7 +2045,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "forbidden by the capability map (approximate search)"
+   "note": "forbidden by the capability map (approximate search)",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "C01",
@@ -1687,7 +2089,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "C02",
@@ -1720,7 +2130,13 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "research profile only; public-build gating not traced"
+   "note": "research profile only; public-build gating not traced",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "2029 code only; no engine UI dependency."
+   }
   },
   {
    "id": "C03",
@@ -1756,7 +2172,13 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "reaches the workspace tier only; research_objects tier not re-checked"
+   "note": "reaches the workspace tier only; research_objects tier not re-checked",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "2029 code only; no engine UI dependency."
+   }
   },
   {
    "id": "C04",
@@ -1778,7 +2200,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "no compare surface"
+   "note": "no compare surface",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "C05",
@@ -1800,7 +2228,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "no ELS challenge path"
+   "note": "no ELS challenge path",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "No code owner; nothing Legacy to remove."
+   }
   },
   {
    "id": "D01",
@@ -1830,7 +2264,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: occurrence selection exists (unverified)"
+    }
+   }
   },
   {
    "id": "D02",
@@ -1867,7 +2313,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "D03",
@@ -1897,7 +2351,19 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "notable/SIGNIFICANT feed the classic occurrence panel; native use not confirmed"
+   "note": "notable/SIGNIFICANT feed the classic occurrence panel; native use not confirmed",
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine notable-occurrence output"
+    }
+   }
   },
   {
    "id": "D04",
@@ -1934,7 +2400,13 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "absorbed: skip range in the advanced search"
+   "note": "absorbed: skip range in the advanced search",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "2029 code only; no engine UI dependency."
+   }
   },
   {
    "id": "D05",
@@ -1971,7 +2443,19 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: finding radius exists (unverified)"
+    }
+   }
   },
   {
    "id": "D06",
@@ -2012,7 +2496,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "E01",
@@ -2046,7 +2538,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "partial native trace: gap ranking inputs exist; display unverified"
+    }
+   }
   },
   {
    "id": "E02",
@@ -2077,7 +2581,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "callers are classic lenses only"
+   "note": "callers are classic lenses only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "E03",
@@ -2108,7 +2618,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine rarity output"
+    }
+   }
   },
   {
    "id": "E04",
@@ -2143,7 +2665,19 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "stars exist for cross meetings; qualityCalc runs only in the classic panel, so saves carry no quality"
+   "note": "stars exist for cross meetings; qualityCalc runs only in the classic panel, so saves carry no quality",
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native shows stars on library cards; the matrix surface is unverified"
+    }
+   }
   },
   {
    "id": "E05",
@@ -2174,7 +2708,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic lens only"
+   "note": "classic lens only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "E06",
@@ -2205,7 +2745,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic lens only"
+   "note": "classic lens only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "E07",
@@ -2239,7 +2785,19 @@
    },
    "detected_by": [
     "REGISTER_GUARD"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_ONLY_LIVE",
+    "surface": [
+     "classic-ui"
+    ],
+    "removal": "after-parity",
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine angle/parallel classification"
+    }
+   }
   },
   {
    "id": "E08",
@@ -2270,7 +2828,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic cross panel only"
+   "note": "classic cross panel only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "E09",
@@ -2303,7 +2867,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "the native save path skips it; other callers are classic"
+   "note": "the native save path skips it; other callers are classic",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "E10",
@@ -2336,7 +2906,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic button only"
+   "note": "classic button only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F01",
@@ -2369,7 +2945,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "computed in run, displayed only by the classic chips"
+   "note": "computed in run, displayed only by the classic chips",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F02",
@@ -2402,7 +2984,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic callers only"
+   "note": "classic callers only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F03",
@@ -2446,7 +3034,15 @@
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
    ],
-   "note": "absorbed: native lexicon lens replaces scanCandidates"
+   "note": "absorbed: native lexicon lens replaces scanCandidates",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "F04",
@@ -2487,7 +3083,15 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "nearest native equivalent; equivalence not compared"
+   "note": "nearest native equivalent; equivalence not compared",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "F05",
@@ -2518,7 +3122,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic only"
+   "note": "classic only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F06",
@@ -2549,7 +3159,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic only"
+   "note": "classic only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F07",
@@ -2580,7 +3196,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic only"
+   "note": "classic only",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "F08",
@@ -2624,7 +3246,15 @@
     "TELEMETRY_UI_ACTION",
     "TELEMETRY_OPERATION"
    ],
-   "note": "absorbed: native line scan replaces scanAxisLineNow"
+   "note": "absorbed: native line scan replaces scanAxisLineNow",
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "G01",
@@ -2635,7 +3265,8 @@
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
     "docs/els-f3-f4-privacy-handoff.md",
-    "CLAUDE.md Open Index Law §1"
+    "CLAUDE.md Open Index Law §1",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2657,7 +3288,8 @@
    "tests": [
     "test/els-browser-truth-census.test.mjs",
     "test/els-native-ui-browser.test.mjs",
-    "test/els-save-panel-lifecycle.test.mjs"
+    "test/els-save-panel-lifecycle.test.mjs",
+    "test/els-publication-tiers.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2669,7 +3301,20 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION",
     "APP_HEALTH_1528_PENDING"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "save-image",
+     "canvas-card"
+    ],
+    "removal": "migrate-first",
+    "detail": "Native save asks the engine for image+shape (legacy canvas), TzofenEmbed uploads them to the public gallery bucket under random names; private saves get no image.",
+    "plan": {
+     "slice": "S4",
+     "note": "save asks the 2029 renderer; deterministic path; private image"
+    }
+   }
   },
   {
    "id": "G02",
@@ -2679,7 +3324,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2706,7 +3352,13 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "the anonymous branch exists but the native panel only offers a login link"
+   "note": "the anonymous branch exists but the native panel only offers a login link",
+   "legacy_dependency": {
+    "class": "NONE",
+    "surface": [],
+    "removal": "n/a",
+    "detail": "2029 code only; no engine UI dependency."
+   }
   },
   {
    "id": "G03",
@@ -2716,7 +3368,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2732,7 +3385,8 @@
    ],
    "tests": [
     "test/els-native-ui-browser.test.mjs",
-    "test/els-verify-batch.test.mjs"
+    "test/els-verify-batch.test.mjs",
+    "test/els-publication-tiers.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2744,7 +3398,20 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION",
     "APP_HEALTH_1528_PENDING"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "save-image",
+     "canvas-card"
+    ],
+    "removal": "migrate-first",
+    "detail": "Update path re-uploads the legacy canvas image (a new random object each time).",
+    "plan": {
+     "slice": "S4",
+     "note": "update regenerates through the 2029 renderer at the same path"
+    }
+   }
   },
   {
    "id": "G04",
@@ -2778,7 +3445,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "host helper with no caller"
+   "note": "host helper with no caller",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "G05",
@@ -2809,7 +3482,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "host helper with no caller"
+   "note": "host helper with no caller",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "G06",
@@ -2820,7 +3499,8 @@
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
     "docs/els-f3-f4-privacy-handoff.md",
-    "CLAUDE.md Open Index Law §1"
+    "CLAUDE.md Open Index Law §1",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2833,7 +3513,9 @@
     "host-bridge:TzofenEmbed"
    ],
    "tests": [
-    "test/els-saved-cipher-owner-actions.test.mjs"
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/els-publication-tiers.test.mjs",
+    "test/els-cipher-tier.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2844,7 +3526,20 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "note": "Three publication tiers decided 26.11.2026 (fix prepared, not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row); target: private / my page (no approval) / central library (admin approval), plus an owner-only strong-cipher recommendation (preliminary metric only). Rollback keeps the leak closed; every public cipher has a permanent address with the existing ShareActions; library requests use the existing pending queue and system_suggestions.",
+   "legacy_dependency": {
+    "class": "VISUAL_LEGACY",
+    "surface": [
+     "images"
+    ],
+    "removal": "migrate-first",
+    "detail": "Library cards, page and OG read image_url, which holds the legacy card (120 of 143 rows).",
+    "plan": {
+     "slice": "S5",
+     "note": "library images move to the v2 card through the backfill"
+    }
+   }
   },
   {
    "id": "G07",
@@ -2854,7 +3549,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2885,7 +3581,15 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "Canonical engine computes; the native 2029 component is the surface. Keep."
+   }
   },
   {
    "id": "G08",
@@ -2918,7 +3622,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "classic-only trigger; the host handler has no native sender"
+   "note": "classic-only trigger; the host handler has no native sender",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "G09",
@@ -2951,7 +3661,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "host helper with no caller"
+   "note": "host helper with no caller",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   },
   {
    "id": "G10",
@@ -2960,7 +3676,8 @@
    "disposition": "UNREACHABLE",
    "contracts": [
     "els_single_engine_law@2",
-    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2986,7 +3703,13 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "only the classic delete message calls it; no moderation UI in src (control-plane surfaces not checked)"
+   "note": "only the classic delete message calls it; no moderation UI in src (control-plane surfaces not checked)",
+   "legacy_dependency": {
+    "class": "ENGINE_UNREACHABLE",
+    "surface": [],
+    "removal": "decide",
+    "detail": "Engine code with no surface at all. Not a Legacy UI dependency; its fate follows the work order for unreachable capabilities."
+   }
   }
  ],
  "engine_only": [
@@ -3000,5 +3723,197 @@
   "Single source for the per-capability mapping (binding contract, responsible component, dependency, test, actual state). The audit document keeps the narrative; test/els-capability-register.test.mjs keeps both honest.",
   "proof.live_desktop / proof.live_mobile stay false until a real run on the live site is recorded in live_evidence; CI and fixture tests are not live proof.",
   "detected_by: REGISTER_GUARD = the static test above; TELEMETRY_UI_ACTION / TELEMETRY_OPERATION = existing els events (surface=els); APP_HEALTH_1528_PENDING = PR 1528 signals, not in main and not applied."
- ]
+ ],
+ "legacy_dependency_summary": {
+  "ENGINE_COMPUTE": 29,
+  "ENGINE_ONLY_LIVE": 13,
+  "ENGINE_UNREACHABLE": 23,
+  "NONE": 11,
+  "VISUAL_LEGACY": 9
+ },
+ "legacy_dependency_vocabulary": {
+  "NONE": "no Legacy dependency (parked, never, or 2029-only code)",
+  "ENGINE_COMPUTE": "canonical computational engine with a native 2029 surface: keep",
+  "ENGINE_ONLY_LIVE": "live only through the engine's own Classic UI: removable only after parity",
+  "ENGINE_UNREACHABLE": "engine code with no surface: not a UI dependency; decided with the unreachable-capability work order",
+  "VISUAL_LEGACY": "draws, themes, colours, fonts, logo or images in the pre-2029 style: migrate before anything is removed"
+ },
+ "legacy_dependency_findings": [
+  {
+   "id": "LDF-1",
+   "area": "canvas card builders",
+   "finding": "buildShareCard, buildCipherCanvas and buildCipherGrid draw by st.theme (royal/klaf/classic) with Georgia/Arial, the engine slot colours and a text-only brand. The native 2029 save asks the engine for them (native-save -> image + shape).",
+   "evidence": [
+    "tools/els/els-code.template.html:4607,4651,4700,4698,4721",
+    "src/components/TzofenEmbed.jsx:284-285"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-2",
+   "area": "themes",
+   "finding": "Three engine themes (royal, klaf, classic) with theme buttons and body classes; the register marks them SUPERSEDED (A07-A09) yet they still choose the card palette and the Classic UI look.",
+   "evidence": [
+    "tools/els/els-code.template.html:956-958,6052-6058"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-3",
+   "area": "colours",
+   "finding": "315 hex literals (115 distinct) in the engine template; 12 legacy slot colours are stored inside saved findings. The 2029 matrix projects them to the approved palette.matrix (projectFindingColor); the canvases do not.",
+   "evidence": [
+    "src/components/experience2029/elsFindingColors2029.js",
+    "src/lib/paletteTokens2029.js:MATRIX_HIGHLIGHTS"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-4",
+   "area": "fonts",
+   "finding": "Engine CSS uses Frank Ruhl Libre / David Libre / Georgia and system-ui; canvases use Georgia and Arial. The 2029 matrix uses TYPEFACE.display (Rubik). 'classic glyphs' remains an intentional 2029 option.",
+   "evidence": [
+    "tools/els/els-code.template.html:11-12",
+    "src/lib/designTokens.js:TYPEFACE"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-5",
+   "area": "logo / Brand Core",
+   "finding": "The engine embeds the old ELS logo as a data URI and a text signature; no card uses the Brand Core lockup (brandAssets2029.js, approved full lockup, no crop or redraw).",
+   "evidence": [
+    "tools/els/build.py:33",
+    "src/lib/brandAssets2029.js"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-6",
+   "area": "save and images",
+   "finding": "Cards are uploaded to the public gallery bucket under random names (442 objects, 126 MB, at most 130 referenced); private saves upload nothing; 120 of 143 rows cannot be re-rendered exactly (no stored start_index).",
+   "evidence": [
+    "src/components/TzofenEmbed.jsx:207-215,284-285"
+   ],
+   "removal": "migrate-first"
+  },
+  {
+   "id": "LDF-7",
+   "area": "share",
+   "finding": "Share link is native (ElsMatrixShare2029, URL only). The PNG download and the share text with the emoji are Classic-only.",
+   "evidence": [
+    "src/components/experience2029/ElsMatrixShare2029.jsx",
+    "tools/els/els-code.template.html:4559-4575,4691"
+   ],
+   "removal": "after-parity"
+  },
+  {
+   "id": "LDF-8",
+   "area": "dialogs and buttons",
+   "finding": "The engine's own popups, selection bar, toasts, one browser dialog call and .vb buttons exist only inside the Classic UI; the native surface uses the shared Royal components.",
+   "evidence": [
+    "tools/els/els-code.template.html:956-958"
+   ],
+   "removal": "after-parity"
+  },
+  {
+   "id": "LDF-9",
+   "area": "Classic alternative UI",
+   "finding": "The engine UI is mounted as els29-classic-fallback (hidden unless classicOpen) and reachable from the public cipher page, the library card and the matrix-reading activity.",
+   "evidence": [
+    "src/components/experience2029/ElsNativeClassic2029.jsx:913,2131-2145",
+    "src/pages/PublicLibraryContinuity2029Page.jsx"
+   ],
+   "removal": "after-parity"
+  },
+  {
+   "id": "LDF-10",
+   "area": "hidden dependencies",
+   "finding": "elsMatrixZoom.js mirrors the classic engine geometry (duplicate presentation math); spatial fixtures import public/tzofen.html and the tk data; /tzofen.html has redirects and routes; 37 test/script files reference the template or its output; the old els-logo.png is used on the Home page.",
+   "evidence": [
+    "src/lib/elsMatrixZoom.js:1-4",
+    "src/lib/spatial/torahElsPathFixture.js",
+    "public-reading-deploy/transport.js:614",
+    "src/components/experience2029/HomeComposition2029.jsx:653"
+   ],
+   "removal": "decide"
+  },
+  {
+   "id": "LDF-11",
+   "area": "computation kept",
+   "finding": "The canonical engine (search, verification, ranking, geometry, the replay gate) is not Legacy UI and is kept; no function in this register is to be replaced or duplicated.",
+   "evidence": [
+    "els_single_engine_law"
+   ],
+   "removal": "keep"
+  }
+ ],
+ "legacy_removal_plan": {
+  "principle": "one computational engine, one 2029 drawing mechanism, one design language, one Brand Core; zero Legacy UI without losing a research capability (ZURIEL 26.11.2026). Work is tracked through this register: every row below names its slice.",
+  "slices": [
+   {
+    "id": "S0",
+    "title": "Finish #1565",
+    "scope": "grant hardening SQL, merge, deployment, canary, one real save",
+    "gate": "separate exact approval per step: SQL, merge, deploy, alias",
+    "removes": "nothing"
+   },
+   {
+    "id": "S1",
+    "title": "Parity trace of the 13 Classic-only rows",
+    "scope": "prove for each row the native code path and a fixture/browser test, or record the gap; update owners and class; no code change",
+    "gate": "register test; ZURIEL reviews the gap list",
+    "removes": "nothing"
+   },
+   {
+    "id": "S2",
+    "title": "Native surfaces for the true gaps",
+    "scope": "expose existing engine output through shared Royal components; no new computation, lazy-loaded (Speed Law)",
+    "gate": "fixture + browser test per row; speed gates unchanged",
+    "removes": "nothing"
+   },
+   {
+    "id": "S3",
+    "title": "One 2029 card renderer",
+    "scope": "pure model-to-image module fed by the native projection (state.matrix), palette.matrix + projectFindingColor, TYPEFACE, the Brand Core lockup and elsMatrixZoom geometry; minimum cell 26 px (the app default); a long axis gets a taller card, never smaller letters; tested on 3 long-axis samples against real crawler previews before the OG variant is fixed",
+    "gate": "sample approval by ZURIEL; render determinism test; no Legacy import",
+    "removes": "nothing (builders retire in S6)"
+   },
+   {
+    "id": "S4",
+    "title": "Automatic image on save and update",
+    "scope": "save and update ask the 2029 renderer (not the engine canvas); deterministic public path v2/<id>.png; private rows get a private bucket image, never image_url",
+    "gate": "SQL proposal (private bucket, policies, CHECK) needs its own approval; isolated Postgres tests",
+    "removes": "nothing"
+   },
+   {
+    "id": "S5",
+    "title": "Backfill of existing ciphers",
+    "scope": "worker on the existing media-thumbs pattern; exact rows re-rendered from stored locators, legacy rows only when a single occurrence matches, the rest to a review list; image_url backup first; private ones rendered by their owner on next open",
+    "gate": "dry run first; approval to run; old objects kept 30 days; orphan cleanup is separate",
+    "removes": "nothing"
+   },
+   {
+    "id": "S6",
+    "title": "Retire the Legacy engine UI",
+    "scope": "(a) close Classic entry points, (b) remove the els29-classic-fallback mount, (c) cut UI code from tools/els while the computation stays, (d) remove themes, canvas builders, els-logo assets and the mirrored geometry, (e) migrate the 37 referencing tests",
+    "gate": "S1/S2 parity complete, S5 done, each deletion approved by ZURIEL; history in Git is the recovery path",
+    "removes": "engine UI only"
+   },
+   {
+    "id": "S7",
+    "title": "Home section marker",
+    "scope": "replace the old /els-logo.png image with the existing NavigationIcon2029 \"els\" (Brand Core governs the lockup, not section icons); one image request fewer",
+    "gate": "visual check at 390 and 1440 px",
+    "removes": "the Home use of els-logo.png"
+   },
+   {
+    "id": "S8",
+    "title": "One geometry source",
+    "scope": "elsMatrixZoom.js is the single presentation geometry (native, folded matrix and the card renderer); the engine copies (buildMatrix, fitMatrixToScreen, markedBBox) and the card builders constants disappear with S6; parity test until then",
+    "gate": "existing zoom tests + a card/native parity test",
+    "removes": "duplicate geometry"
+   }
+  ]
+ }
 }

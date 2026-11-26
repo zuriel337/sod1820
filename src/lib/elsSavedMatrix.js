@@ -45,3 +45,12 @@ export function savedMatrixWorkspaceHref(row, mode) {
     : row?.id ? `/code?record=${encodeURIComponent(row.id)}` : "/code";
   return href !== "/code" && (mode === "research" || mode === "classic") ? `${href}&mode=${mode}` : href;
 }
+
+// Three separate states of one cipher (ZURIEL 26.11.2026): private / on my page (open to everyone) / in the central library.
+// Page publication needs no approval; the library needs the administrator's approval, requested through the existing queue.
+export function cipherTier(row) {
+  if (row.status === "published" && row.visibility === "public") return { key: "library", label: "בספרייה המרכזית" };
+  if (row.visibility === "public" && row.self_published && row.status === "pending") return { key: "requested", label: "בדף שלי · ממתין לאישור הספרייה" };
+  if (row.visibility === "public" && row.self_published) return { key: "page", label: "בדף שלי (ציבורי)" };
+  return { key: "private", label: "פרטי" };
+}

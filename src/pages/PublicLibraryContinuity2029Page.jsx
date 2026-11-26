@@ -8,6 +8,7 @@ import BookSourceReader2029 from "../components/books2029/BookSourceReader2029.j
 import { fetchPublicLibrary2029, fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../lib/research/publicLibraryContinuity2029.js";
 import { publicBookReadingLocation2029 } from "../lib/research/bookPublicReadingLocation2029.js";
 import { applySeo } from "../lib/seo.js";
+import ShareActions from "../components/ShareActions.jsx";
 import { bilingualDateLabel } from "../lib/relativeTime2029.js";
 import { BookCard, PreparationStatus } from "../components/books2029/BooksLibraryCards2029.jsx";
 import "./publicLibraryContinuity2029.css";
@@ -100,6 +101,11 @@ function PublicCipher({ item }) {
     <details className="public-library29-locator"><summary>פרטי המקור ומראה־המקום</summary><dl><div><dt>מזהה הפרסום</dt><dd><bdi>{item.sourceRef}</bdi></dd></div>
       {item.exactLocator ? <><div><dt>מזהה קורפוס</dt><dd><bdi>{item.exactLocator.corpusId}</bdi></dd></div><div><dt>מיקום התחלה שמור</dt><dd><bdi>{item.exactLocator.startIndex}</bdi></dd></div><div><dt>כיוון הדילוג</dt><dd>{item.exactLocator.direction === "back" ? "לאחור" : "קדימה"}</dd></div></> : <div><dt>מראה־מקום</dt><dd>לא נשמר מראה־מקום מלא שניתן לשחזר במדויק.</dd></div>}
     </dl></details>
+    {/* Every public cipher (library or the owner's page) shares through the one existing share component, with its permanent address. */}
+    <section className="public-library29-capability" data-experience-capability="cipher-share">
+      <ShareActions type="code" url={`${typeof window === "undefined" ? "https://sod1820.co.il" : window.location.origin}${item.href}`} title={item.title}
+        image={item.matrixImage || null} entityId={item.id} sourceSurface="public-cipher-2029" force />
+    </section>
     <section className="public-library29-capability" data-experience-capability="cipher-classic-search">
       <h3>הצופן התנ״כי</h3>
       <Link className="sod29-action" to={`/code?mode=classic&record=${encodeURIComponent(item.id)}`}>פתיחת הצופן השמור בכלי הקלאסי</Link>
