@@ -147,6 +147,8 @@
 **מצב:** BRANCH-ONLY. ללא שינוי במסד (חוץ מרישום ה־AFTER המאושר), ללא מחיקה, ללא שינוי ספים, ללא התקנת הרחבות, ללא מיזוג או פריסה. כל SQL כאן הוא `PROPOSAL` שלא הוחל.
 **תיקון לסעיפים קודמים:** סעיף 4 לעיל השאיר שלוש שאלות פתוחות (ל־`security_log`, ל־`page_views` ול־`site_visits`). הן נענות בסעיפים 11–12. הסעיף ״`page_views` מקבלת 1–3 שורות״ מוחלף בסעיף 12; הסעיף ״פריט 8 ≈11 MiB ליום אצווה״ מוחלף ב־≈7.5 MB (סעיף 13).
 
+> **עדכון 26.11 (הכרעה 337):** סעיפים 11 (אבטחה), 12 (מדידה), 13 (no-op), 14 (אינדקס), 15 (SIZE_INFO), 16 (visitor_events) ו־17 (כותב יחיד) הורחבו או תוקנו ב־[`PART3-DECISION-337.md`](PART3-DECISION-337.md). במקרה של סתירה, החלק השלישי גובר: בין השאר, קובץ האינדקס שונה (עוצר ומתריע במקום להיכשל), גלאי האבטחה הועבר מ־`fn_reliability_watch` ל־`check_security_spike`, ו־`measurement_silence_watch` ו־`traffic_daily` כבר הוחלו.
+
 ## 10. חוזים חיים שנקראו (השלמה)
 
 הקריאה היא **קטעים מסוננים לפי מילות מפתח** מתוך `nodes.description` (17–42 אלף תווים לכל חוק), לא קריאה סדרתית של כל הטקסט. מה שנקרא וחל על הנושא:
@@ -191,7 +193,7 @@
 | מערכת | כותב | קוראים (נבדקו) | מצב | נפח |
 |---|---|---|---|---|
 | `events` | `ingest_event` (קליינט 2029) | כל מנוע התנועה, `/2029/control` | **קנוני**, חי | 524K; 1.7–3.9K ליום; מחיצות, שמירה 120 יום |
-| `traffic_daily` | `refresh_traffic_daily*` מתוך `fn_human_entrances` | ≈12 פונקציות `admin_*` ו־`fn_ti_*` | נגזרת; **באג פתוח** (`suspected_bot` NULL ב־v2) | קטנה |
+| `traffic_daily` | `refresh_traffic_daily*` מתוך `fn_human_entrances` | ≈12 פונקציות `admin_*` ו־`fn_ti_*` | נגזרת; תיקון `suspected_bot` NULL הוחל ב־24.11 (#1547, נבדק בחלק 3: ערכי 16–25.11 תואמים) | קטנה |
 | `site_visits` | RPC `track_visit` (דרך `publicReadingTelemetry2029.js`, ‏`visits.js`, ‏`transport.js`) | 27 פונקציות SQL (3 כותבות/מוחקות, 24 קוראות) ו־view אחד (`vercel_usage_estimate`); בקליינט: `visits.js` (11 קריאות RPC), ‏`supabaseApi2029.js` (5), ‏`refresh_site_visits_history_v1` ל־`traffic_history` | **חי, מקביל** | 481K; 130 MiB; שמירה 120 יום |
 | `visitor_events` | נסגר ב־20.11 (#1461) וגם בכללי RLS | 22 פונקציות (20 קוראות, 2 כותבות/מוחקות) + view `share_events` | **היסטוריה סגורה** | 382K; 240 MiB |
 | `page_views` | `logView` (קליינט). בבנייה הציבורית אינו נכתב (DEF-012); הצפייה נספרת ב־`events` (עד 12.11) | ‏`hot_posts_live`, ‏`view_count` בלבד; הקוראים בקליינט (`getViewCount`, ‏`getHotPostsLive`) **קוד מת** | **נעצרה בפועל** (1–3 שורות ביום מבניות שאינן ציבוריות) | 98K; 17 MiB |
@@ -209,10 +211,10 @@
 3. זמן שהייה בדף (`admin_page_dwell`) ומסעות מבקר (`admin_visitor_journeys`).
 4. נתוני צמיחה ותשתית (`admin_growth_center`, ‏`admin_infra_load`) ושימוש Vercel (`vercel_usage_estimate`).
 5. תמונת יום קלה ב־`traffic_history` שהשמירה מעדכנת לפני המחיקה (`refresh_site_visits_history_v1`).
-6. מונה ״`visit_meter_stopped`״ בהצעת `measurement_silence_watch` (24.11, לא הוחלה): היא קוראת את `site_visits` כמד.
+6. מונה ״`visit_meter_stopped`״ בגלאי השקט **החי** (`measurement_silence_watch`, הוחל ב־24.11, מיגרציות `20261124212329` ו־`20261124215054`): הוא קורא את `site_visits` כמד, כלומר `site_visits` כבר תלות של גלאי Production (תיקון לטענה קודמת שכתבה ״לא הוחלה״).
 
 **נתיב לקנוני אחד, בשלבים (החלטות; אין מימוש):**
-- שלב 0, כבר: ההקפאה על קוראים חדשים; ‏`site_visits` מסומנת ״מד נגזר/Legacy״ במלאי; תיקון `traffic_daily` (הדדליין 15.3.2027, ראו סעיף 16).
+- שלב 0, כבר: ההקפאה על קוראים חדשים; ‏`site_visits` מסומנת ״מד נגזר/Legacy״ במלאי; תיקון `traffic_daily` כבר הוחל (24.11) ואינו תנאי עוד.
 - שלב 1: מטריצת התאמה של שש היכולות לעיל מול `events`/`traffic_daily`/`edge_*`, לפי קוראי UI (לא רק פונקציות). אם בוטים-לפי-נתיב אינם נדרשים, אפשר להפסיק לתעד בני-אדם ב־`site_visits` (חיסכון ≈22% מהשורות).
 - שלב 2: להעביר את הקוראים ואת מד השקט ל־`events`, ואז להפסיק את הכתיבה (`track_visit`) עם שמירה לפי חוזה v12 (״אין שכתוב הרסני״).
 - ללא איבוד היסטוריה: ‏`traffic_history` והשורות שבשמירה 120 יום נשארות עד תום החלון; אין מחיקה מוקדמת.
@@ -283,7 +285,7 @@ end if;
 
 ## 16. תחזוקת `visitor_events` — תוכנית מרץ 2027 (כפוף לאימות מחודש)
 
-**מיקום בתוכנית הקיימת:** ‏`docs/reviews/measurement-root-cause-20261124/README.md` (סעיף 3.3) הגדיר דדליין ל־**≈15.3.2027** לתיקון `fn_human_entrances` לפני ש־`fn_telemetry_retention_120d` נועל את `traffic_daily` מ־16.11. נוסף שם נספח קצר שמפנה לכאן.
+**מיקום בתוכנית הקיימת:** ‏`docs/reviews/measurement-root-cause-20261124/README.md` (סעיף 3.3) הגדיר דדליין ל־≈15.3.2027 לתיקון `fn_human_entrances`. **תיקון (26.11, נבדק מול המסד): התיקון כבר הוחל ב־24.11** (מיגרציה `20261124192629`, ‏#1547; ערכי `traffic_daily` מ־16.11 נבדקו; ‏`measurement_silence_watch` הוחל גם הוא). הדדליין אינו תנאי עוד, ושורה המתארת אותו בטבלה שלמטה היא היסטורית. נוסף שם נספח קצר שמפנה לכאן.
 
 **מצב נבדק (26.11):** ‏`visitor_events` 382,625 שורות, 240 MiB (143 MiB טבלה + 97 MiB אינדקסים), ללא שורות מאז 20.11 09:22 UTC; סגורה בקוד (#1461, ‏20.11) **ובמסד** (מדיניות ‏RLS מגבילה `ti_visitor_history_no_writes`, ‏`WITH CHECK false`); ללא FK נכנס או יוצא, ללא טריגרים, ללא פרסום; קוראים: 22 פונקציות (20 קוראות) ו־view `share_events`. קצב שמירה: ‏2,224 שורות ישנות מ־120 יום; מקסימום 8,674 שורות ליום מול מגבלת 10,000 ביום, כלומר המחיקה עומדת בקצב.
 
@@ -294,7 +296,7 @@ end if;
 | ≈30.12.2026 | `events_2026_08` (64.8 MiB) | כנ״ל |
 | ≈29.1.2027 | `events_2026_09` (86.4 MiB) | כנ״ל |
 | ≈1.3.2027 | `events_2026_10` (96.9 MiB) | כנ״ל |
-| **≈15.3.2027** | דדליין תיקון `traffic_daily` מ־16.11 | תוכנית מדידה קיימת |
+| ≈15.3.2027 | (היסטורי) דדליין תיקון `traffic_daily`; טופל ב־24.11 | אין תלות |
 | **≈20–21.3.2027** | השורה האחרונה של `visitor_events` מגיעה ל־120 יום ונמחקת בריצת 03:10 UTC | שמירת 120 יום |
 | אחרי 21.3.2027 | החזרת הנפח של `visitor_events` (≈240 MiB) | אישור בשני שלבים |
 
@@ -314,7 +316,7 @@ end if;
 | קובץ/אובייקט | בעלים נוכחי | מה עשיתי | מה נדרש |
 |---|---|---|---|
 | `docs/reviews/unified-performance-consolidation-20261031.json` (מפת המהירות; 34 קבוצות, 61 תיקוני `S-xx`) | כותבי סשן המהירות (עודכן ב־25.11, כולל S-60 ו־S-61). מסמך PR #1528 מציין ש־#1521 ״has separate active writers for proactive speed/behavior gates״ | **לא נערך** | מוצעת רשומה למפה (סעיף 18); הכותב הפעיל מכניס אותה |
-| `fn_reliability_watch` | **שני מחליפים** עם אותו guard md5 `3cc04b93…`: `supabase/proposed/20261124230000_measurement_silence_watch_PROPOSAL.sql` (ב־main) ו־`supabase/proposed/app-health-incidents-20261123/apply.sql` (PR #1528). רק אחד יוכל להתקבל; השני ייפסל ב־guard | **לא נוגע** | אם נבחר גלאי ״שקט אבטחה״ (סעיף 11 ג׳): לצרף אותו להצעת שקט המדידה הקיימת, ולא לפתוח הצעה שלישית |
+| `fn_reliability_watch` | **שונה חי ב־24.11** על ידי גלאי שקט המדידה (md5 חי `db5e1827…`, מיגרציות `20261124212329`, ‏`20261124215054`); הקבצים ב־`supabase/proposed/20261124230000_*` עדיין מסומנים ״NOT APPLIED״ בראשם, וזה סחף תיעוד. ל־PR #1528 (`app-health-incidents-20261123/apply.sql`) guard ישן (`3cc04b93…`) שייפסל ב־apply וידרוש בסיס חדש | **לא נוגע** | גלאי אבטחה לא נכנס לכאן: הוא ב־`check_security_spike` (סעיף 11 ג׳ הוחלף, ראו PART3-DECISION-337.md סעיף 1) |
 | `fn_capacity_growth_guard_v1` | G3 קיבולת (חוזה `G3_CAPACITY_GROWTH_RUNTIME_V1`) | עיצוב בלבד (סעיף 15) | כותב יחיד: מי שיקבל את ההחלטה על הסף |
 | `research_object_revisions` / טריגר `fn_snapshot_research_object_revision` | `research_intake_foundation_contract_law` v14 | עיצוב בלבד (סעיף 13) | כותב יחיד לטריגר; ללא חפיפה עם צנרת `corpus_batch` או `wa_channel_intake` |
 | `docs/reviews/db-capacity-audit-20261126/` | **הסשן הזה** (תחום חדש) | כל התיעוד והקבצים שלעיל | — |

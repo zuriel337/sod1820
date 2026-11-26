@@ -4,6 +4,7 @@ import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidat
 import { createCountryPolicyCache, COUNTRY_POLICY_TIMING } from './edge-country-policy.js';
 import { createBigNumberEligibility, readBigNumberList, bigNumberUnavailableResponse } from './edge-big-number-eligibility.js';
 import { oldJourneyAddress, oldJourneyGoneResponse } from './edge-old-journey.js';
+import { createProbeAdmission, isSecurityProbe, probeDeniedResponse, probeLogBody } from './edge-security-probe.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -26,7 +27,14 @@ import { oldJourneyAddress, oldJourneyGoneResponse } from './edge-old-journey.js
 
 export const config = {
   // רק ניווטי-דף: לא api/, לא assets/, ולא נתיב עם סיומת קובץ.
-  matcher: ['/((?!api/|assets/|.*\\.).*)'],
+  // שלוש הרשומות האחרונות (edge-security-probe.js): בדיוק נתיבי-הסריקה שיש בהם נקודה (‎.php, ‎.env, ‎.git ...),
+  // כדי שיגיעו לשומר-הסף ויירשמו; אף נכס-סטטי רגיל אינו תואם להן, ולכן אין עלות לגלישה רגילה.
+  matcher: [
+    '/((?!api/|assets/|.*\\.).*)',
+    '/(.*)\\.[pP][hH][pP]',
+    '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+    '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+  ],
 };
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
@@ -322,6 +330,9 @@ function routeNotFoundResponse() {
   });
 }
 
+// Security probe recording (edge-security-probe.js): per-instance cap on the rows written to security_log.
+const PROBE_ADMISSION = createProbeAdmission();
+
 export default async function middleware(request, context) {
   const country = request.headers.get('x-vercel-ip-country') || 'XX';
   const uaRaw = request.headers.get('user-agent') || '';
@@ -345,6 +356,23 @@ export default async function middleware(request, context) {
   }
 
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
+
+  // 🛡️ Security probes (wp-admin, .env, *.php ...): 403 before any database read, and one row in security_log through the existing RPC
+  // log_security (the signal the retired Legacy honeypot used to write). Counted per instance (PROBE_ADMISSION); the 403 is never capped.
+  // Health of this recording is watched by check_security_spike through the scheduled canary, not by this code.
+  if (isSecurityProbe(path)) {
+    if (PROBE_ADMISSION()) {
+      context.waitUntil(
+        fetch(`${SUPABASE_URL}/rest/v1/rpc/log_security`, {
+          method: 'POST',
+          headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+          body: JSON.stringify(probeLogBody({ country, pathname: path, userAgent: uaRaw, forwardedFor: request.headers.get('x-forwarded-for') })),
+        }).catch(() => {}),
+      );
+    }
+    return probeDeniedResponse();
+  }
+
   const isBot = kind !== 'browser';       // goodbot | ai | bot
   // Old Journey address (/journey?from=…, GET/HEAD): the same light 410 for a browser and a crawler (ZURIEL 19.11.2026, edge-old-journey.js).
   // It is exempt only from the expensive-path crawler block; bad bots and blocked countries are still refused below.

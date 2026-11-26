@@ -3,6 +3,8 @@
 -- tanach_verses is a ~23K-row near-static reference table, so the plain build takes seconds. CREATE INDEX blocks writes (not reads)
 -- to the table while it builds; if writes must continue, run the statement in the comment below by itself, outside a transaction.
 --   create index concurrently idx_tv_words on public.tanach_verses using gin (words);
+-- If tv_words_gin is also missing, the index is still re-created (a sole index is better than none) and a NOTICE says so;
+-- rebuild tv_words_gin from supabase/migrations/20260728_namelab_perf.sql afterwards.
 do $rollback$
 begin
   perform set_config('lock_timeout', '3s', true);
@@ -13,7 +15,7 @@ begin
   end if;
   if not exists (select 1 from pg_class c join pg_namespace n on n.oid = c.relnamespace
                   where n.nspname = 'public' and c.relname = 'tv_words_gin') then
-    raise exception 'refusing: tv_words_gin is missing, restore it from supabase/migrations/20260728_namelab_perf.sql first';
+    raise notice 'tv_words_gin is also missing: idx_tv_words is re-created as the only words index; rebuild tv_words_gin per 20260728_namelab_perf.sql';
   end if;
   create index idx_tv_words on public.tanach_verses using gin (words);
 end

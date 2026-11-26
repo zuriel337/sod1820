@@ -3,7 +3,7 @@
 // Two owners, no hand-kept duplicates: (1) the marked block at the end is DERIVED (npm run sync:route-legitimacy, checked in CI) from
 // the router as shipped in production (src/App2029.jsx) and from single-segment redirect/rewrite sources in vercel.json; (2) the list
 // below is the explicit hand-kept allow-list for pages that are a deliberate decision (legacy and Hebrew aliases, preview-scoped pages).
-// Paths with a dot never reach this middleware (see its matcher).
+// Paths with a dot never reach this middleware (see its matcher), except the scanner-probe shapes listed in edge-security-probe.js (answered 403 first).
 // LEGACY / OBSOLETE (owner decision ZURIEL 2026-11-06, recorded in docs/reviews/audit-remediation-20261106/README.md): "/sulamot", "/sulamot2".."/sulamot11"
 // and the rest of the old 3D / experiment generation are NOT part of the current product. They stay listed only so an old link answers the
 // "experimental preview, not open in this version" notice (src/lib/publicReadingRelease2029.js, noindex, no data, no writes) instead of a bare 404.

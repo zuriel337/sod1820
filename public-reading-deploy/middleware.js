@@ -6,5 +6,10 @@ export { default } from "../middleware.js";
 // Vercel statically extracts this matcher; an imported/re-exported config is
 // insufficient. The build and binding test require exact canonical equality.
 export const config = {
-  matcher: ['/((?!api/|assets/|.*\\.).*)'],
+  matcher: [
+    '/((?!api/|assets/|.*\\.).*)',
+    '/(.*)\\.[pP][hH][pP]',
+    '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+    '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+  ],
 };

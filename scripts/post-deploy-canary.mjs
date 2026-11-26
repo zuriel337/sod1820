@@ -4,20 +4,26 @@
 // Supabase is read-only here: a narrow public RPC exposes only health-watch heartbeat age/health.
 // No service_role credential leaves Supabase and no public write RPC is introduced.
 import { pathToFileURL } from "node:url";
+import { PROBE_CANARY_PATH, PROBE_CANARY_UA } from "../edge-security-probe.js";
 
 export const CANARY_BUDGET_PER_DAY = 4;
 const DEFAULT_SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const DEFAULT_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
 const SHA_RE = /^[0-9a-f]{40}$/;
 
-export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000 } = {}) {
+// SECURITY_CANARY_MODE (decision 337): "report" (default) records the security-probe check but does not decide ok, so merging the edge
+// probe layer before it is deployed cannot block a release; "enforce" makes it a release-blocking check. Flip it in the workflow after
+// the first scheduled run that shows the probe denied on the deployed SHA.
+export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000, securityMode = "report" } = {}) {
   const origin = String(base).replace(/\/+$/, "");
   const checks = [];
   const get = async (path) => {
     const res = await fetchImpl(origin + path, { redirect: "follow", signal: AbortSignal.timeout(timeoutMs) });
     return { status: res.status, text: await res.text() };
   };
+  const advisory = [];   // checks recorded for evidence that do not decide ok (SECURITY_CANARY_MODE=report)
   const add = (name, ok, detail = "") => checks.push({ name, ok: !!ok, detail: String(detail).slice(0, 200) });
+  const addSecurity = (ok, detail) => (securityMode === "enforce" ? add : (name, o, d) => advisory.push({ name, ok: !!o, detail: String(d).slice(0, 200) }))("security_probe_denied", ok, detail);
 
   try {
     const home = await get("/");
@@ -55,7 +61,18 @@ export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000 } =
   } catch (e) {
     add("request_error", false, e?.message || e);
   }
-  return { ok: checks.length > 0 && checks.every((c) => c.ok), checks };
+  // Security pipeline probe: one synthetic scanner hit with the canary user agent. The edge answers 403 + x-sod-probe and writes one
+  // security_log row; check_security_spike (SQL) alerts when no such row has arrived for 13 hours. This check proves the 403 half
+  // from the outside; the row half is proven by the SQL watch. Never follows redirects, never sends credentials.
+  try {
+    const res = await fetchImpl(origin + PROBE_CANARY_PATH, { redirect: "manual", headers: { "user-agent": PROBE_CANARY_UA }, signal: AbortSignal.timeout(timeoutMs) });
+    await res.text();
+    const denied = res.status === 403 && res.headers.get("x-sod-probe") === "denied";
+    addSecurity(denied, `status=${res.status} mode=${securityMode}`);
+  } catch (e) {
+    addSecurity(false, `${e?.message || e} mode=${securityMode}`);
+  }
+  return { ok: checks.length > 0 && checks.every((c) => c.ok), checks, advisory };
 }
 
 export async function readHeartbeat({ fetchImpl = fetch, env = process.env } = {}) {
@@ -80,7 +97,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(2);
   }
   try {
-    const result = await runCanary(url);
+    const result = await runCanary(url, { securityMode: process.env.SECURITY_CANARY_MODE === "enforce" ? "enforce" : "report" });
     const heartbeat = await readHeartbeat();
     const hbOk = heartbeat?.healthy === true;
     const checks = [...result.checks, {
@@ -88,7 +105,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
       ok: hbOk,
       detail: `age_minutes=${heartbeat?.age_minutes ?? "missing"} max_age_minutes=${heartbeat?.max_age_minutes ?? 45}`,
     }];
-    const effective = { ok: checks.every((c) => c.ok), checks, heartbeat };
+    const effective = { ok: checks.every((c) => c.ok), checks, advisory: result.advisory, heartbeat };
     console.log(JSON.stringify({ sha, url, kind, ...effective }, null, 2));
     process.exit(effective.ok ? 0 : 1);
   } catch (e) {
