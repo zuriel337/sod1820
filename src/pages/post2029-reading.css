@@ -1777,3 +1777,25 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-post-tags a{display:inline-flex;align-items:center;min-block-size:44px;padding-inline:6px}
 .sod29-post-tags a{min-inline-size:44px;justify-content:center}
 .sod29-post-comments>details>summary{display:flex;align-items:center;min-block-size:44px}
+
+/* Page help sits where the Hall puts it (ZURIEL 26.11.2026): the inline-end corner of the opening, 14px from the top and 16px from the side, the same quiet "? מה זה?". */
+.sod29-reading-post .sod29-reading-hero{position:relative}
+.sod29-reading-post .sod29-reading-hero-copy>.sod29-orientation-host{position:absolute;inset-block-start:13px;inset-inline-end:15px;z-index:5;display:block;order:0;width:auto}
+.sod29-reading-post .sod29-reading-hero-copy>.sod29-orientation-host .sod29-entry-orientation-slot,
+.sod29-reading-post .sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark{display:block;position:static}
+.sod29-reading-post .sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark.scope-surface{position:relative}
+
+/* Public connections: one compact row before the continue-reading line, in the Post's own chip language (same as the categories). */
+.post-connections{width:min(790px,100%);margin:18px auto 6px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+.post-connections-kicker{color:var(--s29-muted);font-size:var(--s29-type-micro,14px);font-weight:600}
+.post-connections .k29-cats{display:flex;flex-wrap:wrap;gap:6px}
+.post-connections .k29-cat{min-height:32px;padding:2px 10px;font-size:13px;gap:6px;inline-size:auto;position:relative}
+.post-connections .k29-cat::after{content:"";position:absolute;inset:-6px -2px}
+.post-connections .k29-cat b{font-weight:700;color:var(--s29-accent-text)}
+.sod29-reading-post .sod29-reading-hero-copy>.sod29-orientation-host .sod29-learn-mark-disclosure{width:min(520px,calc(100vw - 32px));max-width:none;justify-self:auto;grid-column:auto;grid-row:auto}
+@media(max-width:760px){
+  .post-connections{flex-wrap:nowrap;align-items:center}
+  .post-connections-kicker{flex:none}
+  .post-connections .k29-cats{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-block:7px;margin-block:-7px;min-width:0}
+  .post-connections .k29-cat{flex:none;white-space:nowrap}
+}
