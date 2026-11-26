@@ -1,9 +1,9 @@
 \set ON_ERROR_STOP on
 \i test/schema_stub.sql
-\i db/D0-shared_helpers.sql
-\i db/D1-discovery_center_v1.sql
-\i db/D2-writer_public_material_v1.sql
-\i db/D3-admin_set_home_featured_discovery_v1.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D0-shared_helpers.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D2-writer_public_material_v1.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3-admin_set_home_featured_discovery_v1.sql
 SET client_min_messages = warning;
 INSERT INTO contributors (id, slug, display_name, kind, dossier_settings) VALUES ('11111111-1111-1111-1111-111111111111', 'yaniv-levi', 'יניב לוי', 'person', '{"visibility":"public"}'), ('22222222-2222-2222-2222-222222222222', 'private-one', 'פרטי', 'person', '{"visibility":"private"}');
 INSERT INTO gematria_words (id, phrase, source, other_method, ragil, miluy, ribua, misratar, created_at) VALUES
@@ -98,16 +98,16 @@ END $$;
 
 -- (8) D3b ו-D3b-rollback: הכתיבה הראשונית מוגנת, וההחזרה אינה מוחקת בחירת מנהל מאוחרת
 DELETE FROM site_flags WHERE key = 'home_featured_discovery';
-\i db/D3b-initial-featured.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3b-initial-featured.sql
 DO $$
 BEGIN
   ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') = '[{"id": "d057b2cf-c50b-4f4c-9e22-f3ff90ec008b", "method": "ריבוע"}, {"id": "b3fff8e8-2c77-45dc-ad1e-7b72eb352298", "method": "מילוי"}]', 'D3b wrote exactly the text the rollback expects';
   ASSERT (SELECT discovery_center_feed_v1()->'featured'->>'phrase') = 'תפרצי בתשפז', 'the initial pick is shown';
 END $$;
-\i db/D3b-rollback.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3b-rollback.sql
 DO $$ BEGIN ASSERT NOT EXISTS (SELECT 1 FROM site_flags WHERE key = 'home_featured_discovery'), 'rollback removed its own exact value'; END $$;
-\i db/D3b-initial-featured.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3b-initial-featured.sql
 SET test.admin = 'true';
 SELECT admin_set_home_featured_discovery_v1('[{"id":"c0000000-0000-0000-0000-000000000001","method":"רגיל"}]'::jsonb) IS NOT NULL AS later_admin_selection;
-\i db/D3b-rollback.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3b-rollback.sql
 DO $$ BEGIN ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') LIKE '%c0000000-0000-0000-0000-000000000001%', 'a later admin selection survives the rollback'; RAISE WARNING 'D3b + rollback tests: PASS'; END $$;

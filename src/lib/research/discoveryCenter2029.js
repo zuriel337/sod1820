@@ -17,13 +17,22 @@ export const CONTENT_SOURCES_2029 = Object.freeze({
 
 const entries = new Map();
 
+/**
+ * One reader call, settled. A reader that is not applied yet answers PGRST202 / HTTP 404 ("function not found"): that is the expected state until the SQL is applied
+ * (deploy-order contract: the code may ship first), so it is not an error: the surface draws nothing. Any other failure also yields null; nothing is ever invented.
+ */
+export async function readThrough(load) {
+  try {
+    const { data, error } = await load();
+    if (error) return null;   // includes error.code === "PGRST202" (function not found) and status 404
+    return data && typeof data === "object" ? data : null;
+  } catch { return null; }
+}
+
 function cached(key, ttl, load, now = Date.now()) {
   const hit = entries.get(key);
   if (hit && now - hit.at < ttl) return hit.promise;
-  const promise = Promise.resolve().then(load).then(({ data, error }) => {
-    if (error) throw error;
-    return data && typeof data === "object" ? data : null;
-  }).catch(() => { if (entries.get(key)?.promise === promise) entries.delete(key); return null; });
+  const promise = readThrough(load).then((data) => { if (data == null && entries.get(key)?.promise === promise) entries.delete(key); return data; });
   entries.set(key, { at: now, promise });
   return promise;
 }

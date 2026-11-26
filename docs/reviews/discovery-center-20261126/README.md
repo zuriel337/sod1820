@@ -1,6 +1,6 @@
 # מרכז הגילויים הקנוני: קורא מאוחד, בחירת גילוי ושיוך לקליטה עתידית
 
-> **טיוטות לאישור מדויק. שום קובץ ב־`db/` לא הוחל.** כל אחד הוא שינוי מסד נפרד. החלטות ZURIEL: מדור קבוע בחלק העליון של הבית (אחרי "עדכונים אחרונים" ומפת המציאות), סטטיסטיקות כלל־מערכתיות, גילויים חדשים/תרומות/כותבים/גימטריות, בחירת גילוי למנהל, אין נעיצות ב"עכשיו", עיצוב רויאל כחול וזהב ומהירות.
+> **טיוטות לאישור מדויק. שום קובץ ב־`supabase/proposed/discovery-center-20261126/` לא הוחל.** כל אחד הוא שינוי מסד נפרד. החלטות ZURIEL: מדור קבוע בחלק העליון של הבית (אחרי "עדכונים אחרונים" ומפת המציאות), סטטיסטיקות כלל־מערכתיות, גילויים חדשים/תרומות/כותבים/גימטריות, בחירת גילוי למנהל, אין נעיצות ב"עכשיו", עיצוב רויאל כחול וזהב ומהירות.
 
 | קובץ | מה | שינוי מסד |
 |---|---|---|
@@ -12,7 +12,7 @@
 | `D4-trg_rc_resolve_author_contributor.sql` | שיוך נכון בקליטה לפי הכלל היחיד | `CREATE FUNCTION` + `CREATE TRIGGER` |
 | `D5-add_contribution_single_attribution_rule.sql` | `add_contribution` על אותו כלל (5 שורות, מוגן ב־md5) | `CREATE OR REPLACE FUNCTION` |
 | `E1-gematria-root-gate-check.sql` | בדיקת אכיפה (קריאה בלבד) לחוק gematria_auto_registry_law v2: גימטריה בגוף פוסט חייבת שורש ב־gematria_words | אין |
-| `verify/` (לפי השלב) | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
+| `docs/reviews/discovery-center-20261126/verify/` (לפי השלב) | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
 
 הביקורת המלאה: [AUDIT.md](AUDIT.md). כל אחד מהקבצים דורש אישור מדויק נפרד.
 
@@ -37,13 +37,13 @@
 ## סדר ההחלה המדויק (כל שלב באישור נפרד; אחרי כל שלב מריצים את ה־verify המתאים ועוצרים בחריגה)
 | # | קובץ | תלוי ב | בדיקה אחריו | החזרה |
 |---|---|---|---|---|
-| 1 | `db/D0-shared_helpers.sql` | rd_is_admin, gematria_public_word_eligible, gematria_methods (קיימים) | `verify/VERIFY-D0.sql` | `DROP FUNCTION` לארבעת העזרים |
-| 2 | `db/D1-discovery_center_v1.sql` | D0 | `verify/VERIFY-D1.sql` | `DROP FUNCTION` ×2 |
-| 3 | `db/D2-writer_public_material_v1.sql` | D0 | `verify/VERIFY-D2.sql` | `DROP FUNCTION` |
-| 4 | `db/D3-admin_set_home_featured_discovery_v1.sql` | D0 | `verify/VERIFY-D3.sql` | `DROP FUNCTION` |
-| 5 | `db/D3b-initial-featured.sql` | D0, D1, D3 | `verify/VERIFY-D3b.sql` | `db/D3b-rollback.sql` |
-| 6 | `db/D4-trg_rc_resolve_author_contributor.sql` | D0 | `verify/VERIFY-D4-D5.sql` | `DROP TRIGGER` + `DROP FUNCTION` |
-| 7 | `db/D5-add_contribution_single_attribution_rule.sql` | D0 | `verify/VERIFY-D4-D5.sql` | הגרסה הקודמת של `add_contribution` (בגוף הקובץ מוגנת ב־md5) |
+| 1 | `supabase/proposed/discovery-center-20261126/D0-shared_helpers.sql` | rd_is_admin, gematria_public_word_eligible, gematria_methods (קיימים) | `docs/reviews/discovery-center-20261126/verify/VERIFY-D0.sql` | `DROP FUNCTION` לארבעת העזרים |
+| 2 | `supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql` | D0 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D1.sql` | `DROP FUNCTION` ×2 |
+| 3 | `supabase/proposed/discovery-center-20261126/D2-writer_public_material_v1.sql` | D0 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D2.sql` | `DROP FUNCTION` |
+| 4 | `supabase/proposed/discovery-center-20261126/D3-admin_set_home_featured_discovery_v1.sql` | D0 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D3.sql` | `DROP FUNCTION` |
+| 5 | `supabase/proposed/discovery-center-20261126/D3b-initial-featured.sql` | D0, D1, D3 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D3b.sql` | `supabase/proposed/discovery-center-20261126/D3b-rollback.sql` |
+| 6 | `supabase/proposed/discovery-center-20261126/D4-trg_rc_resolve_author_contributor.sql` | D0 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D4-D5.sql` | `DROP TRIGGER` + `DROP FUNCTION` |
+| 7 | `supabase/proposed/discovery-center-20261126/D5-add_contribution_single_attribution_rule.sql` | D0 | `docs/reviews/discovery-center-20261126/verify/VERIFY-D4-D5.sql` | הגרסה הקודמת של `add_contribution` (בגוף הקובץ מוגנת ב־md5) |
 
 ## תיקוני ביקורת (26.11.2026)
 1. הרשאות D0: `gematria_word_method_value_v1`, `home_featured_picks_v1` ו־`public_discovery_writer_v1` פנימיים (REVOKE מ־PUBLIC, anon, authenticated); נקראים רק מפונקציות definer. בנוסף שער הפרטיות הקנוני בתוך עזר השיטה: רק גימטריה ציבורית, מאומתת, לא מוצפנת וזכאית מחזירה שורה. נבדק במסד מקומי זמני עם התפקידים anon ו־authenticated.

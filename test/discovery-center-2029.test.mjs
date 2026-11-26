@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { discoveryTotals, discoveryModel, writerHref, numberHref, writerActivityLine, CONTENT_SOURCES_2029 } from "../src/lib/research/discoveryCenter2029.js";
+import { readThrough, discoveryTotals, discoveryModel, writerHref, numberHref, writerActivityLine, CONTENT_SOURCES_2029 } from "../src/lib/research/discoveryCenter2029.js";
 import { PUBLIC_READING_READ_RPCS } from "../public-reading-deploy/transport.js";
 
 test("totals are by type, never summed, and a type without a real number is left out (no invented zero)", () => {
@@ -49,4 +49,15 @@ test("the identity of a discovery is phrase + method + value; a non-regular meth
   assert.deepEqual([model.featured.method, model.featured.value], ["ריבוע", 5787]);
   assert.deepEqual(model.featuredWith.map(d => [d.method, d.value]), [["מילוי", 2026], ["מסתתר", 1]], "at most two beside the featured one");
   assert.equal(model.latest[0].method, "מסתתר");
+});
+
+test("deploy-order degradation: a reader that is not applied yet (PGRST202 / 404) or a failing call draws nothing, never an invented value", async () => {
+  // discovery_center_feed_v1 / discovery_center_stats_v1 / admin_set_home_featured_discovery_v1 may be called before their SQL is applied
+  assert.equal(await readThrough(async () => ({ data: null, error: { code: "PGRST202", message: "function not found" } })), null);
+  assert.equal(await readThrough(async () => ({ data: null, error: { status: 404 } })), null);
+  assert.equal(await readThrough(async () => { throw new Error("network"); }), null);
+  assert.equal(await readThrough(async () => ({ data: "text", error: null })), null);
+  assert.deepEqual(await readThrough(async () => ({ data: { featured: null }, error: null })), { featured: null });
+  assert.equal(discoveryModel(null), null);
+  assert.deepEqual(discoveryTotals(null), []);
 });
