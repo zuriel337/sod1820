@@ -39,17 +39,12 @@
   font-weight:700;
   line-height:1;
 }
-.sod29-learn-mark.is-prominent .sod29-learn-mark-trigger{
-  border-color:var(--learn-strong);
-  background:color-mix(in srgb,var(--s29-accent) 7%,var(--s29-panel-soft));
-}
 .sod29-learn-mark.is-compact .sod29-learn-mark-trigger{
   width:44px;
   padding:7px;
   justify-content:center;
 }
 .sod29-learn-mark.is-compact.has-visible-label .sod29-learn-mark-trigger{width:auto;padding-inline:10px}
-.sod29-learn-mark.scope-surface .sod29-learn-mark-label{min-inline-size:0;white-space:normal;overflow:visible;text-overflow:clip;text-align:start}
 .sod29-learn-mark-disclosure{
   margin-top:8px;
   padding:12px 14px;
@@ -111,26 +106,15 @@
 .sod29-entry-orientation-slot{
   padding:8px clamp(14px,2vw,24px) 0;
 }
-.sod29-entry-orientation-slot .sod29-learn-mark{
-  max-width:760px;
-}
-.sod29-entry-orientation-slot .sod29-learn-mark-disclosure{
-  max-width:680px;
-}
 .sod29-surface-context-learn{margin-top:10px}
 .sod29-frame-panel .sod29-learn-mark{margin-top:12px}
 @media(max-width:720px){
   .sod29-entry-orientation-slot{padding:6px 12px 0}
-  .sod29-entry-orientation-slot .sod29-learn-mark-trigger{max-width:100%}
   .sod29-entry-orientation-slot .sod29-learn-mark:not(.scope-surface) .sod29-learn-mark-label{
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
   }
-}
-@media(prefers-reduced-motion:reduce){
-  .sod29-learn-mark-trigger,
-  .sod29-learn-mark-disclosure{transition:none!important}
 }
 
 .sod29-learn-mark-help,
@@ -163,9 +147,10 @@
 }
 .sod29-learn-mark-help:hover{color:var(--learn-ink)}
 
-/* Post reading: the "new here?" pill lives in the compact Post header (portal from the frame), never as its own bar. */
-.sod29-root.surface-post .sod29-entry-orientation-slot:not(.is-in-header){padding:4px clamp(14px,2vw,24px) 0}
 .sod29-entry-orientation-slot.is-in-header{display:block;padding:0;min-width:0}
-.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark{max-width:100%}
-.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-trigger{min-height:44px;max-width:100%}
-.sod29-entry-orientation-slot.is-in-header .sod29-learn-mark-disclosure{max-width:min(520px,100%)}
+
+/* ONE page-help action (ZURIEL 26.11.2026), the same as the Hall intro's "? מה זה?": quiet 44px text button, 14px, one gold-line box over the page, closed by Escape or "סגירת ההסבר". */
+.sod29-root .sod29-learn-mark.scope-surface .sod29-learn-mark-trigger{padding:0 6px;border:0;background:none;font-size:var(--s29-type-micro,14px)}
+.sod29-learn-mark.scope-surface .sod29-learn-mark-symbol{width:auto;flex:none;font-size:inherit;color:inherit}
+.sod29-learn-mark.scope-surface .sod29-learn-mark-disclosure{position:absolute;inset:calc(100% + 4px) 0 auto auto;z-index:6;margin:0;width:min(520px,calc(100vw - 32px));padding:16px;border-color:var(--r29-gold,var(--s29-line-strong));background:var(--s29-panel)}
+.sod29-entry-orientation-slot:not(.is-in-header){display:flex;justify-content:flex-end}

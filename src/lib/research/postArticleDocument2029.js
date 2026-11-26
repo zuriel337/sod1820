@@ -55,8 +55,8 @@ function chipsHtml(classification, max) {
 // of entryLearn2029.js for "post", as a first arrival sees it. Inactive until the page takes over (aria-disabled); a reader who already dismissed
 // it gets the compact mark from the page. Buttons below are inactive the same way: the page's own controls replace them.
 const ORIENTATION_MARK = '<span class="sod29-entry-orientation-slot is-in-header"><div class="sod29-learn-mark scope-surface has-visible-label is-prominent" data-learn-scope="surface">'
-  + '<button type="button" class="sod29-learn-mark-trigger" aria-expanded="false" aria-disabled="true" aria-label="איך זה עובד? — חדש כאן? מה עושים בפוסט הזה?"><span class="sod29-learn-mark-symbol" aria-hidden="true">?</span>'
-  + '<span class="sod29-learn-mark-label">איך זה עובד?</span></button></div></span>';
+  + '<button type="button" class="sod29-learn-mark-trigger" aria-expanded="false" aria-disabled="true" aria-label="מה זה? — חדש כאן? מה עושים בפוסט הזה?" style="gap: 4px;"><span class="sod29-learn-mark-symbol" aria-hidden="true">?</span>'
+  + '<span class="sod29-learn-mark-label">מה זה?</span></button></div></span>';
 
 // facts: the real widths of the originals (public-reading-deploy/article-image-facts.json); the document carries exactly this Post's ones, so the page
 // offers exactly the same copies (documentImageFactsFor in postArticleAdoption2029.js).

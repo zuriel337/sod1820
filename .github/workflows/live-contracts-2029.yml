@@ -117,7 +117,7 @@ jobs:
       - name: Beit Midrash strips move only themselves, never the page
         run: node --test test/beit-midrash-rail-no-page-scroll-2029.test.mjs
       - name: Design language, one Royal family (the button family is a ratchet; the other families are a warning scan that reports candidates and never fails on counts) and the Post follow panel
-        run: node --test test/button-family-guard-2029.test.mjs test/design-family-warn-2029.test.mjs test/post-follow-panel-2029.test.mjs test/royal-sheet-2029.test.mjs test/design-contract-v2-typography.test.mjs
+        run: node --test test/button-family-guard-2029.test.mjs test/design-family-warn-2029.test.mjs test/post-follow-panel-2029.test.mjs test/royal-sheet-2029.test.mjs test/post-connections-page-help-2029.test.mjs test/post-graph-connections-2029.test.mjs test/design-contract-v2-typography.test.mjs
       - name: Production service worker contract (native public images and renditions; private reads and writes stay wrapped) and personal continuity with the installed-app metadata of the same artifact
         run: |
           node scripts/build-public-reading-production.mjs

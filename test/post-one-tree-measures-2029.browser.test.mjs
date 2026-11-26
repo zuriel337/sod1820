@@ -205,10 +205,11 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const errors=[];page.on('pageerror',error=>errors.push(error.message));
       await context.addInitScript(()=>sessionStorage.setItem('fixture-post-overrides',JSON.stringify({slug:'readability-dim5',author:'בדרך לנצח',content:'<h2>קריאה נוחה בעברית</h2><p id="reading-prose" style="text-align:center;color:#cbb25e">'+('פסקה ארוכה נשארת מיושרת לתחילת השורה בתוך טור קריאה ממורכז. '.repeat(5))+'</p><blockquote><p id="reading-quote">ציטוט קצר במרכז</p></blockquote><p class="sod29-gematria-line" id="reading-equation">12 + 3 = 15</p><div class="sod-gematria-box"><div class="gb-title">🔢 גימטריה — עובדה מאומתת במנוע</div><div class="gb-rows"><div><b>216</b> = גבורה = ראיה</div><div><b>32</b> = כבוד = לב</div></div><div class="gb-note">שני השוויונות בגימטריה רגילה אומתו במנוע הרשמי. <b>זהו חישוב, לא הוכחת משמעות.</b> הקריאה נשארת רמז ופרשנות למחקר.</div></div>'})));
       await page.goto(origin+'/post/readability-dim5?theme='+theme);await page.locator('#reading-prose').waitFor();
-      const help=page.getByRole('button',{name:'איך זה עובד? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
-      assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'איך זה עובד?');
+      const help=page.getByRole('button',{name:'מה זה? — איך קוראים את הפוסט?',exact:true});await help.waitFor();
+      assert.equal(await help.locator('.sod29-learn-mark-label').innerText(),'מה זה?');
       const typography=await help.evaluate(node=>{const s=getComputedStyle(node);return {font:s.fontSize,line:s.lineHeight,weight:s.fontWeight};});
-      assert.deepEqual(typography,{font:'16px',line:'22.4px',weight:'500'},'Shared help must override the generic button font inheritance');
+      // The one page-help standard (ZURIEL 26.11.2026): the same 14px quiet "? מה זה?" as the Hall intro, not the generic button inheritance.
+      assert.deepEqual(typography,{font:'14px',line:'19.6px',weight:'500'},'Shared help must override the generic button font inheritance');
       assert.ok((await help.getAttribute('aria-label')).includes(await help.locator('.sod29-learn-mark-label').innerText()),'Visible label is included in the accessible name');
       const geometry=await page.evaluate(()=>{
         const rect=selector=>{const b=document.querySelector(selector).getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,center:b.x+b.width/2};};
@@ -268,7 +269,7 @@ test('built Post: adopted design, bounded backgrounds, lazy research, exact retu
       const concept=page.getByRole('button',{name:'הסבר מושג',exact:true});await concept.waitFor();assert.equal(await concept.locator('.sod29-learn-mark-label').count(),0);
       assert.equal(await concept.evaluate(node=>getComputedStyle(node).fontSize),'16px');
       const b=await concept.boundingBox();assert.equal(b.width,44);assert.ok(b.height>=44);await concept.click();await page.getByText('הסבר מושג נגיש',{exact:true}).waitFor();
-      assert.equal(await page.locator('.scope-surface .sod29-learn-mark-label').innerText(),'איך זה עובד?');
+      assert.equal(await page.locator('.scope-surface .sod29-learn-mark-label').innerText(),'מה זה?');
       assert.match(await page.locator('.scope-surface .sod29-learn-mark-trigger').getAttribute('aria-label'),/הסבר ארוך על המסך/);
       const surfaceHelp=page.locator('.scope-surface .sod29-learn-mark-trigger');await surfaceHelp.click();
       assert.equal(await surfaceHelp.evaluate(node=>getComputedStyle(node).fontSize),'16px');

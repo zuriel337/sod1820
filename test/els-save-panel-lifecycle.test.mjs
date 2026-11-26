@@ -28,16 +28,16 @@ async function mount(t, overrides = {}) {
   return { root, saves, async update(next) { props = { ...props, ...next }; await act(async () => root.update(React.createElement(Panel, props))); },
     async submit() { await act(async () => root.root.findByType('form').props.onSubmit({ preventDefault() {} })); } };
 }
-const checkboxes = root => root.root.findAll(node => node.type === 'input' && node.props.type === 'checkbox');
+const checkboxes = root => root.root.findAll(node => node.type === 'button' && node.props.role === 'checkbox');
 
 test('new save requests publication by default, explains guest library access, and offers an explicit private choice', async t => {
   const f = await mount(t);
   assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן יפורסם בספריית הצפנים/);
   assert.match(JSON.stringify(f.root.toJSON()), /כדי שרק אתם תוכלו לפתוח אותו/);
-  assert.equal(checkboxes(f.root)[0].props.checked, false);
+  assert.equal(checkboxes(f.root)[0].props['aria-checked'], false);
   await f.submit();
   assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });
-  await act(async () => checkboxes(f.root)[0].props.onChange({ target: { checked: true } }));
+  await act(async () => checkboxes(f.root)[0].props.onClick());
   await f.submit();
   assert.equal(f.saves[1].isPublic, false);
 });
@@ -67,7 +67,7 @@ test('foreign and published records create a copy with a fresh explanation and p
   }
 });
 
-test('guest cannot submit; unverified, busy, pending and short-description states reject even direct submit', async t => {
+test('guest cannot submit; unverified, busy, pending and empty-description states reject even direct submit', async t => {
   const f = await mount(t);
   for (const props of [{ state: { ...state, verification: { state: 'MISMATCH' } } }, { busy: true }, { pending: true }]) {
     await f.update({ state, busy: false, pending: false, ...props });
@@ -75,7 +75,7 @@ test('guest cannot submit; unverified, busy, pending and short-description state
     await f.submit();
   }
   await f.update({ state, busy: false, pending: false });
-  await act(async () => f.root.root.findByType('textarea').props.onChange({ target: { value: ' קצר ' } }));
+  await act(async () => f.root.root.findByType('textarea').props.onChange({ target: { value: '   ' } }));
   await f.submit(); assert.equal(f.saves.length, 0);
   await f.update({ user: null });
   assert.equal(f.root.root.findAllByType('form').length, 0);

@@ -57,6 +57,8 @@ on:
       - 'test/els-window-directions.test.mjs'
       - 'test/els-search-parity-repairs.test.mjs'
       - 'test/els-*.test.mjs'
+      - 'docs/els-capability-register.json'
+      - 'docs/els-capability-audit.md'
       - 'test/helpers/els-matrix-reading*.mjs'
       - 'test/fixtures/els-matrix-reading*.sql'
       - 'test/fixtures/els-matrix-reading/**'
@@ -103,6 +105,9 @@ jobs:
 
       - name: Static one-engine contract tests
         run: node --test test/els-core-compatibility.test.mjs
+
+      - name: ELS capability register (85 rows - owners still exist, counts match the audit, no dead button or silent engine entry point, no live claim without proof)
+        run: node --test test/els-capability-register.test.mjs
 
       - name: Deterministic template -> public/tzofen.html build sync
         run: |
