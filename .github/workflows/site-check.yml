@@ -1,0 +1,59 @@
+name: Site Check
+
+# "בדוק את האתר" — the one command for every agent (ZURIEL 26.11.2026). READ suite only: the public site, no login, no writes, no secrets.
+# It runs on a GitHub runner because the agent containers cannot reach the site. The target must be one of the three public origins.
+# A member (write) suite is NOT in this file: it needs an environment with a required reviewer and a protected secret, set up by ZURIEL.
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: "Target origin (sod1820.co.il, www.sod1820.co.il or sod1820.vercel.app only)"
+        required: false
+        default: "https://sod1820.co.il"
+      expected_sha:
+        description: "Optional exact source SHA the site must serve"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-check
+  cancel-in-progress: false
+
+jobs:
+  read:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Browser tooling (pinned, outside the repository tree)
+        run: |
+          npm install --no-save --no-audit --no-fund --prefix "$RUNNER_TEMP/site-check-tools" playwright@1.64.1
+          "$RUNNER_TEMP/site-check-tools/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Check the site (read suite)
+        env:
+          SITE_CHECK_TOOLS: ${{ runner.temp }}/site-check-tools
+          SITE_CHECK_URL: ${{ inputs.url }}
+          SITE_CHECK_SHA: ${{ inputs.expected_sha }}
+        run: |
+          set +e
+          node scripts/site-check.mjs --out site-check-out | tee site-check-out.log
+          code=${PIPESTATUS[0]}
+          [ -f site-check-out/summary.md ] && cat site-check-out/summary.md >> "$GITHUB_STEP_SUMMARY"
+          exit $code
+      - name: Evidence (screenshots and report)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-check-${{ github.run_id }}
+          path: site-check-out
+          retention-days: 14
+          if-no-files-found: ignore
