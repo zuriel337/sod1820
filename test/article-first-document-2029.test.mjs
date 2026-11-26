@@ -65,14 +65,15 @@ test("a cold instance answers exactly as today and loads the server DOM in the b
   assert.match(article.querySelector(".sod29-reading-byline").textContent, /ייחוס במקור: מזכה הרבים/);
   assert.equal(article.querySelector("article.sod29-reading-post").querySelectorAll("script").length, 0, "no script of the Post survives");
   assert.deepEqual([...article.querySelectorAll("script")].map(node => Object.keys(node.dataset)), [["sodArticleFirstFrame"]], "the frame's own theme script only");
-  // inside the page's frame, with the page's header: chips, details, legend, cover, section navigation, in the page's order
+  // inside the page's frame, with the page's header: the medallion (the cover, inside the hero), chips, details and the action slot, then the text (ZURIEL 25.11.2026: no legend, no section tabs)
   assert.equal(article.className, "sod29-root closed-shell native-frame surface-post sidebar-collapsed");
   assert.ok(article.querySelector(".sod29-main > .sod29-main-stage.has-context-rail > main.sod29-content > article.sod29-reading-post"));
   assert.deepEqual([...article.querySelector("article.sod29-reading-post").children].map(node => node.className),
-    ["sod29-reading-hero", "sod29-semantic-legend", "sod29-reading-cover", "sod29-surface-tabs", "sod29-reading-layout"]);
+    ["sod29-reading-hero", "sod29-reading-layout"]);
+  assert.equal(article.querySelectorAll(".sod29-semantic-legend, .sod29-surface-tabs").length, 0, "no legend and no section tabs in the first document");
+  assert.ok(article.querySelector(".sod29-reading-hero .sod29-post-actions-slot"), "the action slot is reserved (document and page draw the same box)");
   assert.deepEqual([...article.querySelector(".sod29-reading-hero-copy > .k29-cats").children].map(node => node.textContent.trim()),
-    postClassification2029(post).items.filter(item => item.role !== "legacy-media-label").slice(0, 4).map(item => `${item.prefix}: ${item.name}`), "the page's own chips");
-  assert.deepEqual([...article.querySelectorAll(".sod29-surface-tabs button")].map(node => node.textContent), ["הסיפור", "מקורות", "תגובות", "המשך"]);
+    postClassification2029(post).items.filter(item => item.role !== "legacy-media-label").map(item => `${item.prefix}: ${item.name}`), "the page's own chips");
   assert.ok([...article.querySelectorAll("button")].every(node => node.getAttribute("aria-disabled") === "true"), "its buttons are inactive until the page takes over");
   assert.ok(article.querySelector('a[href="/%d7%a2%d7%95%d7%93"]'), "internal links kept");
   assert.ok(article.querySelector('a[name="_Toc1"]'), "anchors kept");
