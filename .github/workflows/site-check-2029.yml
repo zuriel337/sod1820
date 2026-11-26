@@ -6,10 +6,6 @@ name: Site check (guest)
 # No protection is changed or bypassed: an edge refusal is reported as open coverage. Dispatch it with `gh api -X POST .../site-check-2029.yml/dispatches -f ref=main` (the /check-site command).
 
 on:
-  # TEMPORARY (remove before merge): proves the runner from this branch.
-  push:
-    branches: [claude/biblical-cipher-audit-zspg77]
-    paths: [.github/workflows/site-check-2029.yml, scripts/check-site-2029.mjs]
   workflow_dispatch:
 
 permissions:

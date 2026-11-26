@@ -6,10 +6,6 @@ name: Site QA (isolated login)
 # here with a random password. No secret, no GitHub environment, no production key or row. Manual only.
 
 on:
-  # TEMPORARY (remove before merge): proves the runner from this branch.
-  push:
-    branches: [claude/biblical-cipher-audit-zspg77]
-    paths: [.github/workflows/site-qa-2029.yml, scripts/qa-site-2029.mjs, scripts/build-qa-schema.mjs, qa/**, test/helpers/authBrowserFixture.mjs]
   workflow_dispatch:
 
 permissions:
