@@ -1,21 +1,215 @@
--- A1 · קבוצה 1 (שיוך מוכח) · research_contributions: משתמש -> תורם.   *** לא הוחל. דורש אישור מפורש של ZURIEL. ***
--- ראיה: author_user_id == contributors.user_id, כאשר לאותו משתמש תורם פעיל אחד בלבד (ללא מיזוג). לא לפי שם.
--- רק שורות approved/published: הסטטוס אינו משתנה, ולכן trg_00_zvi_standing_approve_research_contribution אינו משנה דבר.
--- ספירה צפויה: 177. נכשל (ומתבטל) אם הספירה שונה, או אם סטטוס כלשהו השתנה.
+-- A1 · קבוצה 1 (שיוך מוכח) · research_contributions: משתמש -> תורם · קובץ סופי לאישור.
+-- *** לא הוחל. דורש אישור מפורש של ZURIEL לפעולה זו ולטביעה 1609b3c76090a0374975e246b8e2e518. ***
+-- ראיה: author_user_id == contributors.user_id, לאותו משתמש תורם פעיל אחד בלבד (ללא מיזוג). לא לפי שם.
+-- 177 רשומות · 11 תורמים · 165 published + 12 approved. הטביעה: md5(string_agg(id||':'||cid||':'||status, ',' ORDER BY id)).
+-- אומת על ידי GPT מול המסד החי ועל ידי Claude (אותה טביעה).
+-- הגנות בזמן הכתיבה: (1) טביעה וספירה של הרשימה המוטמעת; (2) נעילת השורות המדויקות (FOR UPDATE) והתאמה למזהה, לסטטוס ולשדה ריק;
+-- (3) כל תורם עדיין פעיל, לא ממוזג, והוא התורם היחיד של משתמש הכותב; (4) עדכון רק של שורה שעדיין ריקה ובאותו סטטוס; (5) הסטטוס לא ישתנה
+-- (trg_00_zvi_standing_approve פועל רק על pending/hidden). כל סטייה = RAISE EXCEPTION והכול מתבטל.
 BEGIN;
-CREATE TEMP TABLE a1 ON COMMIT DROP AS
-SELECT r.id, c.id AS cid, r.status AS status_before
-FROM public.research_contributions r
-JOIN public.contributors c ON c.user_id = r.author_user_id AND c.active AND c.merged_into IS NULL
-WHERE r.deleted_at IS NULL AND r.status IN ('approved','published') AND r.author_contributor_id IS NULL
-  AND (SELECT count(*) FROM public.contributors c2 WHERE c2.user_id = r.author_user_id AND c2.active AND c2.merged_into IS NULL) = 1;
-DO $$ BEGIN IF (SELECT count(*) FROM a1) <> 177 THEN RAISE EXCEPTION 'A1: unexpected row count %', (SELECT count(*) FROM a1); END IF; END $$;
-CREATE TEMP TABLE a1_log ON COMMIT DROP AS SELECT id, cid FROM a1;
-UPDATE public.research_contributions r SET author_contributor_id = a1.cid FROM a1 WHERE r.id = a1.id AND r.author_contributor_id IS NULL;
-DO $$ BEGIN
-  IF (SELECT count(*) FROM public.research_contributions r JOIN a1 ON a1.id = r.id WHERE r.status IS DISTINCT FROM a1.status_before) <> 0 THEN RAISE EXCEPTION 'A1: a status changed'; END IF;
-  IF (SELECT count(*) FROM public.research_contributions r JOIN a1 ON a1.id = r.id WHERE r.author_contributor_id = a1.cid) <> 177 THEN RAISE EXCEPTION 'A1: not all rows updated'; END IF;
+SET LOCAL lock_timeout = '5s';
+SET LOCAL statement_timeout = '30s';
+CREATE TEMP TABLE a1_expected (id uuid PRIMARY KEY, cid uuid NOT NULL, st text NOT NULL) ON COMMIT DROP;
+INSERT INTO a1_expected (id, cid, st) VALUES
+('00706286-4fe9-4e4e-9b46-062513e92813','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('03ca9e2e-73c7-4a77-8be2-1dc78ba82b2a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('03fd8428-909b-4207-85e8-b6abe8df29b6','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('072ea88b-fc58-45bf-bf41-ca6af96d3c66','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('0b1a192d-f88a-48e6-9b8c-415485147f78','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('0b8c6281-0d9e-41f1-a5d9-68596fbeb248','27c10d9a-14a6-4493-980b-2f5eda105ad7','a'),
+('0be8c25d-4675-4305-a61f-5be35391da41','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('0dd2b832-e1ee-4f48-b40a-ec6d99d455fa','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('0f27de6f-a919-456b-8df7-9a16565b7668','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('0fee87e8-d2af-41e3-a19c-76d8af61df9e','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('10b0a5af-02fc-4b09-a5d3-3d96aa21a814','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('111dded3-d0ef-4e75-876b-e0428a93f903','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('12cb6fba-5625-4fac-bf13-e50827d3cd18','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('17e660ad-41ce-43b3-a7a9-0b04722c7061','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('18270ea7-7195-4e93-9ad5-0f490dc9fb66','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('1c172d35-89d7-4df2-8335-21b08191ff68','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('1e1c8395-6c8b-40c2-a484-a049c05a37d6','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('1f1febb8-0895-4b44-a338-f2bb121953f1','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('1f45e10b-2ebc-4cc7-b1bc-a4483b02e96f','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('1fc73ded-a729-491a-be4e-031d9d50bc94','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('1fdfa082-a4d4-43aa-8342-70eb419433d1','fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf','a'),
+('206f3b85-238c-4154-ba08-b84d53efef6a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('214d3a15-85ef-4b3c-8dc7-5e242d78a296','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('23b9e3a8-284e-49c3-a657-5b06e30e6c3a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('257b2df9-aab7-4ba8-b775-44d5d4f59715','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('25ac4d5e-89c7-4bb0-a573-e0eace1d9931','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('2998525e-e78a-41c6-8579-07e65fd1d7c9','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('2b3cf49f-01ba-4d16-a237-d7795cf628bc','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('2b9a9d00-9735-496c-9bb0-904db3168b49','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('2ea9ea16-7ba1-44cb-bbee-8083bb25c2a5','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('2ee62b3d-9ebe-4628-b879-31b5343f1845','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('325d2511-9cd6-4de1-a126-0869f0a42424','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('327fb241-c5f7-461c-a95d-0fd5724db523','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('32d62c0e-8d35-4a9f-b4c4-b8825259fe7c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('33e8e36d-1799-4ce0-8f98-a0fc616a508b','79faf78f-9471-4e8a-b65c-a931137b3f6f','a'),
+('343a52ef-68b8-4556-9e69-6a2099d8c856','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('353384f8-2708-4ca4-a632-f93178587c00','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('396a648f-c432-4e6c-a16e-87027bf9d234','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('3a74b921-a9b3-4bc5-98cc-4fbfee0b257b','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('3b7fc312-1c90-4e96-a8e7-2fa267d12d76','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('41731516-3869-4e03-a1ee-8e439c822800','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('4217bcf0-eced-43cf-858c-7890fea46de1','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('42e763f7-3ca3-4daf-b339-4b41dbf761fe','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('4433c5be-c3af-4a69-a9a0-8874b93c0593','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('45058d2b-b985-4f83-bc79-4765413c6c49','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('46fe0b6f-445e-43ca-9eb7-05a29827d7fe','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('483f9703-4b72-4b7e-bfa2-8f420ad05eae','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('48ebdc29-f429-42f8-a087-3a167175d0bd','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('4a1fc6f1-1656-452e-b517-0ec5db96b94b','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('4a2efdca-8dce-4c22-a073-fc8da505e617','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('4d074b3e-ce30-4c76-accf-d48692b4ff79','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('4e255620-a475-4beb-973a-977e3ac83225','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('4fb940d1-2d3d-4c90-8452-985a9b887547','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('50665894-94f2-4a87-8ef6-9dd61611ae99','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('508d5744-cccf-4d2f-afcf-fe13bfeaebf0','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('54b06d2f-d91f-4849-bcf0-eb65cfc0048f','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('56c3714e-daec-4c6c-b88f-b4d125755869','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('585041bf-a9c2-4379-a9a2-a19faab0c9a6','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('588156e5-36bf-4c20-a3f3-8b89138e4f5c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5a38cc47-f182-45c7-80c5-300638152be3','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5b321975-c083-4a18-a841-a6f27b8a9a21','fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf','a'),
+('5bac7f06-b362-4aba-a89a-70a6d0df74ae','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5c1c4552-af74-4cfc-811f-d4e0d3896398','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5d4de7b2-87fc-4c01-9a10-2818249a15b3','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('5d5ce0e9-bdfd-40cf-b812-efa34ca5af89','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5d5f16ea-9ac5-4f47-b02c-1aec3c2653b5','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('5dbbb491-ea15-4841-8864-495d26bb6c99','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('5dcbcef9-c51b-4569-b6a1-5b172f70aff5','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('5dd4da3d-2240-40fc-b5e1-9586ba368145','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('5e72dfb6-4e0c-4bfe-ab87-152cd87074e2','e7581ab5-8c15-4832-b602-f361e41ff373','a'),
+('6184c667-2599-4f1b-8beb-7c82b639c076','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('63f4930a-10c0-4e18-bd0d-87361a15513c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('65dd0f9f-52ee-434c-b90d-f9ae059bab5e','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('65e4bbd0-c7b4-4b74-aede-3f07cf707417','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('65edb3f0-baaa-4d7a-94b3-05555afd812e','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('66704fad-a827-48e7-8365-a53be080cd7c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('66bec830-fcc8-4d96-9e28-8687d3f2f8c4','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('67a2ebf3-a9ab-4460-a0a4-c03bc9378b8b','b1e6e5fc-0e7e-467d-a1bf-e6f0ab4b9c44','a'),
+('68093842-137d-4e21-926c-c11caa372682','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('68558aac-6830-4110-aef4-6aa54ecaf716','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('68ce16a4-e993-4397-9dce-306b2a76b8e4','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6a922f0f-edb5-4060-a82a-3e1073a5f29a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6bca3bd8-84b3-49f1-90ee-e09b1979e016','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6c0c8950-7fd3-454d-b507-4753ca43c2d8','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('6c5280e7-43c5-4296-81d9-8c26991868df','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6ceb48b3-beaa-46c1-809c-7c8d71cf51b3','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6f8cac18-f51f-41bc-a2fb-8a39800d2e18','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('6ff773e9-46a3-46fd-9d09-4dc2093e4994','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('704f15e4-f13e-4d23-92f0-b89c34a6fb4d','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('7221b15e-8a1c-482c-aa26-9bcbbc470649','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('73b2c05b-018b-4da9-823e-e4e444872dbc','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('73b49aa1-8e56-4017-bf90-ef09aa1f959f','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('74bd86df-8f76-4802-8fb8-5227335d1cb4','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('792c3d89-44a9-4d9f-9d9e-a5ffa60cd497','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('7e375347-aad8-4b1e-b764-a68556fbb819','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('81e82bc4-5c05-408b-92b0-4779732c418f','1f95f46b-b18b-480b-a2d2-8a9ce90eb194','a'),
+('83e7598a-5db4-4379-91fc-0f179648212d','65fd9c2c-3bb3-4833-8749-42b3e20e0ef1','p'),
+('84329473-e364-45a3-beec-a00d0a79acb9','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('850127eb-dfda-4a94-b278-ca18666d1bb7','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('8a80d734-0eff-40c1-a3f8-3e2c952edca2','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('8bad79d2-af3a-4fdf-8103-3d07e6265075','b8c49719-6fd4-4027-ada1-1a986466eaf9','a'),
+('8bda72a7-10c1-4a9a-822f-744b30ed15ec','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('933c04f8-7cb0-49d2-b705-a130f3999bcb','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('938e7ddf-7476-4417-b706-0cfc49b0142b','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('9472cbfe-6ae9-4d44-8f51-1906d4065c57','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('96cb078c-0cb4-48cb-bca3-0c42301c5c36','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('99b52b10-d558-4359-a205-4e4b88209c4d','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('9c72c2d6-c278-40df-b2be-a9d4981407f7','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('9e53fcb3-c7ae-4542-9cad-a14be5f544af','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('9eee740d-c2c1-4615-8841-adb178ec7500','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('9f878e94-783a-44e0-94db-966b2863c75c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('a12a22fe-2704-4934-a355-3c011a42d521','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('a1693202-9a45-41c8-8c5b-4facac28a0a1','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('a20812f5-1c2f-4a2e-942c-20710782e034','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('a3730a00-0eae-4913-84d3-574bd6d7c90e','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('a4cdc2e9-a37b-4cb9-9a6e-59e60d08e469','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('a51f1a3a-687f-4639-91c8-4f88757ae60f','fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf','a'),
+('a5ae3512-306f-4177-8e8e-bf1f596063a3','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('ab830506-29da-4c1e-b0d1-04b26268e977','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('ac05b144-f82b-473d-8b70-62029aef36ce','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b4635ef3-1a67-4cd5-b867-a70d98526201','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b578da2d-0f9d-4dd0-b1e7-48ef8e9aff1b','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b5ac296d-a6b8-4a82-90ee-517dcc4f91c8','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b6883499-812a-403e-91af-973a6347517c','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b7acdb68-3ff0-4467-a4ab-a9dd738ca755','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('b845bfb0-00f0-4f5a-9819-ffa04d9689ee','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('b9ae16d9-6c26-49ff-bc21-22f0ecdc4455','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('bc317134-6daf-4b20-a88c-5c9943a3221d','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('bcdc5b63-50e6-4864-9c5a-74d61475f2fb','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('bf0d73f6-f1af-4c66-8b2f-929b47ab9ffe','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c13a6bda-cc42-46ad-a71e-524ed79c6233','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c29d2c2d-a26b-4700-9fab-fe2bb4f48c86','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c2fffe19-7c28-4a2d-8807-2d6c8cd89a4a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c41622d6-9ade-4003-a851-c77f732d1fb4','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c44e8ba8-132b-44e4-af00-b60d494203f3','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c55bbbab-3358-4dde-9e20-c0bd836ee1bd','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('c75c289e-bc96-4ec7-86b2-e88f4bf9e691','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('c89c8eec-e0b2-4f74-ba1d-51b38a49863b','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('cb04a1b6-c95f-4ac9-b678-f28c53191469','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('cd3950d1-4bb5-4d3b-8796-128fec836bf1','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('d2be94aa-03df-424e-b5dd-7baa2eaa05c9','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('d3176204-778f-40bb-b34c-c922a789c852','fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf','a'),
+('d382ba3d-b997-4ede-8aa8-8809efa237a6','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('d56dce28-5ad8-4a8f-8ffa-8678504af0f7','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('d5be5f5d-2c1c-479e-9d97-ebebf957e8f8','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('d8438a8b-f5fa-42c1-822c-24f0d9ac0e9c','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('da0a61ed-2c9e-4533-849f-12be282f4dd2','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('da2a4dc8-3257-42e3-bf36-b9e4801952f4','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('dbce8c7c-62e4-4bcb-8e7b-1b072bf6f4fd','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('dccc3faa-2bf1-4441-ab15-32b8ba47cd5b','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('debbc7bd-00e3-498a-aabd-aa54e38efabc','fc0451e9-2dc8-4ac2-b54c-6b9ae88102bf','a'),
+('df6299a3-ebfa-4085-86dd-1f799ac129ab','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e0fda3cf-65a9-436f-a484-04082c54cf94','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('e1ea33a2-5b7b-4ff2-adec-cc264ef35f98','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e1ec1add-1fcf-43da-a896-f7a031616f3e','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('e3502426-15bf-4f48-ae13-77bc9ee7a53b','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e5b690a7-6617-454f-9181-e1e8e3bda14f','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e63d5e00-a74d-47cb-9072-ab8b61b5ae5a','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e7101c90-4b33-40f7-82d4-f090d166cfea','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e72d3999-bd18-4af2-94af-f58f29e7b35e','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e85b53d4-47ac-44f0-9e5c-911d3617a085','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e894db33-c302-420c-ac54-cf3eaaed4ea8','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('e926cf20-fee5-4b47-9205-c49dd6cc85e0','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('e97682bc-faa4-49cb-898e-10da230b363b','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('ed93381c-a979-4860-98ec-26cc8f4f3fbd','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('ed9fc8bb-8c71-4e4c-9b5f-a951e81d7e8f','b8c49719-6fd4-4027-ada1-1a986466eaf9','a'),
+('edd2951c-0706-4adc-9fc6-72b47413be06','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('eeda561a-63f6-47d9-b45d-8623b35ae8af','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('f14333a1-d2e9-4b6e-b1a6-569f1093bb66','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('f34b4d86-1bbd-4a8d-997f-e7d9288339bb','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('f418f949-f31d-4199-8f0e-ca395e7a734d','c66f0464-0928-490e-be9b-66d8a87e7fc8','p'),
+('f48345b2-825b-417a-91e1-c315b5686063','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('f53458cd-2cc6-4dd7-b26c-44d17a10bd33','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('faa2346b-c269-4e99-ba87-34f9468ce1f3','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('faab26b0-e0fb-4569-80e5-c98872cea4ed','9594ec7d-159d-4148-ad6d-0371ffca8282','p'),
+('fe2e0c5d-5b3e-4a7e-affe-ab8686209d1a','d0fe09cd-ccc2-4f37-9c94-0de9e75e2b86','p'),
+('fed33c48-00ef-4544-a1f9-3c79cec825d1','9594ec7d-159d-4148-ad6d-0371ffca8282','p');
+DO $$
+DECLARE h text; n int; locked int; upd int; bad int;
+BEGIN
+  SELECT count(*), md5(string_agg(id::text || ':' || cid::text || ':' || CASE st WHEN 'p' THEN 'published' ELSE 'approved' END, ',' ORDER BY id)) INTO n, h FROM a1_expected;
+  IF n <> 177 OR h <> '1609b3c76090a0374975e246b8e2e518' THEN RAISE EXCEPTION 'A1: embedded list differs (n=%, fingerprint=%)', n, h; END IF;
+  CREATE TEMP TABLE a1_locked ON COMMIT DROP AS
+    SELECT r.id, e.cid, r.status AS status_before, r.author_user_id
+    FROM public.research_contributions r JOIN a1_expected e ON e.id = r.id
+    WHERE r.deleted_at IS NULL AND r.author_contributor_id IS NULL
+      AND r.status = CASE e.st WHEN 'p' THEN 'published' ELSE 'approved' END
+    FOR UPDATE OF r;
+  SELECT count(*) INTO locked FROM a1_locked;
+  IF locked <> 177 THEN RAISE EXCEPTION 'A1: late change - % of 177 rows no longer match (id/status/empty author)', locked; END IF;
+  SELECT count(*) INTO bad FROM a1_locked l WHERE NOT EXISTS (SELECT 1 FROM public.contributors c WHERE c.id = l.cid AND c.user_id = l.author_user_id AND c.active AND c.merged_into IS NULL)
+     OR (SELECT count(*) FROM public.contributors c2 WHERE c2.user_id = l.author_user_id AND c2.active AND c2.merged_into IS NULL) <> 1;
+  IF bad <> 0 THEN RAISE EXCEPTION 'A1: % rows no longer have a single active contributor for their user', bad; END IF;
+  UPDATE public.research_contributions r SET author_contributor_id = l.cid
+    FROM a1_locked l WHERE r.id = l.id AND r.author_contributor_id IS NULL AND r.status = l.status_before;
+  GET DIAGNOSTICS upd = ROW_COUNT;
+  IF upd <> 177 THEN RAISE EXCEPTION 'A1: updated % rows, expected 177', upd; END IF;
+  SELECT count(*) INTO bad FROM public.research_contributions r JOIN a1_locked l ON l.id = r.id WHERE r.status IS DISTINCT FROM l.status_before OR r.author_contributor_id IS DISTINCT FROM l.cid;
+  IF bad <> 0 THEN RAISE EXCEPTION 'A1: % rows differ after update', bad; END IF;
 END $$;
-SELECT id, cid FROM a1_log ORDER BY id;   -- שמור את הרשימה לצורך החזרה (rollback)
 COMMIT;
--- החזרה (rollback), לאחר שמירת הרשימה:  UPDATE public.research_contributions SET author_contributor_id = NULL WHERE id = ANY (<ids שנשמרו>) AND author_user_id IS NOT NULL;
+-- אימות אחרי הרצה (קריאה בלבד): SELECT count(*) FROM public.research_contributions r JOIN <אותה רשימה> e ON e.id=r.id WHERE r.author_contributor_id=e.cid;  -- צפוי 177
