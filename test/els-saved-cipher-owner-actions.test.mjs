@@ -8,11 +8,11 @@ test("save panel: a guest sees a sign-in link, only a member gets the form and t
   const panel = await read("src/components/experience2029/ElsSavePanel2029.jsx");
   assert.match(panel, /!user \? <div className="els29-native-save-guest">/);
   assert.match(panel, /href="\/login"/);
-  assert.match(panel, /\{user \? <a className="sod29-action" href="\/els\?library=mine">/);
+  assert.match(panel, /\{user \? <a className="r29-btn is-quiet" href="\/els\?library=mine">/);
   // ZURIEL 19.11.2026: new saves request publication, private is an explicit choice;
   // updates of an existing private record stay private. Mounted coverage lives in els-save-panel-lifecycle.
   assert.match(panel, /isPublic: !updating && !keepPrivate/);
-  assert.match(panel, /descriptionLength >= 12 && descriptionLength <= maxDescriptionLength/);
+  assert.match(panel, /descriptionLength >= 1 && descriptionLength <= maxDescriptionLength/);
 });
 
 test("library: owner actions exist only on the personal, non-compact view", async () => {

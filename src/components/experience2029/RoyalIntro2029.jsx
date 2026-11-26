@@ -13,6 +13,13 @@ export default function RoyalIntro2029({ surface, title, description, orientatio
   useEffect(() => { if (initialOpen) trigger.current?.focus(); }, [initialOpen]);
   const manifest = ENTRY_ORIENTATION_MANIFESTS[surface];
   const close = () => { setOpen(false); trigger.current?.focus(); };
+  // Escape closes wherever the focus is while the explanation is open (the same rule as LearnMark2029's surface help).
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKey = event => { if (event.key === "Escape") { event.stopPropagation(); close(); } };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
   return <>
     <div className="r29-palace-help" onKeyDown={event => {
       if (event.key === "Escape" && open) { event.stopPropagation(); close(); }

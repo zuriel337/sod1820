@@ -96,7 +96,8 @@ function toolOnApproach2029(load, title) {
   const Tool = toolOnOpen2029(load, title);
   return function ToolOnApproach(props) {
     const ref = useRef(null);
-    const [near, setNear] = useState(() => typeof IntersectionObserver === "undefined");
+    const [near, setNear] = useState(() => props.eager === true || typeof IntersectionObserver === "undefined");
+    useEffect(() => { if (props.eager === true) setNear(true); }, [props.eager]);
     useEffect(() => {
       if (near || !ref.current) return undefined;
       const observer = new IntersectionObserver(entries => { if (entries.some(entry => entry.isIntersecting)) { setNear(true); observer.disconnect(); } }, { rootMargin: "150% 0px" });
@@ -114,6 +115,7 @@ const PostComments2029 = toolOnApproach2029(() => import("../components/experien
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const PostActionBar2029 = React.lazy(() => import("../components/experience2029/PostActionBar2029.jsx"));
 const PostFollowDialog2029 = React.lazy(() => import("../components/experience2029/PostFollowDialog2029.jsx"));
+const PostConnections2029 = toolOnApproach2029(() => import("../components/experience2029/PostConnections2029.jsx"), "");
 const PostContinue2029 = toolOnApproach2029(() => import("../components/experience2029/PostContinue2029.jsx"), "");
 const PostFollowInvite2029 = toolOnApproach2029(() => import("../components/experience2029/PostFollowInvite2029.jsx"), "");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
@@ -931,6 +933,36 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   }, [state.projection, location.search, location.hash]);
 
   useEffect(() => {
+    // The public connections are a small separate chunk, and content above them (media) can still settle: land on the exact chip once it exists and keep it
+    // centred while the page settles (bounded; released at the reader's first wheel, touch, pointer or key). Never the top of the Post (ZURIEL 26.11.2026).
+    let id;
+    try { id = decodeURIComponent(location.hash.slice(1)); } catch { return undefined; }
+    // The old research addresses (#post-connections, #source-region-post-connections) belong to the admin tool for an admin; for everyone else they land on the public block.
+    const legacyAlias = isAdmin !== true && (id === "post-connections" || id === "source-region-post-connections");
+    if (!state.projection || !(legacyAlias || id === "post-public-connections" || id.startsWith("post-connection-"))) return undefined;
+    const wanted = legacyAlias ? "post-public-connections" : id;
+    let released = false, focused = false;
+    const land = () => {
+      if (released) return;
+      const node = document.getElementById(wanted);
+      if (!node) return;
+      node.scrollIntoView({ block: "center", behavior: "instant" });
+      if (!focused) { focused = true; node.setAttribute("tabindex", "-1"); node.focus({ preventScroll: true }); }
+    };
+    const events = ["wheel", "touchstart", "pointerdown", "keydown"];
+    let timer = null, mutation = null, resize = null;
+    const release = () => { released = true; mutation?.disconnect(); resize?.disconnect(); clearTimeout(timer); for (const name of events) window.removeEventListener(name, release); };
+    for (const name of events) window.addEventListener(name, release, { passive: true, once: true });
+    mutation = new MutationObserver(land);
+    mutation.observe(document.body, { childList: true, subtree: true });
+    resize = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(land);
+    resize?.observe(document.body);
+    timer = setTimeout(release, 6000);
+    land();
+    return release;
+  }, [state.projection, location.hash, isAdmin]);
+
+  useEffect(() => {
     // Native IDs and snapshot-bound presentation locators survive refresh/Back.
     // Legacy locators are admitted only after mapping to the unchanged source.
     let id;
@@ -1004,6 +1036,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : item
   ));
   const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
+  // The same admitted public links the context rail lists for every surface; shown only when the Post has real ones.
+  const publicFindings = publicSurfaceFindingsFromConnections(experience.connections);
+  // The block's own addresses (the admin tool keeps #post-connections and #source-region-post-connections: one address, one owner).
+  let connectionsHashId = "";
+  try { const hashId = decodeURIComponent((location.hash || "").slice(1)); if (hashId === "post-public-connections" || hashId.startsWith("post-connection-")) connectionsHashId = hashId; } catch { /* a malformed fragment has no target */ }
   const connectedHrefs = new Set(contextualConnections.map(item => item.href));
   const additionalLinks = previewSourceLinks.filter(item => !connectedHrefs.has(item.href));
   const researchAnchorRequested = /^#(?:post-(?:research|sources|classification|connections|measures)|source-region-post-connections|timeline)/.test(location.hash);
@@ -1127,7 +1164,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       dimensions: { ...(research.context?.dimensions || {}), postMeasureSelectedCardId: card?.id || null } } });
     shell.go(href, { preserve: false });
   };
-  const openConnection = (event, href) => {
+  // A public connection chip returns to ITSELF (#post-connection-<id>), not to the top and not to a text region (ZURIEL 26.11.2026).
+  const exactReturnForConnection = (finding) => {
+    const locator = `#post-connection-${finding.id}`;
+    return { ...exactReturnForRegion(null), href: exactPostReadingHref(post, location, locator),
+      selection: { entityId: String(finding.id), entityType: "post_connection", sourceRef: `posts:${post.id}`, locator, versionRef: projection.sourcePost.modified || null } };
+  };
+  const openConnection = (event, href, exactTarget = null) => {
     if (!href || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     const connectionRegion = regions.find((region) => region.id === "post-connections");
@@ -1145,7 +1188,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
           surfaceFocus: null, readingFocus: null,
         },
       } : {}),
-      returnTo: exactReturnForRegion(connectionRegion || activeFocus),
+      returnTo: exactTarget ? exactReturnForConnection(exactTarget) : exactReturnForRegion(connectionRegion || activeFocus),
     }));
     shell.go(href, { preserve: false });
   };
@@ -1587,6 +1630,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : <p role="status">{calculationNotice}</p>) : null}
     {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
     {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot
+      ? <PostConnections2029 post={projection.sourcePost} findings={publicFindings} onOpen={openConnection} focusId={connectionsHashId}
+        eager={Boolean(connectionsHashId) || (isAdmin !== true && /^#(?:post-connections|source-region-post-connections)$/.test(location.hash))} /> : null}
     {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostContinue2029 post={projection.sourcePost} onOpen={openConnection} /> : null}
     {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowInvite2029 post={projection.sourcePost} /> : null}
     {followOpen && commentPostId != null ? <React.Suspense fallback={null}><PostFollowDialog2029 post={projection.sourcePost} /></React.Suspense> : null}

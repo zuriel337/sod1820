@@ -20,6 +20,9 @@ on:
       - "supabase/migrations/20261005030000_post_writers_id_alloc_advisory_lock_v1.sql"
       - "supabase/migrations/20261005040000_video_transcripts_single_original_invariant_v1.sql"
       - "test/post-publishing-2029-chain.test.mjs"
+      - "test/series-title-format-2029.test.mjs"
+      - "src/lib/research/contentSeriesTitle2029.js"
+      - "src/lib/research/contentSeries2029Identity.js"
       - "scripts/test-video-semantic-tree-projector-v1.mjs"
       - "src/lib/research/videoSemanticMap.js"
       - "src/lib/research/entityHubProjection.js"
@@ -56,6 +59,8 @@ jobs:
         run: node --experimental-strip-types supabase/functions/agent-upload/cache-control.test.mts
       - name: Post publishing 2029 chain (preflight, shared STT, service-only writer ACL)
         run: node test/post-publishing-2029-chain.test.mjs
+      - name: Series title format (… | מה קורה הבורא)
+        run: node test/series-title-format-2029.test.mjs
       - name: Video semantic tree + contextual projector acceptance
         run: node --test scripts/test-video-semantic-tree-projector-v1.mjs
       - uses: denoland/setup-deno@v2
