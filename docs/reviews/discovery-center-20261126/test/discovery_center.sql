@@ -111,3 +111,41 @@ SET test.admin = 'true';
 SELECT admin_set_home_featured_discovery_v1('[{"id":"c0000000-0000-0000-0000-000000000001","method":"רגיל"}]'::jsonb) IS NOT NULL AS later_admin_selection;
 \i ../../../supabase/proposed/discovery-center-20261126/D3b-rollback.sql
 DO $$ BEGIN ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') LIKE '%c0000000-0000-0000-0000-000000000001%', 'a later admin selection survives the rollback'; RAISE WARNING 'D3b + rollback tests: PASS'; END $$;
+
+-- (9) D2: צפנים לפי שלוש דרגות הפרסום, ללא כפילות וללא חשיפת פרטי; עימוד יציב; הרשאות
+UPDATE contributors SET user_id = '33333333-3333-3333-3333-333333333333' WHERE id = '11111111-1111-1111-1111-111111111111';
+INSERT INTO els_records (id, status, visibility, self_published, owner_user_id, title, created_at) VALUES
+ ('e0000000-0000-0000-0000-000000000001', 'published', 'public',  false, '33333333-3333-3333-3333-333333333333', 'library',                 '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000002', 'draft',     'public',  true,  '33333333-3333-3333-3333-333333333333', 'own page draft',         '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000003', 'pending',   'public',  true,  '33333333-3333-3333-3333-333333333333', 'own page pending',       '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000004', 'published', 'public',  true,  '33333333-3333-3333-3333-333333333333', 'both library and own',   '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000005', 'draft',     'private', true,  '33333333-3333-3333-3333-333333333333', 'private self-published (the one violating row)', '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000006', 'draft',     'private', false, '33333333-3333-3333-3333-333333333333', 'private',                 '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000007', 'hidden',    'private', false, '33333333-3333-3333-3333-333333333333', 'hidden private',          '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000008', 'hidden',    'public',  true,  '33333333-3333-3333-3333-333333333333', 'hidden by moderation',   '2026-01-01T10:00:00Z'),
+ ('e0000000-0000-0000-0000-000000000009', 'published', 'public',  false, '99999999-9999-9999-9999-999999999999', 'another owner',           '2026-01-01T10:00:00Z');
+DO $$
+DECLARE titles text[]; n integer; total integer; seen text[] := '{}'; k text; last_at timestamptz; last_key text; page record; got integer; rounds integer := 0;
+BEGIN
+  SELECT array_agg(title ORDER BY title) INTO titles FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'cipher', 100);
+  ASSERT titles = ARRAY['both library and own','library','own page draft','own page pending'], 'tiers: library + own page, once each, never private or hidden: ' || coalesce(titles::text, 'null');
+  SELECT count(*) - count(DISTINCT dedupe_key) INTO n FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'cipher', 100); ASSERT n = 0, 'no duplicate cipher rows';
+  ASSERT NOT EXISTS (SELECT 1 FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', NULL, 100) WHERE title ILIKE '%private%' OR title ILIKE '%hidden%' OR title = 'another owner'), 'no private, hidden or foreign cipher in any kind';
+  -- עימוד יציב על חותמות זמן זהות (4 צפנים באותה שנייה), עמוד של 2
+  last_at := NULL; last_key := NULL; total := 0;
+  LOOP
+    got := 0; rounds := rounds + 1; EXIT WHEN rounds > 10;
+    FOR page IN SELECT * FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'cipher', 2, last_at, last_key) LOOP
+      ASSERT NOT (page.dedupe_key = ANY(seen)), 'pagination repeated a row: ' || page.dedupe_key;
+      seen := seen || page.dedupe_key; got := got + 1; total := total + 1; last_at := page.created_at; last_key := page.dedupe_key;
+    END LOOP;
+    EXIT WHEN got < 2;
+  END LOOP;
+  ASSERT total = 4, 'pagination covered all 4 rows exactly once, none skipped: ' || total;
+  -- הרשאות: anon קורא את דף הכותב הציבורי; כותב פרטי אינו מחזיר דבר
+  EXECUTE 'SET LOCAL ROLE anon';
+  SELECT count(*) INTO n FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'cipher', 100); ASSERT n = 4, 'anon reads the public writer page';
+  SELECT count(*) INTO n FROM writer_public_material_v1('22222222-2222-2222-2222-222222222222', NULL, 100); ASSERT n = 0, 'a private writer returns nothing to anon';
+  EXECUTE 'RESET ROLE';
+  RAISE WARNING 'D2 cipher tiers, pagination and permission tests: PASS';
+END $$;
