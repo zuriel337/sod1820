@@ -168,4 +168,17 @@ check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) >
 check "$(G 203.0.113.7 'אחרי D5 ואחרי הקהילה' | grep -c 'community_write_blocked')" 1 'D5 then community: enforcement works on the D5 body'
 F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
 check "$(GMD5 add_contribution)" "$D5MD5" 'D5 then community, rolled back: add_contribution is exactly the D5 body again (D5 is kept)'
+# Live-body review (26.11.2026, D5 applied live, add_contribution md5 abbcf299...): the proposal must keep attribution, permissions and the notification triggers exactly.
+# State here: D5 body installed, community rolled back. Record the signature of the three functions, add stub triggers (an AFTER INSERT notification like trg_rc_notify and a thread bump), then apply.
+SIG() { Q -c "select string_agg(proname || ':' || prosecdef::text || ':' || coalesce(proacl::text,'') || ':' || coalesce(array_to_string(proconfig, ','),''), '|' order by proname) from pg_proc where pronamespace='public'::regnamespace and proname in ('add_contribution','add_guest_community_message','toggle_contribution_reaction')"; }
+Q -c "insert into public.contributors(user_id, trusted) values ('$USR', false)"
+Q -c "create table public.notif_stub(rid uuid, kind text); create function public.notif_stub_fn() returns trigger language plpgsql as \$\$ begin insert into public.notif_stub values (new.id, new.origin); return new; end \$\$; create trigger trg_rc_notify_stub after insert on public.research_contributions for each row execute function public.notif_stub_fn()"
+SIG_BEFORE=$(SIG)
+ATTR() { as_user "$USR" - "select public.add_contribution('תגובה','community_2029','$1')" >/dev/null; Q -c "select author_contributor_id is not null and author_user_id = '$USR' and status = 'approved' and research_state = 'discussion' and (select count(*) from public.notif_stub n where n.rid = r.id) = 1 from public.research_contributions r where body = '$1'"; }
+check "$(ATTR 'לפני הקהילה')" t 'live body: signed-in contribution is attributed to the one contributor, approved at once, and notified once (before the proposal)'
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null
+check "$(SIG)" "$SIG_BEFORE" 'live body: owner, security definer, ACL (PUBLIC/anon/authenticated as before) and search_path of the three functions are unchanged by the proposal'
+check "$(ATTR 'אחרי הקהילה')" t 'live body: after the proposal the same signed-in contribution is attributed, approved and notified exactly the same (no new or lost trigger effect)'
+check "$(as_user '-' "$(H 203.0.113.99)" "select public.add_contribution('תגובה','community_2029','אורח אחרי')" | grep -c ERROR)|$(Q -c "select count(*) from public.notif_stub")" '0|3' 'live body: an anonymous contribution still fires the notification trigger once'
+check "$(as_user "$USR" - "select public.add_contribution('תגובה','beit_midrash','מחוץ לקהילה')" | grep -c ERROR)" 0 'live body: a signed-in write outside the community is untouched'
 echo "COMMUNITY NET BLOCKS 20261126 REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated)"
