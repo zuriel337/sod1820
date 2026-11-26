@@ -386,6 +386,24 @@ test('reply unread count is an exact own-inbox read; arbitrary filters and forei
  }
 });
 
+test('unread mark count and DM-notification read: the EMITTED worker admits exactly these two shapes, own account only',async()=>{
+ const kinds=encodeURIComponent('in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)');
+ const countPath='/rest/v1/user_notifications?select=id&user_id=eq.'+a+'&read_at=is.null&kind='+kinds;
+ const w=worker({role:'member'});assert.equal((await w.request(countPath,{method:'HEAD'})).status,200);assert.equal(w.calls.length,2);
+ assert.equal(new URL(w.calls[1].url).searchParams.get('kind'),'in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)');
+ for(const url of [countPath.replace('reply%2C','reply%2Cpost_new%2C'),countPath.replace('eq.'+a,'eq.'+b),countPath+'&kind=eq.reply',countPath.replace('read_at=is.null','read_at=not.is.null&or=(user_id.eq.'+b+')')]){
+  const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'HEAD'})).status,403,url);assert.equal(bad.calls.some(c=>c.url===API+url),false);
+ }
+ const sender='36f5cb84-71c3-4977-a2c7-d6413e973443', body={read_at:'2026-11-26T12:00:00.000Z'};
+ const link=encodeURIComponent('eq./me?tab=messages&dm='+sender);
+ const dmPath='/rest/v1/user_notifications?user_id=eq.'+a+'&read_at=is.null&kind=eq.dm&link='+link+'&select=id%2Cread_at';
+ const ok=worker({role:'member'});assert.equal((await ok.request(dmPath,{method:'PATCH',body})).status,200);assert.equal(ok.calls.length,2);
+ for(const url of [dmPath.replace('kind=eq.dm','kind=eq.reply'),dmPath.replace('user_id=eq.'+a,'user_id=eq.'+b),dmPath.replace('&kind=eq.dm',''),dmPath.replace('&link='+link,''),dmPath.replace(link,encodeURIComponent('like./me?tab=messages&dm=*')),dmPath+'&link='+link]){
+  const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'PATCH',body})).status,403,url);assert.equal(bad.calls.some(c=>c.url===API+url),false);
+ }
+ const extra=worker({role:'member'});assert.equal((await extra.request(dmPath,{method:'PATCH',body:{...body,title:'x'}})).status,403);
+});
+
 test('guest community publishing: only the exact anonymous request is forwarded, with the public key',async()=>{
  const KEY='anon-public-key-synthetic';
  const path='/rest/v1/rpc/add_guest_community_message';

@@ -1,0 +1,4 @@
+/* The unread mark on the profile picture: Royal blue (primary attention), a warm ring so it reads on all three themes, tabular digits, never pushes the layout. */
+.sod29-attention-badge{position:absolute;inset-block-start:-4px;inset-inline-start:-4px;z-index:2;display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--r29-royal,#1f4fd8);color:#fff;border:2px solid var(--s29-panel,#fff);font:700 12px/1 var(--s29-font-ui,inherit);font-variant-numeric:tabular-nums;pointer-events:none}
+.sod29-attention-badge .sod29-visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sod29-header-workspace:has(.sod29-attention-badge),.sod29-sidebar-workspace:has(.sod29-attention-badge){position:relative;overflow:visible}

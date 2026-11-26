@@ -97,3 +97,55 @@ test('candidate installed-app metadata preserves Legacy identity and uses the co
  const html=read('public-reading-deploy/.generated/2029.html');
  assert.ok(html.includes('rel="manifest" href="/site.webmanifest"'));assert.ok(html.includes('rel="icon" href="'+BRAND_LOCKUP_NAV_2029.src+'"'));assert.ok(html.includes('rel="apple-touch-icon" href="'+BRAND_APP_ICON_2029.src+'"'));
 });
+
+// The unread mark on the profile picture and the DM-notification read (26.11.2026): the SAME transport, two exact shapes, own account only.
+const KINDS = 'in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)';
+const dmLink = (uid) => 'eq./me?tab=messages&dm=' + uid;
+const q = (params) => new URLSearchParams(params).toString();
+test('the unread-mark count: exactly the personal kinds, own rows, unread only; no other list, no other account', async () => {
+  for (const method of ['GET', 'HEAD']) {
+    const ok = harness();
+    assert.equal((await ok.request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + a, read_at: 'is.null', kind: KINDS }), { method })).status, 200);
+    assert.equal(ok.calls.length, 2);
+  }
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + a, read_at: 'is.null', kind: 'eq.reply' }), { method: 'HEAD' })).status, 200, 'the existing reply count still works');
+  for (const kind of ['in.(reply,post_new)', 'in.(reply)', 'in.(dm)', 'eq.dm', 'eq.post_new', 'neq.reply', 'in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved,dm)', 'in.(chiddush_approved,matrix_approved,contribution_approved,new_follower,reply)']) {
+    assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + a, kind }), { method: 'HEAD' })).status, 403, kind);
+  }
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + b, kind: KINDS }), { method: 'HEAD' })).status, 403, 'another account');
+  assert.equal((await harness().request('/rest/v1/user_notifications?select=id&kind=' + encodeURIComponent(KINDS), { method: 'HEAD' })).status, 403, 'no owner filter');
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + a, kind: KINDS }) + '&kind=eq.reply', { method: 'HEAD' })).status, 403, 'a repeated filter');
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ select: 'id', user_id: 'eq.' + a, kind: KINDS, or: '(user_id.eq.' + b + ')' }), { method: 'HEAD' })).status, 403, 'an or-filter');
+});
+test('reading a conversation reads ITS DM notification only: kind=dm + that conversation exact link, own rows, read_at only', async () => {
+  const body = { read_at: '2026-11-26T12:00:00.000Z' }, sender = '36f5cb84-71c3-4977-a2c7-d6413e973443';
+  const exact = { user_id: 'eq.' + a, read_at: 'is.null', kind: 'eq.dm', link: dmLink(sender), select: 'id,read_at' };
+  const ok = harness();
+  assert.equal((await ok.request('/rest/v1/user_notifications?' + q(exact), { method: 'PATCH', body })).status, 200);
+  assert.equal(ok.calls.length, 2);
+  const deny = async (patch, payload = body) => assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ ...exact, ...patch }), { method: 'PATCH', body: payload })).status, 403, JSON.stringify(patch));
+  await deny({ user_id: 'eq.' + b });                                   // another account
+  await deny({ kind: 'eq.reply' });                                      // another kind with a link
+  await deny({ kind: 'in.(dm,reply)' });                                 // a list
+  await deny({ link: 'eq./me?tab=messages' });                           // no conversation
+  await deny({ link: 'like./me?tab=messages&dm=*' });                    // a pattern
+  await deny({ link: 'eq./me?tab=messages&dm=' + sender + '&x=1' });     // extra characters
+  await deny({ link: 'eq./me?tab=messages&dm=not-a-uuid' });
+  await deny({ link: 'eq./2029/me/messages?dm=' + sender });             // not the saved link shape
+  await deny({}, { ...body, title: 'overwrite' });                       // extra column
+  await deny({}, { read_at: 'not-a-date' });
+  await deny({ read_at: 'not.is.null' });                                // only unread rows
+  const kindOnly = { ...exact }; delete kindOnly.link;
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q(kindOnly), { method: 'PATCH', body })).status, 403, 'kind without a link');
+  const linkOnly = { ...exact }; delete linkOnly.kind;
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q(linkOnly), { method: 'PATCH', body })).status, 403, 'a link without kind=dm');
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q(exact) + '&link=' + encodeURIComponent(dmLink(b)), { method: 'PATCH', body })).status, 403, 'a repeated link');
+  assert.equal((await harness().request('/rest/v1/user_notifications?' + q({ user_id: 'eq.' + a, read_at: 'is.null', select: 'id,read_at' }), { method: 'PATCH', body })).status, 200, 'the existing plain read acknowledgement still works');
+});
+test('the transport list of unread-mark kinds is the same list the client sends', () => {
+  const lib = readFileSync(new URL('../src/lib/notifications.js', import.meta.url), 'utf8');
+  const list = lib.match(/PERSONAL_ATTENTION_KINDS = \[([^\]]*)\]/)[1].split(',').map(x => x.trim().replace(/"/g, ''));
+  assert.equal('in.(' + list.join(',') + ')', KINDS);
+  const transport = readFileSync(new URL('../public-reading-deploy/personal-request.js', import.meta.url), 'utf8');
+  assert.ok(transport.includes('"' + KINDS + '"'));
+});

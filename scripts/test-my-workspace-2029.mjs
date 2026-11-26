@@ -100,7 +100,9 @@ assert.equal((frame.match(/data-command-mode="tool"/g) || []).length, 1);
 assert.match(frame, /unifiedGlobalDock \? <div className="sod29-command-island[^]*data-command-mode="global"[^]*<\/div> : <div className="sod29-command-island[^]*data-command-mode="tool"/);
 assert.match(frame, /onMe=\{openWorkspace\}/);
 assert.equal((frame.match(/sod29-island-personal/g) || []).length, 0);
-assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openWorkspace\}/);
+assert.match(frame, /sod29-header-workspace\$\{user \? "" : " is-signed-out"\}`\} onClick=\{openPersonal\}/);
+// The picture goes straight to what is waiting for the person (data-attention-href, set by the lazy unread mark); with nothing waiting it is exactly the workspace as before.
+assert.match(frame, /const openPersonal = useCallback\(\(event\) => \{ const to = event\?\.currentTarget\?\.dataset\?\.attentionHref; if \(to\) navigate\(to\); else openWorkspace\(\); \}/);
 assert.match(frame, /accountShortName\(user, profile\)/);
 
 
