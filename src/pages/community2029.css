@@ -56,8 +56,6 @@
 .sod29-community-feed-controls{display:grid;gap:10px;margin:12px 0}
 .sod29-community-feed-controls-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .sod29-community-feed-filter-chips{display:flex;gap:4px;flex-wrap:nowrap;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-inline:contain;padding:4px}
-.sod29-community-feed-filter-chips button{flex:0 0 44px;width:44px;height:44px;min-width:44px;min-height:44px;padding:2px;border:1px solid var(--s29-line);border-radius:5px;background:var(--s29-panel-soft);color:var(--s29-ink);font-size:14px;line-height:1.15;text-align:center;white-space:normal;overflow-wrap:anywhere}
-.sod29-community-feed-filter-chips button[aria-pressed="true"]{border-color:var(--s29-accent);color:var(--s29-accent-text)}
 .sod29-community-search-hit{min-width:0;border-bottom:1px solid var(--s29-line)}
 .sod29-community-search-hit>.sod29-community-thread{border-bottom:0;padding-bottom:6px}
 .sod29-community-search-hit-open{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:0 0 16px}
@@ -147,8 +145,6 @@
 .sod29-community-profile-section h3{margin:0;font-family:var(--s29-font-ui);font-size:22px}
 .sod29-community-profile-section p{margin:4px 0 0;color:var(--s29-muted);font-size:14px}
 .sod29-community-profile-filters{display:flex;gap:6px;flex-wrap:wrap}
-.sod29-community-profile-filters button{padding:7px 12px;border:1px solid var(--s29-line);border-radius:8px;background:var(--s29-panel-soft);color:var(--s29-muted);font-size:14px}
-.sod29-community-profile-filters button[aria-pressed=true]{border-color:var(--s29-accent);color:var(--s29-accent-text);font-weight:700}
 .sod29-community-profile-section .sod29-community-sort{display:flex;align-items:center;gap:8px;color:var(--s29-muted);font-size:14px}
 .sod29-community-profile-heading{display:flex;gap:16px;align-items:center;margin:16px 0}
 .sod29-community-profile-heading .sod29-community-avatar{width:64px;height:64px;font-size:26px}
@@ -291,8 +287,6 @@
 .sod29-community-stream-tools .sod29-community-feed-controls-top{order:2;flex:1}
 .sod29-community-stream-tools .sod29-community-feed-filter-chips{order:1;padding:0}
 .sod29-community-stream-tools .sod29-community-feed-controls-note{order:3;flex-basis:100%;font-size:13px!important}
-.sod29-community-stream-tools .sod29-community-feed-filter-chips button{border-radius:12px;width:48px;height:48px;flex-basis:48px;background:var(--s29-panel);font-size:13px}
-.sod29-community-stream-tools .sod29-community-feed-filter-chips button[aria-pressed="true"]{background:color-mix(in srgb,var(--s29-accent) 10%,var(--s29-panel));border-color:var(--s29-line-strong)}
 .sod29-community-stream-tools .sod29-community-sort select{min-height:48px;border-radius:12px;font-size:14px;padding-inline:14px 28px}
 .sod29-community--full .sod29-community-feed{--community-thread-line:color-mix(in srgb,var(--community-discovery,var(--s29-accent-text)) 38%,transparent);gap:0;border:1px solid var(--s29-line);border-radius:6px;background:color-mix(in srgb,var(--s29-panel) 64%,transparent)}
 .sod29-community--full .sod29-community-feed>.sod29-community-thread-group{overflow:visible;border:0;border-bottom:1px solid var(--community-thread-line);border-radius:0;background:transparent}
@@ -340,7 +334,6 @@
 .sod29-community-guest-name>span{font-size:var(--s29-type-small,15px);color:var(--s29-ink)}
 .sod29-community-guest-name>input{min-height:44px;padding:0 12px;border:1px solid var(--s29-line-strong);border-radius:10px;background:var(--s29-panel);color:var(--s29-ink);font:inherit;width:100%;box-sizing:border-box}
 .sod29-community-guest-name>small{color:var(--s29-muted);font-size:13px;line-height:1.5}
-.sod29-community-stream-tools .sod29-community-feed-filter-chips button{width:44px;height:44px;min-height:44px;flex-basis:44px;font-size:14px}
 /* Same canonical share icon as other public units, with a 44px touch target. */
 .sod29-community-thread-actions>.sod-share-actions.is-icon{display:inline-flex;margin-inline-start:auto}
 .sod29-community-thread-actions>.sod-share-actions.is-icon button{display:inline-flex;align-items:center;justify-content:center;width:44px;min-width:44px;height:44px;padding:10px;background:transparent;color:var(--community-depth,var(--s29-muted));border:0;border-radius:10px}
@@ -387,13 +380,10 @@
 .sod29-community-rich-input[aria-disabled="true"]{opacity:.65;cursor:default}
 .sod29-community-format-tools{display:flex;flex-wrap:wrap;align-items:center;gap:0;border-top:1px solid var(--s29-line);padding:3px 0}
 .sod29-community-format-tools[hidden]{display:none}
-.sod29-community-format-tools button,.sod29-community-emoji-picker button{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:8px;border:0;border-radius:6px;background:transparent;color:var(--s29-muted);font:inherit;font-size:17px}
-.sod29-community-format-tools button:hover,.sod29-community-format-tools button[aria-pressed="true"],.sod29-community-emoji-picker button:hover{background:var(--s29-panel);color:var(--s29-accent-text)}
 .sod29-community-format-tools .sod29-community-text-gold,.sod29-community-text-gold{color:var(--community-text-gold,var(--s29-muted))}
 .sod29-community-format-tools .sod29-community-text-blue,.sod29-community-text-blue{color:var(--community-text-blue,var(--s29-accent-text))}
 .sod29-community-format-tools :is(.sod29-community-text-gold,.sod29-community-text-blue)>span{border-bottom:3px solid currentColor;line-height:1.2}
 .sod29-community-emoji-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(44px,1fr));gap:2px;max-width:310px;padding:4px;border-top:1px solid var(--s29-line)}
-.sod29-community-emoji-picker button{font-size:22px}
 .sod29-community-body blockquote,.sod29-community-rich-input blockquote{margin:8px 0;padding:8px 12px;border-inline-start:2px solid var(--s29-line-strong);border-radius:4px;background:color-mix(in srgb,var(--s29-panel-soft) 60%,transparent);color:var(--s29-muted);font-style:normal}
 .sod29-community-body blockquote+blockquote,.sod29-community-rich-input blockquote+blockquote{margin-top:4px}
 .sod29-community-editor>.sod29-community-rich-wrap{border:1px solid var(--s29-line-strong);border-radius:6px;background:var(--community-input,var(--s29-panel))}
@@ -494,9 +484,6 @@ a.sod29-community-pending-jump:hover,a.sod29-community-pending-jump:focus-visibl
 
 /* Top of the community for guests: two small buttons on the left, as in the old chat. */
 .sod29-community-auth-buttons{display:flex;align-items:center;gap:10px;margin-inline-start:auto}
-.sod29-community-auth-btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 18px;border-radius:12px;border:1px solid var(--s29-line-strong);background:var(--s29-panel-soft);color:var(--s29-ink);font-family:var(--s29-font-ui);font-size:14px;font-weight:600;line-height:1.4;text-decoration:none;white-space:nowrap}
-.sod29-community-auth-btn.is-signup{background:var(--community-action-fill,var(--s29-accent));color:var(--s29-on-accent);border-color:transparent}
-.sod29-community-auth-btn:focus-visible{outline:2px solid var(--s29-accent-text);outline-offset:2px}
 
 /* Open Graph link preview (shown only when the preview service answers). */
 .sod29-community-link-card.has-og{grid-template-columns:minmax(0,1fr);gap:0;padding:0;overflow:hidden;color:var(--s29-ink)}
@@ -1107,3 +1094,4 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
     max-width:100%;
   }
 }
+.sod29-community-emoji-picker .r29-btn{font-size:22px}

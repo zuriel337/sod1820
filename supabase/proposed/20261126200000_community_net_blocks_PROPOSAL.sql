@@ -18,7 +18,7 @@
 -- The write limits survive the switch: for the first 24 hours after applying, the rate-limit queries count the rows of a network under BOTH keys (the keyed hash and the raw address written by the old code,
 -- derived from the trusted header only), so the window does not reset. New rows are written with the hash only; the raw rows age out by themselves.
 -- Existing write limits are kept: the rate-limit queries and the log now use the keyed hash instead of the raw address (same counts per network: guests 3/hour, 10/24h, 60/hour globally; anonymous contributions 5/hour).
--- Guard: md5(prosrc) of add_guest_community_message 4eb11358227e6b3d8d77b933e076b28a, add_contribution 2c2baa01ecf07abf1e1511f3cb951d3b, toggle_contribution_reaction 96af69da3d9d8b1b82113248b09e97fa (live 26.11.2026); anchored text patches, each anchor exactly once.
+-- Guard: md5(prosrc) of add_guest_community_message 4eb11358227e6b3d8d77b933e076b28a, add_contribution 2c2baa01ecf07abf1e1511f3cb951d3b (live) or abbcf299635c0a8462c07274c10a9e4f (the live body after Discovery Center D5, docs/reviews/discovery-center-20261126; D5 first, then this file; both changes stay), toggle_contribution_reaction 96af69da3d9d8b1b82113248b09e97fa (live 26.11.2026); anchored text patches, each anchor exactly once.
 -- Rollback: 20261126200000_community_net_blocks_ROLLBACK.sql (restores both functions exactly; keeps every table and row: no history is deleted).
 do $migration$
 declare
@@ -31,7 +31,7 @@ begin
   select prosrc into v_t from pg_proc where proname = 'toggle_contribution_reaction' and pronamespace = 'public'::regnamespace;
   if position('community_net_ref_v1' in coalesce(v_g,'')) = 0 and md5(v_g) is distinct from '4eb11358227e6b3d8d77b933e076b28a' then
     raise exception 'add_guest_community_message drift (md5 %); independent review required, nothing changed', md5(v_g) using errcode = 'P0001'; end if;
-  if position('community_net_ref_v1' in coalesce(v_c,'')) = 0 and md5(v_c) is distinct from '2c2baa01ecf07abf1e1511f3cb951d3b' then
+  if position('community_net_ref_v1' in coalesce(v_c,'')) = 0 and md5(v_c) not in ('2c2baa01ecf07abf1e1511f3cb951d3b', 'abbcf299635c0a8462c07274c10a9e4f') then
     raise exception 'add_contribution drift (md5 %); independent review required, nothing changed', md5(v_c) using errcode = 'P0001'; end if;
   if position('community_net_ref_v1' in coalesce(v_t,'')) = 0 and md5(v_t) is distinct from '96af69da3d9d8b1b82113248b09e97fa' then
     raise exception 'toggle_contribution_reaction drift (md5 %); independent review required, nothing changed', md5(v_t) using errcode = 'P0001'; end if;

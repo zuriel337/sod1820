@@ -151,4 +151,21 @@ check "$(Q -c "select count(*) from public.community_net_blocks")|$(Q -c "select
 check "$(Q -c "select count(*) from pg_proc where (proname like 'community_net_%' and proname <> 'community_net_block_events_append_only_v1') or proname in ('community_guest_block_from_message_v1','community_guest_hide_v1','community_trusted_client_ip_v1')")" 0 'rollback: the staff API and the helpers are gone'
 check "$(G 203.0.113.7 'אחרי שחזור' | grep -c ERROR)" 0 'rollback: with the routes restored, guest writing works as before the proposal'
 F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$(G 203.0.113.7 'אחרי החלה חוזרת' | grep -c 'community_write_blocked')" 1 'reapply: re-applying after a rollback restores enforcement from the kept blocks and the same key'
+# Discovery Center D5 (add_contribution single attribution rule, docs/reviews/discovery-center-20261126; exact copy in test/fixtures) replaces the SAME function. Order D5 -> community must keep BOTH
+# changes; the community rollback must give D5's body back, not the older one. (D5's own md5 guard reads pg_get_functiondef of the live body; here its DO block is cut and replaced by the stub it needs.)
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
+Q -c "create function public.rc_unique_contributor_for_user_v1(u uuid) returns table(id uuid, trusted boolean) language sql stable as \$\$ select c.id, c.trusted from public.contributors c where c.user_id = u limit 1 \$\$"
+python3 - "$FX/discovery_center_d5_20261126.sql" "$TMP/d5.sql" <<'PY'
+import re, sys
+t = open(sys.argv[1]).read(); a = t.index("DO $$"); b = t.index("END $$;", a) + len("END $$;")
+open(sys.argv[2], "w").write(t[:a] + t[b:])
+PY
+chmod 644 "$TMP/d5.sql"; F "$TMP/d5.sql" >/dev/null
+D5MD5=$(GMD5 add_contribution); echo "D5 body md5 $D5MD5"
+check "$(Q -c "select position('rc_unique_contributor_for_user_v1' in prosrc) > 0 from pg_proc where proname='add_contribution'")" t 'D5: the attribution rule of D5 is in the live function before the community proposal'
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$?" 0 'D5 then community: the proposal applies on top of D5 (guard accepts the D5 body)'
+check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) > 0) and (position('community_net_ref_v1' in prosrc) > 0) and (position('community_2029' in prosrc) > 0) from pg_proc where proname='add_contribution'")" t 'D5 then community: BOTH changes are in add_contribution (no overwrite)'
+check "$(G 203.0.113.7 'אחרי D5 ואחרי הקהילה' | grep -c 'community_write_blocked')" 1 'D5 then community: enforcement works on the D5 body'
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
+check "$(GMD5 add_contribution)" "$D5MD5" 'D5 then community, rolled back: add_contribution is exactly the D5 body again (D5 is kept)'
 echo "COMMUNITY NET BLOCKS 20261126 REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated)"

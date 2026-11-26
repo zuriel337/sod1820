@@ -62,7 +62,7 @@ begin
     execute v_new;
   end if;
   if (select md5(prosrc) from pg_proc where proname = 'add_guest_community_message' and pronamespace = 'public'::regnamespace) is distinct from '4eb11358227e6b3d8d77b933e076b28a'
-     or (select md5(prosrc) from pg_proc where proname = 'add_contribution' and pronamespace = 'public'::regnamespace) is distinct from '2c2baa01ecf07abf1e1511f3cb951d3b'
+     or (select md5(prosrc) from pg_proc where proname = 'add_contribution' and pronamespace = 'public'::regnamespace) not in ('2c2baa01ecf07abf1e1511f3cb951d3b', 'abbcf299635c0a8462c07274c10a9e4f')
      or (select md5(prosrc) from pg_proc where proname = 'toggle_contribution_reaction' and pronamespace = 'public'::regnamespace) is distinct from '96af69da3d9d8b1b82113248b09e97fa' then
     raise exception 'the restored functions do not have the original fingerprints; the whole rollback is cancelled' using errcode = 'P0001'; end if;
 end

@@ -39,6 +39,7 @@ import { isLegacyContributorId } from "../../lib/community/legacyClaim.js";
 import { communityWriterHref, resolveCommunityWriter } from "../../lib/community/communityWriterLink.js";
 import { communityAccountReturnHref, communityChatHref, communityPersonReturnHref, communityReadingReturnHref } from "../../lib/community/communityPersonNavigation.js";
 import { personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
+import "../experience2029/royal2029.css";
 import "../../pages/community2029.css";
 import ReactionBar from "../ReactionBar.jsx";
 import UserBadge from "../UserBadge.jsx";
@@ -1061,8 +1062,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           <summary aria-label="חשבון ופעולות הקהילה" title="חשבון ופעולות הקהילה"><NavigationIcon2029 name="menu" size={20} /><span>קהילה וחשבון</span></summary>
           <div className="sod29-community-head-actions">
           {!actionsLocked ? <div className="sod29-community-entry-tools">{user ? <CommunitySignIn compact /> : <div className="sod29-community-auth-buttons" role="group" aria-label="כניסה לקהילה">
-            <Link className="sod29-community-auth-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
-            <Link className="sod29-community-auth-btn is-signup" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
+            <Link className="r29-btn" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>התחברות</Link>
+            <Link className="r29-btn is-primary" to={`/login?returnTo=${encodeURIComponent(communityAccountReturnHref(window.location))}`}>הרשמה</Link>
           </div>}
             <LegacyAccountClaimEntry rows={rows} onClaimed={messageActions.retry} /></div> : null}
           {!hasThreadRequest && reading.resume ? <div className="sod29-community-reading-tools"><Link className="sod29-community-secondary" to={communityReadingHref(reading.resume)} onClick={reading.requestResume}>להמשיך מאיפה שעצרתי <span aria-hidden="true">←</span></Link></div> : null}
@@ -1139,7 +1140,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
               </select></label>
             </div>
             <div className="sod29-community-feed-filter-chips" role="group" aria-label="סינון שיחות" tabIndex={0}>
-              <button type="button" aria-pressed={!query.trim()} onClick={() => setQuery("")}>הכול</button>
+              <button type="button" className={`r29-btn ${!query.trim() ? "is-primary" : "is-quiet"}`} aria-pressed={!query.trim()} onClick={() => setQuery("")}>הכול</button>
             </div>
             <p id="community-search-scope" className={`sod29-community-feed-controls-note${!searchText && sort !== "liked" ? " sod29-community-sr-only" : ""}`} role={serverSearchActive ? "status" : undefined}>{searchScopeNote}</p>
           </section></div>
