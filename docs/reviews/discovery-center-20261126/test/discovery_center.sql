@@ -4,6 +4,7 @@
 \i ../../../supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql
 \i ../../../supabase/proposed/discovery-center-20261126/D2-writer_public_material_v1.sql
 \i ../../../supabase/proposed/discovery-center-20261126/D3-admin_set_home_featured_discovery_v1.sql
+\i ../../../supabase/proposed/discovery-center-20261126/D3c-admin_set_verify_display.sql
 SET client_min_messages = warning;
 INSERT INTO contributors (id, slug, display_name, kind, dossier_settings) VALUES ('11111111-1111-1111-1111-111111111111', 'yaniv-levi', 'יניב לוי', 'person', '{"visibility":"public"}'), ('22222222-2222-2222-2222-222222222222', 'private-one', 'פרטי', 'person', '{"visibility":"private"}');
 INSERT INTO gematria_words (id, phrase, source, other_method, ragil, miluy, ribua, misratar, created_at) VALUES
@@ -111,3 +112,21 @@ SET test.admin = 'true';
 SELECT admin_set_home_featured_discovery_v1('[{"id":"c0000000-0000-0000-0000-000000000001","method":"רגיל"}]'::jsonb) IS NOT NULL AS later_admin_selection;
 \i ../../../supabase/proposed/discovery-center-20261126/D3b-rollback.sql
 DO $$ BEGIN ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') LIKE '%c0000000-0000-0000-0000-000000000001%', 'a later admin selection survives the rollback'; RAISE WARNING 'D3b + rollback tests: PASS'; END $$;
+
+-- (10) D3c: בחירה חייבת להיות ניתנת להצגה (מקור יחיד: הקורא הציבורי), גם בביטוי כפול וגם בחוסר שיטת ברירת מחדל
+INSERT INTO gematria_words (id, phrase, source, ragil, miluy, ribua, misratar, created_at) VALUES
+ ('f0000000-0000-0000-0000-000000000001', 'ביטוי כפול', 'יניב לוי', 10, 20, 30, 40, now() - interval '10 days'),
+ ('f0000000-0000-0000-0000-000000000002', 'ביטוי כפול', 'יניב לוי', 10, 20, 30, 40, now() - interval '9 days');
+INSERT INTO gematria_words (id, phrase, source, ragil, miluy, ribua, misratar, created_at) VALUES
+ ('f0000000-0000-0000-0000-000000000003', 'בלי ברירת מחדל', 'יניב לוי', NULL, 5, 6, 7, now() - interval '8 days');
+SET test.admin = 'true';
+DO $$
+BEGIN
+  -- D3 לבדו היה מאפשר את שתיהן; D3c דוחה: הביטוי הכפול שאינו הראשון, ושיטה מפורשת כשאין שיטת ברירת מחדל
+  BEGIN PERFORM admin_set_home_featured_discovery_v1('[{"id":"f0000000-0000-0000-0000-000000000002"}]'::jsonb); ASSERT false, 'a later duplicate phrase must be refused'; EXCEPTION WHEN invalid_parameter_value THEN NULL; END;
+  BEGIN PERFORM admin_set_home_featured_discovery_v1('[{"id":"f0000000-0000-0000-0000-000000000003","method":"מילוי"}]'::jsonb); ASSERT false, 'a word without a default method must be refused'; EXCEPTION WHEN invalid_parameter_value THEN NULL; END;
+  ASSERT NOT EXISTS (SELECT 1 FROM site_flags WHERE key = 'home_featured_discovery' AND message LIKE '%f0000000-0000-0000-0000-00000000000%'), 'a refused selection leaves nothing behind';
+  PERFORM admin_set_home_featured_discovery_v1('[{"id":"f0000000-0000-0000-0000-000000000001"}]'::jsonb);
+  ASSERT (SELECT discovery_center_feed_v1()->'featured'->>'phrase') = 'ביטוי כפול', 'the first duplicate is displayable and shown';
+  RAISE WARNING 'D3c display-guard tests: PASS';
+END $$;
