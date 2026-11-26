@@ -65,15 +65,23 @@
 ## 9. קבצים וגיבוב (sha256)
 | קובץ | sha256 |
 |---|---|
-| `supabase/proposed/20261126200000_community_net_blocks_PROPOSAL.sql` | `280956e20d5a63388e84c258b9f3740015c832bcd1e2b2d5f3f14ae14c8dab71` |
-| `supabase/proposed/20261126200000_community_net_blocks_ROLLBACK.sql` | `8f21d7af36c11d9d3b6b20c5a45a59d2fc5d9eb7a1996aae0c695b2e67031dbf` |
-| `test/community-net-blocks-20261126-realpg.sh` | `b13c11c2eeb78532fdaef57b32a3416ecf9640ca94adb3fdcd1213cc6bb0f527` |
+| `supabase/proposed/20261126200000_community_net_blocks_PROPOSAL.sql` | `31194d25a91af24740b0111c63785e1bb71d5dbae85c1bca96b2c0bed9b4b246` |
+| `supabase/proposed/20261126200000_community_net_blocks_ROLLBACK.sql` | `bcec8384a4b1d0ef69b646f345db1df77ad40b7e9a6d43934392ca2b27b5680f` |
+| `test/community-net-blocks-20261126-realpg.sh` | `e95354f7c7693885ed81b11e56e0836c694c4fcb986a67d0d5f5a707c0064a28` |
 | `test/fixtures/community_writers_live_20261126.sql` | `ddcce509d04b55ea358fc4b5a844d87e5255c44ef327af06533a3ded4f2f007c` |
 | `test/community-net-blocks-panel-2029.test.mjs` | `90b1c5292d07d67bb885d3c62b0130248d25378da56dd156a41c5e2864b19688` |
 | `src/lib/community/communityNetBlocksApi.js` | `b14f79a433bd904fe220e23a25c132a273124205fbdb41d5ece06d180d6a2ca5` |
 | `src/lib/community/communityNetBlocksApi.test.js` | `0727b0e8304a5cc5b0945392ff16812a43acb461db93164ffa7e45284c2ce031` |
 | `src/components/community2029/CommunityNetBlocksPanel2029.css` | `286a2bbcc64b1814cdd94803edc297eee9dcbc7ea0d477ad4d3d1ecefff44396` |
 | `test/community-net-blocks-panel-2029.browser.mjs` | `8a689e39a006fc555e91cd676f3fd0375a1b7d21f03ecdeb231596998f2a6f89` |
+| `test/fixtures/discovery_center_d5_20261126.sql` | `ab9cd2bc2736f067cff0ca9526363d8868e73f2073f70bec215c347b032aeb79` |
 | `src/components/community2029/CommunityNetBlocksPanel2029.jsx` | `809076a5504aa8a4cdba6168034ab759bd811c4268f778ca5c60c9d8916046c1` |
+
+## 10. סנכרון מול main e47808fcb, D5, איחוד כפתורים ו־#1532 / #1523 (26.11)
+- **הענף מסונכרן עם `main` e47808fcb** (מיזוג נקי, ללא קונפליקט).
+- **חפיפה עם D5 של מרכז הגילויים** (`supabase/proposed/discovery-center-20261126/D5-add_contribution_single_attribution_rule.sql`): שני הקבצים מחליפים את `add_contribution`. D5 נעול על `md5(pg_get_functiondef)=19759e27…` של הגוף החי, והקובץ שלנו על `md5(prosrc)=2c2baa01…`. בבסיס החי היום שניהם עדיין לא הוחלו (נבדק). **התיקון:** המשמר שלנו מקבל גם את גוף D5 (`md5(prosrc)=abbcf299635c0a8462c07274c10a9e4f`), ושני התיקונים נשמרים ללא דריסה: עוגני הטקסט שלנו (היקף קהילה, גשר מגבלות) ושורות D5 (`rc_unique_contributor_for_user_v1`) נוגעים בקטעים שונים. הבדיקה `community-net-blocks-20261126-realpg.sh` (60 בדיקות) מחילה D5 (העתק מדויק ב־`test/fixtures/discovery_center_d5_20261126.sql`, בלי בלוק ה־md5 שלו), אחריו את הקהילה: שני השינויים קיימים, האכיפה עובדת, וה־ROLLBACK של הקהילה מחזיר בדיוק את גוף D5.
+  **סדר החלה מחייב: D5 ואז הקהילה.** בסדר ההפוך D5 יסרב (המשמר שלו, בטוח) ויידרש בדיקה מחדש; ביטול: קודם הקהילה, אחר כך D5.
+- **איחוד כפתורי הקהילה (שלב 1 בתוכנית משפחת הכפתורים):** כפתורי התחברות/הרשמה, "הכול" בסינון, סרגל העיצוב והאימוג'י עברו ל־`.r29-btn` (`is-primary` / `is-quiet` / `is-icon`); נמחקו כללי הכפתור המקומיים ב־`community2029.css` (חמישה מתוך שישה, כולל כלל מת של `profile-filters` שאין לו שימוש). בסיס שער הכפתורים הורד (319→313). **נשאר:** כפתור השיתוף האייקוני בשרשור (`.sod-share-actions.is-icon button`) שייך לרכיב `ShareActions` המשותף לפוסטים; לא שונה כדי לא לשנות משטח אחר. ללא שינוי לוגיקה.
+- **#1523** (בדיקת דפדפן בלבד, טיוטה): מתמזג נקי לענף הזה, 175/175 בדיקות הקהילה עוברות. **#1532** (טיוטה, בסיס ישן): מתנגש עם `main` עצמו (`communityArchive.js`, `communityMessageTime.test.js`, בדיקת ההמשכיות), לא עם הענף הזה; נדרש rebase בידי בעליו, לא נעשה כאן (PR שלא פתחתי).
 
 **השפעה על התיעוד הקנוני:** אין (הצעה והכנה בלבד).
