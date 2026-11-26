@@ -4548,7 +4548,36 @@
         "guard": null,
         "open": "BY PRIORITY. (1) Merge approval of PR #1564 (S-62 stage 1 + S-63; stage 2 stays OFF), then a separate deploy approval, then the after-measurement per protocol_9bf41e6 (reminder 27.11 11:05 UTC). (2) Merge of the docs branch claude/work-public-discovery-log-read-ryfcnx (separate approval). (3) ingest_event: ONE owner, ONE combined allowlist change - PREPARED 26.11 (ZURIEL approved the consolidation): branch claude/ingest-event-consolidated-20261126 (fe08f55), supabase/proposed/ingest-event-app-health-20261126/{PROPOSAL,ROLLBACK,ACCEPTANCE}.sql + tests/ingest-event-app-health-20261126/realpg.sh (21 local checks pass; fixture reproduces the live function byte-for-byte, md5 6dd7585345d10a3a323810fd768fcf3b). Finding: analytics_followups (els search) and els_action_telemetry (els ui_action...) are ALREADY LIVE in ingest_event, and so are the other two parts of analytics_followups (fn_raziel_activity_notify, traffic_history notes); the only remaining delta is #1528's app_health family, whose old guard (4006c823) matched the 20.11 text, not the live one. NOT applied; needs a separate SQL approval; the rest of #1528 (apply.sql: reliability watch, schema validation) stays with its owner. Live md5 on 26.11 is 6dd7585345d10a3a323810fd768fcf3b; it matches none of the guards of the three open proposals (analytics_followups 60c470f6, els_action_telemetry 897f442a, #1528 app_health 4006c823), so each must be re-read and re-based before any apply; no new proposal is written here. #1528 is draft, mergeable_state dirty, head 2a231ef, and says do not merge or deploy before its SQL is approved. (4) Measurement findings of 12.11 (measurement-audit in #1321 @4a406fed2): P1 GA4 receives no campaign data (Meta does) - open GA4 work; P2 AdSense active by design - decision only; P3 content identity in GA inconsistent (/post/:item vs full root URL) - open GA4 work, derives from M3; P4 ingest_event runs anonymous by design (session/sod ids null, engagement only) - privacy decision in code, not a defect; its allowlist extensions are exactly the ingest_event item above, so P4 is not a separate task. (5) Video error measurement: not defined anywhere in the plan today; to be specified as an extension of the existing allowlist/#1528 family (no new collector), after (3). (6) Open items already in the map: S-55 options B/C (not approved), S-59 CLS sources, S-56 Google images canary, public-reading baseline lowering (203,216 vs 175,808), #1549 SQL v2 + Edge wa-channel-ingest. (7) S-62 stage 3 (SQL): NOT approved; kept on branch claude/gematria-word-floor-proposal-20261126 (01ec495).",
         "next_owner": "ZURIEL decision per item; one writer per scope",
-        "relates_to_groups": []
+        "relates_to_groups": [],
+        "status_board_20261127": {
+          "already_done_do_not_redo": [
+            "traffic_intelligence v12 + story_2029 on-demand mechanism (#1545, merged, live; flow verified 25.11)",
+            "fn_human_entrances fix (#1547) and the family-silence alert (#1548): applied and verified 24.11; re-verified 26.11: fn_reliability_watch live contains v2_measurement_silence_20261124 (md5 db5e1827ba3128023f992456778aacbe); 0 alerts in 24 h",
+            "GA4 unblocked on 2029 (CSP + worker, 10.11) and the double page_view removed (15.11); daily server sync ga4-daily-server-sync runs (days=7)",
+            "page-view double counting: 15 of 6,454 page views in 24 h share session+path within 3 s (0.23%; Legacy was 33%)",
+            "sitemap and ingest_event els families: live (els search/ui_action/operation_* are in the live ingest_event; analytics_followups fully applied)"
+          ],
+          "verified_live_26_11_read_only": [
+            "events by family 24 h: page/view 6,454 (6,045 sessions), page/engagement 523, arrival/source 6,103, content/view 1,184, entry_2029 1,236, els 482, activity_2029 288, calculator_2029 135, performance/web_vital 1,934; site_visits 6,858 rows / 6,340 visitors (same order as page views)",
+            "traffic_daily vs raw sessions: 24.11 312 = 312; 25.11 266 vs 270 raw (1.5%); the parts add up within 1 (engaged+bounces+suspected 267 vs 266)",
+            "live sitemap catalog lists 1,000 of 1,273 numbers (the 'before' of S-63, confirmed on the live site 3205ecd7)"
+          ],
+          "gap_found_20261126": [
+            "GA4 history: traffic_history has NO day rows for 7.9-7.11.2026 (ga: 104 days from 14.6, none in the gap; ga:country:IL starts 8.11). A read-only dry run of ga-sync-server (days=80, dry_run=true, pg_net request 64907, HTTP 200) shows Google holds those days: 62 days, 60,215 page views, 21,519 sessions (IL: 62 days). Writing them = ga-sync-server {days:80, dry_run:false} through the existing writers ingest_ga_daily / ingest_ga_country_daily: NEEDS ZURIEL APPROVAL. Caveat: Google's own numbers for Sept-Oct may include Legacy double counting (not proven).",
+            "Runtime errors: 0 runtime_error events since 4.11 (blind). #1528 app_health family is the answer; it needs the ingest_event allowlist (package #1575) and a code merge of #1528 by its owner.",
+            "Video: no video events existed. Built video_2029 on the story_2029 mechanism (branch claude/video-measurement-20261126, PR #1577, draft); the database entry is in the consolidated package (#1575, 28 checks on PostgreSQL 16 and 17.12). Release order: SQL before code.",
+            "Traffic wave: about 3,500 sessions in 8 h on /community/chat, source google, 98.8% single view with no engagement, one view per session, about 450 sessions per hour. They are counted as human entrances (suspected_bot only 37 on 26.11), so traffic_daily shows 5,596 entrances against about 280 on a normal day. Classification is a decision (no blocking, per the open-index law)."
+          ],
+          "decisions_needed": [
+            "D1 merge #1574 (docs) / #1575 (ingest_event package) / #1577 (video client) / #1564 deploy: each separate",
+            "D2 SQL: apply the consolidated ingest_event package (app_health + video_2029)",
+            "D3 GA4 history write (ga-sync-server days=80, dry_run=false)",
+            "D4 classification of the /community/chat Google-referred single-view sessions in the human measures (no blocking)",
+            "D5 P1 (campaign data to GA4) and P3 (content identity in GA): code change in src/lib/analytics.js; GA4/Meta/advertising changes were excluded from the measurement package by decision; open until decided",
+            "D6 fn_ti_daily (demand to recommendations) not scheduled since 6.9; ti-post-37034-daily-watch is redundant: cleanup decisions from the root-cause document section 9.7",
+            "D7 after-deployment speed measurements need the unified deployment first (live is 3205ecd7 without #1564)"
+          ]
+        }
       },
       {
         "id": "S-65",
@@ -5259,6 +5288,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: correct the live state)",
         "what": "CORRECTION: production is dpl_562GoZWmagD2A7snDnkxZbEzFDmY, source main 3205ecd7d55825225448d8dd4e4c4de32c8d0416 (Merge #1565), verified on Vercel (alias sod1820.co.il, READY); NOT 9bf41e6. #1564 (merge 6e7c422) is in main but not in that deployment. The speed fixes ship in the unified deployment, no separate deploy. Waiting state until the after-deployment measurements (protocol_9bf41e6 method; the baseline build is 2029-BcTZsiDj).",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T01:30:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: finish analytics and speed to a final handover)",
+        "what": "S-64 status board added: what is already done (not to be redone), what was verified live read-only, the gaps found (GA4 7.9-7.11 missing, runtime errors blind, video not measured, community/chat wave counted as human) and the decisions needed. video_2029 built (PR #1577) and added to the consolidated ingest_event package (#1575). Nothing merged, deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
