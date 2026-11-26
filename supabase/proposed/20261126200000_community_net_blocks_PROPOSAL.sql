@@ -5,7 +5,7 @@
 --    and guest likes/dislikes/reactions (toggle_contribution_reaction, only when auth.uid() is null). Reads, search engines and SIGNED-IN ACCOUNTS are never blocked (an account sharing a network
 --    with a blocked guest is not affected: every check is guarded by auth.uid() is null) and every other route is untouched.
 --  * The network address comes ONLY from the cf-connecting-ip header (set by Cloudflare, which replaces any client-sent value); x-real-ip and x-forwarded-for, which a client can write, are never used
---    for a block or for the hash. No address header = no reference (guests fail closed as before; add_contribution skips its limit as before).
+--    for a block or for the hash. No address header = no reference: every guest write INTO THE COMMUNITY fails closed (reply, contribution, reaction: error rate_limited); other origins are unchanged.
 --  * Hiding a message and blocking a network are two SEPARATE staff actions (no function does both).
 --  * Permanent blocks stay DISABLED (community_net_settings.permanent_enabled = false) until the owner's account identity is verified and ZURIEL explicitly enables them.
 --  * A network is identified ONLY by a keyed SHA-256 of the coarse address (IPv4 as is, IPv6 /64) made inside the database from the platform-set cf-connecting-ip (as the existing
@@ -143,6 +143,8 @@ $a$;
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
     v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
     if v_ip is not null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    -- No trusted address header = no reference: a guest write into the community fails closed (as add_guest_community_message already does); other origins are unchanged.
+    if v_ip is null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') then raise exception 'rate_limited'; end if;
     if v_ip is not null then
 $a$;
   c2 constant text := $a$      where ip = v_ip and created_at > now() - interval '1 hour';
@@ -153,8 +155,10 @@ $a$;
 $a$;
   t1n constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
   -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
-  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029'))
-     and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029')) then
+    if public.community_net_ref_v1(public.community_trusted_client_ip_v1()) is null then raise exception 'rate_limited'; end if;   -- no trusted address header: fail closed
+    if public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  end if;
 $a$;
 begin
   v_def := pg_get_functiondef('public.add_guest_community_message(text,uuid,text,text)'::regprocedure);

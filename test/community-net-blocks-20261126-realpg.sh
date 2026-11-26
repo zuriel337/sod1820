@@ -168,6 +168,20 @@ check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) >
 check "$(G 203.0.113.7 'אחרי D5 ואחרי הקהילה' | grep -c 'community_write_blocked')" 1 'D5 then community: enforcement works on the D5 body'
 F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
 check "$(GMD5 add_contribution)" "$D5MD5" 'D5 then community, rolled back: add_contribution is exactly the D5 body again (D5 is kept)'
+# Missing trusted header (ZURIEL 27.11.2026): without cf-connecting-ip no guest write into the community may pass unlimited and unblocked. The old code stored unlimited anonymous community contributions with no header
+# or with a rotating x-forwarded-for; the proposal must refuse them, and must leave every other origin and every signed-in write alone.
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null
+CNTB() { Q -c "select count(*) from public.research_contributions where body like '$1%'"; }
+ANON() { as_user - "$1" "select public.add_contribution('תגובה','$2','$3',null,null,null,null,null,'x',null)" 2>&1; }
+for i in 1 2 3 4 5 6 7; do ANON '{}' community_2029 "nohdr-$i" >/dev/null; ANON "{\"x-forwarded-for\":\"198.51.100.$i\"}" community_2029 "xffonly-$i" >/dev/null; ANON '{"x-real-ip":"198.51.100.9"}' openweb "realip-$i" >/dev/null; done
+check "$(CNTB nohdr)|$(CNTB xffonly)|$(CNTB realip)" '0|0|0' 'no header: anonymous community contributions are refused (none stored) with no header, with only a client-writable x-forwarded-for or x-real-ip'
+check "$(ANON '{}' community_2029 nohdr-x | grep -c 'rate_limited')" 1 'no header: the refusal is the same neutral rate_limited error the guest reply route already gives'
+check "$(ANON '{}' beit_midrash 'מחוץ-לקהילה-ללא-כותרת' | grep -c ERROR)|$(CNTB 'מחוץ-לקהילה-ללא-כותרת')" '0|1' 'no header: an anonymous write to another origin (outside the community) is untouched'
+check "$(ANON "$(H 198.51.100.55)" community_2029 'עם-כותרת' | grep -c ERROR)|$(CNTB 'עם-כותרת')" '0|1' 'header present: the same write passes (limits still count per network)'
+RIDC=$ROOTMSG
+check "$(as_user - '{}' "select public.toggle_contribution_reaction('$RIDC','👍','v-nohdr')" | grep -c 'rate_limited')|$(as_user - "$(H 198.51.100.55)" "select public.toggle_contribution_reaction('$RIDC','👍','v-hdr')" | grep -c ERROR)" '1|0' 'no header: a guest reaction in the community is refused; with the header it works'
+check "$(as_user "$USR" '{}' "select public.add_contribution('תגובה','community_2029','מחובר-ללא-כותרת')" | grep -c ERROR)|$(as_user "$USR" '{}' "select public.toggle_contribution_reaction('$RIDC','👍','')" | grep -c ERROR)" '0|0' 'no header: a signed-in account writes and reacts as before (never judged by its network)'
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
 # Live-body review (26.11.2026, D5 applied live, add_contribution md5 abbcf299...): the proposal must keep attribution, permissions and the notification triggers exactly.
 # State here: D5 body installed, community rolled back. Record the signature of the three functions, add stub triggers (an AFTER INSERT notification like trg_rc_notify and a thread bump), then apply.
 SIG() { Q -c "select string_agg(proname || ':' || prosecdef::text || ':' || coalesce(proacl::text,'') || ':' || coalesce(array_to_string(proconfig, ','),''), '|' order by proname) from pg_proc where pronamespace='public'::regnamespace and proname in ('add_contribution','add_guest_community_message','toggle_contribution_reaction')"; }
