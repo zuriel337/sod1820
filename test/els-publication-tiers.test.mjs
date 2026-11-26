@@ -66,3 +66,13 @@ test('concurrency: the approval takes the same row lock as the owner withdrawal 
   assert.match(code(read(dir + 'apply.sql')), /select \* into r from public\.els_records where id = p_id for update;\s*if found and r\.visibility = 'private'/);
   assert.match(read('scripts/run-els-publication-tiers-sql-test.sh'), /RACE owner-first/);
 });
+
+test('grant hardening is a separate, narrow proposal: two functions, revoke from PUBLIC and anon, keep authenticated, with its own rollback', () => {
+  const sql = code(read(dir + 'harden-grants.sql'));
+  assert.match(sql, /revoke execute on function public\.request_els_library_review\(uuid, boolean\) from public, anon;/);
+  assert.match(sql, /revoke execute on function public\.els_my_strong_ciphers\(\) from public, anon;/);
+  assert.match(sql, /grant execute on function public\.request_els_library_review\(uuid, boolean\) to authenticated;/);
+  assert.doesNotMatch(sql, /create |alter |drop |delete |update |insert /i, 'grants only: no object, policy or data change');
+  assert.match(code(read(dir + 'rollback-harden-grants.sql')), /to public;/);
+  assert.match(read('scripts/run-els-publication-tiers-sql-test.sh'), /grants: ok/);
+});

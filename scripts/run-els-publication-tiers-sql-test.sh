@@ -16,7 +16,7 @@ run "$BIN/pg_ctl" -D "$D/data" -o "-h '' -p 55448 -k $D" -l "$D/log" -w start >/
 run "$BIN/createdb" -h "$D" -p 55448 -U postgres els_tiers
 strip() { awk '/^do \$guard\$/{skip=1} !skip{print} /^\$guard\$;/{skip=0}' "$1" > "$D/$(basename "$1")"; chmod a+r "$D/$(basename "$1")"; }
 strip "$P/apply.sql"; strip "$P/rollback.sql"
-chmod a+rx "$D"; for f in "$ROOT/test/els-native-save-fixture.sql" "$ROOT/test/els-publication-tiers-pre.sql" "$ROOT/test/els-publication-tiers-post.sql"; do cp "$f" "$D/"; chmod a+r "$D/$(basename "$f")"; done
+chmod a+rx "$D"; for f in "$ROOT/test/els-native-save-fixture.sql" "$ROOT/test/els-publication-tiers-pre.sql" "$ROOT/test/els-publication-tiers-post.sql" "$ROOT/test/els-grants-hardening-post.sql" "$P/harden-grants.sql" "$P/rollback-harden-grants.sql"; do cp "$f" "$D/"; chmod a+r "$D/$(basename "$f")"; done
 q() { run "$BIN/psql" -h "$D" -p 55448 -U postgres -d els_tiers -v ON_ERROR_STOP=1 -q "$@"; }
 q -f "$D/els-native-save-fixture.sql" >/dev/null
 q -f "$D/els-publication-tiers-pre.sql" >/dev/null
@@ -42,6 +42,11 @@ if { as $ADMIN; echo "select moderate_els_matrix('$ID','published'); commit;"; }
 wait
 [[ "$(state)" == "draft/private/false" ]] || { echo "RACE owner-first: unexpected $(state)" >&2; exit 1; }
 echo 'els-publication-tiers race: ok'
+# Grant hardening (separate approval): before/after proof, then its own rollback restores the previous grants exactly.
+q -f "$D/els-grants-hardening-post.sql" >/dev/null
+q -f "$D/rollback-harden-grants.sql"
+q -At -c "select has_function_privilege('anon','public.els_my_strong_ciphers()','execute');" | grep -qx t || { echo 'grant rollback did not restore' >&2; exit 1; }
+echo 'els-publication-tiers grants: ok'
 q -f "$D/rollback.sql"
 q -c "begin; set local role anon; select test_expect((select count(*)=0 from els_records where id='a0000000-0000-0000-0000-000000000001'),'ROLLBACK keeps the leak closed: the private row stays unreadable'); commit;" >/dev/null
 q -c "reset role; insert into els_records(search_term,visibility,self_published,status,owner_user_id) values ('rb-private','private',true,'draft','00000000-0000-0000-0000-000000000001'); begin; set local role anon; select test_expect((select count(*)=0 from els_records where search_term='rb-private'),'ROLLBACK: the old flag on a private row never exposes it'); commit;" >/dev/null
