@@ -52,6 +52,7 @@ jobs:
           node scripts/qa-site-2029.mjs 2>&1 | tee qa.log
           code=${PIPESTATUS[0]}
           { echo '### בדיקת האתר בסביבה מבודדת'; echo '```'; grep -E '^(PASS|FAIL)' qa.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          node scripts/site-e2e-report-2029.mjs qa-out/report.json >> "$GITHUB_STEP_SUMMARY" || true
           exit $code
       - name: Stop and discard the local stack
         if: always()

@@ -1,0 +1,395 @@
+{
+ "as_of": "2026-11-26",
+ "note": "Curated list of the user-visible action families and the scenarios that must exist for 'בדוק את האתר מקצה לקצה'. 'results' are PASS lines printed by scripts/qa-site-2029.mjs (matched by prefix). A scenario with no results is reported NOT_TESTED, with the reason. Nothing here weakens or replaces an existing test.",
+ "families": [
+  {
+   "id": "auth",
+   "label": "כניסה והרשאות",
+   "rpcs": [],
+   "tables": [
+    "users"
+   ],
+   "scenarios": [
+    {
+     "id": "auth.login.member",
+     "label": "התחברות עם סיסמה (חבר), מחשב ופיקסל 7",
+     "role": "member",
+     "results": [
+      "desktop-1440: login with the synthetic account",
+      "Pixel 7: login with the synthetic account"
+     ]
+    },
+    {
+     "id": "auth.reload",
+     "label": "רענון שומר על אותו חשבון",
+     "role": "member",
+     "results": [
+      "desktop-1440: a reload keeps",
+      "Pixel 7: a reload keeps"
+     ]
+    },
+    {
+     "id": "auth.two-accounts",
+     "label": "שני חשבונות נפרדים (חבר וזר)",
+     "role": "member x2",
+     "results": [
+      "tiers: a guest and another member cannot read"
+     ]
+    },
+    {
+     "id": "auth.admin.login",
+     "label": "התחברות מנהל סינתטי בדפדפן",
+     "role": "admin",
+     "results": []
+    },
+    {
+     "id": "auth.logout",
+     "label": "יציאה",
+     "role": "member",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "ciphers",
+   "label": "צפנים",
+   "rpcs": [
+    "save_els_matrix",
+    "self_publish_matrix",
+    "request_els_library_review",
+    "moderate_els_matrix",
+    "els_my_strong_ciphers",
+    "els_resolve_suggestions"
+   ],
+   "tables": [
+    "els_records"
+   ],
+   "scenarios": [
+    {
+     "id": "ciphers.save.private",
+     "label": "שמירה פרטית (RPC)",
+     "role": "member",
+     "results": [
+      "tiers: a private save is draft and private"
+     ]
+    },
+    {
+     "id": "ciphers.page.publish",
+     "label": "פרסום לעמוד שלי, אורח רואה בדפדפן",
+     "role": "member+guest",
+     "results": [
+      "tiers: publishing on my page",
+      "tiers: the public page shows the cipher"
+     ]
+    },
+    {
+     "id": "ciphers.library.request",
+     "label": "בקשת ספרייה, ביטול, תור אחד",
+     "role": "member",
+     "results": [
+      "tiers: a library request is pending",
+      "tiers: cancelling the request"
+     ]
+    },
+    {
+     "id": "ciphers.library.admin",
+     "label": "אישור מנהל בלבד; חבר לא מאשר",
+     "role": "admin+member",
+     "results": [
+      "tiers: a member cannot approve",
+      "tiers: the administrator approves"
+     ]
+    },
+    {
+     "id": "ciphers.withdraw",
+     "label": "משיכה והרשאות אנונימי",
+     "role": "member+guest",
+     "results": [
+      "tiers: withdrawing from my page",
+      "tiers: an anonymous caller cannot reach"
+     ]
+    },
+    {
+     "id": "ciphers.save.ui",
+     "label": "שמירה דרך ממשק המטריצה והמנוע",
+     "role": "member",
+     "results": [],
+     "blocker": "the engine verifies every occurrence through a server RPC that the isolated stack does not have"
+    },
+    {
+     "id": "ciphers.reopen.ui",
+     "label": "פתיחה מחדש מהספרייה האישית אחרי רענון",
+     "role": "member",
+     "results": []
+    },
+    {
+     "id": "ciphers.share",
+     "label": "שיתוף קישור צופן",
+     "role": "member+guest",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "posts",
+   "label": "פוסטים",
+   "rpcs": [
+    "studio_upsert",
+    "studio_list",
+    "studio_delete",
+    "studio_verify",
+    "posts_by_number_strict"
+   ],
+   "tables": [
+    "posts"
+   ],
+   "scenarios": [
+    {
+     "id": "posts.save.ui",
+     "label": "כתיבה ושמירת פוסט דרך הממשק",
+     "role": "admin",
+     "results": []
+    },
+    {
+     "id": "posts.reopen",
+     "label": "פתיחת הפוסט אחרי רענון (אורח)",
+     "role": "guest",
+     "results": []
+    },
+    {
+     "id": "posts.admin.hide",
+     "label": "הסתרה ומחיקה (מנהל)",
+     "role": "admin",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "comments",
+   "label": "תגובות ופורום",
+   "rpcs": [
+    "add_contribution",
+    "edit_contribution",
+    "remove_contribution",
+    "moderate_contribution",
+    "approve_contribution",
+    "add_guest_community_message",
+    "forum_feed_contributions",
+    "community_thread_updates"
+   ],
+   "tables": [
+    "contributions"
+   ],
+   "scenarios": [
+    {
+     "id": "comments.add",
+     "label": "הוספת תגובה (חבר)",
+     "role": "member",
+     "results": []
+    },
+    {
+     "id": "comments.guest",
+     "label": "תגובת אורח וסקירה",
+     "role": "guest+admin",
+     "results": []
+    },
+    {
+     "id": "comments.edit-remove",
+     "label": "עריכה ומחיקה של תגובה שלי; זר לא יכול",
+     "role": "member x2",
+     "results": []
+    },
+    {
+     "id": "comments.moderate",
+     "label": "אישור והסתרה (מנהל)",
+     "role": "admin",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "likes",
+   "label": "לייקים ותגובות רגש",
+   "rpcs": [
+    "toggle_contribution_reaction",
+    "admin_boost_reaction"
+   ],
+   "tables": [
+    "research_contributions"
+   ],
+   "scenarios": [
+    {
+     "id": "likes.toggle",
+     "label": "לייק והסרה, מונה מתעדכן",
+     "role": "member",
+     "results": []
+    },
+    {
+     "id": "likes.second-account",
+     "label": "לייק משני חשבונות נספר פעמיים",
+     "role": "member x2",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "follow",
+   "label": "מעקב",
+   "rpcs": [
+    "canonical_follow_subject"
+   ],
+   "tables": [
+    "notification_prefs"
+   ],
+   "scenarios": [
+    {
+     "id": "follow.toggle",
+     "label": "מעקב וביטול מעקב",
+     "role": "member",
+     "results": []
+    },
+    {
+     "id": "follow.reload",
+     "label": "המעקב נשמר אחרי רענון",
+     "role": "member",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "messages",
+   "label": "הודעות פרטיות",
+   "rpcs": [
+    "dm_send",
+    "dm_inbox",
+    "dm_thread"
+   ],
+   "tables": [],
+   "scenarios": [
+    {
+     "id": "messages.send",
+     "label": "שליחה מחבר א׳ וקבלה אצל חבר ב׳",
+     "role": "member x2",
+     "results": []
+    },
+    {
+     "id": "messages.privacy",
+     "label": "צד שלישי לא רואה את השיחה",
+     "role": "member x3",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "notifications",
+   "label": "התראות וסימון קריאה",
+   "rpcs": [
+    "push_subscription_upsert_v1",
+    "push_subscription_delete_v1",
+    "notification_prefs_guest_get_v1"
+   ],
+   "tables": [
+    "user_notifications",
+    "notification_prefs",
+    "push_subscriptions"
+   ],
+   "scenarios": [
+    {
+     "id": "notifications.receive",
+     "label": "קבלת התראה אחרי פעולה של חשבון אחר",
+     "role": "member x2",
+     "results": []
+    },
+    {
+     "id": "notifications.mark-read",
+     "label": "סימון קריאה והמונה יורד",
+     "role": "member",
+     "results": []
+    },
+    {
+     "id": "notifications.prefs",
+     "label": "שמירת העדפות",
+     "role": "member",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "counters",
+   "label": "מונים",
+   "rpcs": [
+    "community_reply_counts",
+    "researcher_stats"
+   ],
+   "tables": [
+    "page_views",
+    "user_activity"
+   ],
+   "scenarios": [
+    {
+     "id": "counters.views",
+     "label": "מונה צפיות עולה בפתיחה",
+     "role": "guest",
+     "results": []
+    },
+    {
+     "id": "counters.replies",
+     "label": "מונה תגובות עולה בתגובה",
+     "role": "member",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "admin",
+   "label": "פעולות מנהל",
+   "rpcs": [
+    "admin_all_contributions",
+    "admin_pending_contributions",
+    "pin_contribution",
+    "feature_contribution",
+    "admin_suggestions_list",
+    "admin_system_health"
+   ],
+   "tables": [],
+   "scenarios": [
+    {
+     "id": "admin.gate",
+     "label": "חבר ואורח נחסמים מפעולות מנהל",
+     "role": "member+guest",
+     "results": [
+      "tiers: a member cannot approve"
+     ]
+    },
+    {
+     "id": "admin.console",
+     "label": "מסוף הניהול נפתח למנהל בלבד",
+     "role": "admin+member",
+     "results": []
+    },
+    {
+     "id": "admin.moderation-queue",
+     "label": "תור הסקירה",
+     "role": "admin",
+     "results": []
+    }
+   ]
+  },
+  {
+   "id": "isolation",
+   "label": "בידוד הבדיקה מהייצור",
+   "rpcs": [],
+   "tables": [],
+   "scenarios": [
+    {
+     "id": "isolation.backend",
+     "label": "כל בקשת Supabase נענתה מקומית",
+     "role": "-",
+     "results": [
+      "isolation: every Supabase request"
+     ]
+    }
+   ]
+  }
+ ]
+}
