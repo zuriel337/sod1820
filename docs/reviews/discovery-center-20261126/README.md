@@ -2,12 +2,17 @@
 
 > **טיוטות לאישור מדויק. שום קובץ ב־`db/` לא הוחל.** כל אחד הוא שינוי מסד נפרד. החלטות ZURIEL: מדור קבוע בחלק העליון של הבית (אחרי "עדכונים אחרונים" ומפת המציאות), סטטיסטיקות כלל־מערכתיות, גילויים חדשים/תרומות/כותבים/גימטריות, בחירת גילוי למנהל, אין נעיצות ב"עכשיו", עיצוב רויאל כחול וזהב ומהירות.
 
-| קובץ | מה | שינוי מסד | תלות |
-|---|---|---|---|
-| `D1-discovery_center_home_v1.sql` | קורא יחיד לבית: סטטיסטיקות לפי סוג, גילוי נבחר, גילויים חדשים (רק עם כותב מזוהה), תרומות חדשות, כותבים פעילים (30 יום). קריאה בלבד | `CREATE FUNCTION` | אין |
-| `D2-writer_public_material_v1.sql` | כל החומר הציבורי של כותב לפי סוג, בלי כפילויות (`dedupe_key`), אותו כלל שיוך. קריאה בלבד | `CREATE FUNCTION` | אין |
-| `D3-admin_set_home_featured_discovery_v1.sql` | בחירת הגילוי הנבחר והחלפתו, מנהל בלבד, נכתב ל־`site_flags` הקיים (אין טבלה חדשה); נדחה אם הגילוי לא ציבורי/בלי קרדיט/בלי כותב יחיד | `CREATE FUNCTION` + כתיבה ל־`site_flags` רק דרכו | D1 קורא אותו |
-| `D4-trg_rc_resolve_author_contributor.sql` | שיוך נכון מלכתחילה: בהכנסת תרומה עם משתמש ובלי תורם, מקשר לתורם הפעיל החד־משמעי של המשתמש (כלל A1). לא לפי שם | `CREATE FUNCTION` + `CREATE TRIGGER` | אין |
+| קובץ | מה | שינוי מסד |
+|---|---|---|
+| `D0-shared_helpers.sql` | `public_discovery_writer_v1` (תנאי יחיד לבחירה ולהצגה) ו־`rc_unique_contributor_for_user_v1` (כלל שיוך יחיד) | `CREATE FUNCTION` ×2 |
+| `D1-discovery_center_v1.sql` | `discovery_center_feed_v1` (מהיר, 91ms) ו־`discovery_center_stats_v1` (מטמון 10 דקות). שער פרופילים ציבוריים בלבד | `CREATE FUNCTION` ×2 |
+| `D2-writer_public_material_v1.sql` | כל החומר הציבורי של כותב לפי סוג (כולל פוסטים ותגובות), עימוד יציב לפי `(created_at, dedupe_key)` | `CREATE FUNCTION` |
+| `D3-admin_set_home_featured_discovery_v1.sql` | בחירת הגילוי למנהל, כותבת ל־`site_flags` הקיים, אותו תנאי כמו ההצגה | `CREATE FUNCTION` + כתיבה ל־`site_flags` דרכה בלבד |
+| `D4-trg_rc_resolve_author_contributor.sql` | שיוך נכון בקליטה לפי הכלל היחיד | `CREATE FUNCTION` + `CREATE TRIGGER` |
+| `D5-add_contribution_single_attribution_rule.sql` | `add_contribution` על אותו כלל (5 שורות, מוגן ב־md5) | `CREATE OR REPLACE FUNCTION` |
+| `VERIFY-AFTER-APPLY.sql` | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
+
+הביקורת המלאה: [AUDIT.md](AUDIT.md). כל אחד מהקבצים דורש אישור מדויק נפרד.
 
 ## מה אומת בקריאה בלבד מול המסד החי
 - גוף D1 הורץ כשאילתה על נתוני אמת (בלי יצירת פונקציה): גימטריות ציבוריות 12,579 · רשומות מחקר ציבוריות 10,292 · תרומות ראשיות 5,187 ותגובות 17,742 (`approved`+`published`, כלל דף הכותב) · עדכוני ערוץ חיים 2,460 · צפנים 116 · כותבים עם חומר ציבורי משויך 1,115.
