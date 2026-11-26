@@ -45,7 +45,12 @@
 `CommunityNetBlocksPanel2029.jsx`, חלק מ־`CommunityLive2029` בטעינה עצלה. הפאנל **אינו מופיע בדף עד שהשרת מאשר את הפיצ'ר** (כל עוד ה־RPC לא הוחלו הוא חסר, בלי שגיאות). לוח מתקפל אחד: "הודעות אורח אחרונות" (לכל הודעה שני כפתורים נפרדים: "הסתרת הודעה" ו"חסימת כתיבה"; הודעה ישנה: רק הסתרה, עם הסבר), ו"חסימות" (מצב, משך, פקיעה, סיבה, מי חסם, "ביטול חסימה"). טופס החסימה: בחירת משך ב־`.r29-check-group` (`role="radiogroup"`, שלוש שורות), סיבה חובה עם מונה, `.r29-btn.is-primary` ו־`.r29-btn.is-quiet`, ובו הטקסט "ההודעה עצמה לא תוסתר". אין אפשרות "לצמיתות" אלא הערה שהיא מושבתת. אין צבע, גודל או צל מקומי (CSS פריסה בלבד). חיווי חי: "מבצע…" ו־`aria-busy`. בדיקות: `button-family-guard`, ‏`design-family-warn`, ‏`royal-sheet` ו־180 בדיקות קהילה עברו; הרצת הצד המשולב (CI) בהמשך.
 
 ## 7. בדיקות
-`test/community-net-blocks-20261126-realpg.sh` (51 בדיקות, Postgres אמיתי מבודד, העתק מדויק של שלושת מסלולי הכתיבה החיים, md5 נבדק), ‏`test/community-net-blocks-panel-2029.test.mjs`, ‏`src/lib/community/communityNetBlocksApi.test.js`. **מה לא נבדק:** ניסוי חי מול Supabase; התנהגות ב־Postgres 17 (הרצה ב־CI בהמשך); הצגת הפאנל בדפדפן אמיתי מול ה־DB.
+- `test/community-net-blocks-20261126-realpg.sh`: 55 בדיקות על Postgres אמיתי מבודד (העתק מדויק של שלושת מסלולי הכתיבה החיים, md5 נבדק): גשר מגבלות מ־IP גולמי ל־hash (המגבלות הקיימות נשמרות בחלון המעבר), היקף החסימה לקהילה בלבד (`openweb`/`community_2029`; פעולות מחוץ לקהילה לא מושפעות), תקרת 10 חסימות לשעה לאיש צוות בעשרות בקשות מקבילות (pgbench: בדיוק 10 מתוך 200), IPv6, הסתרה וחסימה כפעולות נפרדות, לצמיתות מושבת, החזרה לאחור מדויקת.
+- `transport.js`: חמשת ה־RPC של הצוות ברשימת ההיתר עם בדיקת גוף מדויקת; ה־RPC של לצמיתות אינם מותרים (נפילה לאדמין בלבד). `test/public-reading-full-account-transport.test.mjs`.
+- `test/community-net-blocks-panel-2029.test.mjs` ו־`test/community-net-blocks-panel-2029.browser.mjs` (Chromium אמיתי; רכיב וגיליונות סגנון אמיתיים, רק לקוח Supabase מוחלף במקליט): שתי פעולות נפרדות עם מטענים מדויקים, 44px, ללא גלישה בדסקטופ ובנייד, הודעה שממתינה לבדיקה אינה מופיעה פעמיים, העברה מחלונית הבדיקה לחלונית הצוות, היעדר הפאנל כשה־RPC לא קיימים, אף כתובת או הפניית רשת בדף.
+- ללא כפילות: חלונית "ממתינות לבדיקה" הקיימת נשארת הרשימה היחידה להודעות שלא נבדקו; "חסימת כתיבה…" בה רק מעבירה את ההודעה לחלונית הצוות.
+- מקור הכתובת: `cf-connecting-ip` בלבד (Cloudflare דורס כותרת זו מהלקוח; ‏`x-forwarded-for`/`x-real-ip` לא בשימוש). ב־`edge_logs` הכותרת קיימת ב־100% מ־324,543 הבקשות. **מה לא ניתן להוכיח מכאן:** ניסוי זיוף חי, ושאין נתיב ישיר ל־origin שעוקף את Cloudflare; זהו הסיכון שנותר ויש לאשרו מול הגדרות Supabase.
+**מה לא נבדק:** ניסוי חי מול Supabase; הרצת CI על Postgres 17 לענף הזה; הצגת הפאנל מול DB שהוחל עליו הקובץ.
 
 ## 8. החלטות ואישורים נדרשים
 1. ביקורת עצמאית של הקובץ (פרטיות, רשתות משותפות).
@@ -56,13 +61,15 @@
 ## 9. קבצים וגיבוב (sha256)
 | קובץ | sha256 |
 |---|---|
-| `supabase/proposed/20261126200000_community_net_blocks_PROPOSAL.sql` | `0b1635b268662a0b0b997324b329ae1568f96d440acae82c26268c76805d88a2` |
-| `supabase/proposed/20261126200000_community_net_blocks_ROLLBACK.sql` | `5175a85deb2d9e24a9a16fcfe7fbb6ce1f0a063c21b32cd123ff755c275ec5d5` |
-| `test/community-net-blocks-20261126-realpg.sh` | `3e1b7a7b1d4cb4efe6b1ed0756c17017f5dc8c2f1280c5518d7328ad17cc0154` |
+| `supabase/proposed/20261126200000_community_net_blocks_PROPOSAL.sql` | `280956e20d5a63388e84c258b9f3740015c832bcd1e2b2d5f3f14ae14c8dab71` |
+| `supabase/proposed/20261126200000_community_net_blocks_ROLLBACK.sql` | `8f21d7af36c11d9d3b6b20c5a45a59d2fc5d9eb7a1996aae0c695b2e67031dbf` |
+| `test/community-net-blocks-20261126-realpg.sh` | `b13c11c2eeb78532fdaef57b32a3416ecf9640ca94adb3fdcd1213cc6bb0f527` |
 | `test/fixtures/community_writers_live_20261126.sql` | `ddcce509d04b55ea358fc4b5a844d87e5255c44ef327af06533a3ded4f2f007c` |
 | `test/community-net-blocks-panel-2029.test.mjs` | `845271eb5b10a3dbe108b59615669b98faf38b1e1bdb611f425c43397532abd8` |
 | `src/lib/community/communityNetBlocksApi.js` | `b14f79a433bd904fe220e23a25c132a273124205fbdb41d5ece06d180d6a2ca5` |
 | `src/lib/community/communityNetBlocksApi.test.js` | `0727b0e8304a5cc5b0945392ff16812a43acb461db93164ffa7e45284c2ce031` |
-| `src/components/community2029/CommunityNetBlocksPanel2029.jsx` | `33ca49bb35ada5b9a514a52575e86187aa8b701d2a2ede6299376b2a98c6086a` |
+| `src/components/community2029/CommunityNetBlocksPanel2029.css` | `88d410ffab9d7eb2dbd8c878bf8105a8639623875df4673d9f465abbf8b563f2` |
+| `test/community-net-blocks-panel-2029.browser.mjs` | `801f2bccaae99d30f1671f84d6659a74fb59a12d122aed72399f259843821bca` |
+| `src/components/community2029/CommunityNetBlocksPanel2029.jsx` | `77bc655b3822160625b4c61813fb4486b73124d4145f311ce9ded45039daba6f` |
 
 **השפעה על התיעוד הקנוני:** אין (הצעה והכנה בלבד).
