@@ -36,14 +36,27 @@ function keepAlive(promise) {
 }
 
 const range = header => {
-  const match = /^(\d+)-(\d+)\/(\d+)$/.exec(String(header || "").trim());
-  return match ? { from: Number(match[1]), to: Number(match[2]), total: Number(match[3]) } : null;
+  const match = /^(?:(\d+)-(\d+)|\*)\/(\d+)$/.exec(String(header || "").trim());   // "0-999/1273", or "*/0" for an empty set
+  return match ? { total: Number(match[3]) } : null;
 };
 
-// The whole admitted set, or an error. Pages of pageSize with an exact total taken from the first page; the pages must add up to that total.
-export async function readAdmittedNumbers2029({ supabaseUrl, headers, fetchImpl = globalThis.fetch, timeoutMs = 15000 } = {}) {
+// The whole admitted set as rows {value, priority, lastmod} ordered by value, or an error. Pages of pageSize with an exact total taken from the first
+// page; the pages must add up to that total and carry no value twice. The same read serves the sitemap (S-63) and the decision above, so both see the
+// same complete set. attempts > 1 reads again when the set changed between two pages (the pages then do not add up); it never returns a partial set.
+export async function readAdmittedNumberRows2029({ supabaseUrl, headers, fetchImpl = globalThis.fetch, timeoutMs = 15000, attempts = 1 } = {}) {
   if (typeof fetchImpl !== "function" || !supabaseUrl) throw new Error("admitted_numbers_unavailable");
-  const values = new Set();
+  let last;
+  for (let attempt = 0; attempt < Math.max(1, attempts); attempt += 1) {
+    try { return await readOnce({ supabaseUrl, headers, fetchImpl, timeoutMs }); } catch (error) {
+      last = error;
+      if (error?.message !== "admitted_numbers_incomplete") break;   // only a set that changed under the pages is read again
+    }
+  }
+  throw last;
+}
+
+async function readOnce({ supabaseUrl, headers, fetchImpl, timeoutMs }) {
+  const byValue = new Map();
   let total = null, got = 0;
   for (let page = 0; page < ADMITTED_NUMBERS.maxPages; page += 1) {
     const offset = page * ADMITTED_NUMBERS.pageSize;
@@ -61,14 +74,19 @@ export async function readAdmittedNumbers2029({ supabaseUrl, headers, fetchImpl 
     for (const row of rows) {
       const value = Number(row?.value);
       if (!Number.isSafeInteger(value)) throw new Error("admitted_numbers_invalid");
-      values.add(value);
+      if (byValue.has(value)) throw new Error("admitted_numbers_incomplete");   // a value twice means the pages overlapped: the set moved
+      byValue.set(value, { value, priority: row.priority, lastmod: row.lastmod });
     }
     got += rows.length;
     if (got >= total) break;
     if (!rows.length) throw new Error("admitted_numbers_incomplete");
   }
-  if (got !== total || values.size !== total) throw new Error("admitted_numbers_incomplete");
-  return values;
+  if (got !== total || byValue.size !== total) throw new Error("admitted_numbers_incomplete");
+  return [...byValue.values()].sort((a, b) => a.value - b.value);
+}
+
+export async function readAdmittedNumbers2029(options = {}) {
+  return new Set((await readAdmittedNumberRows2029(options)).map(row => row.value));
 }
 
 function refresh(options, now) {

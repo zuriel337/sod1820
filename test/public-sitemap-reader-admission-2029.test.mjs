@@ -40,7 +40,7 @@ async function invoke(books, { legacy = false, source = "ready", failNodes = fal
       assert.equal(url.searchParams.get("type"), "eq.book"); assert.equal(url.searchParams.get("is_active"), "eq.true");
       if (failNodes) throw new Error("synthetic node read failure");
     }
-    return new Response(JSON.stringify(url.pathname === "/rest/v1/nodes" ? books : []));
+    return new Response(JSON.stringify(url.pathname === "/rest/v1/nodes" ? books : []), { headers: url.pathname === "/rest/v1/rpc/sitemap_numbers" ? { "content-range": "*/0" } : {} });
   };
   const res = { code: null, headers: {}, setHeader(key, value) { this.headers[key.toLowerCase()] = value; },
     status(code) { this.code = code; return this; }, send(body) { this.body = body; return this; } };
