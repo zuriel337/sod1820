@@ -7,8 +7,7 @@ import { humanContentTitle } from "../presentation/contentTitle.js";
 import { bilingualDateLabel } from "../relativeTime2029.js";
 import { postBackground2029 } from "./postBackground2029.js";
 import { contentSeriesByKey, contentSeriesKeysForPost } from "./contentSeries2029Identity.js";
-import { postClassification2029 } from "./postClassification2029.js";
-import { SEMANTIC_LEGEND } from "./postSemanticDesign2029.js";
+import { postClassification2029, postTagItems2029 } from "./postClassification2029.js";
 import { clean, postPlainText2029, postImageRenditionSet2029, postArticleImageOriginals2029, postImageFactsFor2029, postReadingCoverYieldsToVideo2029, POST_COVER_IMAGE_SIZES } from "./postArticleCore2029.js";
 import { postVoiceFor } from "../postVoice2029.js";
 import { POST_ARTICLE_THEME_SCRIPT, POST_ARTICLE_FRAME_CLOSE, postArticleFrameOpen2029 } from "./postArticleFrame2029.js";
@@ -25,7 +24,11 @@ export function postArticleByline2029(post) {
   const author = typeof post?.author === "string" ? post.author.trim() : "";
   const publisher = author && contentSeriesKeysForPost(post).some(key => contentSeriesByKey(key)?.publisherLabel === post.author);
   const date = String(post?.date || post?.modified || "").slice(0, 10);
-  return { credit: author ? `${publisher ? "מפרסם" : "ייחוס במקור"}: ${author}` : "", date, dateLabel: date ? bilingualDateLabel(date, date) : "" };
+  // The edit date (ZURIEL 25.11.2026): shown only when the Post was really edited AFTER its publication day (the stored `modified`), never invented.
+  const modifiedRaw = String(post?.modified || "").slice(0, 10);
+  const modified = /^\d{4}-\d{2}-\d{2}$/.test(modifiedRaw) && /^\d{4}-\d{2}-\d{2}$/.test(date) && modifiedRaw > date ? modifiedRaw : "";
+  return { credit: author ? `${publisher ? "מפרסם" : "ייחוס במקור"}: ${author}` : "", date, dateLabel: date ? bilingualDateLabel(date, date) : "",
+    modified, modifiedLabel: modified ? bilingualDateLabel(modified, modified) : "" };
 }
 
 // The page's duplicate-cover rule (Post2029Page effect), applied to the same body.
@@ -55,14 +58,6 @@ const ORIENTATION_MARK = '<span class="sod29-entry-orientation-slot is-in-header
   + '<button type="button" class="sod29-learn-mark-trigger" aria-expanded="false" aria-disabled="true" aria-label="איך זה עובד? — חדש כאן? מה עושים בפוסט הזה?"><span class="sod29-learn-mark-symbol" aria-hidden="true">?</span>'
   + '<span class="sod29-learn-mark-label">איך זה עובד?</span></button></div></span>';
 
-// The page's section navigation for an ordinary imported Post before its context arrives (Post2029Page sectionItems): the story, the sources,
-// the comment archive when the Post has one, and what comes next. A "connections" tab is added by the page when its connections resolve.
-function sectionNavHtml(post) {
-  const comments = /^[1-9]\d*$/.test(clean(post.wp_id)) && Number.isSafeInteger(Number(post.wp_id));
-  const labels = ["הסיפור", "מקורות", ...(comments ? ["תגובות"] : []), "המשך"];
-  return `<nav class="sod29-surface-tabs" aria-label="בתוך הפוסט" data-experience-capability="surface-section-nav">${labels.map(label => `<button type="button" class="" aria-disabled="true">${label}</button>`).join("")}</nav>`;
-}
-
 // facts: the real widths of the originals (public-reading-deploy/article-image-facts.json); the document carries exactly this Post's ones, so the page
 // offers exactly the same copies (documentImageFactsFor in postArticleAdoption2029.js).
 export function postArticleDocumentHtml2029(post, { document = globalThis.document, path = "", facts = null } = {}) {
@@ -77,8 +72,8 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
   const background = postBackground2029(post);
   const voice = postVoiceFor(post).voice;
   const classification = postClassification2029(post);
+  const tagItems = postTagItems2029(post);
   const sourceLabel = clean(post.author) || "מקור הפוסט";
-  const excerpt = clean(post.excerpt) || postPlainText2029(post.content).slice(0, 220);
   const coverLabel = `פתח את תמונת הפוסט: ${title}`;
   const coverSet = postImageRenditionSet2029(cover, imageFacts);   // the page's cover offers the same smaller copies (Post2029Page)
   const frame = postArticleFrameOpen2029({ id: POST_ARTICLE_DOCUMENT_ID, "data-ssr-post": String(post.id), "data-ssr-source": postArticleSourceKey2029(post.content), "data-ssr-path": path,
@@ -89,21 +84,17 @@ export function postArticleDocumentHtml2029(post, { document = globalThis.docume
     + `<article class="sod29-reading-post" data-golden="false" data-experience-surface="post-reading" data-experience-capability="post-master-reading-stage" data-post-slug="${escapeHtml(post.slug)}"`
     + ` data-post-character="plain" data-post-voice="${escapeHtml(voice)}" data-prefs-tick="0" data-post-background="${escapeHtml(background.key)}"`
     + ` style="--post-background-desktop: url(&quot;${escapeHtml(background.desktop)}&quot;); --post-background-mobile: url(&quot;${escapeHtml(background.mobile)}&quot;);">`
-    + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid"><div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
-    + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}</p>` : "")
-    + chipsHtml(classification, 4)
+    + `<header id="post-story" class="sod29-reading-hero" data-experience-capability="post-master-hero"><div class="sod29-reading-hero-grid">`
+    + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
+    + `<div class="sod29-reading-hero-copy"><h1>${escapeHtml(title)}</h1>`
+    + (byline.credit || byline.date ? `<p class="sod29-reading-byline">${byline.credit ? `<span>${escapeHtml(byline.credit)}</span>` : ""}${byline.date ? `<time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time>` : ""}${byline.modified ? `<time class="sod29-reading-modified" datetime="${escapeHtml(byline.modified)}">עודכן: ${escapeHtml(byline.modifiedLabel)}</time>` : ""}</p>` : "")
+    + chipsHtml(classification, Infinity)
     + `<span class="sod29-orientation-host">${ORIENTATION_MARK}</span>`
     + `<details class="sod29-post-details"><summary><span class="sod29-reading-source-badge">${escapeHtml(sourceLabel)}</span><span class="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>`
     + `<div class="sod29-post-details-body">`
     + (classification.credit ? `<p>${escapeHtml(classification.credit.prefix)}: ${escapeHtml(classification.credit.name)}</p>` : "")
-    + (byline.date ? `<p>תאריך הפוסט: <time datetime="${escapeHtml(byline.date)}">${escapeHtml(byline.dateLabel)}</time></p>` : "")
-    + `<div class="sod29-reading-meta-line">${chipsHtml(classification, Infinity)}</div>`
-    + (excerpt ? `<p>${escapeHtml(excerpt)}</p>` : "")
-    + `<p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p>`
-    + `</div></details></div></div></header>`
-    + (voice !== "original" ? `<details class="sod29-semantic-legend" data-experience-capability="post-semantic-legend"><summary>מקרא הסמלים בפוסט</summary><dl>${SEMANTIC_LEGEND.map(item => `<dt><span aria-hidden="true">${escapeHtml(item.symbol)}</span> ${escapeHtml(item.label)}</dt><dd>${escapeHtml(item.detail)}</dd>`).join("")}</dl></details>` : "")
-    + (coverFigure ? `<figure class="sod29-reading-cover" data-experience-capability="post-reading-cover" data-ssr-cover="true"><button type="button" class="sod29-canonical-media-figure" data-media-id="" data-gallery-image-id="" aria-disabled="true" aria-label="${escapeHtml(coverLabel)}"><img alt="${escapeHtml(coverLabel)}" loading="eager" fetchpriority="high"${coverSet ? ` sizes="${POST_COVER_IMAGE_SIZES}"` : ""} class="sod29-canonical-media-image is-primary" data-media-fit="preserve-whole-image"${coverSet ? ` srcset="${escapeHtml(coverSet)}"` : ""} src="${escapeHtml(cover)}"></button></figure>` : "")
-    + sectionNavHtml(post)
+    + (tagItems.length ? `<p class="sod29-post-tags">${tagItems.map(tag => `<a href="${escapeHtml(tag.href)}">${escapeHtml(tag.name)}</a>`).join("")}</p>` : "")
+    + `</div></details><div class="sod29-post-actions-slot"></div></div></div></header>`
     + `<div class="sod29-reading-layout"><section class="sod29-reading-source" aria-label="טקסט המקור" data-ssr-body="true">${template.innerHTML}</section></div>`
     + `</article>` + POST_ARTICLE_FRAME_CLOSE;
 }

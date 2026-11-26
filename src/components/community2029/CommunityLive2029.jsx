@@ -17,7 +17,7 @@ import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTA
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette2029.js";
-import { COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
+import { attachCommunityPostLinks, COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, focusCommunityReplyToggle, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
@@ -185,6 +185,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       <button type="button" className="sod29-community-text-action" onClick={() => guestReview.review(sourceRow.id, "approve")}>אישור</button>
       <button type="button" className="sod29-community-text-action" onClick={() => guestReview.review(sourceRow.id, "hide")}>הסתרה</button></div> : null}
     <div className="sod29-community-author"><LiveAuthor row={row} accountProfiles={accountProfiles} formatDate={formatDate} linkAuthor={linkAuthor} showAvatar={showAuthorAvatar} /></div>
+    {row.postLink ? <p className="sod29-community-from-post"><Link to={row.postLink.href}>מתוך הפוסט: {row.postLink.title} ←</Link></p> : null}
     {row.editedAt ? <p className="sod29-community-edited">נערך · {bilingualDateLabel(row.editedAt) || "תאריך לא זמין"}</p> : null}
     {showSource ? <div className="sod29-community-activity-source">{sourceLabels[row.origin] || "תרומה"}{row.parentId ? " · תגובה" : ""}</div> : null}
     {showSource && row.title && row.title !== row.body ? <h4 className="sod29-community-activity-title" dir="auto">{row.title}</h4> : null}
@@ -654,7 +655,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     if (!threadFocus) { setFocusedThreadState(hasThreadRequest ? "not_found" : "idle"); return undefined; }
     let active = true;
     setFocusedThreadState("loading");
-    fetchCommunityThread(threadFocus.threadId).then((thread) => {
+    fetchCommunityThread(threadFocus.threadId).then(async (thread) => (thread ? (await attachCommunityPostLinks([thread]))[0] : thread)).then((thread) => {
       if (!active) return;
       setFocusedThread(thread);
       setFocusedThreadState(thread ? "ready" : "not_found");

@@ -285,6 +285,7 @@ const CHROME = () => {
   clone.querySelectorAll(".sod29-reading-layout,.sod29-post-research,[data-tool-on-approach],.sod29-post-next").forEach(node => node.remove());
   clone.querySelectorAll("[aria-disabled],[aria-controls],[data-ssr-cover]").forEach(node => { node.removeAttribute("aria-disabled"); node.removeAttribute("aria-controls"); node.removeAttribute("data-ssr-cover"); });
   clone.querySelectorAll(".sod29-post-details-body").forEach(node => node.replaceChildren());   // closed: its tools load when opened
+  clone.querySelectorAll(".sod29-post-actions-slot").forEach(node => node.replaceChildren());      // the one action row is client-only and lazy; its box is reserved (44px) and measured in the geometry check above
   return clone.innerHTML;
 };
 for (const [profile, theme] of [["phone", "dark"], ["desktop", "dark"], ["phone", "light"], ["desktop", "parchment"]]) {

@@ -101,7 +101,8 @@ test("[phone] a new Post that names something a left-out first-paint rule depend
 test("the viewport centres the public Post and Community emblems while either desktop rail opens", { timeout: 120000 }, async () => {
   await withPage("desktop", {}, async ({ page }) => {
     await page.setViewportSize({ width: 1920, height: 1000 });
-    const medal = ".sod29-page-intro[data-intro-variant=compact] .sod29-hero-visual > .r29-medal";
+    // One medallion for every Post (ZURIEL 25.11.2026): the frame ring above a Post is hidden and the Post's own opening (medallion, title) is the emblem.
+    const medal = ".sod29-reading-post .sod29-reading-hero";
     const centred = async (selectors) => {
       await page.waitForFunction((selectors) => selectors.every(selector => {
         const element = document.querySelector(selector);

@@ -1,47 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { supabase } from "../../lib/supabase.js";
 import { getCommentsByPostId } from "../../lib/supabaseApi2029.js";
-import { readPostCommentArchive } from "./postComments2029.js";
+import { mergePostComments, readPostCommentArchive, readPostCommunityComments } from "./postComments2029.js";
+import "./royal2029.css";
 import "./postComments2029.css";
 
+const PostCommentComposer = lazy(() => import("./PostCommentComposer2029.jsx"));   // the writing tool: only when «רשום תגובה» is pressed
 const dateFormat = new Intl.DateTimeFormat("he-IL", {
   day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
 });
 
-// The end of a Post (ZURIEL 20.11.2026): comments that already exist for this Post are shown; when there are none, nothing about them is
-// shown (no empty archive and no "previous site" wording). A reader who wants to add something writes it in the community: the button
-// uses the EXISTING «שתפו בקהילה» path (communityShareDraft → the person's own community draft → the existing composer), so the reader's
-// own words are required and nothing is sent from here.
-export default function PostComments2029({ postWpId, href = "", title = "" }) {
-  const navigate = useNavigate();
+// The end of a Post (ZURIEL 25.11.2026): old and new comments in ONE list with their number; with none, ONLY the action «רשום תגובה». Writing happens here, in the Post
+// (no move to the Community); the same record is the Community message (origin community_2029) and carries this post's id. The archive joins by the WordPress id only;
+// the new comments are keyed by the canonical post id, so a post without a WordPress id has them too. A guest's comment waits for approval and says so.
+export default function PostComments2029({ postId, postWpId = null, href = "", title = "" }) {
   const auth = useAuth();
+  const ownUserId = auth?.user?.id || null;
   const [state, setState] = useState({ rows: [], loading: true, error: false });
-  const [note, setNote] = useState(""), [opening, setOpening] = useState(false);
+  const [composing, setComposing] = useState(false), [note, setNote] = useState("");
 
   useEffect(() => {
     let alive = true;
     setState({ rows: [], loading: true, error: false });
-    readPostCommentArchive(postWpId, getCommentsByPostId)
-      .then((rows) => { if (alive) setState({ rows, loading: false, error: false }); })
+    Promise.all([
+      postWpId != null ? readPostCommentArchive(postWpId, getCommentsByPostId).catch(() => []) : [],
+      readPostCommunityComments(postId, supabase, ownUserId),
+    ]).then(([archive, community]) => { if (alive) setState({ rows: mergePostComments(archive, community), loading: false, error: false }); })
       .catch(() => { if (alive) setState({ rows: [], loading: false, error: true }); });
     return () => { alive = false; };
-  }, [postWpId]);
+  }, [postId, postWpId, ownUserId]);
 
-  // Loaded on press, like the share window: the draft code lives with the community composer (speed law).
-  const toCommunity = () => {
-    if (opening || !href) return;
-    setOpening(true);
-    import("../community2029/CommunityLive2029.jsx")
-      .then(({ communityShareDraft }) => communityShareDraft({ auth, href, title }))
-      .catch(() => ({ ok: false, message: "לא הצלחנו לפתוח את הקהילה. בדקו את החיבור ונסו שוב." }))
-      .then((result) => { setOpening(false); if (result.ok) navigate("/community/chat"); else setNote(result.message); });
+  const done = ({ id, text, guest, author }) => {
+    setComposing(false);
+    setNote(guest ? "התגובה נשלחה וממתינה לאישור. היא תופיע כאן ובקהילה אחרי שתאושר." : "התגובה פורסמה.");
+    if (!guest) setState(prev => ({ ...prev, rows: mergePostComments(prev.rows, [{ id: `c:${id}`, parentId: null, author: author || auth?.user?.user_metadata?.name || "", text, date: new Date().toISOString(), source: "community" }]) }));
   };
 
   const rows = state.rows;
-  return <section id="post-comments" className="sod29-post-comments" aria-label="תגובות" data-post-comment-archive={String(postWpId)}>
-    {state.loading ? <p className="sod29-post-comments-status" role="status">טוען תגובות…</p>
-      : state.error ? <p className="sod29-post-comments-status" role="alert">לא הצלחנו לטעון את התגובות. אפשר לרענן ולנסות שוב.</p> : null}
+  return <section id="post-comments" className="sod29-post-comments r29" aria-label="תגובות" data-post-comment-archive={postWpId == null ? undefined : String(postWpId)}>
+    {state.loading ? <p className="r29-status" role="status" data-state="loading">טוען תגובות…</p>
+      : state.error ? <p className="r29-status" role="alert" data-state="error">לא הצלחנו לטעון את התגובות. אפשר לרענן ולנסות שוב.</p> : null}
     {rows.length ? <details open>
       <summary>תגובות ({rows.length})</summary>
       <ol className="sod29-post-comment-list">
@@ -52,18 +51,17 @@ export default function PostComments2029({ postWpId, href = "", title = "" }) {
           data-comment-id={comment.id || undefined}
           data-comment-parent={comment.parentId || undefined}
         >
-          <header><strong>{comment.author || "חבר הקהילה"}</strong>{comment.date ? <time dateTime={comment.date}>{dateFormat.format(new Date(comment.date))}</time> : null}</header>
+          <header><strong>{comment.author || "חבר הקהילה"}</strong>{comment.pending ? <em className="sod29-post-comment-pending">ממתינה לאישור</em> : null}{comment.date ? <time dateTime={comment.date}>{dateFormat.format(new Date(comment.date))}</time> : null}</header>
           {comment.parentId ? <span className="sod29-post-comment-parent">↩ תגובה לתגובה קודמת</span> : null}
           <p dir="auto">{comment.text}</p>
         </li>)}
       </ol>
     </details> : null}
-    {href ? <div className="sod29-post-comments-add">
-      <p><strong>רוצים להוסיף משהו?</strong> כתבו כמה מילים משלכם, והן יעלו לקהילה יחד עם הקישור לפוסט.</p>
-      <button type="button" className="sod29-post-comments-button" data-action="community" onClick={toCommunity} aria-busy={opening} aria-describedby="post-comments-add-hint">
-        {opening ? "פותחים את הקהילה…" : "להוסיף בקהילה"}
-      </button>
-      {note ? <p id="post-comments-add-hint" className="sod29-post-comments-hint" role="status">{note}</p> : <span id="post-comments-add-hint" hidden>נפתח חלון כתיבה בקהילה עם הקישור לפוסט</span>}
-    </div> : null}
+    <div className="sod29-post-comments-add">
+      {composing ? <Suspense fallback={<p className="r29-status" role="status" data-state="loading">טוען…</p>}>
+        <PostCommentComposer postId={postId} onDone={done} onCancel={() => setComposing(false)} />
+      </Suspense> : <button type="button" className="r29-btn is-quiet" data-action="write" onClick={() => { setNote(""); setComposing(true); }} aria-describedby="post-comments-add-hint">רשום תגובה</button>}
+      {note ? <p id="post-comments-add-hint" className="r29-status" role="status" data-state="success">{note}</p> : <span id="post-comments-add-hint" hidden>נפתחת תיבת כתיבה בפוסט.</span>}
+    </div>
   </section>;
 }

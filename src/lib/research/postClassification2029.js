@@ -4,11 +4,13 @@
 import { canonicalPostCategories } from "../postCategoryIdentity.js";
 import { contentSeriesByKey, contentSeriesKeysForPost, seriesShadowedCategories } from "./contentSeries2029Identity.js";
 import { hasSuppressedPublicPostTag } from "./publicPostBoundary.js";
+import { postsTaxonomyScope2029 } from "./postsTaxonomy2029Route.js";
 
 const categoryHref = name => `/2029/posts?category=${encodeURIComponent(name)}`;
 const seriesHref = key => `/2029/posts?series=${encodeURIComponent(key)}`;
 
-// Post-only presentation of already admitted sources, not a category→Topic map.
+// Public terms (ZURIEL 25.11.2026): a series, a category and a tag. The words "סיווג במקור", "סיווג ישן" and the like are not shown to anyone and are not in the
+// first document; the roles below stay as the record. Post-only presentation of already admitted sources, not a category→Topic map.
 // PLAN37 DEC-CONTENT-001/DEC-VIDEO-001 and the existing exact series descriptors
 // distinguish these roles. Unresolved labels remain source classifications. In
 // particular, an old video label is neither an admitted asset nor a media filter.
@@ -29,14 +31,21 @@ export function postClassification2029(post) {
   const categories = canonicalPostCategories(post.categories).filter(name => !resolvedSeriesCategories.has(name));
   const editorial = categories.filter(name => name === "רמזים חזקים" || name === "תיעוד אירועים")
     .map(name => ({ role: name === "רמזים חזקים" ? "editorial" : "content-family", name,
-      prefix: name === "רמזים חזקים" ? "בחירת עריכה" : "תחום", href: categoryHref(name) }));
+      prefix: "קטגוריה", href: categoryHref(name) }));
   const legacyMediaLabels = categories.filter(name => name === "וידאו")
-    .map(name => ({ role: "legacy-media-label", name, prefix: "סיווג ישן", href: categoryHref(name) }));
+    .map(name => ({ role: "legacy-media-label", name, prefix: "קטגוריה", href: categoryHref(name) }));
   const sourceCategories = categories.filter(name => name !== "וידאו" && name !== "רמזים חזקים" && name !== "תיעוד אירועים")
-    .map(name => ({ role: "source-category", name, prefix: "סיווג במקור", href: categoryHref(name) }));
+    .map(name => ({ role: "source-category", name, prefix: "קטגוריה", href: categoryHref(name) }));
   const author = typeof post.author === "string" ? post.author.trim() : "";
   const publisher = series.some(item => contentSeriesByKey(item.key).publisherLabel === post.author);
   const media = postHasVideoMedia2029(post) ? [{ role: "media-type", name: "וידאו", prefix: "מדיה", href: MEDIA_VIDEO_HREF }] : [];
-  return { items: [...series, ...editorial, ...media, ...sourceCategories, ...legacyMediaLabels], series, sourceCategories, legacyMediaLabels, media,
+  return { items: [...series, ...editorial, ...sourceCategories, ...legacyMediaLabels], series, sourceCategories, legacyMediaLabels, media,
     credit: author ? { name: author, prefix: publisher ? "מפרסם" : "ייחוס במקור" } : null };
+}
+
+// The public tags of a Post (the term "תגית"), once, for the details row: only the tags the posts catalogue admits as a tag filter (internal markers never show).
+export function postTagItems2029(post) {
+  if (!post || hasSuppressedPublicPostTag(post)) return [];
+  const names = [...new Set((Array.isArray(post.tags) ? post.tags : []).map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key).filter(name => !/(golden|^2029-|-2029$|^draft$)/i.test(name)))];
+  return names.map(name => ({ name, href: `/2029/posts?tag=${encodeURIComponent(name)}` }));
 }

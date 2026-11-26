@@ -1,0 +1,3 @@
+/* Layout only. The sheet, the choice rows and the buttons are the Royal family (royal2029.css: .r29-sheet, .r29-check, .r29-btn-group). */
+.post-follow-invite{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 12px;min-block-size:44px;margin-block:12px;font-size:14px;color:var(--s29-muted);text-align:center}
+.post-continue{display:flex;justify-content:center;margin-block:12px}

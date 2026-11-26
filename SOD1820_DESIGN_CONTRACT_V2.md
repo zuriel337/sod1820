@@ -624,6 +624,8 @@ a variant prop (one component, props select the presentation), with the platform
   the link stays available in both cases.
 - Share options sit in a centered grid of equal buttons; an odd last option is centered on its own row.
 
+**Amendment · 25.11.2026 · Human Gate ZURIEL: one family for the whole site, enforced.** The family is `royal2029.css` and nothing else: `.r29-btn` (`is-primary` royal blue; `is-quiet` gold hairline), `.r29-btn-group` (a centered group, equal widths in a row), `.r29-btn.is-icon` (one 44px square) and, for a multiple choice, `.r29-check` rows inside `.r29-check-group` (a checkbox, never a large button; `WatchButton` renders it through `variant="check2029"`). Height at least 44px, type 14–16px, no repeated headings or texts, no local colour, size or shadow. A page stylesheet or an inline `style` that draws its own button is a deviation: `test/button-family-guard-2029.test.mjs` fails a new one and lets the existing ones (`scripts/button-family-baseline-2029.json`, 319 rules in 101 files on 25.11.2026) only go down; a gradual migration plan is in `docs/reviews/button-family-20261125/README.md`. The approved dedicated designs of §14.12 C (Raziel, Heichal, research areas) are not changed by this amendment. First adopter: the Post's follow panel.
+
 ### 14.5 One bar that expands upward
 
 The bottom Command Island is one bar with the entries **כאן · שיתוף · רזיאל · עכשיו · עוד**.
@@ -766,6 +768,18 @@ carries. Presentation only — no stored source, wording, claim, calculation or 
 **Acceptance for any surface that adopts it** (extends §12): the three presets (Day / Parchment / Night) at 320 / 390 / 1440, RTL, text ≥ 4.5:1, touch targets ≥ 44px, `prefers-reduced-motion`, forced-colors fallback (already in `royal2029.css`), no new hard-coded colour outside the palette, unchanged import cost and shell budget, LCP/CLS measured before and after between identical builds. Status colours keep their meanings; gold never signals verification, quality or success (§14.2).
 
 **First adopter (on a branch):** the Home "עדכונים אחרונים" area and the "עכשיו" panel (`docs/reviews/home-now-unified-20261125/`), built on the existing Royal components only, without the interior recipe (D), which awaits approval.
+
+### 14.13 Forms, dialogs and action feedback in the one Royal layer · Human Gate ZURIEL · 25.11.2026
+
+**Status.** Extends §14.4 (one button family) to the three families the gap map found without an owner (`docs/reviews/design-language-gap-map-20261125/README.md`, families 5, 9 and 10). No new contract, no parallel library: the components are added to the existing `royal2029.css` and a surface adopts them by class. Branch only; not merged, not deployed. Counts in the gap map are **candidates for review**, not proof that every deviation is a defect; approved dedicated designs (§14.12 C) are not touched.
+
+| Family | Component (royal2029.css) | The rule |
+|---|---|---|
+| Form field | `.r29-field` (label + control + hint), `.r29-input` (input / textarea / select), `.r29-hint` | Label 14px/600, control 16px (no zoom on phones), min height 44px, hairline gold border, logical-start text (§14.3: fields and labels are not centered); invalid = `aria-invalid="true"` (status colour), the message in `.r29-status` below; a typed value is never lost on an error. |
+| Dialog | `.r29-sheet-backdrop` > `.r29-sheet` (`h2` title, helper text, content, one `.r29-btn-group`) | `role="dialog"`, `aria-modal`, `aria-labelledby` the one title; compact (max 400px, 80vh), centered title and group; **closes** on Escape, backdrop press and its one close/primary button; focus moves in and returns to the opener; no second heading repeating the opener's text. |
+| Action feedback | `.r29-status[data-state="loading" \| "success" \| "error"]`, with `aria-busy` on the busy control | Loading: `role="status"` and `aria-busy`, the action disabled meanwhile; success: `role="status"`, short and factual; error: `role="alert"`, says what happened and offers a retry, keeps the user's input. Never an invented percentage (Operation Visibility Law). |
+
+Type, spacing and centering inside these components follow §5 (UI type 14–16px, text never shrunk to fit), §8 and §14.3 (action groups centered, equal widths in a row). A new component **adopts these classes instead of drawing its own**; the warning scan `scripts/report-design-families-2029.mjs` lists candidates (warning only, never fails), and only the button family is a ratchet (`test/button-family-guard-2029.test.mjs`). The static preview of the canonical components in the three presets is `docs/reviews/design-language-gap-map-20261125/canonical-components-preview.html`. **Not decided here:** applying `.r29` to the whole site shell (impact and speed analysis first: `docs/reviews/design-language-gap-map-20261125/README.md`, "r29 ברמת המעטפת"); adopting these classes across the existing surfaces (gradual, each stage approved).
 
 ## Naming / product language law — carried from V1 · 11.11.2026
 

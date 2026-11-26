@@ -488,78 +488,17 @@ jobs:
             const post = page.locator('[data-experience-surface="post-reading"]');
             await expect(post).toBeVisible({ timeout: 30_000 });
 
-            // The public desktop shell keeps the context rail; the richer companion
-            // remains available when its viewer gate is enabled. Phone uses the context sheet.
-            const companion = page.locator('.sod29-companion');
-            const hasCompanion = width >= 981 && await companion.count() > 0;
-            if (hasCompanion) {
-              await expect(companion).toBeVisible();
-              await companion.hover();
-              await companion.getByRole('button', { name: 'נעץ', exact: true }).click();
-              await companion.getByRole('button', { name: 'הקשר', exact: true }).click();
-              await expect(companion).toHaveAttribute('data-companion-mode', 'pinned');
-            }
-            const restRail = page.locator('.sod29-surface-context-rail');
-            const contentMap = restRail.locator('[data-context-map-item]');
-            await expect(contentMap).toHaveCount(8, { timeout: 30_000 });
-            expect(await contentMap.evaluateAll(nodes => nodes.map(node => node.dataset.contextMapItem)))
-              .toEqual(['bennett-sequence', 'elections-chain', 'salt-covenant', 'salt-78', 'bennett-israel-78', 'bennett-631', 'dead-sea-chronology', 'post-connections']);
-            await expect(contentMap.nth(0)).toContainText('ים המלח');
-            await expect(contentMap.nth(1)).toContainText('האירוע');
-            await expect(contentMap.nth(2)).toContainText('ברית מלח');
-            await expect(contentMap.nth(5)).toContainText('631');
-            await expect(contentMap.nth(6)).toContainText('ים המלח');
-            await expect(contentMap.nth(7)).toContainText('חיבורים');
-            if (width < 600) {
-              await expect(restRail).toBeHidden();
-              // "Here"/page map is admin-only while the site is under construction (ZURIEL decision): the public phone
-              // has no page-map locator, the shell shows the disabled construction label, and nothing opens a context sheet.
-              await expect(page.locator('.sod29-glass-locator')).toBeHidden();
-              await expect(page.getByRole('button', { name: 'כאן · בבנייה · למנהל בלבד', exact: true })).toBeDisabled();
-              await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
-            } else {
-              await expect(restRail).toBeVisible();
-              await expect(restRail).toContainText('בתוך הפוסט');
-              const desktopContext = hasCompanion ? companion : restRail;
-              const before = await desktopContext.boundingBox();
-              // The construction strip above the rail scrolls away, so the sticky rail may settle at its pinned offset below
-              // where it started; the contract is that it pins and then stays put while scrolling further.
-              await page.evaluate(() => window.scrollTo(0, Math.min(900, document.body.scrollHeight - window.innerHeight)));
-              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBeLessThanOrEqual(before.y);
-              const pinned = await desktopContext.boundingBox();
-              await page.evaluate(() => window.scrollTo(0, Math.min(1500, document.body.scrollHeight - window.innerHeight)));
-              await expect.poll(async () => (await desktopContext.boundingBox()).y).toBe(pinned.y);
-              const after = await desktopContext.boundingBox();
-              expect(after.x).toBe(before.x);
-              const dock = await page.locator('.sod29-command-island').boundingBox();
-              expect(after.y).toBeGreaterThanOrEqual(76);
-              // ZURIEL 17.11.2026: both side capsules run to 10px above the bottom edge, beside the centred Command Island (it used to be "ends above the dock").
-              // The contract that remains is that the rail never overlaps the dock.
-              const separated = after.x + after.width <= dock.x || dock.x + dock.width <= after.x || after.y + after.height <= dock.y || dock.y + dock.height <= after.y;
-              expect(separated, `the context rail ${JSON.stringify(after)} must not overlap the dock ${JSON.stringify(dock)}`).toBe(true);
-              expect(after.y + after.height).toBeLessThanOrEqual(page.viewportSize().height);
-            }
+            // Clean post (ZURIEL 25.11.2026): the context rail, its page map and the companion are hidden on every post;
+            // reading stays first and the number flow below (focus, lazy trace, exact back) is unchanged.
+            await expect(page.locator('.sod29-surface-context-rail')).toBeHidden();
+            await expect(page.locator('.sod29-companion')).toHaveCount(0);
+            await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
 
             const focusSource = post.locator('.sod29-reading-source');
             await expect(focusSource).toBeVisible({ timeout: 30_000 });
             for (const expression of ['נפתלי בנט', 'הבחירות', 'מלך ישראל']) {
               await expect(focusSource.locator(`[data-contextual-number-focus="true"][data-expression="${expression}"]`).first()).toBeVisible();
             }
-            // The research block is a collapsed <details> by default (reading comes first); the timeline lives inside it.
-            const research = page.locator('details.sod29-post-research').first();
-            await expect(research).toHaveCount(1);
-            // The sticky header and the floating bottom bar can both cover the summary at the scroll position left by the rail checks above
-            // while late content is still settling (Playwright then reports "element is not stable" / "intercepts pointer events" and retries
-            // until the 60 s timeout). Opening the <details> is not what this scenario measures, so activate the summary itself.
-            if (!(await research.evaluate((node) => node.open))) await research.locator('summary').first().evaluate((node) => node.click());
-            const timeline = page.locator('[data-experience-capability="public-timeline"][data-timeline-surface="post"]');
-            await expect(timeline).toBeVisible();
-            const sourceBox = await post.locator('.sod29-reading-source').boundingBox();
-            const timelineBox = await timeline.boundingBox();
-            expect(sourceBox).not.toBeNull();
-            expect(timelineBox).not.toBeNull();
-            expect(timelineBox.y).toBeGreaterThan(sourceBox.y);
-
             expect(traceRequests).toBe(0);
             await expect(page.locator('[data-experience-capability="contextual-sidecar"]')).toHaveCount(0);
 

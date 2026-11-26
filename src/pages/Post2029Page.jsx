@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { createPortal } from "react-dom";
 import { Link, useLocation, useParams } from "react-router-dom";
 import Sod2029Shell, { FrameState, use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
-import SurfaceSectionNav2029 from "../components/experience2029/SurfaceSectionNav2029.jsx";
 import PostEvidenceMedia2029 from "../components/experience2029/PostEvidenceMedia2029.jsx";
 import { fetchPost2029ReadingProjection, resolvePostReadingRegion, collectPostCalculationOccurrences2029, collectPostLegacyOccurrences2029, collectPostSourcePlacements2029, checkPostCalculation2029, revalidatePostMeasureSource, isPostEnglishExpression } from "../lib/research/post2029ReadingProjection.js";
 import { useAuth } from "../lib/AuthContext.jsx";
@@ -12,7 +11,6 @@ import { publicSurfaceFindingsFromConnections } from "../lib/research/post2029Ex
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
 import { applySeo } from "../lib/seo.js";
 import { publicPostHref, exactPostReadingHref, publicPostShareUrl } from "../lib/publicPostUrls.js";
-import { entityFromPost } from "../lib/research/entity.js";
 import { publicPostLinkedMedia, legacySourcePath } from "../lib/research/publicPostSourceLinks2029.js";
 import { postActionTarget2029, postActionUnits2029 } from "../lib/research/postActionTarget2029.js";
 import { logView, logActivity } from "../lib/supabase.js";
@@ -27,7 +25,6 @@ import { postArticleByline2029 } from "../lib/research/postArticleDocument2029.j
 import { POST_ARTICLE_DOCUMENT_ID, documentArticleFor, documentImageFactsFor, documentArticleBodyMatches, readingPlace2029, samePlaceInPage2029, keepReaderInPlace2029, suspendScrollAnchoring2029 } from "../lib/research/postArticleAdoption2029.js";
 import { resolveUnitMessage, subscribeUnitChoices } from "../lib/research/postSemanticDesign2029.js";
 import { realityMapExperienceFor, realityMapPreviewEnabled } from "../lib/research/realityMap2029.js";
-import PostSemanticLegend2029 from "../components/experience2029/PostSemanticLegend2029.jsx";
 import { usePostOutline2029 } from "../lib/research/postOutlineDom2029.js";
 import { markSeen } from "../lib/homeMotion2029.js";
 import { seriesLatestSeenKey } from "../lib/nowPublications2029.js";
@@ -45,11 +42,11 @@ const PostExternalSourcesPreview2029 = React.lazy(() => import("../components/ex
 import CanonicalMediaFigure2029 from "../components/experience2029/CanonicalMediaFigure2029.jsx";
 import PostCategories2029 from "../components/experience2029/PostCategories2029.jsx";
 import { postClassification2029, postHierarchyContext2029, postContentEntry2029 } from "../lib/research/postsCatalog2029Projection.js";
-import { publicPostCommentArchiveId } from "../components/experience2029/postComments2029.js";
+import { postFollowOpen, subscribePostFollow } from "../lib/research/postFollowOpenStore2029.js";
+import { postTagItems2029 } from "../lib/research/postClassification2029.js";
+import { publicPostCommentArchiveId, publicPostCommentPostId } from "../components/experience2029/postComments2029.js";
 import { postCharacterFor, matrixOpeningFor } from "../lib/postCharacters2029.js";
 import { postBackground2029 } from "../lib/research/postBackground2029.js";
-import { postsTaxonomyScope2029 } from "../lib/research/postsTaxonomy2029Route.js";
-import { canonicalPostCategories } from "../lib/postCategoryIdentity.js";
 import { previewPostMedia2029, previewPostSourceLinks2029 } from "../lib/research/postDesignPreview2029.js";
 import { postReadingClassName } from "./postReadingStyles2029.js";
 
@@ -111,14 +108,14 @@ function toolOnApproach2029(load, title) {
 }
 // The timeline lives inside "מקורות וקשרים": it loads when that section is opened (as its measures do), or when the address points at it.
 const PostTimeline2029 = toolOnOpen2029(() => import("../components/experience2029/PostTimeline2029.jsx"), "טוען את ציר הזמן");
-const PostFollowBox = toolOnApproach2029(() => import("../components/PostFollowBox.jsx"), "טוען את המעקב");
 const MapUnitContext = import.meta.env.VITE_MAP_READING_RELEASE === "true"
   ? toolOnOpen2029(() => import("../components/experience2029/MapUnitContext2029.jsx")) : null;
 const PostComments2029 = toolOnApproach2029(() => import("../components/experience2029/PostComments2029.jsx"), "טוען את התגובות");
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
-const ShareActions = toolOnOpen2029(() => import("../components/ShareActions.jsx"), "טוען שיתוף");
-const PersonalSaveButton2029 = toolOnOpen2029(() => import("../components/userCenter/PersonalSaveButton2029.jsx"));
-const PostReadingActions2029 = toolOnOpen2029(() => import("../components/experience2029/PostReadingActions2029.jsx"), "טוען פעולות");
+const PostActionBar2029 = React.lazy(() => import("../components/experience2029/PostActionBar2029.jsx"));
+const PostFollowDialog2029 = React.lazy(() => import("../components/experience2029/PostFollowDialog2029.jsx"));
+const PostContinue2029 = toolOnApproach2029(() => import("../components/experience2029/PostContinue2029.jsx"), "");
+const PostFollowInvite2029 = toolOnApproach2029(() => import("../components/experience2029/PostFollowInvite2029.jsx"), "");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
 const MatrixRain = toolOnOpen2029(() => import("../components/MatrixRain.jsx"));
@@ -157,7 +154,6 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const restoredRegionRef = useRef(null);
   const [bennettUnitHosts, setBennettUnitHosts] = useState(null);
   const [bennettVideoOpened, setBennettVideoOpened] = useState(false);
-  const [detailsOpened, setDetailsOpened] = useState(false);
   const [state, setState] = useState({ loading: true, projection: null, error: null });
   const postVoice = postVoiceFor(state.projection?.post).voice;
   // The flagship series experience (ZURIEL 12.11.2026): exact series tag, or the preview-only acceptance exception for 5107 / 5112.
@@ -342,24 +338,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const outlineUpdates = postOutline.filter((item) => item.id === "post-updates" || item.parentId === "post-updates");
   const mergedUpdates = !useOutline && regions.length > 1 && outlineUpdates.length > 1;
   const commentArchiveId = publicPostCommentArchiveId(state.projection);
-  // Flagship "מפת המציאות" experience: exactly FOUR semantic entries that fit one line (message · context · connections · sources), each mapped to
-  // real content of this Post. Every other Post keeps the existing list unchanged.
-  const flagshipNav = protoOn && realityMap.active;
-  const [activeNavId, setActiveNavId] = useState(null);
-  const sectionItems = useMemo(() => flagshipNav ? [
-    { id: "nav-message", label: "מסר", targetId: "post-story", targetIds: [...previewUnitIdsFor(state.projection?.post?.id), "post-story"] },
-    { id: "nav-context", label: "הקשר", targetId: "post-research", targetIds: ["post-research", "post-measures", "post-story"] },
-    { id: "nav-connections", label: "חיבורים", targetId: state.projection?.experience?.connections?.some((item) => item.href) ? "post-connections" : "post-classification", targetIds: ["post-connections", "post-classification", "post-measures"] },
-    { id: "nav-sources", label: "מקורות", targetId: "post-sources", targetIds: ["post-sources"] },
-  ] : [
-    { id: "post-story", label: "הסיפור", targetId: "post-story" },
-    ...(regions.some((region) => Number(region.number)) ? [{ id: "post-gematria", label: "גימטריות", targetId: `source-region-${regions.find((region) => Number(region.number)).id}` }] : []),
-    ...(state.projection?.experience?.connections?.some((item) => item.href)
-      ? [{ id: "post-connections", label: "חיבורים", targetId: "post-connections" }] : []),
-    { id: "post-sources", label: "מקורות", targetId: "post-sources" },
-    ...(commentArchiveId != null ? [{ id: "post-comments", label: "תגובות", targetId: "post-comments" }] : []),
-    { id: "post-next", label: "המשך", targetId: "post-next" },
-  ], [regions, state.projection, commentArchiveId, flagshipNav]);
+  const commentPostId = publicPostCommentPostId(state.projection);
+  const followOpen = React.useSyncExternalStore(subscribePostFollow, postFollowOpen, () => false);
+  // The in-page tab row (story · sources · comments · next) is gone from every Post (ZURIEL 25.11.2026: one clean opening); the left rail keeps its own outline.
 
   useEffect(() => {
     const root = sourceRef.current;
@@ -417,19 +398,11 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       const target = targetId ? document.getElementById(targetId) : null;
       if (target && researchRef.current?.contains(target)) revealReadingAnchor(target);
     };
-    const onMapClick = event => {
-      const button = event.target?.closest?.(".sod29-surface-tabs button");
-      if (!button) return;
-      const item = sectionItems.find(entry => entry.label === (button.textContent || "").trim());
-      if (item) reveal(item.targetId || item.id);
-    };
     let targetId = "";
     try { targetId = decodeURIComponent((location.hash || "").replace(/^#/, "")); } catch { /* A malformed URL fragment has no target. */ }
     reveal(targetId);
-    if (mapReadingLayout) return undefined;
-    document.addEventListener("click", onMapClick, true);
-    return () => document.removeEventListener("click", onMapClick, true);
-  }, [location.hash, state.projection, bennettResearchHost, mapReadingLayout, sectionItems]);
+    return undefined;
+  }, [location.hash, state.projection, bennettResearchHost, mapReadingLayout]);
 
   // Entering a reality-map Post settles the "latest update" dot in "עכשיו" for this viewer (the existing per-browser seen state; a newer registered unit makes it blink again).
   useEffect(() => {
@@ -1037,9 +1010,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const hasResearchContent = contextualConnections.length > 0 || visibleTimeline.some(item => !item.current)
     || additionalLinks.length > 0 || measureSource.claims.length > 0
     || Boolean(experience.media?.sourceCard?.href || experience.media?.fullSource?.href);
-  const previewCategories = mapReadingLayout ? canonicalPostCategories(projection.sourcePost.categories).filter(name => name !== "וידאו") : [];
-  const previewTags = mapReadingLayout ? [...new Set((projection.sourcePost.tags || [])
-    .map(tag => postsTaxonomyScope2029("tag", tag)).filter(scope => scope.kind === "tag").map(scope => scope.key))] : [];
+  const postTags = postTagItems2029(projection.sourcePost);
   const exactReturnForRegion = (region) => ({
     href: exactPostReadingHref(post, location, `#source-region-${region?.id || projection.defaultRegionId}`),
     label: post.title,
@@ -1526,39 +1497,12 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <MatrixRain color={matrixOpening.color} headColor={matrixOpening.headColor} featured={matrixOpening.featured} />
       </div> : null}
       <div className="sod29-reading-hero-grid">
+        {cover}
         <div className="sod29-reading-hero-copy">
-          {mapReadingLayout ? <>
-          <div className="post-design-title">
-            <div>
-              {classification.series.length ? <div className="post-design-series" aria-label="סדרות">
-                {classification.series.map(item => <a key={item.key} href={item.href} onClick={event => openConnection(event, item.href)}>סדרה: {item.name}</a>)}
-              </div> : null}
-              <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
-              {heroDate ? <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time> : null}
-            </div>
-            {!bennettTimeline ? cover : null}
-          </div>
-          {projection.excerpt ? <p className="post-design-opening">{projection.excerpt}</p> : null}
-          <details className="sod29-post-details" onToggle={event => { if (event.currentTarget.open) setDetailsOpened(true); }}>
-            <summary><span className="sod29-post-details-label">פרטי הפוסט <span aria-hidden="true">⌄</span></span></summary>
-            <div className="sod29-post-details-body">
-              {classification.credit ? <p>קרדיט · {classification.credit.name}</p> : null}
-              {projection.sourceLine && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
-              {previewCategories.length ? <div className="post-design-categories"><strong>קטגוריות</strong>
-                <PostCategories2029 categories={previewCategories} max={Infinity} />
-              </div> : null}
-              {previewTags.length ? <div className="post-design-categories"><strong>תגיות</strong>
-                <div className="post-design-series">{previewTags.map(tag => <Link key={tag} to={`/2029/posts?tag=${encodeURIComponent(tag)}`}>{tag}</Link>)}</div>
-              </div> : null}
-              {postActionTarget ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_details_2029" /> : null}
-              {heroNumbers.length ? <p>לחיצה על מספר בתוך הפוסט פותחת את החישוב.</p> : null}
-              <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
-            </div>
-          </details>
-          </> : <>
           <h1>{humanContentTitle(post.title, { max: 0 })}</h1>
-          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}</p> : null; })() : null}
-          <PostCategories2029 post={projection.sourcePost} compact max={4} />
+          {post.source !== "wordpress" && heroDate ? (() => { const byline = postArticleByline2029(post); return <p className="sod29-reading-byline"><time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time>{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p>; })() : null}
+          {post.source === "wordpress" ? (() => { const byline = postArticleByline2029(post); return byline.credit || byline.date ? <p className="sod29-reading-byline">{byline.credit ? <span>{byline.credit}</span> : null}{byline.date ? <time dateTime={byline.date}>{byline.dateLabel}</time> : null}{byline.modified ? <time className="sod29-reading-modified" dateTime={byline.modified}>עודכן: {byline.modifiedLabel}</time> : null}</p> : null; })() : null}
+          <PostCategories2029 post={projection.sourcePost} compact max={Infinity} />
           <span className="sod29-orientation-host" ref={shell.registerOrientationHost} />
           <details className="sod29-post-details">
             <summary>
@@ -1568,81 +1512,20 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
             <div className="sod29-post-details-body">
               {classification.credit ? <p>{classification.credit.prefix}: {classification.credit.name}</p> : null}
               {projection.sourceLine && projection.sourceLine !== visibleSourceLabel && projection.sourceLine !== classification.credit?.name ? <p className="sod29-reading-source-line">{projection.sourceLine}</p> : null}
-              {heroDate ? <p>תאריך הפוסט: <time dateTime={heroDate}>{bilingualDateLabel(heroDate, heroDate)}</time></p> : null}
-              <div className="sod29-reading-meta-line">
-                <PostCategories2029 post={projection.sourcePost} max={Infinity} />
-              </div>
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <ShareActions
-                type="post" url={publicPostShareUrl(post, location)}
-                title={post.title} channels={["native", "copy"]} compact force sourceSurface="post_2029"
-              /> : null}
-              {detailsOpened && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PersonalSaveButton2029 entity={{...entityFromPost(post),link:location.pathname+location.search+location.hash}}/> : null}
-
-              {projection.excerpt ? <p>{projection.excerpt}</p> : null}
-              {heroNumbers.length ? <p>המספרים פותחים חלונית באותו מקום. אפשר לבדוק את החישוב ולהמשיך בקריאה.</p> : null}
-              {!isBennettMaster && !isFz1073Master && !isElectionsMaster ? <p>המקור נשמר כלשונו. חישוב, מקור ופרשנות נשארים שכבות נפרדות.</p> : null}
+              {postTags.length ? <p className="sod29-post-tags">{postTags.map(tag => <Link key={tag.name} to={tag.href}>{tag.name}</Link>)}</p> : null}
             </div>
           </details>
-          </>}
+          <div className="sod29-post-actions-slot">{!projection.draft && !projection.privateStage && !projection.previewSnapshot && postActionTarget ? <React.Suspense fallback={null}><PostActionBar2029 projection={projection} /></React.Suspense> : null}</div>
         </div>
 
-        {!mapReadingLayout && heroNumbers.length && !isBennettMaster && !isElectionsMaster ? <div id="post-gematria" className="sod29-reading-number-stage" aria-label="מספרים מרכזיים">
-          <span className="sod29-reading-number-stage-kicker">{isBennettMaster || isFz1073Master || isElectionsMaster ? "הרמזים המרכזיים" : "צירי הקריאה"}</span>
-          <div className="sod29-reading-number-constellation">
-            {heroNumbers.map((number, index) => <button
-              key={number}
-              type="button"
-              className={"sod29-reading-number-signal signal-" + (index + 1)}
-              data-orientation-target="post-number"
-              onClick={() => openHeroNumber(number)}
-              aria-label={"בדוק את מספר " + number}
-            >
-              <strong>{number}</strong>
-              <small>{isBennettMaster || isFz1073Master || isElectionsMaster ? "פתח" : "בדיקה מהירה"}</small>
-            </button>)}
-          </div>
-          <p>{isBennettMaster || isFz1073Master || isElectionsMaster ? "לחצו על מספר כדי לפתוח את החיבור ולחזור בדיוק לאותו מקום." : "המספרים הם נקודות כניסה למחקר. הבדיקה נפתחת בחלון צד ושומרת את הפוסט והדרך חזרה."}</p>
-        </div> : null}
+        {/* The numbers box is gone from the opening (ZURIEL 25.11.2026); the numbers stay in the text and open the same check. */}
       </div>
-      {mapReadingLayout && postActionTarget ? <PostReadingActions2029 key={post.id} projection={projection} rootRef={sourceRef} articleHtml={passiveSourceHtml} /> : null}
-      {readingRailContext && MapUnitContext ? <div className="map29-mobile-post-context">
-        <button type="button" className="sod29-action" aria-haspopup="dialog" onClick={() => {
-          postContextDialog.current?.showModal();
-          setPostContextOpen(true);
-        }}>הקשר הפוסט</button>
-        <dialog ref={postContextDialog} className="map29-post-context-sheet" aria-label="הקשר הפוסט" onClose={() => setPostContextOpen(false)}>
-          <button type="button" className="sod29-action" onClick={() => postContextDialog.current?.close()}>סגירה</button>
-          {postContextOpen ? <MapUnitContext context={readingRailContext} onNavigate={event => {
-            if (!event.metaKey && !event.ctrlKey && !event.altKey && !event.shiftKey) postContextDialog.current?.close();
-          }} /> : null}
-        </dialog>
-      </div> : null}
       {worldReturn ? <div className="sod29-actions" aria-label="חזרה למפת המציאות">
         <Link className="sod29-action" to={worldReturn}>חזרה לאותה בחירה בעולם</Link>
       </div> : null}
     </header>
 
-    {!mapReadingLayout && sourceUpdates.length ? <aside className="sod29-update-strip" aria-label="עדכון במקור" data-source-update-strip="true">
-      <span className="sod29-update-strip-kicker">עודכן</span>
-      <button type="button" className="sod29-update-strip-link" onClick={() => jumpToSourceUpdate(sourceUpdates[0])}>
-        <strong data-update-caption={resolveUnitMessage(post.id, sourceUpdates[0].targetId) ? "main-message" : "label"}>{(realityMap.active && resolveUnitMessage(post.id, sourceUpdates[0].targetId)) || sourceUpdates[0].label}</strong>
-        <small>{sourceUpdates[0].attribution} · {addedDateLabel(sourceUpdates[0]) ? <time dateTime={sourceUpdates[0].updatedAt}>{addedDateLabel(sourceUpdates[0])}</time> : "תאריך ההוספה אינו מוכח"}</small>
-      </button>
-      {sourceUpdates.length > 1 ? <details className="sod29-update-strip-more">
-        <summary>עוד {sourceUpdates.length - 1}</summary>
-        <ul>
-          {sourceUpdates.slice(1, 6).map((entry) => <li key={entry.id}>
-            <button type="button" onClick={() => jumpToSourceUpdate(entry)}>
-              <span>{entry.label}</span><small>{addedDateLabel(entry) ? <time dateTime={entry.updatedAt}>{addedDateLabel(entry)}</time> : null}</small>
-            </button>
-          </li>)}
-        </ul>
-      </details> : null}
-    </aside> : null}
-    {!mapReadingLayout && protoOn && postVoice !== "original" ? <PostSemanticLegend2029 /> : null}
-    {!mapReadingLayout ? cover : null}
-    {!mapReadingLayout ? <SurfaceSectionNav2029 items={sectionItems} ariaLabel="בתוך הפוסט" activeId={flagshipNav ? activeNavId : null} onSelect={flagshipNav ? (item) => setActiveNavId(item.id) : null} /> : null}
-    {mapReadingLayout && !bennettTimeline && (hasResearchContent || researchOpen || researchAnchorRequested) ? researchDisclosure : null}
+    {/* A clean Post (ZURIEL 25.11.2026): no update strip, research panel, follow box, end share or next-links under the text; only the comments remain. */}
 
     {!bennettTimeline ? <PostEvidenceMedia2029 media={experience.media} /> : null}
     {sourceMediaMissing ? <FrameState kind="unavailable" title="המדיה המקושרת אינה מזוהה במקור הזמין"><p>הפוסט הציבורי נשמר; לא נמצאה בו כרגע התאמה מדויקת למדיה שבקישור.</p></FrameState> : null}
@@ -1689,8 +1572,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       <PublishedUnitTraces2029 rootRef={sourceRef} htmlKey={passiveSourceHtml.length} />
       {bennettTimeline && bennettMediaHost && bennettVideoOpened ? createPortal(<PostEvidenceMedia2029 media={BENNETT_SOURCE_MEDIA_2029} />, bennettMediaHost) : null}
       {bennettTimeline && bennettResearchHost ? createPortal(<>
-        {cover}
-        {researchDisclosure}
+        {isAdmin === true ? researchDisclosure : null}
       </>, bennettResearchHost) : null}
       {protoMode === "sources" ? <React.Suspense fallback={null}><PostExternalSourcesPreview2029 /></React.Suspense> : null}
 
@@ -1703,16 +1585,13 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
         <button type="button" onClick={openPostEngineExploration}>בדיקה חדשה במנוע</button>
       </div> : null}</>, calculationFeedbackHost)
       : <p role="status">{calculationNotice}</p>) : null}
-    {!mapReadingLayout ? researchDisclosure : null}
-    {!mapReadingLayout && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowBox variant="2029" post={projection.sourcePost} source="post_footer_2029" /> : null}
-    {!mapReadingLayout && postActionTarget ? <PostEndShare2029 url={publicPostShareUrl(post, location)} title={post.title} entityId={`posts:${post.id}`} /> : null}
-    {commentArchiveId != null ? <PostComments2029 key={String(commentArchiveId)} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
+    {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
+    {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
+    {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostContinue2029 post={projection.sourcePost} onOpen={openConnection} /> : null}
+    {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowInvite2029 post={projection.sourcePost} /> : null}
+    {followOpen && commentPostId != null ? <React.Suspense fallback={null}><PostFollowDialog2029 post={projection.sourcePost} /></React.Suspense> : null}
+    {commentPostId != null ? <PostComments2029 key={commentPostId} postId={commentPostId} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}
     {!bennettTimeline && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <AdSlot place="post" /> : null}
-    <nav id="post-next" className="sod29-post-next" aria-label="להמשיך לגלות">
-      {classification.series.map(item => <a key={item.key} href={item.href} onClick={(event) => openConnection(event, item.href)}>עוד מ{item.name} ←</a>)}
-      <a href="/2029/posts" onClick={(event) => openConnection(event, "/2029/posts")}>לכל הפוסטים ←</a>
-      <a href="/world" onClick={(event) => openConnection(event, "/world")}>להמשיך לגלות בעולם ←</a>
-    </nav>
   </article></>;
 }
 
