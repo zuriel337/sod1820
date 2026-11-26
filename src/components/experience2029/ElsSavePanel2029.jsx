@@ -40,7 +40,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
       {descriptionLength > maxDescriptionLength ? <small>כדי לשמור, קצרו את ההסבר ל־{maxDescriptionLength.toLocaleString("he-IL")} תווים לכל היותר.</small> : null}
       {description.length === maxDescriptionLength ? <small>הגעת למגבלת {maxDescriptionLength.toLocaleString("he-IL")} תווים.</small> : null}
       {descriptionLength < 12 ? <small>כתבו הסבר קצר של לפחות 12 תווים.</small> : null}
-      <button type="submit" className="sod29-action primary" disabled={!ready || pending || busy || !descriptionValid}>{pending ? updating ? "מעדכן את הממצא…" : "שומר את הצופן…" : updating ? "עדכן ממצא" : copying ? "שמירת עותק" : "שמירה בענן"}</button>
+      <button type="submit" className="sod29-action primary" disabled={!ready || pending || busy || !descriptionValid}>{pending ? updating ? "מעדכן את הממצא…" : "שומר את הצופן…" : updating ? "עדכן ממצא" : copying ? "שמירת עותק" : "שמירת צופן"}</button>
       {!ready ? <small>בחרו מופע מאומת במטריצה כדי לשמור.</small> : null}
     </form>}
     {result ? <div role={result.ok ? "status" : "alert"} className="els29-native-save-result">

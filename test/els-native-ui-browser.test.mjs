@@ -2358,7 +2358,7 @@ test('native save: publish by default and show the real library or pre-rollout r
     assert.equal(await page.getByText('שמור אצלי').count(),0,'no "save on my side" concept');
     await page.evaluate(older => { window.__fixtureTier='registered'; window.__prePublicationRpc=older; },preRollout);
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('ממצא שמתפרסם כברירת מחדל בתיק המחקר');
-    await activate(page,'שמירה בענן');
+    await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>window.__savedRows?.length===1);
     assert.equal(await page.evaluate(()=>window.__saveCalls.at(-1).isPublic),true);
     assert.equal(await page.evaluate(()=>window.__savedRows[0].self_published),true);
@@ -2384,10 +2384,10 @@ test('native save: private retry, same-record update and exact restore preserve 
     await activate(page,'סריקה וממצאים');await activate(page,'שמירה');
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note,'switching tabs preserves the unsaved explanation');
     await page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true}).check();
-    await page.evaluate(()=>window.__saveFails=true);await activate(page,'שמירה בענן');
+    await page.evaluate(()=>window.__saveFails=true);await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('לא הושלמה'));
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note);
-    await page.evaluate(()=>window.__saveFails=false);await activate(page,'שמירה בענן');
+    await page.evaluate(()=>window.__saveFails=false);await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('נשמר בענן'));
     if(process.env.ELS_SCREENSHOT_DIR)await page.screenshot({path:join(process.env.ELS_SCREENSHOT_DIR,'save-mobile.png')});
     const saved=await page.evaluate(()=>window.__savedRows[0]);
@@ -2402,7 +2402,7 @@ test('native save: private retry, same-record update and exact restore preserve 
     assert.equal(await page.locator('.els29-classic-fallback.is-open').count(),0);
     const frame=page.frames().find(f=>f.parentFrame());
     assert.equal(await frame.locator('.shareov').count(),0,'saving never opens the legacy description dialog');
-    await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('כותרת מעודכנת');await activate(page,'שמירה בענן');
+    await page.getByRole('textbox',{name:'שם הצופן',exact:true}).fill('כותרת מעודכנת');await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>window.__savedRows?.[0]?.title==='כותרת מעודכנת');
     assert.equal(await page.evaluate(()=>window.__savedRows.length),1,'repeat saving updates the same exact private record');
     await page.getByRole('textbox',{name:/^מונח(?: ראשון)?$/}).fill('בעל משבר מאים בעקירה');await activate(page,'חפש');
@@ -2544,7 +2544,7 @@ test('privacy F4: real Classic save of opened private row and native-to-Classic 
     await activate(page,'שמירה');
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('מחקר פרטי שנשמר לפני המעבר לכלים הקלאסיים');
     await page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true}).check();
-    await activate(page,'שמירה בענן');
+    await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>window.__savedRows?.length===1);
     assert.equal(await page.evaluate(()=>window.__fixtureMatrix),null,'fresh native save has no opened matrix prop');
     assert.equal((await classicPrivacySave(page)).ok,true);
