@@ -179,6 +179,21 @@ export async function selfPublishMatrix(id, on = true) {
   return data;
 }
 
+// 📚 בקשת אישור לספרייה המרכזית — בעלים בלבד, רק על צופן שפורסם בדף שלי. אינה מאשרת דבר: האישור נשאר בידי המנהל (moderate_els_matrix).
+// מחזיר {ok:true,status} או {ok:false,error:'not_public'|'withheld'|'not_owner'|'not_found'|'not_authenticated'}.
+export async function requestLibraryReview(id, on = true) {
+  const { data, error } = await supabase.rpc("request_els_library_review", { p_id: id, p_on: on });
+  if (error) throw error;
+  return data;
+}
+
+// 💡 צפנים חזקים של המשתמש עצמו — המלצה פרטית לבעלים בלבד (heuristic לא מכויל). ריק כשאין.
+export async function getMyStrongCiphers() {
+  const { data, error } = await supabase.rpc("els_my_strong_ciphers", {});
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
 // ✏️🗑 ניהול הצפנים שלי — בעלים בלבד, ורק על רשומה שלא אושרה לפרסום (status != 'published').
 // RPC מחזיר {ok:true} או {ok:false,error:'not_authenticated'|'not_found'|'not_owner'|'published_locked'|'invalid_title'}.
 export async function renameMyMatrix(id, title) {

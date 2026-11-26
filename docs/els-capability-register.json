@@ -2659,7 +2659,7 @@
     "test/els-browser-truth-census.test.mjs",
     "test/els-native-ui-browser.test.mjs",
     "test/els-save-panel-lifecycle.test.mjs",
-    "test/els-private-guarantee.test.mjs"
+    "test/els-publication-tiers.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2737,7 +2737,7 @@
    "tests": [
     "test/els-native-ui-browser.test.mjs",
     "test/els-verify-batch.test.mjs",
-    "test/els-private-guarantee.test.mjs"
+    "test/els-publication-tiers.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2840,7 +2840,7 @@
    ],
    "tests": [
     "test/els-saved-cipher-owner-actions.test.mjs",
-    "test/els-private-guarantee.test.mjs"
+    "test/els-publication-tiers.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2852,7 +2852,7 @@
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
    ],
-   "note": "Private-guarantee fix proposed 26.11.2026 (not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row)."
+   "note": "Three publication tiers decided 26.11.2026 (fix prepared, not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row); target: private / my page (no approval) / central library (admin approval), plus an owner-only strong-cipher recommendation."
   },
   {
    "id": "G07",

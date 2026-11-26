@@ -66,18 +66,17 @@ The first implementation should scope around the legacy semantics safely.
 
 ZURIEL to approve/reject this semantic contract before `moderate_els_matrix -> decision_ledger` wiring is implemented.
 
-## ADDENDUM 2026-11-26 — private always guarantees privacy (ZURIEL recommendation; proposal, not applied)
+## ADDENDUM 2026-11-26 — three publication tiers (ZURIEL final product decision; proposal, not applied)
 
-Status: recommendation by ZURIEL, with the exact SQL and tests prepared on branch `claude/biblical-cipher-audit-zspg77`; **not applied to the database and not yet Human-Gate approved.**
+Status: product decision by ZURIEL (26.11.2026). The exact SQL and tests are prepared on branch `claude/biblical-cipher-audit-zspg77`; **not applied to the database; applying it needs a separate exact approval.** It refines A–C of this pack and replaces the earlier "private guarantee" draft. No new contract, table or approval mechanism.
 
-FACT (read-only, live 26.11.2026): the pack's section C (`self_published=true` exposes a row publicly "under the existing legacy behavior") is implemented by the RLS policy `public_read_self_published_els USING (self_published = true)`, which does **not** look at `visibility`. One private draft (`אליהו`, `status=draft, visibility=private, self_published=true`) is readable by an anonymous reader. The 116 public ciphers are `status=published AND visibility=public` (103 of them also carry the flag); no row is `hidden`+flag, so no existing public cipher depends on the flag alone.
+FACT (read-only, live 26.11.2026): section C ("`self_published=true` exposes a row publicly under the legacy behavior") is implemented by the RLS policy `public_read_self_published_els USING (self_published = true)`, which does **not** look at `visibility`. One private draft (`אליהו`) is readable by an anonymous reader. Also, live #1492 publishes a member's public save directly to the central library; the decision below reverses that.
 
-Amended rules (they refine A–C, nothing else changes):
-1. `visibility='private'` is readable only by its owner and administrators. No flag overrides it.
-2. `self_published` stays the owner's public-file projection flag, readable only together with `visibility='public'`.
-3. "Show in the public file" (`self_publish_matrix`, the existing action; no second publication mechanism) is an explicit publication: it passes the same canonical replay gate as a public save, moves the access state (`visibility → public`), turns a `draft` into `pending` (awaiting moderation) and never sets `published`. Withdrawal returns an owner-published record to `private`/`draft`.
-4. An approved public cipher (`published` + `public`) keeps its library access when the owner clears the flag.
-5. Nothing here is a canonical finding, a `decision_ledger` entry or a Human-Gate decision (section D–E unchanged).
-6. Withheld (`hidden`) and archived records are not republished by their owner.
+Three tiers:
+1. **Private** (`visibility='private'`): visible to the owner and authorized parties (administrators) only. No flag overrides it; a `CHECK` forbids `private` together with `self_published`.
+2. **My page** (`visibility='public'`, `self_published=true`, status stays `draft`): the researcher publishes by themself, no approval; open to everyone and to search engines (researcher page, permanent `/codes/<slug>`, sitemap, canonical, OG, JSON-LD). Passes the same replay gate (`els_publish_truth_gate_v1`) as any public save. Withdrawal returns it to private. This is not an approved research finding.
+3. **Central library** (`status='published'`): only an administrator approves, through the existing `moderate_els_matrix`. The owner only requests (`request_els_library_review`: `draft`→`pending`, an item in the existing `system_suggestions` queue), and may withdraw the request. Approved ciphers keep their access if the owner clears the flag; the 116 existing public ciphers are untouched.
 
-Prepared, not applied: `supabase/proposed/els-private-guarantee-20261126/{apply,rollback,optional-data-fix-one-row}.sql`. Tests: `test/els-private-guarantee.test.mjs` (static contract + isolated PostgreSQL proof via `scripts/run-els-private-guarantee-sql-test.sh`). Any database change needs a separate exact approval.
+Strong-cipher recommendation (extends the existing ELS ranking/quality data and `system_suggestions`; no engine or contract added): a heuristic, explicitly **indicative and uncalibrated** (consistent with `elsResearchAssessment.js`): stars ≥4, score ≥60, ≥2 findings, replay gate MATCH, no sensitive-looking text. A private strong cipher is only suggested to its owner (`els_my_strong_ciphers`, owner-only), never exposed. A public page cipher may be raised for administrators as a library candidate (`detect_els_strong_ciphers`, dedupe key per record, 30-day rejection memory, no notification without severity, attribution to the original researcher preserved). Sensitive-looking text is never an automatic candidate. Recommendation is evidence, never approval; the library decision stays with ZURIEL.
+
+Prepared, not applied: `supabase/proposed/els-publication-tiers-20261126/{apply,rollback,optional-data-fix-one-row}.sql`. Tests: `test/els-publication-tiers.test.mjs` (static contract + isolated PostgreSQL proof via `scripts/run-els-publication-tiers-sql-test.sh`). Wiring the detector into a scheduler is a separate approval.

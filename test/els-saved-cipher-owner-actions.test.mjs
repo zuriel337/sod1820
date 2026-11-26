@@ -11,7 +11,8 @@ test("save panel: a guest sees a sign-in link, only a member gets the form and t
   assert.match(panel, /\{user \? <a className="r29-btn is-quiet" href="\/els\?library=mine">/);
   // ZURIEL 19.11.2026: new saves request publication, private is an explicit choice;
   // updates of an existing private record stay private. Mounted coverage lives in els-save-panel-lifecycle.
-  assert.match(panel, /isPublic: !updating && !keepPrivate/);
+  // ZURIEL 26.11.2026: the default is private; publishing on my page is an explicit choice that needs no approval.
+  assert.match(panel, /isPublic: !updating && publishOnPage/);
   assert.match(panel, /descriptionLength >= 1 && descriptionLength <= maxDescriptionLength/);
 });
 
@@ -27,7 +28,8 @@ test("library: owner actions exist only on the personal, non-compact view", asyn
   assert.match(library, /\{approved \? null : <button[^\n]*>מחק</);
   // Deleting and making public both require an explicit confirmation step.
   assert.match(library, /aria-label="אישור מחיקה"/);
-  assert.match(library, /aria-label="אישור הצגה בתיק הציבורי"/);
+  assert.match(library, /aria-label="אישור פרסום בדף שלי"/);
+  assert.match(library, /aria-label="בקשת הוספה לספרייה המרכזית"/);
 });
 
 test("data layer and migration: owner-only RPCs, published rows locked, anon has no access", async () => {
@@ -68,11 +70,13 @@ test("public release: Research owns the Fable extension and the dock has no stan
   const switcher = await read("src/components/experience2029/ElsMatrixProfileSwitch.jsx");
   assert.match(switcher, /allowed\.includes\(option\.key\)/);
   const worker = await read("public-reading-deploy/transport.js");
-  // Publication stays administrator-only: only rename and delete of the member's own record are admitted.
+  // Page publication and the library request are the member's own (exact bodies); library approval stays administrator-only.
   assert.match(worker, /rpc === "rename_my_els_matrix" \|\| rpc === "delete_my_els_matrix"/);
-  assert.doesNotMatch(worker, /rpc === "self_publish_matrix"/);
+  assert.match(worker, /rpc === "self_publish_matrix" \|\| rpc === "request_els_library_review"/);
+  assert.doesNotMatch(worker, /rpc === "moderate_els_matrix"/);
   const library = await read("src/components/experience2029/ElsSavedLibrary2029.jsx");
-  assert.match(library, /publicReadingActionsLocked\(isAdmin\)/);
+  assert.doesNotMatch(library, /publicReadingActionsLocked/);
+  assert.match(library, /requestLibraryReview\(row\.id, true\)/);
 });
 
 test("Operation Visibility Law: one always-on-screen meter covers opening, search, verification, scan, save and context loading", async () => {
