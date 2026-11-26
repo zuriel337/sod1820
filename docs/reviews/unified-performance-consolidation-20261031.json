@@ -4493,7 +4493,8 @@
         },
         "code_now": [
           "api/sitemap.js (numbers block, one unpaged rpc/sitemap_numbers call)",
-          "src/lib/admittedNumbers2029.js on the staged branch already contains the exact paged read with a proven total"
+          "src/lib/admittedNumbers2029.js on the staged branch already contains the exact paged read with a proven total",
+          "PR #1564 (head a6cd06b2dc8dd77cdf9c8a33e1b58cbecbc9733c, merged with main e47808fcb): the paged reader fix is prepared and awaits merge approval; not merged, not deployed"
         ],
         "merged": false,
         "merge_commit": null,
@@ -4516,6 +4517,37 @@
         ],
         "open": "Report only, nothing changed. Proposed code-only fix (needs ZURIEL approval; changes the sitemap output): read the admitted numbers in pages with an exact total (the same reader as stage 1 of S-62), fail closed as the block does today. Expected: +273 number addresses in sitemap.xml?part=catalog. The sitemap cache (s-maxage 21600) refreshes it within hours of a deploy. Check afterwards in Search Console: discovered and indexed number pages.",
         "next_owner": "ZURIEL decision; speed or SEO session implements",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-64",
+        "title_he": "יתרת עבודות מהירות, אנליטיקס ו־SEO — מרוכזת לפי עדיפות (26.11.2026; מצב, לא החלטה)",
+        "problem": "One list of what remains, so no session opens a parallel track. Nothing here is approved unless stated.",
+        "surface": "speed / analytics / SEO backlog",
+        "source": {
+          "task_keys": [
+            "WORK_PUBLIC_DISCOVERY_20261122"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": null
+        },
+        "code_now": [],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": false,
+        "live_evidence": null,
+        "measurement": null,
+        "guard": null,
+        "open": "BY PRIORITY. (1) Merge approval of PR #1564 (S-62 stage 1 + S-63; stage 2 stays OFF), then a separate deploy approval, then the after-measurement per protocol_9bf41e6 (reminder 27.11 11:05 UTC). (2) Merge of the docs branch claude/work-public-discovery-log-read-ryfcnx (separate approval). (3) ingest_event: ONE owner, ONE combined allowlist change. Live md5 on 26.11 is 6dd7585345d10a3a323810fd768fcf3b; it matches none of the guards of the three open proposals (analytics_followups 60c470f6, els_action_telemetry 897f442a, #1528 app_health 4006c823), so each must be re-read and re-based before any apply; no new proposal is written here. #1528 is draft, mergeable_state dirty, head 2a231ef, and says do not merge or deploy before its SQL is approved. (4) Measurement findings of 12.11 (measurement-audit in #1321 @4a406fed2): P1 GA4 receives no campaign data (Meta does) - open GA4 work; P2 AdSense active by design - decision only; P3 content identity in GA inconsistent (/post/:item vs full root URL) - open GA4 work, derives from M3; P4 ingest_event runs anonymous by design (session/sod ids null, engagement only) - privacy decision in code, not a defect; its allowlist extensions are exactly the ingest_event item above, so P4 is not a separate task. (5) Video error measurement: not defined anywhere in the plan today; to be specified as an extension of the existing allowlist/#1528 family (no new collector), after (3). (6) Open items already in the map: S-55 options B/C (not approved), S-59 CLS sources, S-56 Google images canary, public-reading baseline lowering (203,216 vs 175,808), #1549 SQL v2 + Edge wa-channel-ingest. (7) S-62 stage 3 (SQL): NOT approved; kept on branch claude/gematria-word-floor-proposal-20261126 (01ec495).",
+        "next_owner": "ZURIEL decision per item; one writer per scope",
         "relates_to_groups": []
       }
     ],
@@ -5156,6 +5188,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: draft PR for stage 1, S-63 fix first, Stage 3 proposal only)",
         "what": "S-62 stage 1 + S-63 fix in draft PR #1564 (head 63a7ec0, base main 9bf41e6): paged admitted-numbers reader with proven total, number sitemap lists all 1,273, 22 new tests wired into live-contracts-2029; stage 2 CDN stays OFF. Stage 3 proposed only (supabase/proposed/20261126120000_gematria_word_floor_initplan_*): safe InitPlan hoist, proven equivalent on local PG16 (15 checks) but saves no buffers; the real cost needs a blocklist oracle or a stored flag column - decision for ZURIEL. Nothing merged, deployed or applied. ZURIEL decision 26.11: stage 3 NOT approved (no measurable gain; no flag column, no privilege widening). Proposal, tests and finding kept on branch claude/gematria-word-floor-proposal-20261126 (01ec49536c1f079dc3f54cda2ca8bc5f2f1c2ad0), not for merge.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-26T18:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: sync with main e47808fc, consolidate backlog)",
+        "what": "PR #1564 and the docs branch merged with main e47808fcb (no conflicts; S-62/S-63 kept); S-64 added: remaining speed/analytics/SEO work by priority, P1-P4 checked against #1528 and the ingest_event ownership (single owner; all three open allowlist proposals have stale md5 guards). Nothing merged, deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
