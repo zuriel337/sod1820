@@ -53,11 +53,12 @@ test('deploy-order safety: the two new client RPCs degrade when the SQL is not a
   for (const rpc of ['request_els_library_review', 'els_my_strong_ciphers']) assert.ok(manifest.apply_before_deploy.some(e => e.rpc === rpc && e.sql.includes('els-publication-tiers-20261126')), rpc);
 });
 
-test('cache: a cipher document is never CDN-kept, so withdrawing a cipher takes effect on the next request; the sitemap bound is documented', async () => {
-  const doc = await import('../public-reading-deploy/api/public-document.js');
-  assert.deepEqual(Object.keys(doc.PAGE_DOCUMENT_CDN_PAGES), ['/', '/community/chat'], 'no cipher address has a CDN-kept document');
-  assert.equal(doc.postDocumentCdnCacheable({ method: 'GET', status: 200, state: 'public', originalDocument: true, path: '/codes/x', post: null, articleFirst: 'not-eligible' }), false);
-  assert.equal(doc.pageDocumentCdnCacheable({ method: 'GET', status: 200, state: 'public', originalDocument: true, path: '/codes/x', post: null, articleFirst: 'not-eligible' }), false);
+test('cache: a cipher document is never CDN-kept, so withdrawing a cipher takes effect on the next request; the sitemap bound is documented', () => {
+  // Static on purpose: importing the handler needs the generated review build, which this gate does not produce.
+  const doc = read('public-reading-deploy/api/public-document.js');
+  assert.match(doc, /PAGE_DOCUMENT_CDN_PAGES = Object\.freeze\(\{ "\/": "home", "\/community\/chat": "community-chat" \}\)/, 'no cipher address has a CDN-kept document');
+  assert.match(doc, /res\.setHeader\("Cache-Control", "no-store"\)/);
+  assert.match(doc, /\/\^\[0-9A-Za-z_-\]\{1,64\}\$\/\.test\(String\(post\.id/, 'a CDN-kept document needs a Post id; a cipher has none');
   assert.match(read('api/sitemap.js'), /SITEMAP_CACHE = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400'/);
 });
 
