@@ -1,4 +1,4 @@
-import React, { useId, useRef, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import { ENTRY_METHODS_LEARNING_HREF, LEARN_SCOPE } from "../../lib/entryLearn2029.js";
 import "./learnMark2029.css";
 
@@ -33,6 +33,12 @@ export default function LearnMark2029({
     ? `${visibleLabel} — ${ariaLabel || label}` : (ariaLabel || label);
 
   const close = () => { setOpen(false); trigger.current?.focus(); };
+  useEffect(() => {
+    if (!open || scope !== LEARN_SCOPE.SURFACE) return undefined;
+    const onKey = event => { if (event.key === "Escape") { event.stopPropagation(); close(); } };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
   const toggle = () => {
     const next = !open;
     setOpen(next);
@@ -50,7 +56,6 @@ export default function LearnMark2029({
       className,
     ].filter(Boolean).join(" ")}
     data-learn-scope={scope}
-    onKeyDown={event => { if (event.key === "Escape" && open && scope === LEARN_SCOPE.SURFACE) { event.stopPropagation(); close(); } }}
   >
     <button
       ref={trigger}

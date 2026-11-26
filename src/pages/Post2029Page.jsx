@@ -937,8 +937,10 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     // centred while the page settles (bounded; released at the reader's first wheel, touch, pointer or key). Never the top of the Post (ZURIEL 26.11.2026).
     let id;
     try { id = decodeURIComponent(location.hash.slice(1)); } catch { return undefined; }
-    if (!state.projection || !(id === "post-connections" || id === "source-region-post-connections" || id.startsWith("post-connection-"))) return undefined;
-    const wanted = id === "source-region-post-connections" ? "post-connections" : id;
+    // The old research addresses (#post-connections, #source-region-post-connections) belong to the admin tool for an admin; for everyone else they land on the public block.
+    const legacyAlias = isAdmin !== true && (id === "post-connections" || id === "source-region-post-connections");
+    if (!state.projection || !(legacyAlias || id === "post-public-connections" || id.startsWith("post-connection-"))) return undefined;
+    const wanted = legacyAlias ? "post-public-connections" : id;
     let released = false, focused = false;
     const land = () => {
       if (released) return;
@@ -958,7 +960,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
     timer = setTimeout(release, 6000);
     land();
     return release;
-  }, [state.projection, location.hash]);
+  }, [state.projection, location.hash, isAdmin]);
 
   useEffect(() => {
     // Native IDs and snapshot-bound presentation locators survive refresh/Back.
@@ -1036,6 +1038,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
   const contextualConnections = (experience.connections || []).filter((connection) => connection.href);
   // The same admitted public links the context rail lists for every surface; shown only when the Post has real ones.
   const publicFindings = publicSurfaceFindingsFromConnections(experience.connections);
+  // The block's own addresses (the admin tool keeps #post-connections and #source-region-post-connections: one address, one owner).
+  let connectionsHashId = "";
+  try { const hashId = decodeURIComponent((location.hash || "").slice(1)); if (hashId === "post-public-connections" || hashId.startsWith("post-connection-")) connectionsHashId = hashId; } catch { /* a malformed fragment has no target */ }
   const connectedHrefs = new Set(contextualConnections.map(item => item.href));
   const additionalLinks = previewSourceLinks.filter(item => !connectedHrefs.has(item.href));
   const researchAnchorRequested = /^#(?:post-(?:research|sources|classification|connections|measures)|source-region-post-connections|timeline)/.test(location.hash);
@@ -1625,8 +1630,9 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : <p role="status">{calculationNotice}</p>) : null}
     {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
     {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
-    {publicFindings.length && !projection.draft && !projection.privateStage && !projection.previewSnapshot
-      ? <PostConnections2029 findings={publicFindings} onOpen={openConnection} eager={/^#(?:post-connections|source-region-post-connections|post-connection-)/.test(location.hash)} /> : null}
+    {!projection.draft && !projection.privateStage && !projection.previewSnapshot
+      ? <PostConnections2029 post={projection.sourcePost} findings={publicFindings} onOpen={openConnection} focusId={connectionsHashId}
+        eager={Boolean(connectionsHashId) || (isAdmin !== true && /^#(?:post-connections|source-region-post-connections)$/.test(location.hash))} /> : null}
     {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostContinue2029 post={projection.sourcePost} onOpen={openConnection} /> : null}
     {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowInvite2029 post={projection.sourcePost} /> : null}
     {followOpen && commentPostId != null ? <React.Suspense fallback={null}><PostFollowDialog2029 post={projection.sourcePost} /></React.Suspense> : null}
