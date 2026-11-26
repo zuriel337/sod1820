@@ -3,7 +3,7 @@ begin;
   do $$
   declare
     v_def text := pg_get_functiondef('public.ingest_event(text,text,text,text,text,text,text,text,text,text,smallint,jsonb,jsonb,boolean)'::regprocedure);
-    v_new text := '"app_health":{"events":["save_started","save_confirmed","save_failed","auth_failed","load_failed","runtime_error"],"fields":{"reason":"token","stage":"token"}},';
+    v_new text := '"app_health":{"events":["save_started","save_confirmed","save_failed","auth_failed","load_failed","runtime_error"],"fields":{"reason":"token","stage":"token"}},"video_2029":{"events":["play_requested","player_ready","embed_refused","watch_opened"],"fields":{"provider":"token","code":"int","wait_s":"int"}},';
   begin
     if position(v_new in v_def) = 0 then return; end if;  -- already rolled back
     if md5(replace(v_def, v_new, '')) <> '6dd7585345d10a3a323810fd768fcf3b' then raise exception 'the rest of ingest_event changed after the proposal; rollback by hand'; end if;

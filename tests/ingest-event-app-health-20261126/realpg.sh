@@ -29,10 +29,17 @@ els() { Q -c "select public.ingest_event(null,'els','$1','/',null,null,'chrome',
 BEFORE="$(els search) $(els nope)"; Q -c "truncate public.events"
 Q -f "$D/PROPOSAL.sql"
 AFTER_MD=$(md)
-check "$(Q -c "select md5(replace(pg_get_functiondef('$F'::regprocedure), '\"app_health\":{\"events\":[\"save_started\",\"save_confirmed\",\"save_failed\",\"auth_failed\",\"load_failed\",\"runtime_error\"],\"fields\":{\"reason\":\"token\",\"stage\":\"token\"}},', ''))")" "$LIVE" "after apply, removing the one entry gives the exact live text"
+check "$(Q -c "select md5(replace(pg_get_functiondef('$F'::regprocedure), '\"app_health\":{\"events\":[\"save_started\",\"save_confirmed\",\"save_failed\",\"auth_failed\",\"load_failed\",\"runtime_error\"],\"fields\":{\"reason\":\"token\",\"stage\":\"token\"}},\"video_2029\":{\"events\":[\"play_requested\",\"player_ready\",\"embed_refused\",\"watch_opened\"],\"fields\":{\"provider\":\"token\",\"code\":\"int\",\"wait_s\":\"int\"}},', ''))")" "$LIVE" "after apply, removing the one entry gives the exact live text"
 check "$(acl)" "$ACL0" "owner, privileges, SECURITY DEFINER and search_path unchanged"
 check "$(ev save_failed timeout)" ok "after: app_health save_failed accepted"
 for e in save_started save_confirmed auth_failed load_failed runtime_error; do check "$(ev $e x)" ok "after: $e accepted"; done
+vid() { Q -c "select public.ingest_event(null,'video_2029','$1','/community/chat',null,null,'chrome',null,'sess-12345678',null,null,null,'{\"action_version\":1,$2\"measurement\":{\"version\":2,\"page_path\":\"/community/chat\",\"visitor_id\":null}}'::jsonb,false)" >/dev/null 2>&1 && echo ok || echo refused; }
+check "$(vid play_requested '"provider":"youtube",')" ok "after: video_2029 play_requested accepted"
+check "$(vid embed_refused '"provider":"youtube","code":150,"wait_s":3,')" ok "after: video_2029 embed_refused with code and seconds accepted"
+for e in player_ready watch_opened; do check "$(vid $e '"provider":"vimeo",')" ok "after: video_2029 $e accepted"; done
+check "$(vid view '"provider":"youtube",')" refused "after: a video event named view is refused"
+check "$(vid play_requested '"provider":"youtube","video_id":"abc",')" refused "after: a video id field is refused"
+check "$(vid play_requested '"provider":"you tube",')" refused "after: a provider that is not a token is refused"
 check "$(ev save_gibberish x)" refused "after: an event name outside the six is refused"
 check "$(Q -c "select public.ingest_event(null,'app_health','save_failed','/',null,null,'chrome',null,'sess-12345678',null,null,null,'{\"action_version\":1,\"reason\":\"has space and text\",\"measurement\":{\"version\":2,\"page_path\":\"/\",\"visitor_id\":null}}'::jsonb,false)" >/dev/null 2>&1 && echo ok || echo refused)" refused "after: free text in a field is refused (token only)"
 check "$(Q -c "select public.ingest_event(null,'app_health','save_failed','/',null,null,'chrome',null,'sess-12345678',null,null,null,'{\"action_version\":1,\"email\":\"a\",\"measurement\":{\"version\":2,\"page_path\":\"/\",\"visitor_id\":null}}'::jsonb,false)" >/dev/null 2>&1 && echo ok || echo refused)" refused "after: an unknown field (identity-like) is refused"
