@@ -775,3 +775,63 @@ grant execute on function public.els_verify_occurrence_v1(p_term text, p_scope t
 revoke all on function public.fn_els_corpus_id(p_scope text) from public;
 grant execute on function public.fn_els_corpus_id(p_scope text) to anon;
 grant execute on function public.fn_els_corpus_id(p_scope text) to authenticated;
+-- @@ function public.els_publish_truth_gate_v1(p_term text, p_scope text, p_skip integer, p_direction text, p_start_index integer, p_row_corpus_id text, p_check_row_corpus boolean)
+CREATE OR REPLACE FUNCTION public.els_publish_truth_gate_v1(p_term text, p_scope text, p_skip integer, p_direction text, p_start_index integer, p_row_corpus_id text DEFAULT NULL::text, p_check_row_corpus boolean DEFAULT false)
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'extensions'
+AS $function$
+declare
+  v_scope text := lower(coalesce(nullif(btrim(p_scope),''),'torah'));
+  v_norm text := public.fn_els_term_norm(p_term);
+  v_corpus text;
+  v_dir integer;
+  v_state text;
+begin
+  if v_scope not in ('torah','tanakh') then return 'IDENTITY_INCOMPLETE:scope'; end if;
+  v_corpus := public.fn_els_corpus_id(v_scope);
+  if v_corpus is null then return 'IDENTITY_INCOMPLETE:corpus_id'; end if;
+  if p_check_row_corpus and p_row_corpus_id is distinct from v_corpus then return 'IDENTITY_INCOMPLETE:corpus_id'; end if;
+  if length(coalesce(v_norm,'')) < 2 then return 'IDENTITY_INCOMPLETE:term'; end if;
+  if coalesce(p_skip,0) < 2 then return 'IDENTITY_INCOMPLETE:skip'; end if;
+  v_dir := case p_direction when 'fwd' then 1 when 'back' then -1 else null end;
+  if v_dir is null then return 'IDENTITY_INCOMPLETE:direction'; end if;
+  if coalesce(p_start_index,-1) < 0 then return 'IDENTITY_INCOMPLETE:start_index'; end if;
+  v_state := public.els_verify_occurrence_v1(p_term, v_scope, p_skip, v_dir, p_start_index)->>'verification_state';
+  if v_state is distinct from 'MATCH' then return 'REPLAY_'||coalesce(v_state,'NOT_TESTED'); end if;
+  return 'MATCH';
+end
+$function$
+;
+-- @@ function public.els_slugify(p_term text, p_skip integer)
+CREATE OR REPLACE FUNCTION public.els_slugify(p_term text, p_skip integer)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE
+AS $function$
+  select trim(both '-' from regexp_replace(
+           regexp_replace(coalesce(p_term,''), '[^א-תa-zA-Z0-9]+', '-', 'g'),
+           '-+', '-', 'g'))
+         || '-' || coalesce(nullif(p_skip,0)::text, '0');
+$function$
+;
+-- @@ function public.fn_els_term_norm(p_term text)
+CREATE OR REPLACE FUNCTION public.fn_els_term_norm(p_term text)
+ RETURNS text
+ LANGUAGE sql
+ IMMUTABLE
+ SET search_path TO 'public'
+AS $function$
+  select translate(regexp_replace(coalesce(p_term,''),'[^א-ת]','','g'),'ךםןףץ','כמנפצ')
+$function$
+;
+-- @@ fngrant public.els_publish_truth_gate_v1(p_term text, p_scope text, p_skip integer, p_direction text, p_start_index integer, p_row_corpus_id text, p_check_row_corpus boolean)
+revoke all on function public.els_publish_truth_gate_v1(p_term text, p_scope text, p_skip integer, p_direction text, p_start_index integer, p_row_corpus_id text, p_check_row_corpus boolean) from public;
+grant execute on function public.els_publish_truth_gate_v1(p_term text, p_scope text, p_skip integer, p_direction text, p_start_index integer, p_row_corpus_id text, p_check_row_corpus boolean) to service_role;
+-- @@ fngrant public.els_slugify(p_term text, p_skip integer)
+revoke all on function public.els_slugify(p_term text, p_skip integer) from public;
+-- @@ fngrant public.fn_els_term_norm(p_term text)
+revoke all on function public.fn_els_term_norm(p_term text) from public;
+grant execute on function public.fn_els_term_norm(p_term text) to anon;
+grant execute on function public.fn_els_term_norm(p_term text) to authenticated;

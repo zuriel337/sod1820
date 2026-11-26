@@ -150,6 +150,14 @@
       "els-verify: a wrong corpus identity",
       "els-verify: a single occurrence replays"
      ]
+    },
+    {
+     "id": "ciphers.truth-gate",
+     "label": "שער האמת האמיתי: פרסום עם קואורדינטה מומצאת נדחה",
+     "role": "member",
+     "results": [
+      "tiers: publishing an invented coordinate is refused"
+     ]
     }
    ]
   },

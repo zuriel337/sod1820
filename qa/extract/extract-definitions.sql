@@ -4,7 +4,7 @@
 -- The same output feeds scripts/build-qa-prod-definitions.mjs (generates the QA SQL) and scripts/qa-prod-parity.mjs (detects drift).
 with params as (
   select array['public.users','public.direct_messages','public.user_notifications','public.notification_prefs','public.push_subscriptions','public.page_views','public.user_activity','public.torah_stream','public.tanakh_stream','private.edge_rate_limit_buckets']::text[] as tables,
-         array['dm_send','dm_inbox','dm_thread','notify_on_dm','push_subscription_upsert_v1','push_subscription_delete_v1','view_count','edge_rate_limit_check','fn_els_corpus_id','els_stream_letters_v1','els_stream_relation_v1','els_verify_batch_core_v1','els_verify_batch_v1','els_verify_occurrence_v1']::text[] as fns
+         array['dm_send','dm_inbox','dm_thread','notify_on_dm','push_subscription_upsert_v1','push_subscription_delete_v1','view_count','edge_rate_limit_check','fn_els_corpus_id','els_stream_letters_v1','els_stream_relation_v1','els_verify_batch_core_v1','els_verify_batch_v1','els_verify_occurrence_v1','els_publish_truth_gate_v1','els_slugify','fn_els_term_norm']::text[] as fns
 ), tbl as (
   select c.oid, n.nspname nsp, c.relname, c.relrowsecurity, c.relforcerowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace, params
   where c.relkind='r' and n.nspname||'.'||c.relname = any(params.tables)

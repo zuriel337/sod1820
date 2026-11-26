@@ -55,4 +55,12 @@ cp "$ROOT/qa/corpus/torah.csv" "$D/torah.csv"; chmod a+r "$D/torah.csv"
 q -c "\\copy public.torah_stream(idx,ch) from '$D/torah.csv' csv" >/dev/null
 v=$(echo "select (els_verify_batch_v1('תורהקדשה','torah','0b022e8eef6f9c16','[{\"skip\":10065,\"dir\":1,\"start\":50890},{\"skip\":10065,\"dir\":1,\"start\":50891}]'::jsonb)->'counts'->>'verified');" | q -At | tail -1)
 [[ "$v" == 1 ]] || { echo "FAIL verification of the golden occurrence: $v"; exit 1; }; echo "PASS the existing verification function accepts the golden occurrence and rejects a shifted one on the Torah corpus"
+# the ELS save path with the real truth gate: a real occurrence is saved, an invented coordinate is refused
+node "$ROOT/scripts/build-qa-schema.mjs" >/dev/null
+cp "$ROOT/qa/supabase/migrations/20260101000100_qa_els.sql" "$D/els.sql"; chmod a+r "$D/els.sql"
+q -f "$D/els.sql" >/dev/null 2>"$D/els.err" || { echo "FAIL the generated ELS schema does not apply"; head -5 "$D/els.err"; exit 1; }
+echo "PASS the generated ELS schema applies on top of the production definitions"
+saved=$( { as $A; echo "select save_els_matrix(p_term=>'תורהקדשה',p_scope=>'torah',p_skip=>10065,p_direction=>'fwd',p_positions=>'{\"findings\":[]}'::jsonb,p_title=>'real',p_public=>false,p_start_index=>50890) is not null;"; } | q -At | tail -1)
+[[ "$saved" == t ]] || { echo "FAIL a real occurrence was not saved: $saved"; exit 1; }; echo "PASS a real occurrence is saved through the real truth gate"
+if { as $A; echo "select save_els_matrix(p_term=>'תורהקדשה',p_scope=>'torah',p_skip=>10065,p_direction=>'fwd',p_positions=>'{\"findings\":[]}'::jsonb,p_title=>'fake',p_public=>true,p_start_index=>50891);"; } | q >/dev/null 2>&1; then echo "FAIL an invented coordinate was published"; exit 1; fi; echo "PASS an invented coordinate is refused when publishing (the gate applies to public saves, as in production)"
 echo "ALL PASS"

@@ -13,7 +13,10 @@ const fixture = read('test/els-native-save-fixture.sql');
 const from = fixture.indexOf('create table els_records(');
 const to = fixture.indexOf('grant select on research_contributions,test_publish_gate_calls to authenticated;');
 if (from < 0 || to < 0) throw new Error('fixture_markers_missing');
-const tables = fixture.slice(from, to).split('\n').filter(line => !/^grant select on els_records,users/.test(line)).join('\n');
+// The fixture's stand-ins for functions that production owns (corpus id, term normalisation, slug, publish truth gate) are replaced by the real definitions read from production.
+const REAL = ['fn_els_term_norm', 'fn_els_corpus_id', 'els_slugify', 'els_publish_truth_gate_v1'];
+const stripReal = text => REAL.reduce((out, name) => out.replace(new RegExp(`^create function ${name}\\([\\s\\S]*?(?:\\$\\$;|\\$\\$)\\s*;?\\s*$`, 'm'), ''), text);
+const tables = stripReal(fixture.slice(from, to)).split('\n').filter(line => !/^grant select on els_records,users/.test(line)).join('\n');
 
 const pre = read('test/els-publication-tiers-pre.sql').split('\n');
 const stubsEnd = pre.findIndex(line => line.startsWith('create function public.self_publish_matrix'));
