@@ -4663,6 +4663,60 @@
           "consequence": "Any frame CSS change, even a one-line fix, fails the gate until an equal reduction is made, including inside the unified deployment. None of the branches of this series touches frame CSS (the community changes are JS in a lazy chunk; PR #1577 adds JS only to a lazy module); their JS growth is within the limits (eager +15 and frame +8 bytes gzip for #1577 against the same tree).",
           "composition_of_the_frame_css_sources_gzip_level_9": "systemFrame2029.css 13.7 KB, systemFrame2029-unified-bar.css 10.1 KB, sod2029.css 6.8 KB, sod2029-closed.css 6.2 KB (660 lines of closed-shell overrides), systemFrame2029-topbar-crown.css 5.5 KB, discoveryGate2029.css 2.9 KB, myWorkspace2029.css 2.6 KB, systemToolDock2029.css 1.1 KB, googleEntry2029.css 0.4 KB (the built file is 33.2 KB gzip after minification and merging).",
           "options_not_taken": "Lowering needs the System Frame owner (a dead-rule audit of sod2029-closed.css and the unified bar, or moving a rarely used panel's rules behind a lazy slot); then run the budget script with --lower and commit the lower baseline. Raising the baseline is a ZURIEL decision and was not done. Nothing was changed here."
+        },
+        "sql_applied_20261127": {
+          "what": "ingest_event allowlist package A (app_health + video_2029) APPLIED to the live database on 27.11.2026 with ZURIEL's approval of PROPOSAL.sql sha256 d3033c972aa87c8ec4fcab27ed7ac043d0a3292bab615ad728449597760bfcd3.",
+          "before": "live md5 6dd7585345d10a3a323810fd768fcf3b; owner postgres; SECURITY DEFINER; search_path=public; ACL null (default); 1 overload; no app_health, no video_2029.",
+          "how": "one transaction (the file as written: begin, lock_timeout 5s, guarded DO block, commit); the file hash was verified on main before the call.",
+          "after": "live md5 3d2fa7cf1aa7513b981d338cab5aebc2; same owner, SECURITY DEFINER, search_path, ACL null, 1 overload; anon and authenticated execute unchanged (true). ACCEPTANCE.sql (b3155f9a...): 4 of 4 true (family entries present; removing exactly them gives the old md5; still SECURITY DEFINER; search_path unchanged).",
+          "behaviour_checked_in_rolled_back_transactions_as_role_anon": "app_health save_failed (reason token) and video_2029 embed_refused (provider token, code, wait_s) are accepted and stored with no email; a video_2029 event carrying an extra video_id field is refused ('unknown action field'). Rolled back: 0 test rows remain, 0 rows of the two new families exist, ingestion of the other families continues (44 events in the 2 minutes after).",
+          "not done": "no client code emitted these families before this change; nothing deployed. The client for video is on main (merge 9576ae82) and ships in the unified deployment; the app_health client (#1528) is not merged."
+        },
+        "unified_deployment_handover_20261127": {
+          "live_now": "dpl_562GoZWmagD2A7snDnkxZbEzFDmY, source 3205ecd7d55825225448d8dd4e4c4de32c8d0416 (rollback target; read get_alias before moving any domain).",
+          "deploy_this": "origin/main at the moment of approval, read again then (it was 816e6ad0e238f92354e2d4c6a23a58a6c6376a02 when this was written; other sessions keep merging). Exact SHA and deployment need ZURIEL's separate approval.",
+          "merged_into_main_since_live_3205ecd7 (first-parent, 10 PRs)": [
+            "#1564 S-62 stage 1 + S-63 (this series)",
+            "#1575 ingest_event proposal files (files only)",
+            "#1577 video_2029 client (this series)",
+            "#1566 personal save/sync reliability",
+            "#1568 home discovery + /stats readers",
+            "#1569 biblical cipher audit",
+            "#1571 discovery writers label + speed map",
+            "#1572 site e2e P1",
+            "#1573 discovery D2 cipher tiers",
+            "#1578 community network protection (UI hidden until its RPCs exist)"
+          ],
+          "not_in_the_deployment": "#1581 community load reduction (draft, separate), #1574 docs and #1579 proposals (no runtime effect). Stage 2 CDN class for number documents stays OFF in code (NUMBER_DOCUMENT_CDN_ENABLED=false).",
+          "database_state_before_deploy": "ingest_event package A applied (above). The deploy-order manifest (APPLY-BEFORE-DEPLOY.json) lists 11 RPCs: 10 are live; community_claimed_contributors is not live and its caller degrades (tested). Not applied and not required for this deployment: classification v4 SQL (B), GA4 completion (C), community net-block SQL, def001b push lockdown (step 3 only after the frontend).",
+          "procedure (CLAUDE.md production section; each step needs the approval it names)": [
+            "1. Re-read origin/main, the 14 gates of the exact SHA, and get_alias of the three domains.",
+            "2. create_deployment with gitSource sha + the documented projectSettings (rootDirectory public-reading-deploy, build command with --public-production-candidate --review-source=<SHA>, ignored-build-step command for that exact SHA); no PATCH to project settings.",
+            "3. get_deployment after about 40 s: READY expected; CANCELED means the ignored build step: stop and report.",
+            "4. assign_alias for sod1820.co.il, www.sod1820.co.il and sod1820.vercel.app only after READY; rollback = the same call to dpl_562GoZ... .",
+            "5. Verify on the live domain: /code asset chunk contains a string from the change, the sitemap catalog lists 1,273 numbers, a number document answers with first words, then the post-deploy canary; report any canary failure as a failure."
+          ],
+          "checks_specific_to_this_package": [
+            "sitemap.xml?part=catalog: 1,273 /number/ addresses (was 1,000)",
+            "number and phrase documents: identical bytes for browser and crawler, noindex/503 semantics unchanged (tests), stage 2 headers absent",
+            "a video play on a Community or Now card produces video_2029 events (provider token only) and no error in the player",
+            "frame CSS margin is 5 bytes: any frame CSS fix must lower an equal amount (budget gate is a hard stop)"
+          ],
+          "after_deployment_measurements (protocol_9bf41e6, read-only, set the reminder only after the approved deployment)": [
+            "S-62: Supabase REST reads per first number visit and per crawl burst; function MISS/HIT of number documents",
+            "S-63: sitemap number count 1,273 in the live sitemap; Search Console submitted/indexed numbers over the following days",
+            "video_2029 counts by event and provider; embed_refused share",
+            "S-55/S-59 CLS and HIT/MISS series continue",
+            "community wave: classification stays as is until decision B"
+          ],
+          "decisions_still_separate": [
+            "B contract amendment text (PR #1579 README) then B SQL (e47db0f8...)",
+            "C GA4 completion APPLY (cd0cecc6...)",
+            "unified deployment of the exact SHA",
+            "merge of #1574, #1579, #1581",
+            "ti-post-37034-daily-watch removal; fn_ti_daily; P1/P3 GA4 campaign data",
+            "frame CSS reduction by the System Frame owner"
+          ]
         }
       },
       {
@@ -5419,6 +5473,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 27.11: full SQL hashes, community load reduction steps 1-3, frame CSS margin)",
         "what": "S-64: full sha256 for the three SQL approvals; community load reduction steps 1 and 2 built in PR #1581 (draft, separate from the unified deployment), step 3 verified for privacy and freshness and deliberately not built; frame CSS margin documented (5 bytes). Nothing deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T08:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 27.11: apply ingest_event package A; handover for the unified deployment)",
+        "what": "ingest_event package A applied (md5 6dd75853 -> 3d2fa7cf, ACCEPTANCE 4/4, behaviour checked in rolled-back transactions). Summary handover for the unified deployment written (S-64 unified_deployment_handover_20261127). Nothing deployed; classification SQL, GA4 write and the site deployment remain separate approvals.",
         "previous": {
           "note": "previous revision above"
         }
