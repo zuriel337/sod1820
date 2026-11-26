@@ -313,6 +313,18 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs test/old-journey-410-2029.test.mjs
+      # Decision 337 (26.11.2026): the edge security probe layer and its authenticated reporting path. Offline: no network, no database, no secret.
+      - name: Edge security probe layer (403 for scanner paths, OIDC-authenticated report, signed canary, matcher coverage, login and permission paths untouched, SEO, privacy, speed)
+        run: node --test test/edge-security-probe-20261126.test.mjs test/security-probe-log-20261126.test.mjs
+      # The two SQL proposals of the security package (log_security lockdown and ceiling, security monitor silence) applied and rolled back on an isolated
+      # real PostgreSQL of the live major version. Nothing touches a shared database.
+      - name: Real PostgreSQL 17 apply/rollback of the security SQL proposals (isolated)
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-17 >/dev/null
+          PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
+          "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
+          PG_BIN="$PG_BIN" bash test/security-edge-realpg-20261126.sh
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)

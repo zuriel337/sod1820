@@ -74,6 +74,20 @@ jobs:
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "kind=$KIND" >> "$GITHUB_OUTPUT"
           echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
+      - name: Detect the edge security probe layer at the deployed SHA
+        id: probe_layer
+        if: steps.target.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_SHA: ${{ steps.target.outputs.sha }}
+        run: |
+          set -uo pipefail
+          # present => the security_probe_denied check is release-blocking for this SHA (decision 337); absent => advisory only.
+          if gh api "repos/${{ github.repository }}/contents/edge-security-probe.js?ref=${TARGET_SHA}" --silent 2>/dev/null; then
+            echo "present=present" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=absent" >> "$GITHUB_OUTPUT"
+          fi
       - name: Canary
         id: canary
         if: steps.target.outputs.skip != 'true'
@@ -82,6 +96,8 @@ jobs:
           TARGET_URL: ${{ steps.target.outputs.url }}
           TARGET_SHA: ${{ steps.target.outputs.sha }}
           CANARY_KIND: ${{ steps.target.outputs.kind }}
+          SECURITY_PROBE_LAYER: ${{ steps.probe_layer.outputs.present }}
+          SECURITY_CANARY_KEY: ${{ secrets.SECURITY_CANARY_KEY }}
         run: node scripts/post-deploy-canary.mjs --url "$TARGET_URL" --sha "$TARGET_SHA" --kind "$CANARY_KIND"
       - name: Re-confirm exact Production SHA after smoke
         id: target_post

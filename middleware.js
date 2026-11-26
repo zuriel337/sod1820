@@ -3,7 +3,12 @@ import coreMiddleware, { SUPABASE_ANON_KEY } from './middleware-core.js';
 // SG rate-limit wrapper around the audited Smart Quarantine / Adaptive Strict core.
 // Human Gate: 15.9.2026. No country hard-block is introduced here.
 export const config = {
-  matcher: ['/((?!api/|assets/|.*\\.).*)'],
+  matcher: [
+    '/((?!api/|assets/|.*\\.).*)',
+    '/(.*)\\.[pP][hH][pP]',
+    '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+    '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
+  ],
 };
 
 const SUPABASE_URL = 'https://linswmnnkjxvweumprav.supabase.co';
