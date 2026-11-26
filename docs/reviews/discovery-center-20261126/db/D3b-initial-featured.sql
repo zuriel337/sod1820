@@ -14,4 +14,4 @@ BEGIN
   VALUES ('home_featured_discovery', true, jsonb_build_array(jsonb_build_object('id', a, 'method', 'ריבוע'), jsonb_build_object('id', b, 'method', 'מילוי'))::text, 'all', now());
   GET DIAGNOSTICS n = ROW_COUNT; IF n <> 1 THEN RAISE EXCEPTION 'expected 1 row'; END IF;
 END $$;
--- החזרה (rollback): DELETE FROM public.site_flags WHERE key = 'home_featured_discovery' AND message LIKE '%d057b2cf-c50b-4f4c-9e22-f3ff90ec008b%';
+-- החזרה: D3b-rollback.sql (מוחקת רק אם הערך עדיין זהה בדיוק לערך שנכתב כאן; בחירת מנהל מאוחרת אינה נמחקת).

@@ -71,3 +71,43 @@ BEGIN
   ASSERT EXISTS (SELECT 1 FROM writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'gematria', 100) WHERE excerpt = 'מילה רגילה = 100'), 'regular method has no suffix';
   RAISE WARNING 'discovery center SQL test: PASS';
 END $$;
+
+-- (7) הרשאות אחרי הביקורת: העזרים פנימיים, הקוראים הציבוריים פתוחים, הכתיבה סגורה לאנונימי
+DO $$
+DECLARE j jsonb; n integer;
+BEGIN
+  EXECUTE 'SET LOCAL ROLE anon';
+  BEGIN PERFORM public.gematria_word_method_value_v1('d057b2cf-c50b-4f4c-9e22-f3ff90ec008b'); ASSERT false, 'anon must not call the method helper'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN PERFORM public.home_featured_picks_v1(); ASSERT false, 'anon must not call the picks helper'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN PERFORM public.public_discovery_writer_v1('d057b2cf-c50b-4f4c-9e22-f3ff90ec008b'); ASSERT false, 'anon must not call the writer helper'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  BEGIN PERFORM public.admin_set_home_featured_discovery_v1('[]'::jsonb); ASSERT false, 'anon must not call the admin setter'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  j := public.discovery_center_feed_v1(); ASSERT j ? 'featured', 'the public feed works for anon (definer)';
+  ASSERT (public.discovery_center_stats_v1()->>'gematria_public')::int > 0, 'the public stats work for anon';
+  SELECT count(*) INTO n FROM public.writer_public_material_v1('11111111-1111-1111-1111-111111111111', 'gematria', 10); ASSERT n > 0, 'the public writer reader works for anon';
+  EXECUTE 'RESET ROLE';
+  EXECUTE 'SET LOCAL ROLE authenticated';
+  BEGIN PERFORM public.gematria_word_method_value_v1('d057b2cf-c50b-4f4c-9e22-f3ff90ec008b'); ASSERT false, 'authenticated must not call the method helper'; EXCEPTION WHEN insufficient_privilege THEN NULL; END;
+  EXECUTE 'RESET ROLE';
+  -- שער הפרטיות בתוך העזר: גם בהרצה כבעלים, שורה לא ציבורית אינה מחזירה דבר
+  INSERT INTO gematria_words (id, phrase, source, ragil, miluy, ribua, misratar, is_published) VALUES ('c0000000-0000-0000-0000-0000000000aa', 'טיוטה', 'יניב לוי', 1, 1, 1, 1, false);
+  INSERT INTO gematria_words (id, phrase, source, ragil, miluy, ribua, misratar, is_encrypted) VALUES ('c0000000-0000-0000-0000-0000000000ab', 'מוצפן', 'יניב לוי', 2, 2, 2, 2, true);
+  SELECT count(*) INTO n FROM public.gematria_word_method_value_v1('c0000000-0000-0000-0000-0000000000aa'); ASSERT n = 0, 'an unpublished word gives no value';
+  SELECT count(*) INTO n FROM public.gematria_word_method_value_v1('c0000000-0000-0000-0000-0000000000ab'); ASSERT n = 0, 'an encrypted word gives no value';
+  RAISE WARNING 'privilege and privacy-gate tests: PASS';
+END $$;
+
+-- (8) D3b ו-D3b-rollback: הכתיבה הראשונית מוגנת, וההחזרה אינה מוחקת בחירת מנהל מאוחרת
+DELETE FROM site_flags WHERE key = 'home_featured_discovery';
+\i db/D3b-initial-featured.sql
+DO $$
+BEGIN
+  ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') = '[{"id": "d057b2cf-c50b-4f4c-9e22-f3ff90ec008b", "method": "ריבוע"}, {"id": "b3fff8e8-2c77-45dc-ad1e-7b72eb352298", "method": "מילוי"}]', 'D3b wrote exactly the text the rollback expects';
+  ASSERT (SELECT discovery_center_feed_v1()->'featured'->>'phrase') = 'תפרצי בתשפז', 'the initial pick is shown';
+END $$;
+\i db/D3b-rollback.sql
+DO $$ BEGIN ASSERT NOT EXISTS (SELECT 1 FROM site_flags WHERE key = 'home_featured_discovery'), 'rollback removed its own exact value'; END $$;
+\i db/D3b-initial-featured.sql
+SET test.admin = 'true';
+SELECT admin_set_home_featured_discovery_v1('[{"id":"c0000000-0000-0000-0000-000000000001","method":"רגיל"}]'::jsonb) IS NOT NULL AS later_admin_selection;
+\i db/D3b-rollback.sql
+DO $$ BEGIN ASSERT (SELECT message FROM site_flags WHERE key = 'home_featured_discovery') LIKE '%c0000000-0000-0000-0000-000000000001%', 'a later admin selection survives the rollback'; RAISE WARNING 'D3b + rollback tests: PASS'; END $$;

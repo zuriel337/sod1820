@@ -12,7 +12,7 @@
 | `D4-trg_rc_resolve_author_contributor.sql` | שיוך נכון בקליטה לפי הכלל היחיד | `CREATE FUNCTION` + `CREATE TRIGGER` |
 | `D5-add_contribution_single_attribution_rule.sql` | `add_contribution` על אותו כלל (5 שורות, מוגן ב־md5) | `CREATE OR REPLACE FUNCTION` |
 | `E1-gematria-root-gate-check.sql` | בדיקת אכיפה (קריאה בלבד) לחוק gematria_auto_registry_law v2: גימטריה בגוף פוסט חייבת שורש ב־gematria_words | אין |
-| `VERIFY-AFTER-APPLY.sql` | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
+| `verify/` (לפי השלב) | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
 
 הביקורת המלאה: [AUDIT.md](AUDIT.md). כל אחד מהקבצים דורש אישור מדויק נפרד.
 
@@ -33,3 +33,22 @@
 - בחירה מרובה: הנבחר ועד שניים לצדו (`featured`, `featured_with`). נשמרת בשורת `site_flags` הקיימת כמערך `{id, method}`; הפורמט הישן (מזהה בלבד) נקרא כמו קודם.
 - מונים: הכול נגזר חי מ־`gematria_words` לפי תנאי הזכאות הקיים, ללא הזנה ידנית. הסטטיסטיקה ודף הכותב סופרים **ביטוי ייחודי** פעם אחת (בנתונים הציבוריים אין כפילויות כיום; ההגנה לעתיד). עדכון ערוץ שאינו `live` לא נספר.
 - בדיקות: `test/run-sql-test.sh` (Postgres מקומי זמני, בלי מסד חי) מריץ את D0–D3 על סכמה מדומה: זהות שיטה, בחירה, הרשאות, אובדן זכאות, מונה אוטומטי וללא כפל, דף הכותב. תוצאה: PASS.
+
+## סדר ההחלה המדויק (כל שלב באישור נפרד; אחרי כל שלב מריצים את ה־verify המתאים ועוצרים בחריגה)
+| # | קובץ | תלוי ב | בדיקה אחריו | החזרה |
+|---|---|---|---|---|
+| 1 | `db/D0-shared_helpers.sql` | rd_is_admin, gematria_public_word_eligible, gematria_methods (קיימים) | `verify/VERIFY-D0.sql` | `DROP FUNCTION` לארבעת העזרים |
+| 2 | `db/D1-discovery_center_v1.sql` | D0 | `verify/VERIFY-D1.sql` | `DROP FUNCTION` ×2 |
+| 3 | `db/D2-writer_public_material_v1.sql` | D0 | `verify/VERIFY-D2.sql` | `DROP FUNCTION` |
+| 4 | `db/D3-admin_set_home_featured_discovery_v1.sql` | D0 | `verify/VERIFY-D3.sql` | `DROP FUNCTION` |
+| 5 | `db/D3b-initial-featured.sql` | D0, D1, D3 | `verify/VERIFY-D3b.sql` | `db/D3b-rollback.sql` |
+| 6 | `db/D4-trg_rc_resolve_author_contributor.sql` | D0 | `verify/VERIFY-D4-D5.sql` | `DROP TRIGGER` + `DROP FUNCTION` |
+| 7 | `db/D5-add_contribution_single_attribution_rule.sql` | D0 | `verify/VERIFY-D4-D5.sql` | הגרסה הקודמת של `add_contribution` (בגוף הקובץ מוגנת ב־md5) |
+
+## תיקוני ביקורת (26.11.2026)
+1. הרשאות D0: `gematria_word_method_value_v1`, `home_featured_picks_v1` ו־`public_discovery_writer_v1` פנימיים (REVOKE מ־PUBLIC, anon, authenticated); נקראים רק מפונקציות definer. בנוסף שער הפרטיות הקנוני בתוך עזר השיטה: רק גימטריה ציבורית, מאומתת, לא מוצפנת וזכאית מחזירה שורה. נבדק במסד מקומי זמני עם התפקידים anon ו־authenticated.
+2. `D3b-rollback.sql` מוגן בהתאמה לטקסט המדויק ש־D3b כתב; בחירת מנהל מאוחרת אינה נמחקת (נבדק).
+3. בדיקות האימות מפוצלות לפי שלב; אף אחת אינה דורשת פונקציה שטרם אושרה.
+
+## גבול הכיסוי של אכיפת gematria_auto_registry_law v2 (לא להכריז שהחוק נאכף בכל האתר)
+`E1-gematria-root-gate-check.sql` ובדיקת הקוד המקבילה מזהות רק טענות שמופיעות בצורת הבלוקים "הביטוי / השיטה / התוצאה" בגוף פוסט (הצורה שבה מסלול פרסום היחידות מפרסם פריט גימטריה). מצב נקרא 26.11.2026: 2 טענות בפוסט אחד, 0 ממצאים. **לא מכוסה:** גימטריה שנכתבת בטקסט חופשי בגוף פוסט, בתגובות, בוואטסאפ, בספרים, בצפנים או בכל מקור אחר, ויחידות שאינן עוברות במסלול הפרסום הקיים. לא בוצעה סריקת עולם רחבה, ואין כוונה לפתוח אחת במסגרת זו. מה שכן נאכף בנוסף: מסלול פרסום היחידות הקיים (`insertUnitAtTop`) אינו מכניס יחידה עם טענת גימטריה בלי שורש ציבורי תואם (ראו בדיקות ב־`src/lib/research/unitPublishedHtml2029.test.js`).

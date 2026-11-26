@@ -1,6 +1,7 @@
 -- D0 · ארבעה עזרים משותפים: כלל אחד לבחירה ולהצגה, וכלל שיוך אחד לקליטה. *** טיוטה לאישור מדויק. לא הוחלה. ***
 -- (א) public_discovery_writer_v1(p_word_id): מחזיר את הכותב הציבורי היחיד שמקבל קרדיט על גימטריה, או NULL. אותו תנאי משמש את בחירת המנהל (D3)
 --     ואת ההצגה בבית (D1), כך שאי אפשר לבחור גילוי שלא יוצג, וגילוי שאיבד זכאות נעלם מהבית מיד.
+-- הרשאות (תוקן 26.11.2026 אחרי ביקורת): שלושת העזרים public_discovery_writer_v1, gematria_word_method_value_v1, home_featured_picks_v1 פנימיים בלבד (REVOKE מ-PUBLIC, anon, authenticated); קוראים להם רק פונקציות definer (D1, D2, D3, D3b). rc_unique_contributor_for_user_v1 פנימי כמקודם.
 -- (ג) gematria_word_method_value_v1(p_word_id, p_method): זהות הגילוי = ביטוי + שיטה + ערך. השיטה והעמודה נקראות רק מרשימת השיטות הקנונית (gematria_methods: פעילה, במנוע, עם db_column),
 --     והערך נקרא מאותה עמודה שחישב המנוע (gw_enforce_engine). אין חישוב ואין ערך ידני כאן. בלי p_method: שיטת המקור (other_method) אם היא שיטה רשומה, אחרת רגיל. שיטה מפורשת שאינה רשומה או שאין לה ערך: אין שורה.
 -- (ד) home_featured_picks_v1(): בחירות המנהל מ-site_flags הקיים (עד 3: [{id, method}] או מזהה יחיד בפורמט הישן), בלי כתיבה, וערך פגום מניב אפס שורות.
@@ -25,7 +26,7 @@ WITH g AS (
 )
 SELECT CASE WHEN (SELECT count(*) FROM hit) = 1 AND EXISTS (SELECT 1 FROM g) THEN (SELECT id FROM hit) END;
 $$;
-GRANT EXECUTE ON FUNCTION public.public_discovery_writer_v1(uuid) TO anon, authenticated;
+REVOKE ALL ON FUNCTION public.public_discovery_writer_v1(uuid) FROM public, anon, authenticated;   -- פנימי: נקרא רק מ-D1/D3 (definer); לא מוצג לציבור כקריאה ישירה
 
 CREATE OR REPLACE FUNCTION public.rc_unique_contributor_for_user_v1(p_user uuid)
 RETURNS TABLE(id uuid, trusted boolean)
@@ -40,7 +41,10 @@ CREATE OR REPLACE FUNCTION public.gematria_word_method_value_v1(p_word_id uuid, 
 RETURNS TABLE(method_key text, value bigint, label text)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public'
 AS $$
-WITH g AS (SELECT w.* FROM public.gematria_words w WHERE w.id = p_word_id),
+WITH g AS (   -- שער הפרטיות הקנוני בתוך העזר: רק גימטריה ציבורית וזכאית; כל שורה אחרת אינה מחזירה דבר, גם אם העזר נקרא בטעות מהקשר אחר
+  SELECT w.* FROM public.gematria_words w
+  WHERE w.id = p_word_id AND (w.is_encrypted = false OR w.is_encrypted IS NULL) AND w.is_verified AND w.is_published AND public.gematria_public_word_eligible(w.id)
+),
 req AS (
   SELECT coalesce(nullif(btrim(p_method), ''), nullif(btrim((SELECT other_method FROM g)), ''), 'רגיל') AS k, (nullif(btrim(p_method), '') IS NOT NULL) AS explicit
 ), m AS (
@@ -51,7 +55,7 @@ req AS (
 ), pick AS (SELECT * FROM m UNION ALL SELECT * FROM fb)
 SELECT pick.method_key, (to_jsonb(g) ->> pick.db_column)::bigint, pick.display_label FROM g, pick WHERE (to_jsonb(g) ->> pick.db_column) IS NOT NULL;
 $$;
-GRANT EXECUTE ON FUNCTION public.gematria_word_method_value_v1(uuid, text) TO anon, authenticated;
+REVOKE ALL ON FUNCTION public.gematria_word_method_value_v1(uuid, text) FROM public, anon, authenticated;   -- פנימי: נקרא רק מ-D1/D2/D3/D3b (definer). בנוסף אוכף בתוכו את שער הפרטיות
 
 CREATE OR REPLACE FUNCTION public.home_featured_picks_v1()
 RETURNS TABLE(ord integer, word_id uuid, method text)
@@ -71,4 +75,4 @@ BEGIN
     WHERE jsonb_typeof(t.e) = 'object' AND (t.e->>'id') ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' ORDER BY t.o LIMIT 3;
 END;
 $$;
-GRANT EXECUTE ON FUNCTION public.home_featured_picks_v1() TO anon, authenticated;
+REVOKE ALL ON FUNCTION public.home_featured_picks_v1() FROM public, anon, authenticated;   -- פנימי: נקרא רק מ-D1 (definer)
