@@ -400,7 +400,9 @@ function SearchHit({ row, accountProfiles, onReply, messageActions, replyCounts,
 // Controlled, embeddable author activity. Same LiveMessage/ReactionBar rows as the community feed;
 // the parent owns reading and state. Totals render only when supplied.
 // Test seam only (real-browser tests mount these two parts without the page's network and auth): not used by the app.
-export { LiveMessage as LiveMessageForTest, SearchHit as SearchHitForTest, guestModerationHolder as guestModerationHolderForTest };
+export const LiveMessageForTest = LiveMessage;
+export const SearchHitForTest = SearchHit;
+export const guestModerationHolderForTest = guestModerationHolder;
 
 export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null, likesSource = null, itemLabel = "הודעות", onReply, onMessagesChanged }) {
   const messageActions = useCommunityMessageActions2029(rows, onMessagesChanged);
