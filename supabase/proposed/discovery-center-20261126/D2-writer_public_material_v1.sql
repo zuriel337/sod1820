@@ -1,4 +1,4 @@
--- D2 (עודכן 26.11.2026: גימטריה מוצגת כביטוי+שיטה+ערך, ביטוי נספר פעם אחת) · writer_public_material_v1(p_contributor_id, p_kind, p_limit, p_before_at, p_before_key) · כל החומר הציבורי של כותב אחד לפי סוג, בלי כפילויות ועם עימוד יציב.
+-- D2 (עודכן 26.11.2026: גימטריה מוצגת כביטוי+שיטה+ערך, ביטוי נספר פעם אחת; צפנים לפי שלוש דרגות הפרסום: ספרייה וגם פורסם עצמאית בדף החוקר, פרטי אף פעם) · writer_public_material_v1(p_contributor_id, p_kind, p_limit, p_before_at, p_before_key) · כל החומר הציבורי של כותב אחד לפי סוג, בלי כפילויות ועם עימוד יציב.
 -- *** טיוטה לאישור מדויק. לא הוחלה. *** קריאה בלבד, STABLE, SECURITY DEFINER. שומר כותב כמו writer_public_contributions_page_v1: פעיל, לא ממוזג, לא נעול, לא בבנייה, visibility='public';
 --   כותב פרטי/נעול מחזיר אפס שורות. שיוך: מזהה ← משתמש ← שם/כינוי ייחודי של פרופיל ציבורי בלבד. מוסתר/ממתין/פרטי לעולם לא מוחזר.
 -- סוגים: contribution | reply | research | gematria | update | cipher | content | post. עדכוני ערוץ: live בלבד. פוסטים: לא מסומנים "טיוטה" (posts_anon_read), לפי שם כותב ייחודי.
@@ -44,7 +44,9 @@ items AS (
   FROM p JOIN public.channel_updates cu ON cu.contributor_id = p.cid AND cu.status = 'live' AND (cu.expires_at IS NULL OR cu.expires_at > now())
   UNION ALL
   SELECT 'cipher', e.id::text, e.created_at, 'els:' || e.id, e.title, left(btrim(coalesce(e.description, '')), 200)
-  FROM p JOIN public.els_records e ON e.owner_user_id = p.uid AND e.status = 'published' AND e.visibility = 'public'
+  FROM p JOIN public.els_records e ON e.owner_user_id = p.uid AND e.visibility = 'public'
+   -- שלוש דרגות הפרסום (ZURIEL 26.11.2026): פרטי (visibility private) לעולם לא נכלל; הספרייה (status published) וצופן שפורסם עצמאית בדף החוקר (self_published, ללא אישור) נכללים, שורה אחת לכל צופן (מפתח els:<id>), כך שצופן שעבר גם לספרייה אינו נספר פעמיים
+   AND (e.status = 'published' OR (coalesce(e.self_published, false) AND e.status IN ('draft', 'pending')))
   UNION ALL
   SELECT 'content', cc.id::text, cc.created_at, 'cc:' || cc.id, nullif(btrim(cc.title), ''), left(btrim(coalesce(cc.body, '')), 200)
   FROM p JOIN public.contributor_content cc ON cc.contributor_id = p.cid AND cc.is_public AND NOT cc.is_personal

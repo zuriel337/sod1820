@@ -85,5 +85,13 @@ test("/stats keeps every existing measure and draws the approved order", () => {
   const at = order.map(id => src.indexOf(`aria-labelledby="${id}"`));
   assert.ok(at.every(index => index > 0), "every block exists");
   assert.deepEqual([...at].sort((a, b) => a - b), at, "the order: trends and windows, hot now, sections, discoveries and contributions, writers, crawlers, cumulative since 2015");
-  for (const label of ["צפיות בדפים", "צפיות שלא סווגו", "פעולות במחשבון", "חיפושים בצופן התנ״כי", "דפים שהוגשו למנועי חיפוש ובינה מלאכותית", "הודעות בקהילה", "תרומות מחקר שאושרו", "פוסטים חדשים", "צפנים חדשים", "ביטויים חדשים במאגר", "ביטויים מאומתים במאגר", "פוסטים באתר", "צפנים שפורסמו", "התכנסויות שאושרו", "צפיות בדפים מאז תחילת המדידה", "חישובי גימטריה שנרשמו"]) assert.ok(src.includes(label), `the measure "${label}" is still there`);
+  for (const label of ["צפיות בדפים", "צפיות שלא סווגו", "פעולות במחשבון", "חיפושים בצופן התנ״כי", "דפים שהוגשו למנועי חיפוש ובינה מלאכותית", "הודעות בקהילה", "תרומות מחקר שאושרו", "פוסטים חדשים", "צפנים חדשים", "ביטויים חדשים במאגר", "ביטויים מאומתים במאגר", "פוסטים באתר", "התכנסויות שאושרו", "צפיות בדפים מאז תחילת המדידה", "חישובי גימטריה שנרשמו"]) assert.ok(src.includes(label), `the measure "${label}" is still there`);
+});
+
+test("/stats shows ONE public cipher counter: \"צפנים בספרייה\" (published and public; hiding from the Home is not unpublishing)", () => {
+  const stats = fs.readFileSync("src/pages/Stats2029Page.jsx", "utf8");
+  const lib = fs.readFileSync("src/lib/research/discoveryCenter2029.js", "utf8");
+  assert.ok(!stats.includes("צפנים שפורסמו") && !stats.includes("public_ciphers"), "the second cipher counter (excluding what is hidden from the Home) is not drawn on /stats");
+  assert.equal((lib.match(/label: "צפנים בספרייה"/g) || []).length, 1, "the one library counter is titled by what it counts");
+  assert.match(lib, /ciphers_public/, "its source is the existing reader field, unchanged");
 });
