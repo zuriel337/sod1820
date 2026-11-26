@@ -35,6 +35,8 @@ async function routeBennettPost(page) {
 const trigger = (page) => page.getByRole('button', { name: /מה זה\?/ }).first();
 const focusedIsTrigger = (page) => page.evaluate(() => /מה זה\?/.test((document.activeElement?.getAttribute('aria-label') || '') + document.activeElement?.textContent));
 
+const settleOpen = (page) => page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(resolve, 250)))));
+
 async function assertPageHelp(page, { width }) {
   const button = trigger(page);
   await expect(button).toBeVisible({ timeout: 30_000 });
@@ -46,17 +48,22 @@ async function assertPageHelp(page, { width }) {
   for (const way of ['escape', 'button']) {
     await button.click();
     await expect(close).toBeVisible({ timeout: 20_000 });
+    await settleOpen(page);   // the open state is committed (effects attached) before the person can press a key
     if (way === 'escape') await page.keyboard.press('Escape');
     else await close.click();
     await expect(close).toBeHidden();
     expect(await focusedIsTrigger(page)).toBe(true);
   }
   // The button keeps its place across an open and a close (measured just before, after the page settled from its theme/fonts: the test is about the explanation, not about late layout).
-  await page.waitForTimeout(400);
-  const settled = await button.boundingBox(), scrollBefore = await page.evaluate(() => window.scrollY);
+  // The button's place in the DOCUMENT, read atomically (rect + scroll in ONE evaluation, so a scroll animation cannot split the two).
+  const place = () => button.evaluate((node) => { const r = node.getBoundingClientRect(); return { x: r.x + window.scrollX, y: r.y + window.scrollY }; });
+  // Wait until the page stopped moving by itself (images, fonts): two equal measurements in a row.
+  let settled = await place();
+  for (let i = 0; i < 25; i += 1) { await page.waitForTimeout(200); const now = await place(); if (Math.abs(now.x - settled.x) <= 0.5 && Math.abs(now.y - settled.y) <= 0.5) break; settled = now; }
   // While OPEN the panel is whole on screen: no edge is cut, on any width (the live bug: it was cut on the left on a phone).
   await button.click();
   await expect(close).toBeVisible({ timeout: 20_000 });
+  await settleOpen(page);
   const panel = await page.locator('.sod29-learn-mark-disclosure, .r29-palace-disclosure[data-open="true"]').first().boundingBox()   // the page help of a surface, or the Hall's intro (the same label and behaviour);
   const viewport = await page.evaluate(() => ({ w: document.documentElement.clientWidth, h: window.innerHeight }));
   expect(panel.x).toBeGreaterThanOrEqual(-0.5);
@@ -64,11 +71,11 @@ async function assertPageHelp(page, { width }) {
   await close.click();
   await expect(close).toBeHidden();
   // The explanation never pushes the page: no horizontal overflow, the button keeps its place.
-  const after = await button.boundingBox();
+  await page.waitForTimeout(300);   // the focus return may scroll; let it finish before measuring
+  const after = await place();
+  // Layout, not scrolling: the button keeps its place in the document across an open and a close.
   expect(Math.abs(after.x - settled.x)).toBeLessThanOrEqual(1);
-  // Layout, not scrolling: the button's place in the DOCUMENT (the page may scroll when the explanation takes focus; that is reported, not hidden).
-  const scrollAfter = await page.evaluate(() => window.scrollY);
-  expect(Math.abs((after.y + scrollAfter) - (settled.y + scrollBefore))).toBeLessThanOrEqual(1);
+  expect(Math.abs(after.y - settled.y)).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(width).toBeGreaterThan(0);
 }

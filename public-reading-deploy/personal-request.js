@@ -1,5 +1,9 @@
 // Narrow transport for the EXISTING account, research-state and notebook APIs.
 // The canonical Auth server and each endpoint's ownership checks remain authoritative.
+// The unread mark on the profile picture (src/lib/notifications.js PERSONAL_ATTENTION_KINDS): ONE exact filter, never an arbitrary list.
+const PERSONAL_ATTENTION_KIND_FILTER = "in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)";
+// Reading a conversation reads ITS saved DM notification: kind=dm and that conversation's exact link, nothing else.
+const DM_NOTIFICATION_LINK = /^eq\.\/me\?tab=messages&dm=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetchImpl = fetch, verify } = {}) {
   const u = new URL(req.url), db = "https://linswmnnkjxvweumprav.supabase.co";
   const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications|wa_account_links)$/.exec(u.pathname)?.[1] : null;
@@ -37,7 +41,7 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
         return forward();
       }
       if (!owned() || !query([owner,"select","limit","offset","order","read_at","id",...(table === "user_notifications" ? ["kind"] : [])])
-        || u.searchParams.has("kind") && u.searchParams.get("kind") !== "eq.reply") return denied();
+        || u.searchParams.has("kind") && !["eq.reply", PERSONAL_ATTENTION_KIND_FILTER].includes(u.searchParams.get("kind"))) return denied();
       return forward();
     }
     const raw = await req.clone().text();
@@ -59,7 +63,8 @@ export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetch
       return forward();
     }
     if (table === "user_notifications") return req.method === "PATCH" && owned()
-      && query(["user_id","id","read_at","select"]) && u.searchParams.get("read_at") === "is.null"
+      && query(["user_id","id","read_at","select","kind","link"]) && u.searchParams.get("read_at") === "is.null"
+      && (!u.searchParams.has("kind") && !u.searchParams.has("link") || u.searchParams.get("kind") === "eq.dm" && DM_NOTIFICATION_LINK.test(u.searchParams.get("link") || ""))
       && keys(body,["read_at"]) && typeof body.read_at === "string" && Number.isFinite(Date.parse(body.read_at)) ? forward() : denied();
     if (req.method !== "POST" || !rpc || u.search) return denied();
     // Existing Follow removal, plus the explicit verified-account Community
