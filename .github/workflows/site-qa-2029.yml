@@ -6,6 +6,10 @@ name: Site QA (isolated login)
 # here with a random password. No secret, no GitHub environment, no production key or row. Manual only.
 
 on:
+  # TEMPORARY (remove before merge): proves the runner from this branch.
+  push:
+    branches: [claude/site-e2e-p1]
+    paths: [.github/workflows/site-qa-2029.yml, scripts/qa-site-2029.mjs, scripts/qa-scenarios-p1.mjs, scripts/build-qa-*.mjs, qa/**]
   workflow_dispatch:
 
 permissions:
@@ -37,6 +41,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Local Supabase (throwaway, Docker)
         run: |
+          node scripts/build-qa-prod-definitions.mjs
           node scripts/build-qa-schema.mjs
           npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
           npx --yes supabase@3.4.0 status --workdir qa -o env > "$RUNNER_TEMP/qa.env"

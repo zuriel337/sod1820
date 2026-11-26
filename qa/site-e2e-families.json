@@ -268,15 +268,31 @@
    "scenarios": [
     {
      "id": "messages.send",
-     "label": "שליחה מחבר א׳ וקבלה אצל חבר ב׳",
+     "label": "שליחה מחבר א׳, קבלה אצל חבר ב׳ ואימותי הפונקציה",
      "role": "member x2",
-     "results": []
+     "results": [
+      "messages: member A sends a private message",
+      "messages: B receives it in the inbox",
+      "messages: the sender sees the conversation",
+      "messages: the function refuses a message"
+     ]
     },
     {
      "id": "messages.privacy",
-     "label": "צד שלישי לא רואה את השיחה",
-     "role": "member x3",
-     "results": []
+     "label": "צד שלישי ואנונימי לא רואים; אין כתיבה ישירה לטבלה",
+     "role": "member x3+guest",
+     "results": [
+      "messages: a third member sees no part",
+      "messages: an anonymous caller cannot send",
+      "messages: a member cannot write a message straight"
+     ]
+    },
+    {
+     "id": "messages.ui",
+     "label": "שליחה וקריאה דרך ממשק האזור האישי",
+     "role": "member x2",
+     "results": [],
+     "blocker": "UI flow not written yet: the personal-area route needs more of the production schema"
     }
    ]
   },
@@ -296,21 +312,53 @@
    "scenarios": [
     {
      "id": "notifications.receive",
-     "label": "קבלת התראה אחרי פעולה של חשבון אחר",
-     "role": "member x2",
-     "results": []
+     "label": "קבלת התראה (טריגר) אחרי הודעה של חשבון אחר",
+     "role": "member x3",
+     "results": [
+      "notifications: B receives one notification",
+      "notifications: the sender and a third member receive none"
+     ]
     },
     {
      "id": "notifications.mark-read",
-     "label": "סימון קריאה והמונה יורד",
-     "role": "member",
-     "results": []
+     "label": "סימון קריאה: רק הבעלים, רק read_at, המונה יורד, פתיחת שיחה מסמנת",
+     "role": "member x2",
+     "results": [
+      "notifications: another member cannot mark",
+      "notifications: the owner can change only read_at",
+      "notifications: the owner marks it as read",
+      "notifications: the unread counter drops",
+      "messages: opening the thread returns the whole conversation",
+      "messages: only messages addressed to the reader"
+     ]
     },
     {
      "id": "notifications.prefs",
-     "label": "שמירת העדפות",
+     "label": "שמירת העדפות פרטית",
+     "role": "member x2",
+     "results": [
+      "notifications: a member saves their own",
+      "notifications: a member cannot write preferences",
+      "notifications: preferences are private"
+     ]
+    },
+    {
+     "id": "notifications.push",
+     "label": "רישום מנוי Push, חטיפה נחסמת, הסרה",
+     "role": "member x2",
+     "results": [
+      "notifications: a push subscription with a non-HTTPS",
+      "notifications: a member registers a push",
+      "notifications: another member cannot take over",
+      "notifications: the owner removes"
+     ]
+    },
+    {
+     "id": "notifications.ui",
+     "label": "תג ההתראות וסימון קריאה בממשק",
      "role": "member",
-     "results": []
+     "results": [],
+     "blocker": "UI flow not written yet"
     }
    ]
   },
@@ -328,15 +376,30 @@
    "scenarios": [
     {
      "id": "counters.views",
-     "label": "מונה צפיות עולה בפתיחה",
+     "label": "מונה צפיות אנונימי ועצמאי לכל עמוד, הטבלה סגורה",
      "role": "guest",
-     "results": []
+     "results": [
+      "counters: three anonymous views",
+      "counters: the raw views table",
+      "counters: a different page"
+     ]
+    },
+    {
+     "id": "counters.activity",
+     "label": "פעילות חבר: פרטית, בלי זיוף זהות",
+     "role": "member x2",
+     "results": [
+      "counters: a member records their own activity",
+      "counters: a member cannot record",
+      "counters: activity is private"
+     ]
     },
     {
      "id": "counters.replies",
      "label": "מונה תגובות עולה בתגובה",
      "role": "member",
-     "results": []
+     "results": [],
+     "blocker": "comments family (research_contributions) is next"
     }
    ]
   },

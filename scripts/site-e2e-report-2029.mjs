@@ -22,7 +22,7 @@ for (const dir of ['supabase/migrations', 'supabase/proposed']) {
   const walk = (d) => { for (const e of readdirSync(join(root, d), { withFileTypes: true })) { const p = `${d}/${e.name}`; if (e.isDirectory()) walk(p); else if (p.endsWith('.sql')) sqlFiles.push(p); } };
   if (existsSync(join(root, dir))) walk(dir);
 }
-const sql = sqlFiles.map((f) => read(f)).join('\n');
+const sql = [...sqlFiles.map((f) => read(f)), read('qa/extract/prod-definitions.sql')].join('\n');   // the definitions read from production count as repository SQL
 const hasFn = (n) => new RegExp(`create\\s+(or\\s+replace\\s+)?function\\s+(public\\.)?"?${n}"?\\s*\\(`, 'i').test(sql);
 const hasTable = (n) => new RegExp(`create\\s+table\\s+(if\\s+not\\s+exists\\s+)?(public\\.)?"?${n}"?\\s*\\(`, 'i').test(sql);
 
