@@ -67,7 +67,9 @@ async function goto(page, origin, path, status = 200) {
     const headers = response.headers();
     const facts = ['server', 'x-vercel-mitigated', 'x-sod-edge-policy', 'x-sod-edge-risk', 'x-sod-country-policy', 'x-robots-tag', 'content-type']
       .filter((name) => headers[name]).map((name) => `${name}=${headers[name]}`).join(' ');
-    console.log(`EDGE ${response.status()} ${path} ${facts}`);
+    const text = (await response.text().catch(() => '')).slice(0, 40).replace(/\s+/g, ' ');
+    const agent = await page.evaluate(() => navigator.userAgent).catch(() => '');
+    console.log(`EDGE ${response.status()} ${path} ${facts} body="${text}" ua="${agent.slice(0, 90)}"`);
   }
   assert.equal(response?.status(), status);
   assert.equal(new URL(page.url()).origin, origin);
