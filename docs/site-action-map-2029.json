@@ -1,0 +1,6626 @@
+{
+ "as_of": "2026-11-26",
+ "source": "src/App2029.jsx + import graph (depth 3) + tests index; static analysis, nothing executed",
+ "routes": [
+  {
+   "path": "/2029",
+   "section": "home",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Community2029Page",
+    "Home2029Page"
+   ],
+   "files": [
+    "src/pages/Community2029Page.jsx",
+    "src/pages/Home2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "add_guest_community_message",
+    "admin_all_contributions",
+    "admin_boost_reaction",
+    "admin_research_feed",
+    "admin_set_home_featured_discovery_v1",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_guest_review",
+    "community_guest_unreviewed",
+    "community_presence_online",
+    "community_presence_ping",
+    "community_reply_counts",
+    "community_staff_user_ids_v1",
+    "community_thread_updates",
+    "community_tree_hint_set",
+    "community_tree_hints_by_number",
+    "community_tree_hints_list",
+    "contributors_claim_legacy",
+    "convergence_meter",
+    "convergences_for_author",
+    "discovery_center_feed_v1",
+    "discovery_center_stats_v1",
+    "fn_method_profile",
+    "fn_method_value",
+    "fn_number_lookup",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_zero_scale",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "toggle_contribution_reaction",
+    "watch_toggle"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "631",
+    "78",
+    "×",
+    "אימוג׳ים",
+    "אימות חשבון",
+    "בדיקה חדשה במנוע",
+    "ביטול",
+    "ביטול מעקב",
+    "הבא",
+    "הבחירות",
+    "הדגשה",
+    "החלפת תמונת הפרופיל שלי",
+    "העתק קישור",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "הקודם",
+    "השהיית תנועת המטריצה",
+    "התראות",
+    "זיהוי מספרים וביטויים",
+    "חזרה ליחידה ↺",
+    "חזרה לשיחה",
+    "חפש",
+    "לכל השיחות",
+    "למקור ולהקשר",
+    "לנסות שוב",
+    "מה המדדים האלה אומרים?",
+    "מה זה? — חדש כאן? מה עושים בפוסט הזה?",
+    "מלח",
+    "מלך ישראל",
+    "מעבר להודעה",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי הסינון",
+    "ניקוי עיצוב",
+    "נסו שוב",
+    "נפתלי בנט",
+    "סגור",
+    "סגור תמונה",
+    "סגירה",
+    "סגירת החלפת התמונה",
+    "סגירת חלון חיבור החשבון הישן",
+    "סגירת טופס ההתחברות",
+    "סגירת כרטיס הכותב",
+    "סטטיסטיקה",
+    "עריכת יחידה",
+    "פתח את החיבור בעולם ←",
+    "פתח את העולם ←",
+    "פתח את הפוסט ←",
+    "פתח בדף המספר",
+    "פתח בעולם ←",
+    "פתיחת הספר המסע לשער החמישים של ציון דוד סיבוני",
+    "פתיחת התמונה המצורפת",
+    "צבע זהב",
+    "צבע כחול",
+    "ציטוט מההודעה",
+    "צירוף קובץ או סרטון",
+    "קו תחתון",
+    "רגיל",
+    "רענון מהמקור",
+    "שיתוף",
+    "שתף",
+    "שתף כתמונה",
+    "← כל הפוסט",
+    "→ חזרה לשיחות",
+    "✕",
+    "✕ סגירה",
+    "🔔 או קבלו התראות מיידיות בדפדפן"
+   ],
+   "tests": [
+    "test/ahavat-torah-roots-proofreading-2029.browser.test.mjs",
+    "test/content-first-2029.test.mjs",
+    "test/date-display-rule-2029.test.mjs",
+    "test/doc37-series-layout-stability.test.mjs",
+    "test/els-background-research.browser.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-my-research-reopen.browser.test.mjs",
+    "test/els-raziel-responsive-browser.test.mjs",
+    "test/follow-center-data-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/functional-preview-oauth.test.mjs",
+    "test/home-atmosphere-preload-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/",
+   "section": "home",
+   "role": "guest",
+   "guards": [],
+   "components": [],
+   "files": [],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": [
+    "test/admin-home-dock-2029.browser.mjs",
+    "test/adsense-gating-2029.test.mjs",
+    "test/ahavat-centered-actions-2029.browser.test.mjs",
+    "test/ahavat-compact-source-return-2029.browser.test.mjs",
+    "test/ahavat-controlled-source-2029.browser.test.mjs",
+    "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+    "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+    "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+    "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+    "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+    "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+    "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs"
+   ]
+  },
+  {
+   "path": "/post",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Posts2029Page"
+   ],
+   "files": [
+    "src/pages/Posts2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות חשבון",
+    "ביטול מעקב",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/adsense-gating-2029.test.mjs",
+    "test/content-title-presentation.test.mjs",
+    "test/doc37-mixed-page-readiness.test.mjs",
+    "test/doc37-series-layout-stability.browser.mjs",
+    "test/doc37-series-layout-stability.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/group-sources-now-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/measurement-hebrew-path-20261118.test.mjs",
+    "test/measurement-page-view-once-2029.test.mjs",
+    "test/measurement-visit-once-2029.browser.mjs",
+    "test/post-document-freshness.test.mjs"
+   ]
+  },
+  {
+   "path": "/verified",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Posts2029Page"
+   ],
+   "files": [
+    "src/pages/Posts2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות חשבון",
+    "ביטול מעקב",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/adsense-gating-2029.test.mjs",
+    "test/content-title-presentation.test.mjs",
+    "test/doc37-mixed-page-readiness.test.mjs",
+    "test/doc37-series-layout-stability.browser.mjs",
+    "test/doc37-series-layout-stability.test.mjs",
+    "test/post2029-living-tree-infra.test.mjs",
+    "test/posts-library-2029.browser.test.mjs",
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs",
+    "test/posts-video-library-2029.test.mjs",
+    "test/public-url-exceptions-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/number",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicServices2029Page"
+   ],
+   "files": [
+    "src/pages/PublicServices2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "push_subscription_delete_v1",
+    "push_subscription_upsert_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "push_subscriptions.delete",
+    "push_subscriptions.upsert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "התראות",
+    "פתיחה",
+    "🔔 או קבלו התראות מיידיות בדפדפן"
+   ],
+   "tests": [
+    "test/first-words-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/home-context-code-admission-2029.test.mjs",
+    "test/index-review-20261118.test.mjs",
+    "test/number-address-canonical-2029.test.mjs",
+    "test/old-journey-410-2029.test.mjs",
+    "test/public-canonical-parity-repair.test.mjs",
+    "test/public-launch-seo-gates.test.mjs",
+    "test/public-reading-service-capabilities.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/site-link-registry.test.mjs"
+   ]
+  },
+  {
+   "path": "/number/:value",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_number",
+     "requireFlag": true,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "NumberAddress2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/NumberAddress2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "is_number_indexable",
+    "is_phrase_indexable",
+    "lang_links_list",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "הצגת ממצאים למספר",
+    "חזרה למקור שנבחר בטופיק",
+    "חפש ✦",
+    "נסה שוב את השיטות",
+    "סגור פירוט שיטה",
+    "סגירה",
+    "פינוי ושמירה",
+    "פתח דף מלא ↗",
+    "שמירה וחידוש",
+    "תלת־ממד",
+    "↩ חזרה להתכנסות",
+    "🗺 עולם"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/life-journey-2029-chain.test.mjs",
+    "test/measurement-hebrew-path-20261118.test.mjs"
+   ]
+  },
+  {
+   "path": "/gallery",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_world",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "Gallery2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Gallery2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "אימות חשבון",
+    "ביטול מעקב",
+    "הבא",
+    "העתק קישור",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "הקודם",
+    "למקור ולהקשר",
+    "לנסות שוב",
+    "ממצאים במקור",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "נסו שוב",
+    "סגור",
+    "סגור תמונה",
+    "פתיחת קשרי העץ של הציר",
+    "רענון הגלריות",
+    "שתף",
+    "שתף כתמונה",
+    "✕",
+    "✕ סגירה"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/gallery-history-quiet-share-2029.test.mjs",
+    "test/gallery-shared-reading-position-2029.test.mjs",
+    "test/gallery-source-findings-one-tree-2029.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/gematria",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Calculator2029Page",
+    "CalculatorPro2029Page"
+   ],
+   "files": [
+    "src/pages/Calculator2029Page.jsx",
+    "src/pages/CalculatorPro2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "העתק קישור",
+    "מה מסתתר בשם שלך?",
+    "סגור השוואה",
+    "שתף",
+    "שתף כתמונה",
+    "✦ רזיאל · תסביר לי",
+    "✦ שאל את רזיאל"
+   ],
+   "tests": [
+    "test/calculator-idle-tiles-2029.browser.cjs",
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/community-single-emblem-2029.browser.mjs",
+    "test/content-first-2029.test.mjs",
+    "test/finding-share-preview-2029.test.mjs",
+    "test/first-words-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/home-pinned-lead-early-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/tag/:slug",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PostsTaxonomy2029Page"
+   ],
+   "files": [
+    "src/pages/PostsTaxonomy2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "ביטול מעקב",
+    "הפעל התראות",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/category/:slug",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PostsTaxonomy2029Page"
+   ],
+   "files": [
+    "src/pages/PostsTaxonomy2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "ביטול מעקב",
+    "הפעל התראות",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/community",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Community2029Page"
+   ],
+   "files": [
+    "src/pages/Community2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "add_guest_community_message",
+    "admin_boost_reaction",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_guest_review",
+    "community_guest_unreviewed",
+    "community_presence_online",
+    "community_presence_ping",
+    "community_reply_counts",
+    "community_staff_user_ids_v1",
+    "community_thread_updates",
+    "community_tree_hint_set",
+    "community_tree_hints_by_number",
+    "community_tree_hints_list",
+    "contributors_claim_legacy",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "toggle_contribution_reaction",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "אימוג׳ים",
+    "ביטול",
+    "הדגשה",
+    "החלפת תמונת הפרופיל שלי",
+    "העתק קישור",
+    "חזרה לשיחה",
+    "לכל השיחות",
+    "מעבר להודעה",
+    "ניסיון נוסף",
+    "ניקוי הסינון",
+    "ניקוי עיצוב",
+    "נסו שוב",
+    "סגירת החלפת התמונה",
+    "סגירת חלון חיבור החשבון הישן",
+    "סגירת טופס ההתחברות",
+    "סגירת כרטיס הכותב",
+    "פתיחת התמונה המצורפת",
+    "צבע זהב",
+    "צבע כחול",
+    "ציטוט מההודעה",
+    "צירוף קובץ או סרטון",
+    "קו תחתון",
+    "שתף",
+    "שתף כתמונה",
+    "→ חזרה לשיחות"
+   ],
+   "tests": [
+    "test/auth-contract-2029.test.mjs",
+    "test/content-first-2029.test.mjs",
+    "test/first-words-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/gilui-yomi-now-discussion-2029.test.mjs",
+    "test/group-sources-now-2029.test.mjs",
+    "test/post-document-cdn-cache.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-url-continuity-2029.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/site-link-registry.test.mjs",
+    "test/story-2029-measurement.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/calculator",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "CommunityCalculator2029Page"
+   ],
+   "files": [
+    "src/pages/CommunityCalculator2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "convergence_meter",
+    "fn_log_name_research",
+    "fn_method_profile",
+    "fn_name_research_graded",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "+ הוספת שם להשוואה",
+    "העתק קישור",
+    "נסה שוב",
+    "שתף",
+    "שתף כתמונה",
+    "💡 הצע שם מתאים",
+    "📸 שתף כתמונה",
+    "🔮 קבל סיכום מחקר — בכמה שורות ←"
+   ],
+   "tests": [
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-google-royal-20261116.browser.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/first-words-2029.test.mjs",
+    "test/navigation-symbols-distinct-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-middleware-entry.test.mjs",
+    "test/public-reading-release-2029.test.mjs",
+    "test/public-url-continuity-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/researchers",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/writer-public-documents-20261122.test.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  {
+   "path": "/members",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/writer-public-documents-20261122.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/comments",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/forum",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/index-review-20261118.test.mjs",
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-document-status-edge-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/public-continuity-closure-2029.test.mjs",
+    "test/public-launch-seo-gates.test.mjs"
+   ]
+  },
+  {
+   "path": "/forum/:id",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/or-geula",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-url-continuity-2029.test.mjs",
+    "test/story-2029-measurement.test.mjs",
+    "test/system-feed-public-sources-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/or-geula/video/:id",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/contact",
+   "section": "services",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "חיפוש",
+    "ניסיון נוסף",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/footer-2029.test.mjs",
+    "test/or-geula-video-share-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/public-reading-middleware-entry.test.mjs",
+    "test/public-url-continuity-2029.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/site-link-registry.test.mjs",
+    "test/story-2029-measurement.test.mjs"
+   ]
+  },
+  {
+   "path": "/codes",
+   "section": "ciphers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicLibraryContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicLibraryContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "notification_prefs_guest_get_v1",
+    "research_pulse_2029"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "הוסף למחקר",
+    "הורד את טבלת הפרשה",
+    "הורד את שתי קריאות המקור",
+    "העתק קישור",
+    "חידוש הטעינה",
+    "ניסיון טעינה נוסף",
+    "סגור — בהכנה",
+    "עבור",
+    "פתח",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/first-words-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/navigation-symbols-distinct-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-release-2029.test.mjs",
+    "test/public-url-continuity-2029.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/royal-connected-assets-2029.test.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  {
+   "path": "/codes/:slug",
+   "section": "ciphers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicLibraryContinuity2029Page"
+   ],
+   "files": [
+    "src/pages/PublicLibraryContinuity2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "notification_prefs_guest_get_v1",
+    "research_pulse_2029"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "הוסף למחקר",
+    "הורד את טבלת הפרשה",
+    "הורד את שתי קריאות המקור",
+    "העתק קישור",
+    "חידוש הטעינה",
+    "ניסיון טעינה נוסף",
+    "סגור — בהכנה",
+    "עבור",
+    "פתח",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/royal-connected-assets-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/:slug",
+   "section": "other",
+   "role": "guest",
+   "guards": [],
+   "components": [],
+   "files": [],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": [
+    "test/public-launch-candidate-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/preview",
+   "section": "other",
+   "role": "guest",
+   "guards": [],
+   "components": [],
+   "files": [],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": []
+  },
+  {
+   "path": "/2029/preview/follow-center",
+   "section": "other",
+   "role": "guest",
+   "guards": [],
+   "components": [
+    "PublicContributorFrame2029"
+   ],
+   "files": [
+    "src/components/experience2029/Sod2029Shell.jsx"
+   ],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": []
+  },
+  {
+   "path": "/2029/home-preview",
+   "section": "other",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "HomePreview2029Page"
+   ],
+   "files": [
+    "src/pages/HomePreview2029Page.jsx"
+   ],
+   "rpcs": [
+    "admin_all_contributions",
+    "ai_signal",
+    "convergences_for_author",
+    "fn_method_value",
+    "ingest_event",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "סגירה",
+    "רזיאל",
+    "תפריט",
+    "✕"
+   ],
+   "tests": [
+    "test/date-display-rule-2029.test.mjs",
+    "test/home-preview-2029-route.test.mjs"
+   ]
+  },
+  {
+   "path": "/melech-hamisparim/718",
+   "section": "services",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Campaign718Page2029"
+   ],
+   "files": [
+    "src/pages/Campaign718Page2029.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "fn_method_value",
+    "ingest_event",
+    "link_identity",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/public-url-continuity-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/early-access",
+   "section": "services",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "EarlyAccess2029Page"
+   ],
+   "files": [
+    "src/pages/EarlyAccess2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "ingest_event",
+    "link_identity",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/g4-kpi-funnel-contract.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-url-continuity-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/kingdom",
+   "section": "other",
+   "role": "guest",
+   "guards": [],
+   "components": [],
+   "files": [],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": [
+    "test/kingdom-beit-midrash-learning-route-2029.test.mjs",
+    "test/public-reading-release-2029.test.mjs",
+    "tests/kingdom2029-performance.spec.cjs",
+    "tests/spatial-glyph2029.spec.cjs"
+   ]
+  },
+  {
+   "path": "/2029/gematria",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Calculator2029Page",
+    "CalculatorPro2029Page"
+   ],
+   "files": [
+    "src/pages/Calculator2029Page.jsx",
+    "src/pages/CalculatorPro2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "העתק קישור",
+    "מה מסתתר בשם שלך?",
+    "סגור השוואה",
+    "שתף",
+    "שתף כתמונה",
+    "✦ רזיאל · תסביר לי",
+    "✦ שאל את רזיאל"
+   ],
+   "tests": [
+    "test/beit-midrash-learning-projection-2029.test.mjs",
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/method-lens-no-refetch-loop-2029.browser.test.mjs",
+    "test/number-calculator-return-2029.test.mjs",
+    "test/post-one-tree-measures-2029.browser.test.mjs",
+    "test/public-calculator-canonical-compatibility.test.mjs",
+    "test/research-reading-admission-2029.test.mjs",
+    "test/royal-connected-assets-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/gematria/viral",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Calculator2029Page"
+   ],
+   "files": [
+    "src/pages/Calculator2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "העתק קישור",
+    "מה מסתתר בשם שלך?",
+    "סגור השוואה",
+    "שתף",
+    "שתף כתמונה",
+    "✦ רזיאל · תסביר לי"
+   ],
+   "tests": [
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/post-one-tree-measures-2029.browser.test.mjs",
+    "test/public-calculator-canonical-compatibility.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/research-reading-admission-2029.test.mjs",
+    "test/royal-connected-assets-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/calculator",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "CalculatorPro2029Page"
+   ],
+   "files": [
+    "src/pages/CalculatorPro2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "העתק קישור",
+    "שתף",
+    "שתף כתמונה",
+    "✦ שאל את רזיאל"
+   ],
+   "tests": [
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/method-lens-no-refetch-loop-2029.browser.test.mjs",
+    "test/public-calculator-canonical-compatibility.test.mjs",
+    "test/public-reading-middleware-entry.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/research-reading-admission-2029.test.mjs",
+    "test/royal-connected-assets-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/stats",
+   "section": "services",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Stats2029Page"
+   ],
+   "files": [
+    "src/pages/Stats2029Page.jsx"
+   ],
+   "rpcs": [
+    "admin_all_contributions",
+    "admin_set_home_featured_discovery_v1",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "convergences_for_author",
+    "discovery_center_feed_v1",
+    "discovery_center_stats_v1",
+    "fn_method_value",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "פתח בדף המספר",
+    "תלת־ממד"
+   ],
+   "tests": [
+    "test/now-pulse-line-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/weekly-trend-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/start",
+   "section": "services",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Start2029Page"
+   ],
+   "files": [
+    "src/pages/Start2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "get_category_videos",
+    "ingest_event",
+    "link_identity",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/admin-open-destinations-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/site-link-registry.test.mjs"
+   ]
+  },
+  {
+   "path": "/world",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_world",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "Gallery2029Page",
+    "World2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Gallery2029Page.jsx",
+    "src/pages/World2029Page.jsx"
+   ],
+   "rpcs": [
+    "admin_all_contributions",
+    "admin_research_feed",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "convergence_meter",
+    "convergences_for_author",
+    "fn_method_profile",
+    "fn_method_value",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "lang_links_list",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "push_subscription_delete_v1",
+    "push_subscription_upsert_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle",
+    "world_gematria_lexical_lookup_v1",
+    "writer_public_contributions_page_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "push_subscriptions.delete",
+    "push_subscriptions.upsert",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "631",
+    "78",
+    "אימות חשבון",
+    "אפס מסננים",
+    "אפס סינון",
+    "ביטול מעקב",
+    "הבא",
+    "הבחירות",
+    "העתק קישור",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "הצג את העולם בלי מיקוד",
+    "הקודם",
+    "התחל ב־878",
+    "חיבורים מתועדים לעץ",
+    "חיפוש בהמשך המקורות",
+    "לדף המספר ←",
+    "למקור ולהקשר",
+    "לנסות שוב",
+    "מה המדדים האלה אומרים?",
+    "מלח",
+    "מלך ישראל",
+    "ממצאים במקור",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "נסו לפתוח שוב",
+    "נסו שוב",
+    "נפתלי בנט",
+    "סגור",
+    "סגור תמונה",
+    "סגירת חלונית הפרטים",
+    "פתיחת קשרי העץ של הציר",
+    "פתיחת קשרים מתועדים",
+    "רגיל",
+    "רענון הגלריות",
+    "שתף",
+    "שתף כתמונה",
+    "תלת־ממד",
+    "◌ חזרה לעולם",
+    "✕",
+    "✕ סגירה"
+   ],
+   "tests": [
+    "test/admin-home-dock-2029.browser.mjs",
+    "test/app-recovery-2029.test.mjs",
+    "test/article-first-browser-2029.browser.mjs",
+    "test/auth-browser-acceptance-2029.browser.mjs",
+    "test/auth-contract-2029.test.mjs",
+    "test/auth-lazy-2029.browser.mjs",
+    "test/auth-storage-browser-2029.browser.mjs",
+    "test/auth-storage-resilience-2029.test.mjs",
+    "test/beit-midrash-learning-projection-2029.test.mjs",
+    "test/beit-midrash-world-study-ui-2029.test.mjs",
+    "test/book-fullscreen-reader-2029.test.mjs",
+    "test/central-els-hint-media-world-2029.browser.test.mjs"
+   ]
+  },
+  {
+   "path": "/topic/:slug",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_world",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "Topic2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Topic2029Page.jsx"
+   ],
+   "rpcs": [
+    "admin_research_feed",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "convergence_meter",
+    "els_search_v1",
+    "fn_gematria_pair_invariance_control",
+    "fn_method_profile",
+    "fn_method_value",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "631",
+    "78",
+    "הבא",
+    "הבחירות",
+    "העתק קישור",
+    "הצגת ממצאים למספר",
+    "הקודם",
+    "מה המדדים האלה אומרים?",
+    "מלח",
+    "מלך ישראל",
+    "נסו שוב",
+    "נפתלי בנט",
+    "סגור",
+    "סגור תמונה",
+    "פתיחת קשרי העץ של הציר",
+    "רגיל",
+    "שתף",
+    "שתף כתמונה",
+    "תלת־ממד",
+    "✕",
+    "✕ סגירה"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/life-journey-2029-chain.test.mjs",
+    "test/nav-open-under-construction-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/posts",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Posts2029Page"
+   ],
+   "files": [
+    "src/pages/Posts2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות חשבון",
+    "ביטול מעקב",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/adsense-gating-2029.test.mjs",
+    "test/article-first-browser-2029.browser.mjs",
+    "test/content-title-presentation.test.mjs",
+    "test/doc37-mixed-page-readiness.test.mjs",
+    "test/doc37-series-layout-stability.browser.mjs",
+    "test/doc37-series-layout-stability.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/home-atmosphere-preload-2029.test.mjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-pinned-lead-early-2029.test.mjs",
+    "test/home-standalone-card-2029.test.mjs",
+    "test/post2029-living-tree-infra.test.mjs"
+   ]
+  },
+  {
+   "path": "/posts",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Posts2029Page"
+   ],
+   "files": [
+    "src/pages/Posts2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות חשבון",
+    "ביטול מעקב",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/adsense-gating-2029.test.mjs",
+    "test/content-first-2029.test.mjs",
+    "test/content-title-presentation.test.mjs",
+    "test/doc37-mixed-page-readiness.test.mjs",
+    "test/doc37-series-layout-stability.browser.mjs",
+    "test/doc37-series-layout-stability.test.mjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/marketing-browser-2029.browser.mjs",
+    "test/post2029-living-tree-infra.test.mjs",
+    "test/posts-library-2029.browser.test.mjs",
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/research",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Calculator2029Page",
+    "CalculatorPro2029Page"
+   ],
+   "files": [
+    "src/pages/Calculator2029Page.jsx",
+    "src/pages/CalculatorPro2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "העתק קישור",
+    "מה מסתתר בשם שלך?",
+    "סגור השוואה",
+    "שתף",
+    "שתף כתמונה",
+    "✦ רזיאל · תסביר לי",
+    "✦ שאל את רזיאל"
+   ],
+   "tests": [
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/edge-big-number-eligibility.test.mjs",
+    "test/els-lexicon-structure-preview.browser.mjs",
+    "test/els-my-research-reopen.browser.test.mjs",
+    "test/els-occurrence-identity.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/legacy-routes-served-as-notice-2029.test.mjs",
+    "test/method-lens-no-refetch-loop-2029.browser.test.mjs"
+   ]
+  },
+  {
+   "path": "/timeline",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicHistory2029Page"
+   ],
+   "files": [
+    "src/pages/PublicHistory2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/legacy-routes-served-as-notice-2029.test.mjs",
+    "test/public-history-reading-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs"
+   ]
+  },
+  {
+   "path": "/broadcasts",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicHistory2029Page"
+   ],
+   "files": [
+    "src/pages/PublicHistory2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/legacy-routes-served-as-notice-2029.test.mjs",
+    "test/public-history-reading-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/system-feed-public-sources-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/archive",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicArchive2029Page"
+   ],
+   "files": [
+    "src/pages/PublicArchive2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "ingest_event",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "הצגת השנה"
+   ],
+   "tests": [
+    "test/footer-2029.test.mjs",
+    "test/gallery-history-quiet-share-2029.test.mjs",
+    "test/gallery-shared-reading-position-2029.test.mjs",
+    "test/legacy-routes-served-as-notice-2029.test.mjs",
+    "test/navigation-symbols-distinct-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/site-link-registry.test.mjs",
+    "test/system-feed-public-sources-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/reality",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "RealityPublicReading2029Page"
+   ],
+   "files": [
+    "src/pages/RealityPublicReading2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_zero_scale",
+    "gematria_api",
+    "ingest_event",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "watch_toggle"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "ביטול מעקב",
+    "העתק קישור",
+    "הפעל התראות",
+    "למקור ולהקשר",
+    "לנסות שוב",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "נסו שוב",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/gallery-shared-reading-position-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-admin-admission.test.mjs",
+    "test/public-reading-production-artifact.test.mjs"
+   ]
+  },
+  {
+   "path": "/cross",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PostsTaxonomy2029Page"
+   ],
+   "files": [
+    "src/pages/PostsTaxonomy2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "ביטול מעקב",
+    "הפעל התראות",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/els-lexicon-structure-preview.browser.mjs",
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-admin-admission.test.mjs",
+    "test/public-reading-production-artifact.test.mjs"
+   ]
+  },
+  {
+   "path": "/languages",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PostsTaxonomy2029Page"
+   ],
+   "files": [
+    "src/pages/PostsTaxonomy2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [
+    "ביטול מעקב",
+    "הפעל התראות",
+    "חיפוש",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניקוי החיפוש",
+    "נסו שוב"
+   ],
+   "tests": [
+    "test/posts-public-reading-seo.test.mjs",
+    "test/posts-taxonomy-ui-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-admin-admission.test.mjs",
+    "test/public-reading-production-artifact.test.mjs"
+   ]
+  },
+  {
+   "path": "/login",
+   "section": "auth",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "AuthPage"
+   ],
+   "files": [
+    "src/pages/Auth2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "נסו שוב",
+    "שלחו לי קישור למייל"
+   ],
+   "tests": [
+    "test/auth-browser-acceptance-2029.browser.mjs",
+    "test/auth-contract-2029.test.mjs",
+    "test/auth-lazy-2029.browser.mjs",
+    "test/auth-storage-browser-2029.browser.mjs",
+    "test/auth-storage-compat-2029.test.mjs",
+    "test/auth-storage-resilience-2029.test.mjs",
+    "test/els-save-panel-lifecycle.test.mjs",
+    "test/final-preparation-newsletter-invite.browser.mjs",
+    "test/guest-newsletter-restoration-20261115.browser.mjs",
+    "test/marketing-browser-2029.browser.mjs",
+    "test/measurement-hebrew-path-20261118.test.mjs",
+    "test/measurement-page-view-once-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/auth/callback",
+   "section": "auth",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "OAuthCallback2029"
+   ],
+   "files": [
+    "src/pages/OAuthCallback2029.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "שלחו לי קישור למייל"
+   ],
+   "tests": [
+    "test/auth-browser-acceptance-2029.browser.mjs",
+    "test/auth-contract-2029.test.mjs",
+    "test/auth-lazy-2029.test.mjs",
+    "test/auth-storage-browser-2029.browser.mjs",
+    "test/auth-storage-compat-2029.test.mjs",
+    "test/auth-storage-resilience-2029.test.mjs",
+    "test/functional-preview-oauth.test.mjs",
+    "test/measurement-identity-20261115.test.mjs",
+    "test/number-fullpage-provenance-2029.test.mjs",
+    "test/public-continuity-closure-2029.test.mjs",
+    "test/public-frame-access-2029.test.mjs",
+    "test/public-reading-admin-admission.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/chat",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "CommunityChatTransition2029Page"
+   ],
+   "files": [
+    "src/pages/CommunityChatTransition2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "add_guest_community_message",
+    "admin_boost_reaction",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_guest_review",
+    "community_guest_unreviewed",
+    "community_presence_online",
+    "community_presence_ping",
+    "community_reply_counts",
+    "community_staff_user_ids_v1",
+    "community_thread_updates",
+    "community_tree_hint_set",
+    "community_tree_hints_by_number",
+    "community_tree_hints_list",
+    "contributors_claim_legacy",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "toggle_contribution_reaction",
+    "watch_toggle",
+    "world_gematria_lexical_lookup_v1",
+    "writer_public_contributions_page_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "אימוג׳ים",
+    "ביטול",
+    "ביטול מעקב",
+    "הדגשה",
+    "החלפת תמונת הפרופיל שלי",
+    "העתק קישור",
+    "הפעל התראות",
+    "חזרה לשיחה",
+    "מעבר להודעה",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי עיצוב",
+    "נסו שוב",
+    "סגירת החלפת התמונה",
+    "סגירת חלון חיבור החשבון הישן",
+    "סגירת טופס ההתחברות",
+    "סגירת כרטיס הכותב",
+    "פינוי ושמירה",
+    "פתיחת התמונה המצורפת",
+    "צבע זהב",
+    "צבע כחול",
+    "ציטוט מההודעה",
+    "צירוף קובץ או סרטון",
+    "קו תחתון",
+    "שלחו לי קישור למייל",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/article-first-new-post-2029.browser.mjs",
+    "test/community-behavior-continuity-2029.browser.mjs",
+    "test/community-dislike-20261115.browser.mjs",
+    "test/community-first-upload-lazy-storage-2029.browser.mjs",
+    "test/community-single-emblem-2029.browser.mjs",
+    "test/community1187-loading.browser.cjs",
+    "test/first-words-2029.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/gilui-yomi-now-discussion-2029.test.mjs",
+    "test/home-atmosphere-preload-2029.test.mjs",
+    "test/home-pinned-lead-early-2029.test.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs"
+   ]
+  },
+  {
+   "path": "/2029/journey",
+   "section": "other",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "FramedGate2029",
+     "flag": "lock_life_journey",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "LifeJourney2029Page",
+    "Locked",
+    "PublicContributorFrame2029",
+    "FeatureClosedNotice"
+   ],
+   "files": [
+    "src/pages/LifeJourney2029Page.jsx",
+    "src/components/MaintenanceLock.jsx",
+    "src/components/experience2029/Sod2029Shell.jsx",
+    "src/components/experience2029/FeatureClosedNotice2029.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_all_methods",
+    "fn_create_family_invitation",
+    "fn_cross_research",
+    "fn_get_or_create_my_person",
+    "fn_list_family",
+    "fn_list_my_family_claims",
+    "fn_method_profile",
+    "fn_name_multi",
+    "fn_name_protocol",
+    "fn_name_research_graded",
+    "fn_number_lookup",
+    "fn_redeem_family_invitation",
+    "fn_relation_candidate",
+    "fn_remove_family_member",
+    "fn_reverse_family_claim",
+    "fn_revoke_family_claim",
+    "fn_tarot_sos",
+    "fn_upsert_family_member",
+    "fn_upsert_family_relation",
+    "fn_upsert_self_profile",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_items.delete",
+    "research_items.insert",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "ביטול",
+    "ביטול עריכה",
+    "המשך לאישור",
+    "המשך למטריצת השם והתאריך",
+    "הסר תמונה",
+    "הפעל תלת־ממד חי",
+    "הצג בציר החיים",
+    "חזרה לאטלס",
+    "חזרה לתמונה שלי",
+    "חזרה מדויקת למסע החיים",
+    "נסה להסיר שוב",
+    "סיים וחזור למסע החיים",
+    "רענן סטטוסים"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-2029-semantic-surface.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/life-journey-2029-chain.test.mjs"
+   ]
+  },
+  {
+   "path": "/post/:slug",
+   "section": "posts",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Post2029Page"
+   ],
+   "files": [
+    "src/pages/Post2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "admin_research_feed",
+    "ai_signal",
+    "award_share_credit",
+    "canonical_follow_subject",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "els_search_v1",
+    "fn_gematria_pair_invariance_control",
+    "fn_method_profile",
+    "fn_method_value",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_verses_by_gematria",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "watch_toggle"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "631",
+    "78",
+    "אימות חשבון",
+    "בדוק את החישובים במנוע הקנוני",
+    "בדיקה חדשה במנוע",
+    "ביטול",
+    "ביטול מעקב",
+    "ביטול ↶",
+    "הבא",
+    "הבחירות",
+    "החזר את המקורות למקומם",
+    "החלפת התוכן",
+    "הנוסח המאושר",
+    "העתק מסמך",
+    "העתק קישור",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "הקודם",
+    "זיהוי מספרים וביטויים",
+    "חזרה ליחידה ↺",
+    "חפש",
+    "טען שיטות מהמנוע",
+    "מה זה? — חדש כאן? מה עושים בפוסט הזה?",
+    "מחיקת הטיוטה המקומית",
+    "מלח",
+    "מלך ישראל",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי טקסט העריכה",
+    "נסו שוב",
+    "נפתלי בנט",
+    "סגור",
+    "סגור תמונה",
+    "סגירה",
+    "עריכת יחידה",
+    "פינוי ושמירה",
+    "פתח בדף המספר",
+    "רגיל",
+    "רענון מהמקור",
+    "שיתוף",
+    "שלח לרזיאל",
+    "שמירת טיוטה מקומית",
+    "שתף",
+    "שתף כתמונה",
+    "תלת־ממד",
+    "← כל הפוסט",
+    "✕",
+    "✕ סגירה"
+   ],
+   "tests": [
+    "test/adsense-gating-2029.test.mjs",
+    "test/article-first-browser-2029.browser.mjs",
+    "test/article-first-document-2029.test.mjs",
+    "test/community-post-link-2029.test.mjs",
+    "test/post-comments-2029.test.mjs",
+    "test/post-connections-page-help-2029.test.mjs",
+    "test/post-follow-panel-2029.test.mjs",
+    "test/post-left-tree-rail-2029.test.mjs",
+    "test/post-one-tree-measures-2029.browser.test.mjs",
+    "test/post-reading-colour-2029.test.mjs",
+    "test/post-reading-style-graph-2029.test.mjs",
+    "test/post-root-address-early-read-20261115.browser.mjs"
+   ]
+  },
+  {
+   "path": "/video/:assetId",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Video2029Page"
+   ],
+   "files": [
+    "src/pages/Video2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "ingest_event",
+    "notification_prefs_guest_get_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/public-internal-year-copy.test.mjs",
+    "test/public-video-source-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/books",
+   "section": "books",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicLibraryContinuity2029Page",
+    "Locked",
+    "Books2029Page"
+   ],
+   "files": [
+    "src/pages/PublicLibraryContinuity2029Page.jsx",
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Books2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "הוסף למחקר",
+    "הורד את טבלת הפרשה",
+    "הורד את שתי קריאות המקור",
+    "העתק קישור",
+    "חידוש הטעינה",
+    "ניסיון טעינה נוסף",
+    "סגור — בהכנה",
+    "עבור",
+    "פתח",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/ahavat-book-prototype-2029.test.mjs",
+    "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+    "test/book-research-summary-2029-contract.test.mjs",
+    "test/books-unified-reader-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs"
+   ]
+  },
+  {
+   "path": "/books/:slug",
+   "section": "books",
+   "role": "guest",
+   "guards": [],
+   "components": [],
+   "files": [],
+   "rpcs": [],
+   "writes": [],
+   "buttons": [],
+   "tests": []
+  },
+  {
+   "path": "/book/:slug",
+   "section": "books",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicLibraryContinuity2029Page",
+    "Locked",
+    "Books2029Page"
+   ],
+   "files": [
+    "src/pages/PublicLibraryContinuity2029Page.jsx",
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Books2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_reply_counts",
+    "community_thread_updates",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "הוסף למחקר",
+    "הורד את טבלת הפרשה",
+    "הורד את שתי קריאות המקור",
+    "העתק קישור",
+    "חידוש הטעינה",
+    "ניסיון טעינה נוסף",
+    "סגור — בהכנה",
+    "עבור",
+    "פתח",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/ahavat-book-prototype-2029.test.mjs",
+    "test/ahavat-torah-reader-units-2029.browser.test.mjs",
+    "test/book-research-summary-2029-contract.test.mjs",
+    "test/books-unified-reader-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs"
+   ]
+  },
+  {
+   "path": "/code",
+   "section": "ciphers",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "FramedGate2029",
+     "flag": "lock_els",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Els2029Page",
+    "Locked",
+    "PublicContributorFrame2029",
+    "FeatureClosedNotice"
+   ],
+   "files": [
+    "src/pages/Els2029Page.jsx",
+    "src/components/MaintenanceLock.jsx",
+    "src/components/experience2029/Sod2029Shell.jsx",
+    "src/components/experience2029/FeatureClosedNotice2029.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "delete_my_els_matrix",
+    "els_my_strong_ciphers",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_api",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "moderate_els_matrix",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "rename_my_els_matrix",
+    "request_els_library_review",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "save_els_matrix",
+    "save_els_matrix_anon",
+    "self_publish_matrix",
+    "set_els_quality",
+    "update_els_matrix"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "בדוק את המופעים שנבחרו",
+    "בדוק מבנים בממצאים שנבחרו",
+    "בדוק עוד עד 4 מופעים",
+    "גודל משטח המחקר",
+    "הגדל חלון",
+    "הדגש פסוק",
+    "הדגש פסוק במטריצה",
+    "הוסף את המופע המדויק המוצג כרגע לתיק המחקר שלך",
+    "הוסף את המופע להשוואה",
+    "הוסף למחקר",
+    "הוסף ניקוד מנתוני התורה; בשאר התנ״ך האותיות נשארות ללא ניקוד",
+    "הכן זוגות לחיפוש",
+    "המשך לסרוק צורות",
+    "העתק קישור",
+    "הצג את פסוק תחילת הציר",
+    "הקטן חלון",
+    "הרחב עם Fable",
+    "התאם מטריצה למסך",
+    "התחברו או הירשמו לחיפוש מתקדם",
+    "חזור לגילוי מילים ומבנים",
+    "חזור להגדרות החיפוש האחרון",
+    "חזור לחיפוש",
+    "חזור למופע ולתוצאות המחקר",
+    "חזור לממצא המדורג",
+    "חלון החיפוש",
+    "חפש את הבחירה כציר",
+    "חפש במטריצה",
+    "חפש והוסף מילה למטריצה",
+    "חפש מילה",
+    "חפש מילה מסוימת",
+    "טען צפנים נוספים",
+    "יציאה ממסך מלא",
+    "כלי מחקר",
+    "כן, נקה הקשר",
+    "מופעים, צבע ופעולות",
+    "מקור הממצא הנבחר",
+    "ניקוד במטריצה",
+    "נסה שוב",
+    "נסה שוב הצלבה",
+    "נקה סימונים",
+    "סגור גילוי",
+    "סגור כלי מטריצה",
+    "סימון הציר הראשי",
+    "סימון חופשי",
+    "סרוק לאורך הציר הנבחר",
+    "עוד אפשרויות תצוגה",
+    "עמודות ימינה",
+    "עמודות שמאלה",
+    "עצור סריקה",
+    "פעולות לציר הנבחר",
+    "צפיפות סביב אותיות הציר והממצאים המאומתים",
+    "רוצים ממצאים מחוברים? עברו להצלבה",
+    "שורות הבאות",
+    "שורות קודמות",
+    "שתף דרך המכשיר",
+    "שתף מטריצה",
+    "📌 הוסף למחקר"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-2029-research-bar.test.mjs",
+    "test/els-2029-semantic-surface.test.mjs",
+    "test/els-2029-visual-representation.test.mjs",
+    "test/els-action-telemetry-sql.test.mjs",
+    "test/els-background-research.browser.test.mjs",
+    "test/els-capability-register.test.mjs",
+    "test/els-guided-discovery.test.mjs"
+   ]
+  },
+  {
+   "path": "/els",
+   "section": "ciphers",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "Calculator2029Page",
+    "CalculatorPro2029Page"
+   ],
+   "files": [
+    "src/pages/Calculator2029Page.jsx",
+    "src/pages/CalculatorPro2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "העתק קישור",
+    "מה מסתתר בשם שלך?",
+    "סגור השוואה",
+    "שתף",
+    "שתף כתמונה",
+    "✦ רזיאל · תסביר לי",
+    "✦ שאל את רזיאל"
+   ],
+   "tests": [
+    "test/auth-contract-2029.test.mjs",
+    "test/auth-storage-resilience-2029.test.mjs",
+    "test/calculator-search-wording-2029.test.mjs",
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/community-calculator-equals-2029.test.mjs",
+    "test/community-calculator-google-20261116.test.mjs",
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-raziel-context.test.mjs",
+    "test/final-preparation-newsletter-invite.browser.mjs",
+    "test/measurement-page-view-once-2029.test.mjs",
+    "test/method-lens-no-refetch-loop-2029.browser.test.mjs"
+   ]
+  },
+  {
+   "path": "/findings",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublishedFindings2029Page"
+   ],
+   "files": [
+    "src/pages/PublishedFindings2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "fn_number_lookup",
+    "fn_zero_scale",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/footer-2029.test.mjs",
+    "test/legacy-routes-served-as-notice-2029.test.mjs",
+    "test/public-menu-sections-2029.test.mjs",
+    "test/public-reading-admin-admission.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-reading-release-2029.test.mjs",
+    "test/public-url-continuity-2029.test.mjs",
+    "test/raziel-site-links.test.mjs",
+    "test/research-reading-admission-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/heichal",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_heichal",
+     "requireFlag": true,
+     "adminView": true
+    }
+   ],
+   "components": [
+    "Locked",
+    "Heichal2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Heichal2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "✦ רזיאל",
+    "✦ שאל את רזיאל",
+    "＋ הוסף למחקר"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/footer-2029.test.mjs",
+    "test/g3-client-correlation.test.mjs",
+    "test/heichal-scripture-capabilities.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/היכל",
+   "section": "world-library",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_heichal",
+     "requireFlag": true,
+     "adminView": true
+    }
+   ],
+   "components": [
+    "Locked",
+    "Heichal2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Heichal2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "✦ רזיאל",
+    "✦ שאל את רזיאל",
+    "＋ הוסף למחקר"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/g3-client-correlation.test.mjs",
+    "test/heichal-scripture-capabilities.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/researcher/me",
+   "section": "personal",
+   "role": "member",
+   "guards": [],
+   "components": [
+    "PublicContributorFrame2029",
+    "WriterMe2029Redirect"
+   ],
+   "files": [
+    "src/components/experience2029/Sod2029Shell.jsx",
+    "src/pages/WriterPersonal2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "dm_inbox",
+    "dm_send",
+    "dm_thread",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "my_contributions",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "replies_to_me",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "update_my_page_config",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "user_notifications.update",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות זהות",
+    "האזור האישי",
+    "המשך מהמסלול השמור",
+    "התחברות",
+    "התחברות לאזור האישי",
+    "חזור למופע ולתוצאות המחקר",
+    "חזרה לאזור האישי",
+    "ניסיון נוסף",
+    "נסו שוב",
+    "נתקלתם בתקלה? דווחו כאן ←",
+    "פנה מקום",
+    "שיחה חדשה",
+    "שלח",
+    "שלחו לי קישור למייל",
+    "שמור מסלול",
+    "שמור שם",
+    "שמירת העריכה",
+    "שמירת הפנקס",
+    "➕ הוסף קישור"
+   ],
+   "tests": [
+    "test/measurement-hebrew-path-20261118.test.mjs",
+    "test/personal-area-2029.test.mjs",
+    "test/public-reading-observability.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-url-continuity-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/me/:module",
+   "section": "personal",
+   "role": "member",
+   "guards": [],
+   "components": [
+    "PublicContributorFrame2029",
+    "WriterPersonal2029Page"
+   ],
+   "files": [
+    "src/components/experience2029/Sod2029Shell.jsx",
+    "src/pages/WriterPersonal2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "dm_inbox",
+    "dm_send",
+    "dm_thread",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "my_contributions",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "replies_to_me",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "update_my_page_config",
+    "watch_toggle"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "user_notifications.update",
+    "users.update"
+   ],
+   "buttons": [
+    "אימות זהות",
+    "האזור האישי",
+    "המשך מהמסלול השמור",
+    "התחברות",
+    "התחברות לאזור האישי",
+    "חזור למופע ולתוצאות המחקר",
+    "חזרה לאזור האישי",
+    "ניסיון נוסף",
+    "נסו שוב",
+    "נתקלתם בתקלה? דווחו כאן ←",
+    "פנה מקום",
+    "שיחה חדשה",
+    "שלח",
+    "שלחו לי קישור למייל",
+    "שמור מסלול",
+    "שמור שם",
+    "שמירת העריכה",
+    "שמירת הפנקס",
+    "➕ הוסף קישור"
+   ],
+   "tests": [
+    "test/personal-area-2029.test.mjs",
+    "test/personal-area-balanced-rtl-2029.test.mjs",
+    "test/profile-notifications-hash-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/community/researcher/:slug",
+   "section": "community",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicContributorFrame2029",
+    "PublicContributor2029Page"
+   ],
+   "files": [
+    "src/components/experience2029/Sod2029Shell.jsx",
+    "src/pages/PublicContributor2029Page.jsx"
+   ],
+   "rpcs": [
+    "add_contribution",
+    "add_guest_community_message",
+    "admin_boost_reaction",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "community_claimed_contributors",
+    "community_feed_page_v2",
+    "community_guest_review",
+    "community_guest_unreviewed",
+    "community_presence_online",
+    "community_presence_ping",
+    "community_reply_counts",
+    "community_staff_user_ids_v1",
+    "community_thread_updates",
+    "community_tree_hint_set",
+    "community_tree_hints_by_number",
+    "community_tree_hints_list",
+    "contributors_claim_legacy",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1",
+    "toggle_contribution_reaction",
+    "watch_toggle",
+    "world_gematria_lexical_lookup_v1",
+    "writer_public_contributions_page_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "×",
+    "אימוג׳ים",
+    "אימות חשבון",
+    "ביטול",
+    "ביטול מעקב",
+    "הדגשה",
+    "החלפת תמונת הפרופיל שלי",
+    "העתק קישור",
+    "הפעל התראות",
+    "הפעלת התראות בדפדפן",
+    "חזרה לשיחה",
+    "מעבר להודעה",
+    "מעקב ייפתח בהמשך",
+    "מעקבים והתראות אינם פעילים בגרסת הקריאה",
+    "ניסיון נוסף",
+    "ניקוי עיצוב",
+    "נסו שוב",
+    "סגירת החלפת התמונה",
+    "סגירת חלון חיבור החשבון הישן",
+    "סגירת טופס ההתחברות",
+    "סגירת כרטיס הכותב",
+    "פתיחת התמונה המצורפת",
+    "צבע זהב",
+    "צבע כחול",
+    "ציטוט מההודעה",
+    "צירוף קובץ או סרטון",
+    "קו תחתון",
+    "שמירת הקדמה ציבורית",
+    "שתף",
+    "שתף כתמונה"
+   ],
+   "tests": [
+    "test/m0d-contributor-view-v2.test.mjs"
+   ]
+  },
+  {
+   "path": "/researcher/:slug",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_world",
+     "requireFlag": false,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "Researcher2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/Researcher2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/life-journey-2029-chain.test.mjs",
+    "test/nav-open-under-construction-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/number/:value",
+   "section": "gematria-numbers",
+   "role": "guest+member+admin-actions",
+   "guards": [
+    {
+     "guard": "Locked",
+     "flag": "lock_number",
+     "requireFlag": true,
+     "adminView": false
+    }
+   ],
+   "components": [
+    "Locked",
+    "NumberAddress2029Page",
+    "Number2029Page"
+   ],
+   "files": [
+    "src/components/MaintenanceLock.jsx",
+    "src/pages/NumberAddress2029Page.jsx",
+    "src/pages/Number2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_name_in_tanach",
+    "fn_name_in_verse",
+    "fn_notarikon",
+    "fn_number_lookup",
+    "fn_relation_candidate",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "fn_tanach_proximity",
+    "fn_tanach_together",
+    "fn_verses_by_gematria",
+    "fn_zero_scale",
+    "gematria_api",
+    "gematria_method_trace",
+    "ingest_event",
+    "is_number_indexable",
+    "is_phrase_indexable",
+    "lang_links_list",
+    "link_identity",
+    "link_visitor_identity",
+    "log_search_2029",
+    "notification_prefs_guest_get_v1",
+    "posts_by_number_strict",
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "&#8249;",
+    "&#8250;",
+    "×",
+    "הבא",
+    "העתק קישור",
+    "הצגת ממצאים למספר",
+    "הקודם",
+    "חזרה למקור שנבחר בטופיק",
+    "חפש ✦",
+    "נסה שוב את השיטות",
+    "סגור",
+    "סגור פירוט שיטה",
+    "סגור תמונה",
+    "סגירה",
+    "פינוי ושמירה",
+    "פתח דף מלא ↗",
+    "שמירה וחידוש",
+    "שתף",
+    "שתף כתמונה",
+    "תלת־ממד",
+    "↩ חזרה להתכנסות",
+    "✕",
+    "✕ סגירה",
+    "🗺 עולם"
+   ],
+   "tests": [
+    "test/community-calculator-continuity-2029.test.mjs",
+    "test/dock-more-2029.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-2029-matrix-profile-switch.test.mjs",
+    "test/els-2029-raziel-consumer.test.mjs",
+    "test/els-home-card-2029.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/home-follow-and-links-2029.test.mjs",
+    "test/home-live-updates-2029.test.mjs",
+    "test/life-journey-2029-chain.test.mjs",
+    "test/nav-open-under-construction-2029.test.mjs"
+   ]
+  },
+  {
+   "path": "/entity-hub-preview/:type/:key",
+   "section": "other",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "EntityHubPreviewPage"
+   ],
+   "files": [
+    "src/pages/EntityHubPreviewPage.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "gematria_method_trace",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "הפעל גילוי",
+    "הצג הכול"
+   ],
+   "tests": [
+    "test/spatial-letter-anatomy-v1.test.mjs"
+   ]
+  },
+  {
+   "path": "/2029/control",
+   "section": "admin",
+   "role": "admin",
+   "guards": [],
+   "components": [
+    "Books2029Page",
+    "ControlPlane2029Page"
+   ],
+   "files": [
+    "src/pages/Books2029Page.jsx",
+    "src/pages/ControlPlane2029Page.jsx"
+   ],
+   "rpcs": [
+    "admin_2029_analytics",
+    "admin_op_trace_list_v1",
+    "admin_op_trace_v1",
+    "admin_search_wall_2029",
+    "admin_suggestions_list",
+    "admin_system_health",
+    "admin_video_map_health",
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "fn_method_profile",
+    "fn_research_path_append_v1",
+    "fn_research_path_fork_v1",
+    "fn_research_path_resume_v1",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "channel_updates.insert",
+    "channel_updates.update",
+    "chat_messages.insert",
+    "contact_messages.insert",
+    "contact_messages.update",
+    "gallery_images.delete",
+    "gallery_images.update",
+    "hint_set_members.delete",
+    "hint_set_members.insert",
+    "hint_set_members.update",
+    "hint_sets.insert",
+    "hint_sets.update",
+    "inbound_emails.update",
+    "notification_prefs.upsert",
+    "number_sets.delete",
+    "number_sets.insert",
+    "number_sets.update",
+    "owner_note_requests.insert",
+    "page_views.insert",
+    "posts.update",
+    "research_leads.insert",
+    "subscribers.insert",
+    "topic_cards.insert",
+    "topic_cards.update",
+    "trail_members.delete",
+    "trail_members.insert",
+    "trails.insert",
+    "trails.update",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "סגור — בהכנה",
+    "פתח"
+   ],
+   "tests": [
+    "test/ahavat-book-prototype-2029.browser.test.mjs",
+    "test/ahavat-book-prototype-2029.test.mjs",
+    "test/ahavat-centered-actions-2029.browser.test.mjs",
+    "test/ahavat-compact-source-return-2029.browser.test.mjs",
+    "test/ahavat-controlled-source-2029.browser.test.mjs",
+    "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+    "test/ahavat-letter-continuous-study-2029.browser.test.mjs",
+    "test/ahavat-letter-guided-exploration-2029.browser.test.mjs",
+    "test/ahavat-letter-source-comparison-2029.browser.test.mjs",
+    "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+    "test/ahavat-letter-visual-workspace-2029.browser.test.mjs",
+    "test/ahavat-parasha-letter-atlas-2029.browser.test.mjs"
+   ]
+  },
+  {
+   "path": "*",
+   "section": "other",
+   "role": "guest+member+admin-actions",
+   "guards": [],
+   "components": [
+    "PublicServices2029Page"
+   ],
+   "files": [
+    "src/pages/PublicServices2029Page.jsx"
+   ],
+   "rpcs": [
+    "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
+    "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
+    "notification_prefs_guest_get_v1",
+    "push_subscription_delete_v1",
+    "push_subscription_upsert_v1",
+    "record_referral",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
+   ],
+   "writes": [
+    "page_views.insert",
+    "push_subscriptions.delete",
+    "push_subscriptions.upsert",
+    "subscribers.insert",
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
+   ],
+   "buttons": [
+    "התראות",
+    "פתיחה",
+    "🔔 או קבלו התראות מיידיות בדפדפן"
+   ],
+   "tests": [
+    "test/ahavat-count-spatial-source-2029.browser.test.mjs",
+    "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
+    "test/ahavat-torah-book-completion-native-2029.browser.test.mjs",
+    "test/ahavat-torah-editorial-return-2029.browser.test.mjs",
+    "test/ahavat-torah-native-source-return-2029.browser.test.mjs",
+    "test/ahavat-torah-roots-proofreading-2029.browser.test.mjs",
+    "test/article-first-critical-css-2029.test.mjs",
+    "test/books-wide-dual-experience-2029.browser.test.mjs",
+    "test/central-els-hint-media-world-2029.browser.test.mjs",
+    "test/ci-workflow-references-exist.test.mjs",
+    "test/els-background-research.browser.test.mjs",
+    "test/els-home-card-2029.browser.mjs"
+   ]
+  }
+ ],
+ "rpcs": {
+  "add_contribution": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/community",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/posts",
+    "/posts",
+    "/timeline",
+    "/broadcasts",
+    "/community/chat",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community-first-upload-lazy-storage-2029.browser.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "add_guest_community_message": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/supabase-client-read-dedupe.test.mjs"
+   ]
+  },
+  "admin_all_contributions": {
+   "routes": [
+    "/2029",
+    "/2029/home-preview",
+    "/stats",
+    "/world"
+   ],
+   "tests": []
+  },
+  "admin_boost_reaction": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": []
+  },
+  "admin_research_feed": {
+   "routes": [
+    "/2029",
+    "/world",
+    "/topic/:slug",
+    "/post/:slug"
+   ],
+   "tests": [
+    "test/public-source-invitation-2029.test.mjs"
+   ]
+  },
+  "admin_set_home_featured_discovery_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
+  },
+  "ai_signal": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/home-preview",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/start",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/timeline",
+    "/broadcasts",
+    "/archive",
+    "/reality",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/findings",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "award_share_credit": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "canonical_follow_subject": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/tag/:slug",
+    "/category/:slug",
+    "/world",
+    "/2029/posts",
+    "/posts",
+    "/cross",
+    "/languages",
+    "/post/:slug"
+   ],
+   "tests": [
+    "test/doc37-post-follow-admission.test.mjs",
+    "test/follow-series-release.test.mjs",
+    "test/post-one-tree-measures-2029.browser.test.mjs",
+    "test/posts-follow-targets-2029.test.mjs",
+    "test/posts-library-2029.browser.test.mjs",
+    "test/release-visual-egress-contract.test.mjs",
+    "test/release-visual-egress-guard.browser.mjs",
+    "test/release-visual-egress-guard.test.mjs"
+   ]
+  },
+  "claim_daily_credit": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/doc37-admin-preview-transport.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/public-reading-observability.test.mjs"
+   ]
+  },
+  "claim_my_founding_grants": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "claim_research_lead": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "claim_wa_activity_credits": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "community_claimed_contributors": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/community",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/posts",
+    "/posts",
+    "/timeline",
+    "/broadcasts",
+    "/community/chat",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/community/researcher/:slug"
+   ],
+   "tests": []
+  },
+  "community_feed_page_v2": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/community",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/posts",
+    "/posts",
+    "/timeline",
+    "/broadcasts",
+    "/community/chat",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community-behavior-continuity-2029.browser.mjs",
+    "test/community-dislike-20261115.browser.mjs",
+    "test/final-preparation-hosted.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs"
+   ]
+  },
+  "community_guest_review": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_guest_unreviewed": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_presence_online": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_presence_ping": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_reply_counts": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/community",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/posts",
+    "/posts",
+    "/timeline",
+    "/broadcasts",
+    "/community/chat",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community1187-loading.browser.cjs",
+    "test/final-preparation-hosted.browser.mjs",
+    "test/public-reading-production-artifact.test.mjs"
+   ]
+  },
+  "community_staff_user_ids_v1": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community-behavior-continuity-2029.browser.mjs",
+    "test/community-first-upload-lazy-storage-2029.browser.mjs",
+    "test/community-staff-chip-2029.test.mjs"
+   ]
+  },
+  "community_thread_updates": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/community",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/posts",
+    "/posts",
+    "/timeline",
+    "/broadcasts",
+    "/community/chat",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community-behavior-continuity-2029.browser.mjs",
+    "test/community-dislike-20261115.browser.mjs",
+    "test/community-first-upload-lazy-storage-2029.browser.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_tree_hint_set": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_tree_hints_by_number": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "community_tree_hints_list": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "contributors_claim_legacy": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": []
+  },
+  "convergence_meter": {
+   "routes": [
+    "/2029",
+    "/community/calculator",
+    "/world",
+    "/topic/:slug"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/final-preparation-hosted.browser.mjs",
+    "test/number-fullpage-transitions-2029.browser.cjs",
+    "test/number-loading-mobile-2029.browser.cjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-world-loading-2029.browser.cjs"
+   ]
+  },
+  "convergences_for_author": {
+   "routes": [
+    "/2029",
+    "/2029/home-preview",
+    "/stats",
+    "/world"
+   ],
+   "tests": []
+  },
+  "discovery_center_feed_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
+  },
+  "discovery_center_stats_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
+  },
+  "fn_method_profile": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/reality",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control"
+   ],
+   "tests": [
+    "test/calculator-idle-tiles-2029.browser.cjs",
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/number-connections-route-2029.browser.cjs",
+    "test/number-fullpage-acceptance-2029.browser.cjs",
+    "test/number-progressive-material-2029.browser.cjs",
+    "test/number-root-profile-race-2029.browser.cjs"
+   ]
+  },
+  "fn_method_value": {
+   "routes": [
+    "/2029",
+    "/2029/home-preview",
+    "/melech-hamisparim/718",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/post/:slug"
+   ],
+   "tests": [
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/post-speed-page-analytics.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/release-visual-egress-guard.browser.mjs",
+    "test/spatial-letter-anatomy-v1.test.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs"
+   ]
+  },
+  "fn_number_lookup": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/reality",
+    "/2029/journey",
+    "/els",
+    "/findings",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/calculator-idle-tiles-2029.browser.cjs",
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/number-projection-shared-reads-2029.test.mjs",
+    "test/reality-river-integrated-preview.browser.mjs"
+   ]
+  },
+  "fn_research_path_append_v1": {
+   "routes": [
+    "/2029",
+    "/gallery",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control"
+   ],
+   "tests": [
+    "test/doc37-research-reading-access.test.mjs",
+    "test/raziel-interview-pilot.test.mjs"
+   ]
+  },
+  "fn_research_path_fork_v1": {
+   "routes": [
+    "/2029",
+    "/gallery",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control"
+   ],
+   "tests": []
+  },
+  "fn_research_path_resume_v1": {
+   "routes": [
+    "/2029",
+    "/gallery",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control"
+   ],
+   "tests": [
+    "test/admin-home-dock-2029.browser.mjs",
+    "test/doc37-research-reading-access.test.mjs",
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/raziel-interview-pilot.test.mjs",
+    "test/raziel-personal-area-companion-seam.test.mjs",
+    "test/raziel-personal-companion-server-acceptance.test.mjs",
+    "test/raziel-quota-trace.test.mjs",
+    "test/raziel-view-mode.test.mjs"
+   ]
+  },
+  "fn_zero_scale": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/reality",
+    "/findings",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/number-parallel-projection-2029.test.mjs",
+    "test/number-projection-shared-reads-2029.test.mjs",
+    "test/one-tree-branch-contract-2029.test.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/supabase-client-read-dedupe.test.mjs"
+   ]
+  },
+  "gematria_api": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/reality",
+    "/post/:slug",
+    "/code",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/canonical-gematria-live-shape.test.mjs",
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/public-launch-candidate-2029.test.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/release-visual-egress-guard.browser.mjs",
+    "test/release-visual-egress-guard.test.mjs"
+   ]
+  },
+  "gematria_method_trace": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/world",
+    "/topic/:slug",
+    "/research",
+    "/post/:slug",
+    "/els",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key"
+   ],
+   "tests": [
+    "test/calculator-idle-tiles-2029.browser.cjs",
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/number-root-profile-race-2029.browser.cjs",
+    "test/post-one-tree-measures-2029.browser.test.mjs",
+    "test/post-projection-parallel-20261115.test.mjs",
+    "test/public-source-invitation-2029.test.mjs"
+   ]
+  },
+  "ingest_event": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/codes",
+    "/codes/:slug",
+    "/2029/home-preview",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/start",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/timeline",
+    "/broadcasts",
+    "/archive",
+    "/reality",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/auth-contract-2029.test.mjs",
+    "test/community1187-loading.browser.cjs",
+    "test/doc37-closed-side-effects.test.mjs",
+    "test/els-action-telemetry-sql.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/m0d-world-candidate-visible.browser.mjs"
+   ]
+  },
+  "link_identity": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community",
+    "/community/calculator",
+    "/codes",
+    "/codes/:slug",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/start",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/community1187-loading.browser.cjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/m0d-world-candidate-visible.browser.mjs",
+    "test/public-reading-observability.test.mjs",
+    "test/release-visual-egress-guard.browser.mjs",
+    "test/release-visual-egress-guard.test.mjs",
+    "test/supabase-client-read-dedupe.test.mjs"
+   ]
+  },
+  "link_visitor_identity": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "notification_prefs_guest_get_v1": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
+    "/codes",
+    "/codes/:slug",
+    "/2029/home-preview",
+    "/melech-hamisparim/718",
+    "/early-access",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/start",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/timeline",
+    "/broadcasts",
+    "/archive",
+    "/reality",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/video/:assetId",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/findings",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/community1187-loading.browser.cjs",
+    "test/notification-prefs-guest-member-split.test.mjs"
+   ]
+  },
+  "posts_by_number_strict": {
+   "routes": [
+    "/2029",
+    "/number/:value",
+    "/gallery",
+    "/community/calculator",
+    "/world",
+    "/topic/:slug",
+    "/reality",
+    "/findings",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/number-parallel-projection-2029.test.mjs",
+    "test/number-projection-shared-reads-2029.test.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  "record_referral": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/cross",
+    "/languages",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": []
+  },
+  "research_state_apply_ops_v1": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/doc37-admin-preview-transport.test.mjs",
+    "test/personal-continuity-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "tests/personal-save-full-store-2029.spec.cjs"
+   ]
+  },
+  "research_state_snapshot_v1": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/number",
+    "/number/:value",
+    "/gallery",
+    "/gematria",
+    "/community",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/stats",
+    "/world",
+    "/topic/:slug",
+    "/2029/posts",
+    "/posts",
+    "/research",
+    "/login",
+    "/auth/callback",
+    "/community/chat",
+    "/2029/journey",
+    "/post/:slug",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/heichal",
+    "/היכל",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug",
+    "/researcher/:slug",
+    "/2029/number/:value",
+    "/entity-hub-preview/:type/:key",
+    "/2029/control",
+    "*"
+   ],
+   "tests": [
+    "test/els-raziel-guided-planning.test.mjs",
+    "test/personal-continuity-2029.test.mjs",
+    "test/raziel-personal-area-companion-seam.test.mjs",
+    "test/raziel-personal-companion-server-acceptance.test.mjs",
+    "test/raziel-quota-trace.test.mjs",
+    "test/raziel-view-mode.test.mjs",
+    "tests/personal-save-full-store-2029.spec.cjs"
+   ]
+  },
+  "toggle_contribution_reaction": {
+   "routes": [
+    "/2029",
+    "/community",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/community-dislike-20261115.browser.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "watch_toggle": {
+   "routes": [
+    "/2029",
+    "/post",
+    "/verified",
+    "/gallery",
+    "/tag/:slug",
+    "/category/:slug",
+    "/community",
+    "/world",
+    "/2029/posts",
+    "/posts",
+    "/reality",
+    "/cross",
+    "/languages",
+    "/community/chat",
+    "/post/:slug",
+    "/community/researcher/me",
+    "/2029/me/:module",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/personal-continuity-2029.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "push_subscription_delete_v1": {
+   "routes": [
+    "/number",
+    "/world",
+    "*"
+   ],
+   "tests": [
+    "test/def001-email-exposure-contract.test.mjs",
+    "test/push-subscription-rollout-order.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
+    "test/rpc-deploy-order-contract.test.mjs"
+   ]
+  },
+  "push_subscription_upsert_v1": {
+   "routes": [
+    "/number",
+    "/world",
+    "*"
+   ],
+   "tests": [
+    "test/def001-email-exposure-contract.test.mjs",
+    "test/push-subscription-rollout-order.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
+    "test/rpc-deploy-order-contract.test.mjs"
+   ]
+  },
+  "fn_verses_by_gematria": {
+   "routes": [
+    "/number/:value",
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/post/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  "is_number_indexable": {
+   "routes": [
+    "/number/:value",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/final-preparation-hosted.browser.mjs",
+    "test/home-loading-preview-continuity-2029.test.mjs",
+    "test/number-fullpage-transitions-2029.browser.cjs",
+    "test/number-loading-mobile-2029.browser.cjs",
+    "test/number-progressive-material-2029.browser.cjs",
+    "test/public-canonical-parity-repair.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-world-loading-2029.browser.cjs"
+   ]
+  },
+  "is_phrase_indexable": {
+   "routes": [
+    "/number/:value",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/final-preparation-hosted.browser.mjs",
+    "test/home-loading-preview-continuity-2029.test.mjs",
+    "test/number-fullpage-transitions-2029.browser.cjs",
+    "test/number-loading-mobile-2029.browser.cjs",
+    "test/number-progressive-material-2029.browser.cjs",
+    "test/public-canonical-parity-repair.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-url-continuity-2029.test.mjs"
+   ]
+  },
+  "lang_links_list": {
+   "routes": [
+    "/number/:value",
+    "/world",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/final-preparation-hosted.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/number-root-profile-race-2029.browser.cjs",
+    "test/public-launch-closure-preview-guards-2029.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/reality-river-integrated-preview.browser.mjs"
+   ]
+  },
+  "log_search_2029": {
+   "routes": [
+    "/number/:value",
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/research",
+    "/code",
+    "/els",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/search-log-2029.test.mjs"
+   ]
+  },
+  "fn_name_in_tanach": {
+   "routes": [
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": []
+  },
+  "fn_name_in_verse": {
+   "routes": [
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": []
+  },
+  "fn_notarikon": {
+   "routes": [
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": []
+  },
+  "fn_tanach_proximity": {
+   "routes": [
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": []
+  },
+  "fn_tanach_together": {
+   "routes": [
+    "/gallery",
+    "/world",
+    "/topic/:slug",
+    "/heichal",
+    "/היכל",
+    "/2029/number/:value"
+   ],
+   "tests": []
+  },
+  "fn_relation_candidate": {
+   "routes": [
+    "/gematria",
+    "/community/calculator",
+    "/2029/gematria",
+    "/2029/gematria/viral",
+    "/2029/calculator",
+    "/topic/:slug",
+    "/research",
+    "/2029/journey",
+    "/post/:slug",
+    "/els",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/research-run-personal-pair.test.mjs"
+   ]
+  },
+  "research_pulse_2029": {
+   "routes": [
+    "/gematria",
+    "/community/calculator",
+    "/codes",
+    "/codes/:slug",
+    "/2029/gematria",
+    "/2029/calculator",
+    "/stats",
+    "/research",
+    "/books",
+    "/book/:slug",
+    "/code",
+    "/els",
+    "/2029/number/:value"
+   ],
+   "tests": [
+    "test/community-calculator-runtime-2029.test.mjs",
+    "test/m0a-db-permissions-contract.test.mjs",
+    "test/m0d-world-candidate-visible.browser.mjs",
+    "test/now-pulse-line-2029.test.mjs",
+    "test/sitewide-statistics-rollout.test.mjs"
+   ]
+  },
+  "fn_log_name_research": {
+   "routes": [
+    "/community/calculator"
+   ],
+   "tests": [
+    "test/release-visual-egress-guard.test.mjs"
+   ]
+  },
+  "fn_name_research_graded": {
+   "routes": [
+    "/community/calculator",
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "get_category_videos": {
+   "routes": [
+    "/start"
+   ],
+   "tests": []
+  },
+  "world_gematria_lexical_lookup_v1": {
+   "routes": [
+    "/world",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/tzvi-media7-fullscan2-20261119.browser.mjs"
+   ]
+  },
+  "writer_public_contributions_page_v1": {
+   "routes": [
+    "/world",
+    "/community/chat",
+    "/community/researcher/:slug"
+   ],
+   "tests": [
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/unified-performance-2029.browser.mjs"
+   ]
+  },
+  "els_search_v1": {
+   "routes": [
+    "/topic/:slug",
+    "/post/:slug"
+   ],
+   "tests": [
+    "test/els-callable-core.test.mjs",
+    "test/rpc-deploy-order-contract.test.mjs"
+   ]
+  },
+  "fn_gematria_pair_invariance_control": {
+   "routes": [
+    "/topic/:slug",
+    "/post/:slug"
+   ],
+   "tests": []
+  },
+  "fn_all_methods": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/elections-world-integrated-preview.browser.mjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  "fn_create_family_invitation": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_cross_research": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  "fn_get_or_create_my_person": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/doc37-admin-preview-transport.test.mjs",
+    "test/public-launch-candidate-2029.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/public-reading-production-artifact.test.mjs",
+    "test/public-reading-release-2029.test.mjs",
+    "test/raziel-safe-actions-preview.test.mjs"
+   ]
+  },
+  "fn_list_family": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/community1187-loading.browser.cjs",
+    "test/gallery-source-findings-one-tree-2029.browser.mjs",
+    "test/home-loading-admission-2029.browser.mjs",
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/home-source-intent-2029.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "test/unified-performance-2029.browser.mjs"
+   ]
+  },
+  "fn_list_my_family_claims": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_name_multi": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_name_protocol": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/home-preview-binding-hosted-2029.browser.mjs",
+    "test/reality-river-integrated-preview.browser.mjs",
+    "test/unified-2029-hosted-readonly.browser.mjs",
+    "tests/g4-public-core-release.spec.cjs"
+   ]
+  },
+  "fn_redeem_family_invitation": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_remove_family_member": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_reverse_family_claim": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_revoke_family_claim": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_tarot_sos": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_upsert_family_member": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/raziel-safe-actions-preview.test.mjs"
+   ]
+  },
+  "fn_upsert_family_relation": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": []
+  },
+  "fn_upsert_self_profile": {
+   "routes": [
+    "/2029/journey"
+   ],
+   "tests": [
+    "test/raziel-safe-actions-preview.test.mjs"
+   ]
+  },
+  "delete_my_els_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "els_my_strong_ciphers": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-publication-tiers.test.mjs"
+   ]
+  },
+  "moderate_els_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/els-verify-batch.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "rename_my_els_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "request_els_library_review": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-publication-tiers.test.mjs",
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "save_els_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-verify-batch.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "save_els_matrix_anon": {
+   "routes": [
+    "/code"
+   ],
+   "tests": []
+  },
+  "self_publish_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "set_els_quality": {
+   "routes": [
+    "/code"
+   ],
+   "tests": []
+  },
+  "update_els_matrix": {
+   "routes": [
+    "/code"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-verify-batch.test.mjs",
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "dm_inbox": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": [
+    "test/personal-attention-badge-2029.test.mjs",
+    "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
+    "tests/personal-attention-badge-2029.spec.cjs",
+    "tests/personal-attention-transport-2029.spec.cjs"
+   ]
+  },
+  "dm_send": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": [
+    "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
+   ]
+  },
+  "dm_thread": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": [
+    "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
+    "tests/personal-attention-badge-2029.spec.cjs",
+    "tests/personal-attention-transport-2029.spec.cjs"
+   ]
+  },
+  "my_contributions": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": []
+  },
+  "replies_to_me": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": [
+    "test/public-reading-full-account-transport.test.mjs"
+   ]
+  },
+  "update_my_page_config": {
+   "routes": [
+    "/community/researcher/me",
+    "/2029/me/:module"
+   ],
+   "tests": []
+  },
+  "admin_2029_analytics": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": []
+  },
+  "admin_op_trace_list_v1": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": []
+  },
+  "admin_op_trace_v1": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": []
+  },
+  "admin_search_wall_2029": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": [
+    "test/search-log-2029.test.mjs"
+   ]
+  },
+  "admin_suggestions_list": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": []
+  },
+  "admin_system_health": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": [
+    "test/admin-system-health-contract.test.mjs",
+    "test/admin-system-health-media-v2-contract.test.mjs"
+   ]
+  },
+  "admin_video_map_health": {
+   "routes": [
+    "/2029/control"
+   ],
+   "tests": []
+  }
+ },
+ "summary": {
+  "home": {
+   "routes": 2,
+   "routesWithAnyTest": 2,
+   "rpcs": 49,
+   "tableWrites": 31,
+   "buttonLabels": 70
+  },
+  "posts": {
+   "routes": 9,
+   "routesWithAnyTest": 9,
+   "rpcs": 32,
+   "tableWrites": 31,
+   "buttonLabels": 119
+  },
+  "gematria-numbers": {
+   "routes": 9,
+   "routesWithAnyTest": 9,
+   "rpcs": 36,
+   "tableWrites": 33,
+   "buttonLabels": 75
+  },
+  "world-library": {
+   "routes": 13,
+   "routesWithAnyTest": 13,
+   "rpcs": 48,
+   "tableWrites": 33,
+   "buttonLabels": 118
+  },
+  "community": {
+   "routes": 9,
+   "routesWithAnyTest": 9,
+   "rpcs": 46,
+   "tableWrites": 31,
+   "buttonLabels": 118
+  },
+  "services": {
+   "routes": 5,
+   "routesWithAnyTest": 5,
+   "rpcs": 26,
+   "tableWrites": 5,
+   "buttonLabels": 7
+  },
+  "ciphers": {
+   "routes": 4,
+   "routesWithAnyTest": 4,
+   "rpcs": 38,
+   "tableWrites": 31,
+   "buttonLabels": 88
+  },
+  "other": {
+   "routes": 8,
+   "routesWithAnyTest": 6,
+   "rpcs": 42,
+   "tableWrites": 35,
+   "buttonLabels": 22
+  },
+  "auth": {
+   "routes": 2,
+   "routesWithAnyTest": 2,
+   "rpcs": 13,
+   "tableWrites": 5,
+   "buttonLabels": 3
+  },
+  "books": {
+   "routes": 3,
+   "routesWithAnyTest": 2,
+   "rpcs": 23,
+   "tableWrites": 5,
+   "buttonLabels": 22
+  },
+  "personal": {
+   "routes": 2,
+   "routesWithAnyTest": 2,
+   "rpcs": 24,
+   "tableWrites": 6,
+   "buttonLabels": 38
+  },
+  "admin": {
+   "routes": 1,
+   "routesWithAnyTest": 1,
+   "rpcs": 24,
+   "tableWrites": 31,
+   "buttonLabels": 2
+  }
+ },
+ "caveat": "Reachable-by-import is an upper bound of what a route can do (shared components appear on many routes). Button labels are the literal JSX texts and aria-labels. A test listed here only mentions the route, component or RPC; it is not proof the action works end to end."
+}
