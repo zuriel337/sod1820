@@ -21,6 +21,7 @@
     "admin_all_contributions",
     "admin_boost_reaction",
     "admin_research_feed",
+    "admin_set_home_featured_discovery_v1",
     "ai_signal",
     "award_share_credit",
     "canonical_follow_subject",
@@ -43,6 +44,8 @@
     "contributors_claim_legacy",
     "convergence_meter",
     "convergences_for_author",
+    "discovery_center_feed_v1",
+    "discovery_center_stats_v1",
     "fn_method_profile",
     "fn_method_value",
     "fn_number_lookup",
@@ -148,6 +151,7 @@
     "פתח את החיבור בעולם ←",
     "פתח את העולם ←",
     "פתח את הפוסט ←",
+    "פתח בדף המספר",
     "פתח בעולם ←",
     "פתיחת הספר המסע לשער החמישים של ציון דוד סיבוני",
     "פתיחת התמונה המצורפת",
@@ -1884,19 +1888,37 @@
    ],
    "rpcs": [
     "admin_all_contributions",
+    "admin_set_home_featured_discovery_v1",
     "ai_signal",
+    "award_share_credit",
+    "claim_daily_credit",
+    "claim_my_founding_grants",
+    "claim_research_lead",
+    "claim_wa_activity_credits",
     "convergences_for_author",
+    "discovery_center_feed_v1",
+    "discovery_center_stats_v1",
     "fn_method_value",
     "ingest_event",
+    "link_identity",
+    "link_visitor_identity",
     "notification_prefs_guest_get_v1",
-    "research_pulse_2029"
+    "record_referral",
+    "research_pulse_2029",
+    "research_state_apply_ops_v1",
+    "research_state_snapshot_v1"
    ],
    "writes": [
     "page_views.insert",
     "subscribers.insert",
-    "user_activity.insert"
+    "user_activity.insert",
+    "user_notes.upsert",
+    "users.update"
    ],
-   "buttons": [],
+   "buttons": [
+    "פתח בדף המספר",
+    "תלת־ממד"
+   ],
    "tests": [
     "test/now-pulse-line-2029.test.mjs",
     "test/public-menu-sections-2029.test.mjs",
@@ -4594,6 +4616,15 @@
     "test/public-source-invitation-2029.test.mjs"
    ]
   },
+  "admin_set_home_featured_discovery_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
+  },
   "ai_signal": {
    "routes": [
     "/2029",
@@ -4688,6 +4719,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -4758,6 +4790,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -4807,6 +4840,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -4850,6 +4884,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -4893,6 +4928,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -5177,6 +5213,24 @@
     "/world"
    ],
    "tests": []
+  },
+  "discovery_center_feed_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
+  },
+  "discovery_center_stats_v1": {
+   "routes": [
+    "/2029",
+    "/stats"
+   ],
+   "tests": [
+    "test/discovery-center-2029.test.mjs"
+   ]
   },
   "fn_method_profile": {
    "routes": [
@@ -5528,6 +5582,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/start",
     "/world",
     "/topic/:slug",
@@ -5581,6 +5636,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -5720,6 +5776,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -5763,6 +5820,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -5809,6 +5867,7 @@
     "/2029/gematria",
     "/2029/gematria/viral",
     "/2029/calculator",
+    "/stats",
     "/world",
     "/topic/:slug",
     "/2029/posts",
@@ -6481,9 +6540,9 @@
   "home": {
    "routes": 2,
    "routesWithAnyTest": 2,
-   "rpcs": 46,
+   "rpcs": 49,
    "tableWrites": 31,
-   "buttonLabels": 69
+   "buttonLabels": 70
   },
   "posts": {
    "routes": 9,
@@ -6516,9 +6575,9 @@
   "services": {
    "routes": 5,
    "routesWithAnyTest": 5,
-   "rpcs": 15,
-   "tableWrites": 3,
-   "buttonLabels": 5
+   "rpcs": 26,
+   "tableWrites": 5,
+   "buttonLabels": 7
   },
   "ciphers": {
    "routes": 4,
