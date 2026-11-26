@@ -2,7 +2,7 @@
 // Builds the QA-only ELS schema for the throwaway local Supabase (ZURIEL 26.11.2026) from definitions the repository already owns, so the QA
 // stack cannot drift from them: the isolated ELS fixture (tables, policies, corpus helpers), the stubs of the tiers tests, and the proposed
 // SQL (apply.sql, harden-grants.sql) that production runs. Output is generated at job time and never applied to production.
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -31,5 +31,6 @@ const sql = [
   'grant all on all tables in schema public to service_role;',
   "notify pgrst, 'reload schema';",
 ].join('\n\n');
+mkdirSync(root + 'qa/supabase/migrations', { recursive: true });
 writeFileSync(root + 'qa/supabase/migrations/20260101000100_qa_els.sql', sql);
 console.log(`qa schema written (${sql.length} characters)`);
