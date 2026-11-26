@@ -199,3 +199,36 @@ export async function markAllRead({ strict = false, userId = null } = {}) {
     }
   } catch (error) { if (strict) throw error; }
 }
+
+// ===== חיווי אישי על תמונת הפרופיל (ZURIEL 26.11.2026) =====
+// Only things addressed to the PERSON count: a private message, a reply to them, a new follower, a contribution/finding they made being approved.
+// The public feed (new posts, code, reality…) is NOT personal attention and never inflates this badge (the public «עכשיו» counter is separate and unchanged).
+// A private message exists twice (the message and its saved "dm" notification): it is counted ONCE, from the messages (dm_inbox), never from the notification.
+export const PERSONAL_ATTENTION_KINDS = ["reply", "new_follower", "contribution_approved", "matrix_approved", "chiddush_approved"];
+
+export async function getPersonalAttention({ userId } = {}) {
+  if (!supabase || !userId) throw new Error("Personal attention unavailable");
+  const [notes, inbox] = await Promise.all([
+    supabase.from("user_notifications").select("id", { count: "exact", head: true }).eq("user_id", userId).is("read_at", null).in("kind", PERSONAL_ATTENTION_KINDS),
+    supabase.rpc("dm_inbox"),
+  ]);
+  if (notes.error) throw notes.error;
+  if (inbox.error) throw inbox.error;
+  const notifications = Number.isSafeInteger(notes.count) && notes.count >= 0 ? notes.count : 0;
+  const messages = (Array.isArray(inbox.data) ? inbox.data : []).reduce((sum, row) => sum + (Number(row?.unread) > 0 ? Number(row.unread) : 0), 0);
+  return { notifications, messages, total: notifications + messages };
+}
+
+export const dmNotificationLink = (counterpartId) => `/me?tab=messages&dm=${counterpartId}`;
+
+// Opening a conversation for real reads its messages (dm_thread). The saved notification of THAT conversation is read with it: found by its exact link
+// (never by time or text), own rows only, nothing else is touched. The reader's confirmation is required; a failure leaves the notification unread.
+export async function markDmNotificationsRead(counterpartId, { userId } = {}) {
+  if (!supabase || !userId || typeof counterpartId !== "string" || !counterpartId) throw new Error("Notification update unavailable");
+  const { data, error } = await supabase.from("user_notifications").update({ read_at: new Date().toISOString() })
+    .eq("user_id", userId).eq("kind", "dm").eq("link", dmNotificationLink(counterpartId)).is("read_at", null).select("id,read_at");
+  if (error) throw error;
+  return notificationReadAck(data);
+}
+
+export const PERSONAL_ATTENTION_REFRESH_EVENT = "sod:personal-attention-refresh";

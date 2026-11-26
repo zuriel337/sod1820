@@ -1185,7 +1185,7 @@ const realHostStubs = {
         (payload.isPublic?(row.self_published||row.visibility==='public')&&(window.__fixtureTier==='admin'||row.owner_user_id==='fixture-owner'&&row.status!=='published'):row.owner_user_id==='fixture-owner'&&row.visibility==='private'&&!row.self_published&&row.status!=='published'));
       const row={id:old?.id||'saved-'+(rows.length+1),slug:old?.slug||'native-save-'+(rows.length+1),search_term:payload.term,title:payload.title,
         scope:payload.scope,skip_distance:payload.skip,direction:payload.direction,start_index:payload.startIndex,corpus_id:'${ELS_GOLDEN_CORPUS_ID}',
-        owner_user_id:'fixture-owner',visibility:payload.isPublic&&!window.__prePublicationRpc?'public':'private',status:payload.isPublic?(window.__prePublicationRpc?'pending':'published'):'draft',self_published:!!payload.isPublic,positions:payload.positions,description:payload.note,image_url:payload.imageUrl};
+        owner_user_id:'fixture-owner',visibility:payload.isPublic?'public':'private',status:payload.isPublic?(window.__fixtureTier==='admin'?'published':'draft'):'draft',self_published:!!payload.isPublic,positions:payload.positions,description:payload.note,image_url:payload.imageUrl};
       if(old)Object.assign(old,row);else rows.push(row);return row.id;
     };
     export const saveMatrixAnon=async payload=>{window.__anonymousSaves=(window.__anonymousSaves||0)+1;
@@ -2348,25 +2348,26 @@ test('Research matrix scrolls and drags vertically as well as horizontally, and 
   },{researchProfile:true});
  });
 
-test('native save: publish by default and show the real library or pre-rollout receipt',
+test('native save: private by default; publishing on my page is an explicit choice',
  {skip:!canRun&&'Native browser tooling unavailable',timeout:150000},async()=>{
   for (const preRollout of [false, true]) await withNative({width:1440,height:1000},async page=>{
     await unsavedPrivacyAxis(page);
     await activate(page,'שמירה');
-    const box=page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true});
-    assert.equal(await box.isChecked(),false,'publishing is the default');
+    const box=page.getByRole('checkbox',{name:'פרסם בדף שלי (פתוח לכולם)',exact:true});
+    assert.equal(await box.isChecked(),false,'private is the default');
     assert.equal(await page.getByText('שמור אצלי').count(),0,'no "save on my side" concept');
     await page.evaluate(older => { window.__fixtureTier='registered'; window.__prePublicationRpc=older; },preRollout);
-    await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('ממצא שמתפרסם כברירת מחדל בתיק המחקר');
+    await box.check();
+    await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('ממצא שמתפרסם בדף שלי בבחירה מפורשת');
     await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>window.__savedRows?.length===1);
     assert.equal(await page.evaluate(()=>window.__saveCalls.at(-1).isPublic),true);
     assert.equal(await page.evaluate(()=>window.__savedRows[0].self_published),true);
-    assert.equal(await page.evaluate(()=>window.__savedRows[0].status), preRollout ? 'pending' : 'published');
+    assert.equal(await page.evaluate(()=>window.__savedRows[0].status),'draft','a member page publication never enters the library');
     const receipt = page.locator('.els29-native-save-result');
     await receipt.waitFor();
-    assert.equal(await receipt.locator('a[href^="/codes/"]').count(), preRollout ? 0 : 1);
-    assert.match(await receipt.innerText(), preRollout ? /ממתין לאישור/ : /פורסם בספריית האתר/);
+    assert.equal(await receipt.locator('a[href^="/codes/"]').count(),0);
+    assert.match(await receipt.innerText(),/פורסם בדף שלי/);
   },{realHost:true});
  });
 
@@ -2383,7 +2384,6 @@ test('native save: private retry, same-record update and exact restore preserve 
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill(note);
     await activate(page,'סריקה וממצאים');await activate(page,'שמירה');
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note,'switching tabs preserves the unsaved explanation');
-    await page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true}).check();
     await page.evaluate(()=>window.__saveFails=true);await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>document.querySelector('.els29-native-save-result')?.textContent.includes('לא הושלמה'));
     assert.equal(await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).inputValue(),note);
@@ -2543,7 +2543,6 @@ test('privacy F4: real Classic save of opened private row and native-to-Classic 
     await unsavedPrivacyAxis(page);
     await activate(page,'שמירה');
     await page.getByRole('textbox',{name:'מה רואים בצופן?',exact:true}).fill('מחקר פרטי שנשמר לפני המעבר לכלים הקלאסיים');
-    await page.getByRole('checkbox',{name:'לא לפרסם (לשמור פרטי)',exact:true}).check();
     await activate(page,'שמירת צופן');
     await page.waitForFunction(()=>window.__savedRows?.length===1);
     assert.equal(await page.evaluate(()=>window.__fixtureMatrix),null,'fresh native save has no opened matrix prop');

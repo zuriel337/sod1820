@@ -32,12 +32,26 @@ test("public cipher query always requires canonical published/public and omits p
   assert.deepEqual(publicLibraryQuery2029({ collection: "research" }).eq, { status: "published", visibility: "public", source: "research" });
 });
 
-test("drafts, owner-only and self-published candidates never become public continuations", async () => {
-  for (const invalid of [cipher({ status: "draft", self_published: true }), cipher({ status: "pending" }), cipher({ visibility: "private" }), cipher({ visibility: null }), cipher({ slug: "../private" })]) {
-    assert.equal(projectPublicCipher2029(invalid), null);
+test("lists never show page-level ciphers; a private, hidden or malformed row never becomes a public continuation", async () => {
+  // Lists and collections are the central library only (approved).
+  assert.equal(projectPublicCipher2029(cipher({ status: "draft", self_published: true })), null);
+  assert.equal(projectPublicCipher2029(cipher({ status: "pending" })), null);
+  for (const invalid of [cipher({ status: "hidden" }), cipher({ visibility: "private" }), cipher({ status: "draft", visibility: "private" }), cipher({ visibility: null }), cipher({ slug: "../private" })]) {
+    assert.equal(projectPublicCipher2029(invalid, { detail: true }), null);
     assert.equal(await fetchPublicLibraryItem2029("codes", "published-cipher", { readRows: async () => [invalid] }), null);
   }
   assert.equal(await fetchPublicLibraryItem2029("codes", "bad%2fslug", { readRows: () => { throw new Error("must not read"); } }), null);
+});
+
+test("ZURIEL 26.11.2026: a cipher its owner shows on their own page is public on its permanent address (no approval), the central library stays approval-only", async () => {
+  const page = projectPublicCipher2029(cipher({ status: "draft" }), { detail: true });
+  assert.equal(page.tier, "page");
+  assert.equal(page.href, "/codes/published-cipher");
+  assert.equal(projectPublicCipher2029(cipher({}), { detail: true }).tier, "library");
+  const detail = publicLibraryQuery2029({ kind: "codes", slug: "published-cipher" });
+  assert.deepEqual(detail.eq, { visibility: "public", slug: "published-cipher" });
+  assert.deepEqual(detail.or, ["status.eq.published,self_published.eq.true"]);
+  assert.deepEqual(publicLibraryQuery2029({ kind: "codes" }).eq, { status: "published", visibility: "public" });
 });
 
 test("one canonical record stays one source; annotations do not invent source counts or verification", () => {

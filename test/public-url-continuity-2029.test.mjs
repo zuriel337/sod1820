@@ -138,7 +138,7 @@ test('named services remain truthful and do not make missing items, drafts or ma
   });
   await isolated(async url => {
     const params = new URL(url).searchParams;
-    if (new URL(url).pathname.endsWith('/els_records')) { assert.equal(params.get('status'),'eq.published'); assert.equal(params.get('visibility'),'eq.public'); }
+    if (new URL(url).pathname.endsWith('/els_records')) { assert.equal(params.get('visibility'),'eq.public'); if (params.has('slug')) assert.equal(params.get('and'),'(or(status.eq.published,self_published.eq.true))'); else assert.equal(params.get('status'),'eq.published'); }
     return json([]);
   }, async () => {
     for (const path of ['/book/missing','/codes/missing','/unknown-real-looking-slug']) assert.equal((await metadata(path)).code,404,path);

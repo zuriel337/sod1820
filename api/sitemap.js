@@ -456,10 +456,10 @@ export default async function handler(req, res) {
     }
   } catch { if (productionReading) foundationSourceFailed = true; }
 
-  // ── צפנים מאושרים → /codes/:slug (els_records published) ──
+  // ── צפנים ציבוריים → /codes/:slug: הספרייה המרכזית (מאושר) וצופן שבעליו מציג בדף שלו (self_published); פרטי לעולם לא ──
   try {
     if (foundation && !productionReading) throw new Error("outside-public-foundation");
-    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published' + (productionReading ? '&visibility=eq.public' : ''));
+    const codes = await fetchAll('els_records?select=slug,created_at&or=(status.eq.published,self_published.eq.true)&visibility=eq.public');
     for (const c of codes) {
       if (!c.slug) continue;
       const lastmod = (c.created_at || '').slice(0, 10) || undefined;

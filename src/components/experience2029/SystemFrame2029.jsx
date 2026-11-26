@@ -48,6 +48,7 @@ import SurfaceContextRail2029 from "./SurfaceContextRail2029.jsx";
 export const PUBLIC_EXPANDED_MENU = false;
 const PublicMenuSections2029 = PUBLIC_EXPANDED_MENU && PUBLIC_READING_RELEASE ? React.lazy(() => import("./PublicMenuSections2029.jsx")) : null;
 const RoyalIntro2029 = React.lazy(() => import("./RoyalIntro2029.jsx"));
+const PersonalAttentionBadge2029 = React.lazy(() => import("./PersonalAttentionBadge2029.jsx"));
 const Footer2029 = React.lazy(() => import("./Footer2029.jsx"));
 const AccountLinkOffer2029 = React.lazy(() => import("./AccountLinkOffer2029.jsx"));
 const InspectProjection = React.lazy(() => import("./InspectProjection2029.jsx"));
@@ -1144,6 +1145,8 @@ function SystemFrame2029Body({
     openTransient(TRANSIENT.RAZIEL, boundedPayload);
   }, [openTransient, razielLocked]);
   const openWorkspace = useCallback(() => openTransient(TRANSIENT.WORKSPACE), [openTransient]);
+  // With something addressed to the person the picture goes straight to it (the unread mark sets data-attention-href): messages first, else notifications.
+  const openPersonal = useCallback((event) => { const to = event?.currentTarget?.dataset?.attentionHref; if (to) navigate(to); else openWorkspace(); }, [navigate, openWorkspace]);
   const openPrivateHints = useCallback(() => {
     if (!user) { openWorkspace(); return; }
     if (journeyLocked) return;
@@ -1553,7 +1556,7 @@ function SystemFrame2029Body({
             <button type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="sod29-nav-copy">חזרה מדויקת</span></button>
             <button type="button" onClick={openIssueReport} aria-label="דווח על בעיה" title="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="sod29-nav-copy">דווח על בעיה</span></button>
           </div>
-          <button className="sod29-sidebar-workspace" type="button" onClick={openWorkspace} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" /><span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
+          <button className="sod29-sidebar-workspace" type="button" onClick={openPersonal} aria-label="האזור האישי שלי" title="האזור האישי שלי"><UserAvatar2029 user={user} profile={profile} size="rail" />{user ? <React.Suspense fallback={null}><PersonalAttentionBadge2029 userId={user.id} /></React.Suspense> : null}<span className="sod29-sidebar-workspace-copy">האזור האישי שלי</span></button>
           <button className="sod29-rail-toggle" type="button" onClick={toggleRail} aria-expanded={!sidebarCollapsed} aria-controls="sod29-desktop-navigation" aria-label={sidebarCollapsed ? openRailLabel : "צמצם את סרגל הניווט"} title={sidebarCollapsed ? openRailLabel : "צמצם את סרגל הניווט"}>
             <span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? (PUBLIC_READING_RELEASE ? "כל המדורים" : "נעץ") : "צמצם"}</b>
           </button>
@@ -1601,7 +1604,7 @@ function SystemFrame2029Body({
               <button className="sod29-header-return" type="button" onClick={returnExact} disabled={!context?.returnTo?.href} aria-label="חזרה מדויקת" title={context?.returnTo?.label || "אין יעד חזרה שמור"}><span aria-hidden="true"><NavigationIcon2029 name="back" /></span><span className="return-label"> חזרה מדויקת</span></button>
               <button type="button" className="sod29-header-issue" onClick={openIssueReport} aria-label="דווח על בעיה"><span aria-hidden="true"><NavigationIcon2029 name="issue" /></span><span className="issue-label"> דווח על בעיה</span></button>
               <ThemePresetControl2029 compact header />
-              <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openWorkspace} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" /><span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
+              <button type="button" className={`sod29-header-workspace${user ? "" : " is-signed-out"}`} onClick={openPersonal} aria-label={user ? "האזור האישי שלי" : "התחברות לאזור האישי"} title={user ? "האזור האישי שלי" : "התחברות או הרשמה"}><UserAvatar2029 user={user} profile={profile} size="header" />{user ? <React.Suspense fallback={null}><PersonalAttentionBadge2029 userId={user.id} /></React.Suspense> : null}<span className="workspace-label">{user ? accountShortName(user, profile) : "התחברות"}</span></button>
             </div>
             </div>
           </header>
@@ -1684,7 +1687,7 @@ function SystemFrame2029Body({
             </section>
             <div className="sod29-mobile-drawer-utilities" aria-label="פעולות כלליות">
               <button className="sod29-sidebar-workspace" type="button" disabled={!context?.returnTo?.href} onClick={() => { closeMobileNav(false); returnExact(); }}><span className="sod29-nav-icon"><NavigationIcon2029 name="back" /></span><span>חזרה מדויקת</span></button>
-              <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openWorkspace(); }}><UserAvatar2029 user={user} profile={profile} size="rail" /><span>האזור האישי שלי</span></button>
+              <button className="sod29-sidebar-workspace" type="button" onClick={(event) => { closeMobileNav(false); openPersonal(event); }}><UserAvatar2029 user={user} profile={profile} size="rail" />{user ? <React.Suspense fallback={null}><PersonalAttentionBadge2029 userId={user.id} /></React.Suspense> : null}<span>האזור האישי שלי</span></button>
               <button className="sod29-sidebar-workspace" type="button" onClick={() => { closeMobileNav(false); openIssueReport(); }}><span className="sod29-nav-icon"><NavigationIcon2029 name="issue" /></span><span>דווח על בעיה</span></button>
             </div>
           </aside>
