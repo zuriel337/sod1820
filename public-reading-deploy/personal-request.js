@@ -1,10 +1,11 @@
 // Narrow transport for the EXISTING account, research-state and notebook APIs.
 // The canonical Auth server and each endpoint's ownership checks remain authoritative.
-// The unread mark on the profile picture (src/lib/notifications.js PERSONAL_ATTENTION_KINDS): ONE exact filter, never an arbitrary list.
-const PERSONAL_ATTENTION_KIND_FILTER = "in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)";
-// Reading a conversation reads ITS saved DM notification: kind=dm and that conversation's exact link, nothing else.
-const DM_NOTIFICATION_LINK = /^eq\.\/me\?tab=messages&dm=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// NOTE: the emitted worker is built from readingPersonalResponse.toString(): everything this function uses must be INSIDE it.
 export async function readingPersonalResponse(req, { apiKey, clientOrigin, fetchImpl = fetch, verify } = {}) {
+  // The unread mark on the profile picture (src/lib/notifications.js PERSONAL_ATTENTION_KINDS): ONE exact filter, never an arbitrary list.
+  const PERSONAL_ATTENTION_KIND_FILTER = "in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)";
+  // Reading a conversation reads ITS saved DM notification: kind=dm and that conversation's exact link, nothing else.
+  const DM_NOTIFICATION_LINK = /^eq\.\/me\?tab=messages&dm=[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   const u = new URL(req.url), db = "https://linswmnnkjxvweumprav.supabase.co";
   const table = u.origin === db ? /^\/rest\/v1\/(users|profiles|user_notes|research_items|user_research|notification_prefs|user_notifications|wa_account_links)$/.exec(u.pathname)?.[1] : null;
   const rpc = u.origin === db ? /^\/rest\/v1\/rpc\/(research_state_snapshot_v1|research_state_apply_ops_v1|update_my_page_config|dm_inbox|dm_thread|dm_send|watch_toggle|replies_to_me)$/.exec(u.pathname)?.[1] : null;
