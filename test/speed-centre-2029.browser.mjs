@@ -32,7 +32,8 @@ const denied=name=>(...args)=>{f().unexpected.push(name);throw new Error('Unexpe
 export const SUPABASE_URL='https://fixture.invalid',SUPABASE_ANON='fixture-anon';
 export const supabase={rpc:async(name)=>{f().reads.push(name);return {data:null,error:{message:'denied '+name}};},
  auth:{getSession:async()=>({data:{session:f().userId?{user:{id:f().userId}}:null}}),onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})},
- from:table=>{f().unexpected.push('from:'+table);throw new Error('Unexpected table '+table);},functions:{invoke:denied('model')}};
+ // The frame's own unread mark on the profile picture (26.11.2026) reads ONLY the person's notification count: a recorded, empty answer. Any other table is still unexpected.
+ from:table=>{if(table==='user_notifications'){const q={select:()=>q,eq:()=>q,is:()=>q,in:()=>q,then:(ok)=>ok({count:0,data:null,error:null})};f().reads.push('personal-attention');return q;}f().unexpected.push('from:'+table);throw new Error('Unexpected table '+table);},functions:{invoke:denied('model')}};
 export const getSiteFlags=async()=>({});
 // The control page's maintenance view (18.11.2026) reads the pending recommendations: an isolated, recorded, empty answer.
 export const adminSuggestionsList=async(status)=>{f().reads.push('suggestions:'+status);return [];};
