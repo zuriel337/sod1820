@@ -5,7 +5,7 @@ function localPath(href) {
   try { const url = new URL(href); return `${url.pathname}${url.search}`; } catch { return null; }
 }
 
-function PendingRow({ item, onReview }) {
+function PendingRow({ item, onReview, onBlockRequest }) {
   const to = item.href ? localPath(item.href) : null;
   const line = <>
     <strong className="sod29-community-pending-author">{item.authorName}</strong>
@@ -16,13 +16,16 @@ function PendingRow({ item, onReview }) {
     <span className="sod29-community-pending-actions">
       <button type="button" className="sod29-community-text-action" onClick={() => onReview(item.id, "approve")}>אישור</button>
       <button type="button" className="sod29-community-text-action" onClick={() => onReview(item.id, "hide")}>הסתרה</button>
+      {onBlockRequest ? <button type="button" className="sod29-community-text-action" onClick={() => onBlockRequest(item.id)}>חסימת כתיבה…</button> : null}
     </span>
   </li>;
 }
 
 // ZURIEL: don't make a moderator hunt the feed for a greyed-out guest message —
 // pin the count and let it open into a list that jumps straight to each one.
-export default function CommunityGuestReviewPanel2029({ pending, onReview }) {
+// One list for the unreviewed guest messages (this panel). "חסימת כתיבה…" only hands the message to the staff panel (CommunityNetBlocksPanel2029), which owns the block form and the
+// list of blocks, so no message is listed or managed twice: the staff panel leaves out every message that is still pending here.
+export default function CommunityGuestReviewPanel2029({ pending, onReview, onBlockRequest = null }) {
   const [open, setOpen] = useState(false);
   if (!pending?.length) return null;
   return <section className="sod29-community-pending-panel" aria-label="הודעות אורח שממתינות לבדיקה">
@@ -32,7 +35,7 @@ export default function CommunityGuestReviewPanel2029({ pending, onReview }) {
       <span aria-hidden="true">{open ? "▴" : "▾"}</span>
     </button>
     {open ? <ul id="community-pending-guest-list">
-      {pending.map(item => <PendingRow key={item.id} item={item} onReview={onReview} />)}
+      {pending.map(item => <PendingRow key={item.id} item={item} onReview={onReview} onBlockRequest={onBlockRequest} />)}
     </ul> : null}
   </section>;
 }

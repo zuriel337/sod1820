@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { NET_BLOCK_DURATIONS, NET_BLOCK_REASON_MAX, blockGuestFromMessage, cleanNetBlockReason, fetchNetBlocks, fetchRecentGuestMessages, hideGuestMessage, liftNetBlock, netBlockErrorMessage, netBlockReasonValid, netBlocksUnavailable } from "../../lib/community/communityNetBlocksApi.js";
 import "../experience2029/royal2029.css";
+import "./CommunityNetBlocksPanel2029.css";
 
 // Staff-only management of repeated guest harassment (ZURIEL 26.11.2026). Loaded lazily and mounted for moderators alone, so no visitor and no search engine
 // ever downloads it. It stays out of the page until the server confirms the feature (the RPCs exist only after the approved SQL is applied).
@@ -75,7 +76,7 @@ function BlockRow({ block, busy, lift, onOpenLift, onChangeLift, onCloseLift, on
 }
 
 // `seed` is for tests only: it renders a given state without the network.
-export default function CommunityNetBlocksPanel2029({ onChanged, seed = null }) {
+export default function CommunityNetBlocksPanel2029({ onChanged, onReady, pendingIds = null, focusId = "", onFocusHandled, seed = null }) {
   const [available, setAvailable] = useState(seed?.available ?? null);
   const [open, setOpen] = useState(seed?.open ?? false);
   const [recent, setRecent] = useState(seed?.recent ?? []);
@@ -85,9 +86,14 @@ export default function CommunityNetBlocksPanel2029({ onChanged, seed = null }) 
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState("");
   const load = useCallback(async () => {
-    try { const [r, b] = await Promise.all([fetchRecentGuestMessages({ limit: 30 }), fetchNetBlocks({ includeEnded: true, limit: 30 })]); setRecent(r); setBlocks(b); setAvailable(true); }
-    catch (error) { if (netBlocksUnavailable(error)) setAvailable(false); else setNotice("הרשימה לא נטענה. אפשר לנסות שוב."); }
-  }, []);
+    try { const [r, b] = await Promise.all([fetchRecentGuestMessages({ limit: 30 }), fetchNetBlocks({ includeEnded: true, limit: 30 })]); setRecent(r); setBlocks(b); setAvailable(true); onReady?.(true); }
+    catch (error) { if (netBlocksUnavailable(error)) { setAvailable(false); onReady?.(false); } else setNotice("הרשימה לא נטענה. אפשר לנסות שוב."); }
+  }, [onReady]);
+  // A message handed over from the pending panel opens its block form here (the only place that owns it).
+  useEffect(() => {
+    if (!focusId || !available) return;
+    setOpen(true); setForm({ id: focusId, kind: "block", duration: "", reason: "", error: "" }); onFocusHandled?.();
+  }, [focusId, available, onFocusHandled]);
   useEffect(() => { if (!seed) load(); }, [load, seed]);
   const act = useCallback(async (run, doneNotice, setError) => {
     setBusy(true);
@@ -97,6 +103,7 @@ export default function CommunityNetBlocksPanel2029({ onChanged, seed = null }) 
   }, [load, onChanged]);
   if (!available) return null;
   const active = blocks.filter(block => block.state === "active").length;
+  const shown = recent.filter(item => !pendingIds?.has(item.id) || item.id === form?.id);
   return <section className="sod29-community-pending-panel" aria-label="ניהול הטרדות אורחים" data-net-blocks-panel>
     <button type="button" className="sod29-community-pending-toggle" aria-expanded={open} aria-controls="community-net-blocks-body" onClick={() => setOpen(value => !value)}>
       <span>ניהול הטרדות אורחים · {active} חסימות פעילות</span> <span aria-hidden="true">{open ? "▴" : "▾"}</span>
@@ -104,7 +111,7 @@ export default function CommunityNetBlocksPanel2029({ onChanged, seed = null }) 
     {open ? <div id="community-net-blocks-body" className="sod29-community-netblocks-body">
       <p role="status" aria-live="polite">{notice}</p>
       <h3>הודעות אורח אחרונות</h3>
-      <ul>{recent.length ? recent.map(item => <MessageRow key={item.id} item={item} form={form} busy={busy}
+      <ul>{shown.length ? shown.map(item => <MessageRow key={item.id} item={item} form={form} busy={busy}
         onOpen={(id, kind) => setForm({ id, kind, duration: "", reason: "", error: "" })} onClose={() => setForm(null)} onChangeForm={patch => setForm(current => ({ ...current, ...patch, error: "" }))}
         onHide={id => act(() => hideGuestMessage({ messageId: id, reason: form.reason }), "ההודעה הוסתרה.", error => setForm(current => ({ ...current, error })))}
         onBlock={id => act(() => blockGuestFromMessage({ messageId: id, duration: form.duration, reason: form.reason }), "הכתיבה נחסמה.", error => setForm(current => ({ ...current, error })))} />) : <li>אין הודעות אורח ב־14 הימים האחרונים.</li>}</ul>

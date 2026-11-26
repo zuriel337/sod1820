@@ -15,6 +15,8 @@
 --  * Staff block by message for 24 hours, 3 days or 7 days with a mandatory reason; blocks expire by themselves (checked at write time, no cron). Permanent blocks are disabled; once enabled they need
 --    a staff request and the approval of ONE designated approver user (setting empty = nobody can approve = fail closed).
 --  * Every action is recorded in an append-only event table: who, when, why.
+-- The write limits survive the switch: for the first 24 hours after applying, the rate-limit queries count the rows of a network under BOTH keys (the keyed hash and the raw address written by the old code,
+-- derived from the trusted header only), so the window does not reset. New rows are written with the hash only; the raw rows age out by themselves.
 -- Existing write limits are kept: the rate-limit queries and the log now use the keyed hash instead of the raw address (same counts per network: guests 3/hour, 10/24h, 60/hour globally; anonymous contributions 5/hour).
 -- Guard: md5(prosrc) of add_guest_community_message 4eb11358227e6b3d8d77b933e076b28a, add_contribution 2c2baa01ecf07abf1e1511f3cb951d3b, toggle_contribution_reaction 96af69da3d9d8b1b82113248b09e97fa (live 26.11.2026); anchored text patches, each anchor exactly once.
 -- Rollback: 20261126200000_community_net_blocks_ROLLBACK.sql (restores both functions exactly; keeps every table and row: no history is deleted).
@@ -126,6 +128,10 @@ $a$;
   if v_ip is null then raise exception 'rate_limited'; end if;
   if public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
 $a$;
+  g3 constant text := $a$  from public.anon_contrib_log where ip = v_ip and created_at > now() - interval '24 hours';
+$a$;
+  g3n constant text := $a$  from public.anon_contrib_log where ip in (v_ip, coalesce(public.community_trusted_client_ip_v1(), v_ip)) and created_at > now() - interval '24 hours';
+$a$;
   g2 constant text := $a$  insert into public.community_guest_posts (contribution_id) values (v_id);
 $a$;
   g2n constant text := $a$  insert into public.community_guest_posts (contribution_id, net_ref) values (v_id, v_ip);
@@ -136,27 +142,34 @@ $a$;
   c1n constant text := $a$    v_ip := nullif(btrim(v_ip), '');
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
     v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
-    if v_ip is not null and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    if v_ip is not null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
     if v_ip is not null then
+$a$;
+  c2 constant text := $a$      where ip = v_ip and created_at > now() - interval '1 hour';
+$a$;
+  c2n constant text := $a$      where ip in (v_ip, coalesce(public.community_trusted_client_ip_v1(), v_ip)) and created_at > now() - interval '1 hour';
 $a$;
   t1 constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
 $a$;
   t1n constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
   -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
-  if auth.uid() is null and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029'))
+     and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
 $a$;
 begin
   v_def := pg_get_functiondef('public.add_guest_community_message(text,uuid,text,text)'::regprocedure);
   if position('community_net_ref_v1' in v_def) = 0 then
-    if (length(v_def) - length(replace(v_def, g1, ''))) / length(g1) <> 1 or (length(v_def) - length(replace(v_def, g2, ''))) / length(g2) <> 1 then
+    if (length(v_def) - length(replace(v_def, g1, ''))) / length(g1) <> 1 or (length(v_def) - length(replace(v_def, g2, ''))) / length(g2) <> 1
+       or (length(v_def) - length(replace(v_def, g3, ''))) / length(g3) <> 1 then
       raise exception 'add_guest_community_message anchors are not exactly once each; refusing' using errcode = 'P0001'; end if;
-    execute replace(replace(v_def, g1, g1n), g2, g2n);
+    execute replace(replace(replace(v_def, g1, g1n), g2, g2n), g3, g3n);
   end if;
   v_def := pg_get_functiondef('public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'::regprocedure);
   if position('community_net_ref_v1' in v_def) = 0 then
-    if (length(v_def) - length(replace(v_def, c1, ''))) / length(c1) <> 1 then
+    if (length(v_def) - length(replace(v_def, c1, ''))) / length(c1) <> 1
+       or (length(v_def) - length(replace(v_def, c2, ''))) / length(c2) <> 1 then
       raise exception 'add_contribution anchor is not exactly once; refusing' using errcode = 'P0001'; end if;
-    execute replace(v_def, c1, c1n);
+    execute replace(replace(v_def, c1, c1n), c2, c2n);
   end if;
   v_def := pg_get_functiondef('public.toggle_contribution_reaction(uuid,text,text)'::regprocedure);
   if position('community_net_ref_v1' in v_def) = 0 then
@@ -178,6 +191,8 @@ begin
   if not exists (select 1 from public.community_guest_posts where contribution_id = p_message_id) then raise exception 'not_guest_post'; end if;
   select net_ref into v_ref from public.community_guest_posts where contribution_id = p_message_id;
   if v_ref is null then raise exception 'no_network_reference'; end if;   -- historical message: never guessed
+  -- Serialise one staff member's blocks so the hourly cap holds for parallel requests too.
+  perform pg_advisory_xact_lock(hashtextextended('community_net_block_actor:' || v_uid::text, 1820));
   select count(*) into v_recent from public.community_net_block_events where actor = v_uid and action = 'block_created' and at > now() - interval '1 hour';
   if v_recent >= 10 then raise exception 'too_many_blocks'; end if;
   perform pg_advisory_xact_lock(hashtextextended('community_net_block:' || v_ref, 1820));

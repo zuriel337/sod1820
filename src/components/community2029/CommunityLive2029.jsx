@@ -488,6 +488,9 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [guestSending, setGuestSending] = useState(false);
   const [guestPending, setGuestPending] = useState(() => []);
   const guestUnreviewedIds = useMemo(() => new Set(guestPending.map(item => item.id)), [guestPending]);
+  const [netBlocksReady, setNetBlocksReady] = useState(false);
+  const [netBlockFocus, setNetBlockFocus] = useState("");
+  const clearNetBlockFocus = useCallback(() => setNetBlockFocus(""), []);
   const guestReviewRead = useRef(0);
   // null = the pinned strip is still loading and its place is kept. S-59 (25.11.2026): the place is kept only when this browser last saw pins;
   // with no pins (the usual case: none exist) the reserved strip collapsed on every visit and the composer and the feed jumped 58 px.
@@ -1048,8 +1051,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunityTreeHints2029 hints={treeHints} />
-        {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} /> : null}
-        {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 onChanged={() => { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); }} /></Suspense> : null}
+        {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} onBlockRequest={netBlocksReady ? setNetBlockFocus : null} /> : null}
+        {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 pendingIds={guestUnreviewedIds} focusId={netBlockFocus} onFocusHandled={clearNetBlockFocus} onReady={setNetBlocksReady} onChanged={() => { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); }} /></Suspense> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>

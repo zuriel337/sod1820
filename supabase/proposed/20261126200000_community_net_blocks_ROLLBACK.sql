@@ -5,7 +5,8 @@ do $migration$
 declare v_def text; v_new text;
   t1n constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
   -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
-  if auth.uid() is null and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029'))
+     and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
 $a$;
   t1 constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
 $a$;
@@ -18,6 +19,14 @@ $a$;
   g1 constant text := $a$  -- Fail closed: without an address the limits cannot be enforced.
   if v_ip is null then raise exception 'rate_limited'; end if;
 $a$;
+  g3n constant text := $a$  from public.anon_contrib_log where ip in (v_ip, coalesce(public.community_trusted_client_ip_v1(), v_ip)) and created_at > now() - interval '24 hours';
+$a$;
+  g3 constant text := $a$  from public.anon_contrib_log where ip = v_ip and created_at > now() - interval '24 hours';
+$a$;
+  c2n constant text := $a$      where ip in (v_ip, coalesce(public.community_trusted_client_ip_v1(), v_ip)) and created_at > now() - interval '1 hour';
+$a$;
+  c2 constant text := $a$      where ip = v_ip and created_at > now() - interval '1 hour';
+$a$;
   g2n constant text := $a$  insert into public.community_guest_posts (contribution_id, net_ref) values (v_id, v_ip);
 $a$;
   g2 constant text := $a$  insert into public.community_guest_posts (contribution_id) values (v_id);
@@ -25,7 +34,7 @@ $a$;
   c1n constant text := $a$    v_ip := nullif(btrim(v_ip), '');
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
     v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
-    if v_ip is not null and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    if v_ip is not null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
     if v_ip is not null then
 $a$;
   c1 constant text := $a$    v_ip := nullif(btrim(v_ip), '');
@@ -35,14 +44,14 @@ begin
   perform set_config('lock_timeout', '3s', true);
   v_def := pg_get_functiondef('public.add_guest_community_message(text,uuid,text,text)'::regprocedure);
   if position('community_net_ref_v1' in v_def) > 0 then
-    v_new := replace(replace(v_def, g1n, g1), g2n, g2);
+    v_new := replace(replace(replace(v_def, g1n, g1), g2n, g2), g3n, g3);
     if (select md5(prosrc) from pg_proc where oid = 'public.add_guest_community_message(text,uuid,text,text)'::regprocedure) is not null and position('community_net_ref_v1' in v_new) > 0 then
       raise exception 'add_guest_community_message changed after the patch; refusing' using errcode = 'P0001'; end if;
     execute v_new;
   end if;
   v_def := pg_get_functiondef('public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'::regprocedure);
   if position('community_net_ref_v1' in v_def) > 0 then
-    v_new := replace(v_def, c1n, c1);
+    v_new := replace(replace(v_def, c1n, c1), c2n, c2);
     if position('community_net_ref_v1' in v_new) > 0 then raise exception 'add_contribution changed after the patch; refusing' using errcode = 'P0001'; end if;
     execute v_new;
   end if;

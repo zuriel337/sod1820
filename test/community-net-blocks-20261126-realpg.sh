@@ -50,11 +50,13 @@ ROOTMSG=$(Q -c "insert into public.research_contributions(author_name,origin,sta
 G() { as_user - "$(H "$1")" "select public.add_guest_community_message('$2', '$ROOTMSG', '', null)"; } # $1 ip, $2 body
 check "$(G 203.0.113.7 'תגובה לפני התיקון' | grep -c ERROR)|$(Q -c "select ip from public.anon_contrib_log")|$(Q -c "select count(*) from public.community_guest_posts")" '0|203.0.113.7|1' 'baseline: before the patch the raw address is what the existing rate-limit log stores (the gap)'
 HIST=$(Q -c "select contribution_id from public.community_guest_posts limit 1")
+# rows the OLD code wrote in the last hour for two other networks: the limits must still count them after the switch to hashes
+Q -c "insert into public.anon_contrib_log(ip) values ('192.0.2.77'),('192.0.2.77'),('192.0.2.77'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78')"
 
 F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$?" 0 'apply: the proposal applies as one transaction on the live fingerprints'
 check "$(FE "$P/20261126200000_community_net_blocks_PROPOSAL.sql" | grep -c ERROR)" 0 'apply: re-applying is a quiet no-op'
 check "$(G 203.0.113.7 'תגובה אחרי התיקון' | grep -c ERROR)|$(Q -c "select count(*) from public.community_guest_posts where net_ref ~ '^[0-9a-f]{64}\$'")|$(Q -c "select count(*) from public.community_guest_posts where net_ref is null")" '0|1|1' 'link: a new guest message carries a 64-hex network reference; the historical one has none (no guess, no time matching)'
-check "$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9.:]+\$' and id > 1")|$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9a-f]{64}\$'")" '0|1' 'privacy: from now on the rate-limit log stores the hash, never the raw address'
+check "$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9.:]+\$' and id > 9")|$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9a-f]{64}\$'")" '0|1' 'privacy: from now on the rate-limit log stores the hash, never the raw address'
 check "$(Q -c "select count(*) from public.community_guest_posts g join public.anon_contrib_log l on l.ip = g.net_ref")" 1 'privacy: the message reference and the rate-limit log use the same keyed hash'
 NEW=$(Q -c "select contribution_id from public.community_guest_posts where net_ref is not null limit 1")
 
@@ -70,7 +72,10 @@ check "$(Q -c "select status from public.research_contributions where id='$NEW'"
 check "$(as_user $MOD - "select public.community_guest_hide_v1('$NEW','הודעה פוגענית וברורה')" | grep -c ERROR)|$(Q -c "select status from public.research_contributions where id='$NEW'")|$(Q -c "select count(*) from public.community_net_blocks")|$(Q -c "select count(*) from public.community_net_block_events where action='message_hidden'")" '0|hidden|1|1' 'separate: hiding a message is its own action; it creates no block and is audited'
 check "$(G 203.0.113.7 'ניסיון מהרשת החסומה' | grep -c 'community_write_blocked')" 1 'enforce: a guest reply from the blocked network is refused'
 check "$(G 203.0.113.9 'מאותה רשת' | grep -c ERROR)|$(G 198.51.100.4 'רשת אחרת' | grep -c ERROR)" '0|0' 'enforce: another address is not blocked (an IPv4 address is the unit)'
-check "$(as_user - "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','x',null,null,null,null,null,'אורח',null)" | grep -c 'community_write_blocked')" 1 'enforce: the anonymous contribution route cannot be used to bypass the block'
+check "$(as_user - "$(H 203.0.113.7)" "select public.add_contribution('תגובה','community_2029','x',null,null,null,null,null,'אורח',null)" | grep -c 'community_write_blocked')" 1 'enforce: the anonymous COMMUNITY contribution route cannot be used to bypass the block'
+check "$(as_user - "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','מחקר מחוץ לקהילה',null,null,null,null,null,'אורח',null)" | grep -c ERROR)" 0 'scope: the same blocked network can still send a contribution outside the community (origin beit_midrash)'
+OUT=$(Q -c "insert into public.research_contributions(author_name,origin,status,target_type,target_id,body) values ('חבר','beit_midrash','approved','research','x','מחוץ לקהילה') returning id")
+check "$(as_user - "$(H 203.0.113.7)" "select public.toggle_contribution_reaction('$OUT','👍','community-repeatable-like')" | grep -c 'community_write_blocked')" 0 'scope: a reaction on a message outside the community (origin beit_midrash) is not affected by the block'
 check "$(as_user $USR "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','חשבון מחובר',null,null,null,null,null,null,null)" | grep -c ERROR)" 0 'scope: a signed-in account on the same network is not affected'
 check "$(as_user - - "select count(*) from public.research_contributions where status='approved'" | tail -1)" "$(Q -c "select count(*) from public.research_contributions where status='approved'")" 'scope: reading is not affected by a block (anon read of approved rows still works)'
 check "$(as_user $MOD - "select * from public.community_net_blocks_list_v1(false, 10)" | grep -cE '203\.0\.113|[0-9a-f]{64}')|$(Q -c "select count(*) from pg_proc p where proname like 'community_%' and prorettype::regtype::text not in ('void','boolean','uuid') and pg_get_function_result(oid) ~* 'net_ref|ip'")" '0|0' 'privacy: the staff list contains neither the address nor the network reference, and no new function returns an address or reference column'
@@ -81,6 +86,7 @@ check "$(as_user $MOD - "select count(*) from public.community_guest_recent_v1(5
 check "$(as_user $MOD - "select can_block::text||'/'||network_blocked::text||'/'||status from public.community_guest_recent_v1(50) where id='$NEW'" | tail -1)|$(as_user $MOD - "select can_block::text from public.community_guest_recent_v1(50) where id='$HIST'" | tail -1)" 'true/true/hidden|false' 'recent: a hidden message from a blocked network shows blocked, a historical one shows it cannot be blocked'
 # expiry and lift
 Q -c "update public.community_net_blocks set expires_at = now() - interval '1 minute', created_at = now() - interval '25 hours' where id='$BID'"
+Q -c "truncate public.anon_contrib_log"   # the shared hourly limit would otherwise (correctly) refuse this third write from the same network
 check "$(G 203.0.113.7 'אחרי הפקיעה' | grep -c ERROR)" 0 'expiry: the block ends by itself (checked at write time, no cron)'
 check "$(as_user $MOD - "select state from public.community_net_blocks_list_v1(true, 10)" | tail -1)" expired 'expiry: the list shows it as expired'
 NEW2=$(Q -c "select contribution_id from public.community_guest_posts where net_ref is not null order by created_at desc limit 1")
@@ -114,10 +120,24 @@ LIMIT_OK=0; for i in 1 2 3; do [ "$(G 192.0.2.50 "בדיקת מגבלה $i" | gr
 check "$LIMIT_OK|$(G 192.0.2.50 'הרביעית' | grep -c 'rate_limited')|$(G 192.0.2.51 'רשת אחרת' | grep -c ERROR)" '3|1|0' 'limits: guests keep 3 messages per hour per network (the 4th is refused, another network is independent)'
 CL=0; for i in 1 2 3 4 5; do [ "$(as_user - "$(H 192.0.2.60)" "select public.add_contribution('תגובה','beit_midrash','x$i',null,null,null,null,null,'אורח',null)" | grep -c ERROR)" = 0 ] && CL=$((CL+1)); done
 check "$CL|$(as_user - "$(H 192.0.2.60)" "select public.add_contribution('תגובה','beit_midrash','x6',null,null,null,null,null,'אורח',null)" | grep -c 'rate_limited')" '5|1' 'limits: anonymous contributions keep 5 per hour per network'
+Q -c "insert into public.anon_contrib_log(ip) values ('192.0.2.77'),('192.0.2.77'),('192.0.2.77'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78')"   # rows of the OLD code (raw address) written within the last hour
+check "$(G 192.0.2.77 'אחרי המעבר ל-hash' | grep -c 'rate_limited')|$(as_user - "$(H 192.0.2.78)" "select public.add_contribution('תגובה','beit_midrash','x',null,null,null,null,null,'אורח',null)" | grep -c 'rate_limited')" '1|1' 'limits: rows written by the old code (raw address) still count for the same network after the switch: the window does NOT reset (guests 3/hour, contributions 5/hour)'
+# per-staff cap under parallel requests: 30 networks, 8 parallel clients, cap 10 per hour
+Q -c "create table public.tmp_msgs(n int primary key, id uuid); do \$\$ declare i int; c uuid; begin for i in 1..30 loop insert into public.research_contributions(author_name,origin,status,target_type,target_id,parent_id,body) values ('אורח','community_2029','approved','home','community','$ROOTMSG','x') returning id into c; insert into public.tmp_msgs values (i, c); insert into public.community_guest_posts(contribution_id, net_ref) values (c, encode(sha256(convert_to('net'||i,'UTF8')),'hex')); end loop; end \$\$; grant select on public.tmp_msgs to authenticated; truncate public.community_net_block_events restart identity;"
+cat > "$TMP/cap.pgb" <<PGB
+\set n random(1,30)
+begin;
+set local role authenticated;
+select set_config('test.uid','$MOD',true);
+do \$\$ begin perform public.community_guest_block_from_message_v1((select id from public.tmp_msgs where n = :n), 'h24', 'חסימה מקבילה לבדיקת התקרה'); exception when others then null; end \$\$;
+commit;
+PGB
+"$PG_BIN/pgbench" -h "$TMP" -p 54397 -U postgres -n -c 8 -j 4 -t 25 -f "$TMP/cap.pgb" review >/dev/null 2>&1 || true
+check "$(Q -c "select count(*) from public.community_net_block_events where actor='$MOD' and action='block_created'")" 10 'cap: 200 parallel block requests from one staff member over 30 networks create exactly 10 blocks (the hourly cap holds under concurrency)'
 # IPv6: one /64 is one network
 V6=$(as_user - "$(H 2001:db8:aaaa:1::5)" "select public.add_guest_community_message('מרשת שש', '$ROOTMSG', '', null)" | tail -1)
 V6M=$(Q -c "select contribution_id from public.community_guest_posts order by created_at desc limit 1")
-as_user $MOD - "select public.community_guest_block_from_message_v1('$V6M','h24','הטרדה חוזרת מרשת IPv6')" >/dev/null
+as_user $ADM - "select public.community_guest_block_from_message_v1('$V6M','h24','הטרדה חוזרת מרשת IPv6')" >/dev/null
 check "$(as_user - "$(H 2001:db8:aaaa:1::99)" "select public.add_guest_community_message('אותה רשת', '$ROOTMSG', '', null)" | grep -c 'community_write_blocked')|$(as_user - "$(H 2001:db8:aaaa:2::5)" "select public.add_guest_community_message('רשת אחרת', '$ROOTMSG', '', null)" | grep -c ERROR)" '1|0' 'ipv6: the unit is the /64; a different /64 is not blocked'
 check "$(as_user - "$(H 'not-an-ip')" "select public.add_guest_community_message('x', '$ROOTMSG', '', null)" | grep -c 'rate_limited')" 1 'fail closed: an unparsable address cannot write (as the existing route already did without an address)'
 # performance of the added work
