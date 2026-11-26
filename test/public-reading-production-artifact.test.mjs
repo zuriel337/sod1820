@@ -397,7 +397,7 @@ test("sitemap reuses eligible publication owner for both Post families, Numbers,
   const fetcher = async (url, options) => {
     const value = String(url); calls.push(value);
     if (value.includes("/posts?")) return json([legacy, modern, encoded]);
-    if (value.includes("/rpc/sitemap_numbers")) { assert.equal(options.method, "POST"); return json([{ value: 1820 }]); }
+    if (value.includes("/rpc/sitemap_numbers")) { assert.equal(options.method, "POST"); return new Response(JSON.stringify([{ value: 1820 }]), { status: 206, headers: { "Content-Type": "application/json", "content-range": "0-0/1" } }); }
     if (value.includes("/sitemap_phrases_v1?")) return options?.method === "HEAD"
       ? new Response(null, { headers: { "content-range": "0-0/1" } }) : json([{ phrase: "בראשית" }]);
     if (value.includes("/research_contributions?")) {
