@@ -43,4 +43,4 @@
 2. **עמודי תוכן** (`post2029-*.css`, `posts*`, `calculator*`, `topic2029`, `stats2029`): כפתורי הפעולה הראשית/המשנית לפי התקן.
 3. **משטחי מחקר מיוחדים** (`numberCore2029.css`, `elsNativeClassic2029.css`, `bentov*`, `ahavat*`, `seferYetzirah*`): רק לאחר החלטה לפי §14.12 C; ברירת מחדל נשארים.
 4. אחרי כל שלב: `--lower` ועדכון הבסיס; בדיקה בשלוש ערכות, 320/390/1440, נגישות ותקציב המעטפת.
-5. **`canonical_ui_components_law` v13 §3** — הוספת סעיף 3א בחוק עצמו (DB) דורשת אישור נפרד. הנוסח המדויק לאישור: `docs/reviews/design-language-gap-map-20261125/law-v14-exact.sql` (לא הוחל).
+5. **`canonical_ui_components_law` v13 §3** — הוספת סעיף 3א בחוק עצמו (DB) דורשת אישור נפרד. הנוסח המדויק: `docs/reviews/design-language-gap-map-20261125/law-v14-exact.sql` (אושר עקרונית 26.11; לא הוחל).

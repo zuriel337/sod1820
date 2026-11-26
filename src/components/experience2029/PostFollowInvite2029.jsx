@@ -1,7 +1,6 @@
 import React from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
-import { openPostFollow } from "../../lib/research/postFollowOpenStore2029.js";
+import { openPostFollow, postFollowLocked } from "../../lib/research/postFollowOpenStore2029.js";
 import { usePostFollowTargets, usePostFollowing } from "./postFollowShared2029.js";
 import "./royal2029.css";
 import "./postFollowDialog2029.css";
@@ -10,7 +9,7 @@ import "./postFollowDialog2029.css";
 // where follows are open; it opens the same panel as the bell and shows the same state.
 export default function PostFollowInvite2029({ post }) {
   const auth = useAuth();
-  const locked = publicReadingActionsLocked(auth.isAdmin);
+  const locked = postFollowLocked(auth.isAdmin);
   const { ready } = usePostFollowTargets(post);
   const following = usePostFollowing(ready.map(item => item.topic));
   if (locked || !ready.length) return null;

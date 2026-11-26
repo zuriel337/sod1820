@@ -1,8 +1,7 @@
 import React from "react";
 import WatchButton from "../WatchButton.jsx";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
-import { closePostFollow } from "../../lib/research/postFollowOpenStore2029.js";
+import { closePostFollow, postFollowLocked } from "../../lib/research/postFollowOpenStore2029.js";
 import { sharedFollowIO, usePostFollowTargets } from "./postFollowShared2029.js";
 import RoyalSheet2029 from "./RoyalSheet2029.jsx";
 import "./postFollowDialog2029.css";
@@ -12,7 +11,7 @@ import "./postFollowDialog2029.css";
 // push or WhatsApp. Where follows are still closed to the public it says so instead of offering a dead button.
 export default function PostFollowDialog2029({ post }) {
   const auth = useAuth();
-  const locked = publicReadingActionsLocked(auth.isAdmin);
+  const locked = postFollowLocked(auth.isAdmin);
   const { ready, status } = usePostFollowTargets(post);
   return <RoyalSheet2029 titleId="post-follow-title" onClose={closePostFollow} data-sheet="post-follow">
     <h2 id="post-follow-title">מעקב</h2>

@@ -8,6 +8,7 @@ import { getNotificationPrefs } from "../lib/supabase.js";
 import { watchToggle } from "../lib/commandCenter.js";
 import { PUSH_CONFIGURED, pushSupported, enablePush } from "../lib/push.js";
 import { trackConversion } from "../lib/marketing.js";
+import { postPanelFollowAllowed } from "../lib/research/postFollowOpenStore2029.js";
 import { includesFollowSubject } from "../lib/followIdentity.js";
 import EmailVerify from "./EmailVerify.jsx";
 import WatchControl2029 from "./followCenter2029/WatchControl2029.jsx";
@@ -35,7 +36,7 @@ export default function WatchButton(props) {
   // ZURIEL 18.11.2026 ("פתוח לכולם, גם לאורחים"): the reality-stream follow and the series bells on Home open in the public reading
   // release, for guests too. Only a callsite that asks for it (publicFollow) and only these two subjects; every other follow stays closed.
   const publicFollow = props.publicFollow === true && (props.topic === "stream:reality" || /^series:[^\s:]{1,80}$/.test(props.topic || ""));
-  const actionsLocked = publicReadingActionsLocked(auth.isAdmin) && !communityThread && !publicFollow;
+  const actionsLocked = publicReadingActionsLocked(auth.isAdmin) && !communityThread && !publicFollow && !postPanelFollowAllowed(props.source, props.topic);
   // A closed capability must not mount the controller or create a visitor identity.
   // Keep a truthful, inert affordance; existing Follow data is neither read nor changed.
   if (actionsLocked) return props.topic ? <button type="button" className="sod29-action"

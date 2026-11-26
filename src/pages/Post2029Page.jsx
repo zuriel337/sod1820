@@ -114,6 +114,7 @@ const PostComments2029 = toolOnApproach2029(() => import("../components/experien
 const PostEndShare2029 = toolOnApproach2029(() => import("../components/experience2029/PostEndShare2029.jsx"), "טוען שיתוף");
 const PostActionBar2029 = React.lazy(() => import("../components/experience2029/PostActionBar2029.jsx"));
 const PostFollowDialog2029 = React.lazy(() => import("../components/experience2029/PostFollowDialog2029.jsx"));
+const PostContinue2029 = toolOnApproach2029(() => import("../components/experience2029/PostContinue2029.jsx"), "");
 const PostFollowInvite2029 = toolOnApproach2029(() => import("../components/experience2029/PostFollowInvite2029.jsx"), "");
 const PostUnitEditors2029 = toolOnOpen2029(() => import("../components/experience2029/PostUnitEditors2029.jsx"));
 const PreviewUnitExtras2029 = toolOnOpen2029(() => import("../components/experience2029/PreviewUnitExtras2029.jsx"));
@@ -1586,6 +1587,7 @@ function PostReadingBody({ resolvedSlug = null, sourceReader = null }) {
       : <p role="status">{calculationNotice}</p>) : null}
     {/* Admin only (ZURIEL 25.11.2026): one closed row under the Post that holds the work tools (sources, connections, calculations). Readers never see it. */}
     {isAdmin === true && !bennettTimeline ? <details className="sod29-post-admin-row"><summary>כלי מנהל</summary>{researchDisclosure}</details> : null}
+    {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostContinue2029 post={projection.sourcePost} onOpen={openConnection} /> : null}
     {commentPostId != null && !projection.draft && !projection.privateStage && !projection.previewSnapshot ? <PostFollowInvite2029 post={projection.sourcePost} /> : null}
     {followOpen && commentPostId != null ? <React.Suspense fallback={null}><PostFollowDialog2029 post={projection.sourcePost} /></React.Suspense> : null}
     {commentPostId != null ? <PostComments2029 key={commentPostId} postId={commentPostId} postWpId={commentArchiveId} href={publicPostShareUrl(post, location)} title={post.title} /> : null}

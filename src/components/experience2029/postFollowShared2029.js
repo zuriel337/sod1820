@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
-import { publicReadingActionsLocked } from "../../lib/publicReadingRelease2029.js";
+import { postFollowLocked } from "../../lib/research/postFollowOpenStore2029.js";
 import { getVisitorId } from "../../lib/tracking.js";
 import { getNotificationPrefs } from "../../lib/supabase.js";
 import { watchToggle } from "../../lib/commandCenter.js";
@@ -23,7 +23,7 @@ export function readPostFollowTargets(post) {
 // Only a target with a verified updates route is offered (state "ready"); every other state is never shown as a follow.
 export function usePostFollowTargets(post) {
   const { isAdmin } = useAuth();
-  const locked = publicReadingActionsLocked(isAdmin);   // follows are closed to the public: no target requests are made for nothing (Speed Law)
+  const locked = postFollowLocked(isAdmin);   // follows are closed to the public: no target requests are made for nothing (Speed Law)
   const [view, setView] = useState({ key: "", ready: [], status: "loading" });
   const { key, promise } = useMemo(() => locked ? { key: "locked", promise: null } : readPostFollowTargets(post), [post, locked]);
   useEffect(() => {
