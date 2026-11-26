@@ -191,6 +191,7 @@ jobs:
           test/measurement-hebrew-path-20261118.test.mjs
           test/story-2029-measurement.test.mjs
           test/video-2029-measurement.test.mjs
+          test/community-on-demand-load-2029.test.mjs
           test/analytics-google-seo-closure-20261118.test.mjs
           test/gsc-sync-behaviour-20261118.test.mjs
           test/analytics-followups-20261118.test.mjs
