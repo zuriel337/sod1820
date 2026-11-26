@@ -6,7 +6,7 @@ import { LEGACY_UPLOAD_PREFIX, LEGACY_UPLOAD_CDN_SECONDS, legacyUploadTarget } f
 import { PUBLIC_READING_PROFILE_ID, publicReadingPath, publicReadingContinuation, publicTemporarilyClosed, PUBLIC_TEMPORARILY_CLOSED_RETRY_AFTER } from "../../src/lib/publicReadingRelease2029.js";
 import { withArticleFirst2029 } from "./article-first.js";
 import { withRoutePreloads2029 } from "../route-preload.js";
-import { firstWordsFacts2029, firstWordsHtml2029, numberWordsInFlight2029, withFirstWords2029, firstWordsGraceMs2029, firstWordsStaticFacts2029 } from "../first-words.js";
+import { firstWordsFacts2029, firstWordsHtml2029, numberWordsInFlight2029, withFirstWords2029, firstWordsGraceMs2029, firstWordsStaticFacts2029, numberAnchorRows2029 } from "../first-words.js";
 import { CANONICAL_ORIGIN, publicReadingOriginAllowed, protectedReviewOrigin, protectedReviewAuthOrigin, publicCandidateOrigin, publicIndexingAllowed, deploymentAuthorized } from "../authorization.js";
 
 export function requestOrigin(req) {
@@ -122,6 +122,29 @@ export function pageDocumentCdnHeaders(path, policy = PAGE_DOCUMENT_CDN_CACHE) {
   };
 }
 
+// NUMBER_DOCUMENT_CDN_CACHE (S-62, stage 2, STAGED AND OFF: nothing is kept until ZURIEL switches NUMBER_DOCUMENT_CDN_ENABLED on, after the
+// stage 1 measurement). The extension of the two classes above to /number/<number or phrase>. It is the same document for every reader (the handler
+// reads no cookie, header or account), but unlike the Post, the Home and the chat it is built from live rows, so three more conditions apply:
+//  - only a document that carries its first words ("served") is kept: a document that went out without them (a read that missed its deadline, or
+//    no public row) is never kept, so a slow moment cannot become the kept answer;
+//  - the bound is the one the first words already have per instance (5 minutes fresh, then used once while it refreshes); a number or phrase that
+//    is hidden leaves the kept copy within FRESH + STALE, and a purge by tag (number-document) is possible at any time;
+//  - measured 26.11.2026 (quiet hour 07:00-08:00 UTC) the repeat rate of these addresses within an hour is 1-2%, and a crawl walks distinct
+//    addresses, so the saving is small; it is staged for the day the measurement shows repeats, not as the first step.
+export const NUMBER_DOCUMENT_CDN_ENABLED = false;
+export const NUMBER_DOCUMENT_CDN_CACHE = Object.freeze({ version: "number-cdn-v1", freshSeconds: 300, staleSeconds: 60, tag: "number-document" });
+export function numberDocumentCdnCacheable({ method, status, state, temporarilyClosed = false, search = "", originalDocument, post, fresh = false, path = "", wordsState } = {}, enabled = NUMBER_DOCUMENT_CDN_ENABLED) {
+  return enabled === true && !fresh && /^\/number\/[^/]+$/.test(path) && (method === "GET" || method === "HEAD") && status === 200 && state === "public"
+    && !temporarilyClosed && originalDocument === true && !search && post == null && wordsState === "served";
+}
+export function numberDocumentCdnHeaders(path, policy = NUMBER_DOCUMENT_CDN_CACHE) {
+  return {
+    "Vercel-CDN-Cache-Control": `max-age=${policy.freshSeconds}, stale-while-revalidate=${policy.staleSeconds}`,
+    "Vercel-Cache-Tag": `${policy.tag},${policy.tag}-${/^\/number\/\d+$/.test(path) ? "number" : "phrase"}`,
+    "X-Sod-Document-Cache": policy.version,
+  };
+}
+
 // Dependency injection remains a local synthetic test seam. Hosted admission
 // uses only the exact generated protected-review receipt; no request selects it.
 export function publicReadingDocumentHandler({ authorized = deploymentAuthorized, indexable = publicIndexingAllowed,
@@ -212,6 +235,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       await metadataHandler({ ...req,
         publicReadingArticleSource: row => { admittedPost = row; },
         publicReadingFirstWords: facts => { admittedWords = facts; },
+        // The one read of a number's anchor, shared with the first words (a number document reads number_anchors once).
+        publicReadingNumberAnchor: value => numberAnchorRows2029(value),
         publicFoundationPreview: true,
         publicReadingRelease: PUBLIC_READING_PROFILE_ID,
         publicReadingProductionArtifact: true,
@@ -249,7 +274,8 @@ export function publicReadingDocumentHandler({ authorized = deploymentAuthorized
       res.setHeader("Content-Type", "text/html; charset=utf-8");
       if (path.replace(/\/+$/, "") === "/unsubscribe") res.setHeader("Referrer-Policy", "no-referrer");
       const keep = { method: req.method, status, state, temporarilyClosed, search, originalDocument, post: admittedPost, articleFirst: firstDocument.state, fresh, path };
-      const cdnHeaders = postDocumentCdnCacheable(keep) ? postDocumentCdnHeaders(admittedPost) : pageDocumentCdnCacheable(keep) ? pageDocumentCdnHeaders(path) : {};
+      const cdnHeaders = postDocumentCdnCacheable(keep) ? postDocumentCdnHeaders(admittedPost) : pageDocumentCdnCacheable(keep) ? pageDocumentCdnHeaders(path)
+        : numberDocumentCdnCacheable({ ...keep, wordsState: words.state }) ? numberDocumentCdnHeaders(path) : {};
       for (const [name, value] of Object.entries(cdnHeaders)) res.setHeader(name, value);
       return res.status(status).send(req.method === "HEAD" ? "" : html);
     } catch {
