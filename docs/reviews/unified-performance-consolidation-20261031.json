@@ -4625,10 +4625,45 @@
           "what_must_not_change": "Identical content for people and crawlers (the baked block is the same bytes); open indexing and canonical (the document is unchanged apart from the data block); every measurement call (group C) stays; engagement and web vitals still fire; hidden or removed content disappears within the same bound as S-47; privacy floor (public data only, no account data in the shared document); no bot blocking.",
           "recommended_order": "2 then 1 (client first, no SQL, smallest risk; then the shared document block), 3 together with 2, 4 last and only with its own SQL approval. After each: measure with the same method (edge logs per session, HIT/MISS, DB reads, TTFB, CLS 0).",
           "expected_effect": "With options 1+2 an entrance that does not interact would make about 8 to 12 calls (the measurement set and the visit), instead of about 45, for wave and crawler traffic as well as for people. To be measured, not assumed.",
-          "status": "NOT started: needs ZURIEL's decision on which option to build and a branch under the speed law (shell budget unchanged, document handler stays server-side)."
+          "status": "NOT started: needs ZURIEL's decision on which option to build and a branch under the speed law (shell budget unchanged, document handler stays server-side).",
+          "implementation_20261127": {
+            "branch_pr": "claude/community-load-reduction-20261127, PR #1581 (draft), head a3365c1dedb18b88c3b15a9920730025271db46a; separate from the unified deployment, which it must not delay.",
+            "step_1_on_demand": "src/lib/community/communityOnDemandLoad.js (watchEngagement / useEngagedOrDwell): the decoration reads (pinned strip, staff badges, online list) start on the first pointer, key, touch, wheel or scroll, or after 8 s of visible dwell. A browser that has seen pins here before still reads them at once, so the reserved strip place never jumps. A no-pins first-time visitor who has pins appear after 8 s without input could see one late shift (only when pins exist; none exist today).",
+            "step_2_visible_only": "visibleInterval: presence list (60 s) and moderator guest-unreviewed (30 s) run only while the tab is visible and run once at once when it returns after a full period away. The signed-in presence ping (already visibility-gated), the feed, reply counts, thread updates and every measurement call are unchanged, so notifications keep working.",
+            "step_3_public_cache_verified_not_built": "Privacy and freshness check of the public-cache option against the live database (read-only): community_staff_user_ids_v1, community_presence_online, community_tree_hints_list, community_message_context, community_replies_page, community_reply_counts, community_thread_updates and world_group_source_arrivals_v2 are SECURITY DEFINER, STABLE and do not read auth.uid(): their results are the same for every viewer, so they may be shared. community_feed_page_v2 is SECURITY INVOKER: it runs under the viewer's RLS, so a signed-in viewer can see rows an anonymous one cannot; a shared document block would have to be the anonymous view and a signed-in client must still read its own. Freshness: today 0 s; the document class is 300 s plus stale; hidden or removed messages would need the purge-by-tag route of S-47 for a new chat tag. Conclusion: step 3 is feasible for the definer group only after steps 1-2 are measured; the feed block needs its own design and approval. No new cache is built.",
+            "tests": "5 new (community-on-demand-load-2029, wired into live-contracts-2029); the existing community harness got two stubs (useEngagedOrDwell, visibleInterval) without weakening a check: 28 of 28 pass; npm run build and the shell budget pass; the only failing community test is test/community-calculator-runtime-2029 on a package missing locally (react-test-renderer), failing on clean main too.",
+            "after_measurement": "Same method as the wave analysis: Supabase API calls per session (target: an entrance that never interacts makes only the feed chain and the measurement set), HIT/MISS, TTFB, CLS 0. Only after an approved deployment."
+          }
         },
         "classification_v4_update_20261127": "PR #1579 head f27ebeed72d6b03cc7e006fa264a90462a13569c: identified (logged-in) visitors are never marked and are not counted toward the threshold (26.11: 3 of 4,840 signature sessions were identified); consistency across windows proven locally (day, three-day and unbounded windows agree row for row); 17 checks on PostgreSQL 16 and 17. PROPOSAL.sql sha256 e47db0f8fb8148ed..., ROLLBACK.sql 9e0ee82c3ffe1ad1.... Draft contract text in the folder README (EXTEND_EXISTING traffic_intelligence_law). Contract amendment and SQL are two separate approvals; not applied.",
-        "ga4_completion_update_20261127": "Exact hash for the write approval: supabase/proposed/ga4-history-completion-20261126/APPLY.sql sha256 cd0cecc6587c3e63... (PR #1579 head f27ebeed). The 124 new rows carry a provenance note: Google GA4 numbers as received (not measured here). Verification we can state: Oct 1-Nov 4 our sessions 10,799 vs Google 10,038 (ratio 1.08); our views 40,433 vs 33,289 (ours includes Legacy double counting, root-cause doc 3.1). 14 local checks on PostgreSQL 16 and 17. NOT written."
+        "ga4_completion_update_20261127": "Exact hash for the write approval: supabase/proposed/ga4-history-completion-20261126/APPLY.sql sha256 cd0cecc6587c3e63... (PR #1579 head f27ebeed). The 124 new rows carry a provenance note: Google GA4 numbers as received (not measured here). Verification we can state: Oct 1-Nov 4 our sessions 10,799 vs Google 10,038 (ratio 1.08); our views 40,433 vs 33,289 (ours includes Legacy double counting, root-cause doc 3.1). 14 local checks on PostgreSQL 16 and 17. NOT written.",
+        "sql_approval_hashes_20261127": {
+          "note": "Full sha256 of the exact files for three SEPARATE approvals (none applied). Two are on main (merged 27.11 as files only); two are in PR #1579 (draft, head f27ebeed72d6b03cc7e006fa264a90462a13569c).",
+          "A_measurement_ingest_event (on main, merge 1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749; guard: live md5 6dd7585345d10a3a323810fd768fcf3b; apply BEFORE the deployment that carries video)": {
+            "PROPOSAL.sql": "d3033c972aa87c8ec4fcab27ed7ac043d0a3292bab615ad728449597760bfcd3",
+            "ROLLBACK.sql": "a7450d398ebedc842e365315f903a9b606e00a0ecae252770783fb2af92450ec",
+            "ACCEPTANCE.sql": "b3155f9a2193f77c3e8171468f450239e84b9040e0536548a435e18ea9630d8e"
+          },
+          "B_classification_v4 (PR #1579; guard: live md5 ed1fd14a3309be7f01b290c7bd7f28d0; needs the contract amendment text of README.md first)": {
+            "PROPOSAL.sql": "e47db0f8fb8148edc1ef1bf65b2e92d2db17769e682e4517f74c29fee09bda94",
+            "ROLLBACK.sql": "9e0ee82c3ffe1ad17c11d42652303c0162fd43fc6ca9b3a0ed15f8c4ee74f803",
+            "ACCEPTANCE.sql": "d3058c57f03cbc42a1feb9b9875afa1dd799e3c5a0dde4276b81a98842d93ad1",
+            "README.md (draft contract text)": "f50ab32f0d9ce9118fdb64000ebd4e6c4f40aefb8e90f900c1635935961e5ea0"
+          },
+          "C_ga4_history_completion (PR #1579; guard: refuses if any row exists in the window; 62+62 rows)": {
+            "APPLY.sql": "cd0cecc6587c3e63db037fefdd6e21199a580808c320af9012e085104cfb7b95",
+            "ROLLBACK.sql": "3beccdf5c9b8481d2d4494feb906265e2fd06ae6056fbb91f26b669492fd9af4",
+            "ACCEPTANCE.sql": "d0829205fd6a6bc14d117c7008e9cedacbc0f9fbbf06e7820a6dfffec1d50436",
+            "rows_total.json": "b3ed82c1d32d151e08c1e8c036a01d0f718f4cfeceb2f8c92d6af875add0ec2b",
+            "rows_il.json": "d9c4b1e28fd64f21a85147b8c4fa0e8bcf646215d65196cd837d0045d884702e"
+          }
+        },
+        "frame_css_budget_margin_20261127": {
+          "finding": "frameCssGzip is 34,357 against a limit of 34,362 (baseline 33,850 + tolerance 512): a margin of 5 bytes, confirmed on current main (build 27.11). frameJsGzip margin 271 bytes (46,719 of 46,990), eagerJsGzip 157 bytes (176,472 of 176,629).",
+          "consequence": "Any frame CSS change, even a one-line fix, fails the gate until an equal reduction is made, including inside the unified deployment. None of the branches of this series touches frame CSS (the community changes are JS in a lazy chunk; PR #1577 adds JS only to a lazy module); their JS growth is within the limits (eager +15 and frame +8 bytes gzip for #1577 against the same tree).",
+          "composition_of_the_frame_css_sources_gzip_level_9": "systemFrame2029.css 13.7 KB, systemFrame2029-unified-bar.css 10.1 KB, sod2029.css 6.8 KB, sod2029-closed.css 6.2 KB (660 lines of closed-shell overrides), systemFrame2029-topbar-crown.css 5.5 KB, discoveryGate2029.css 2.9 KB, myWorkspace2029.css 2.6 KB, systemToolDock2029.css 1.1 KB, googleEntry2029.css 0.4 KB (the built file is 33.2 KB gzip after minification and merging).",
+          "options_not_taken": "Lowering needs the System Frame owner (a dead-rule audit of sod2029-closed.css and the unified bar, or moving a rarely used panel's rules behind a lazy slot); then run the budget script with --lower and commit the lower baseline. Raising the baseline is a ZURIEL decision and was not done. Nothing was changed here."
+        }
       },
       {
         "id": "S-65",
@@ -5375,6 +5410,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 27.11: merge #1575/#1577, classification v4 exact, GA4 hash, API-call analysis)",
         "what": "#1575 merged (1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749) and #1577 merged (9576ae8206796d032fda2c64d4e849d55c84da53), both at the approved heads; SQL NOT applied; code NOT deployed (release order: SQL before the deployment that carries video). Classification v4 hardened (identified visitors, window consistency); GA4 completion carries a provenance label; community API-call reduction analysed (S-64). Nothing deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T06:30:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 27.11: full SQL hashes, community load reduction steps 1-3, frame CSS margin)",
+        "what": "S-64: full sha256 for the three SQL approvals; community load reduction steps 1 and 2 built in PR #1581 (draft, separate from the unified deployment), step 3 verified for privacy and freshness and deliberately not built; frame CSS margin documented (5 bytes). Nothing deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
