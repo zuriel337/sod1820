@@ -7,6 +7,7 @@ import CanonicalProgress from "../components/CanonicalProgress.jsx";
 import { PULSE_WINDOWS, readAdaptivePulse, readResearchPulse, pulseUsable, pulseCount } from "../lib/researchPulse2029.js";
 import { fetchHomeSystemPulse2029 } from "../lib/research/home2029Projection.js";
 import { behaviourTrends, halfWeekTrends, addedTrends, weeklyTrend, trendText, trendArrow } from "../lib/weeklyTrend2029.js";
+import { useDiscoveryCenter, DiscoveryTotals, DiscoveryFeatured, DiscoveryLatest, DiscoveryContributions, DiscoveryWriters } from "../components/experience2029/DiscoveryCenter2029.jsx";
 import "./stats2029.css";
 
 // /stats (ZURIEL 21.11.2026): the public statistics page. One reader (research_pulse_2029, TI) plus the existing
@@ -35,6 +36,7 @@ export default function Stats2029Page() {
   const [manual, setManual] = useState(null);
   // The weekly trend (ZURIEL 25.11.2026): this week against the week before, from the SAME reader and its cache: the 168h payload and the 720h payload
   // (the average week before = (720h minus 168h) over the number of weeks that is). Independent of the window buttons above; a part without data is left out, never drawn as zero.
+  const center = useDiscoveryCenter();
   const [weekly, setWeekly] = useState(null);
   const [before, setBefore] = useState(null);
   useEffect(() => {
@@ -76,14 +78,6 @@ export default function Stats2029Page() {
       {state.loading ? <CanonicalProgress compact title="טוען את נתוני האתר" phase={manual ? "קורא את הטווח שנבחר" : "בוחר את הטווח הקצר ביותר שיש בו נתונים מלאים"} /> : null}
       {state.failed ? <p role="status">הנתונים אינם זמינים כרגע. אפשר לנסות שוב בעוד רגע.</p> : null}
       {d ? <>
-        {d.history?.views_total ? <section className="stats29-block stats29-since" aria-labelledby="stats29-since">
-          <h2 id="stats29-since">מאז 2015</h2>
-          <div className="stats29-grid">
-            <Tile value={d.history.views_total} label="צפיות בדפים מאז תחילת המדידה" note="Jetpack ומדידת האתר עצמו, בלי ספירה כפולה" />
-            <Tile value={d.history.gematria_total} label="חישובי גימטריה שנרשמו" to="/gematria" />
-          </div>
-          {d.history.top_values?.length ? <><h3>הערכים שחושבו הכי הרבה באתר הקודם (יוני עד נובמבר 2026)</h3><ol className="stats29-chips">{d.history.top_values.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.count)} חישובים</small></Link></li>)}</ol></> : null}
-        </section> : null}
         <section className="stats29-block" aria-labelledby="stats29-site">
           <h2 id="stats29-site">האתר במספרים · {r.label}</h2>
           <div className="stats29-grid">
@@ -111,29 +105,45 @@ export default function Stats2029Page() {
           {d.phrases?.length ? <><h3>ביטויים מאושרים שנבחרו</h3><ol className="stats29-chips">{d.phrases.map(x => <li key={x.phrase}><span><b>{x.phrase}</b><small>{x.value} · {pulseCount(x.events)} בחירות</small></span></li>)}</ol></> : null}
         </section> : null}
         {sections.length ? <section className="stats29-block" aria-labelledby="stats29-sections">
-          <h2 id="stats29-sections">מדורים לפי צפיות</h2>
+          <h2 id="stats29-sections">פעילות לפי מדורים</h2>
           <ol className="stats29-bars">{sections.map(x => <li key={x.section}><span>{SECTIONS[x.section]}</span><i style={{ width: Math.max(4, Math.round(x.views / sections[0].views * 100)) + "%" }} /><small>{pulseCount(x.views)}</small></li>)}</ol>
         </section> : null}
+        <section className="stats29-block" aria-labelledby="stats29-discoveries" data-stats-discoveries="true">
+          <h2 id="stats29-discoveries">גילויים ותרומות</h2>
+          <DiscoveryTotals totals={center.totals} />
+          <DiscoveryFeatured featured={center.model?.featured} featuredWith={center.model?.featuredWith} mode="stats" />
+          {center.model?.latest.length || center.model?.contributions.length ? <div className={`dc29-grid${center.model.latest.length && center.model.contributions.length ? "" : " dc29-one"}`}>
+            {center.model.latest.length ? <div className="dc29-col"><DiscoveryLatest items={center.model.latest} model={center.model} mode="stats" admin={false} /></div> : null}
+            {center.model.contributions.length ? <div className="dc29-col"><DiscoveryContributions items={center.model.contributions} mode="stats" stack /></div> : null}
+          </div> : null}
+          <h3 id="stats29-added">נוסף לאתר · {r.label}</h3>
+            <div className="stats29-grid">
+              <Tile value={added.community_messages} label="הודעות בקהילה" note={r.label} to="/community/chat" trend={r.hours === 168 ? weekly?.added?.community_messages : null} />
+              <Tile value={added.contributions} label="תרומות מחקר שאושרו" note={r.label} trend={r.hours === 168 ? weekly?.added?.contributions : null} />
+              <Tile value={added.posts} label="פוסטים חדשים" note={r.label} to="/post" trend={r.hours === 168 ? weekly?.added?.posts : null} />
+              <Tile value={added.codes} label="צפנים חדשים" note={r.label} to="/codes" trend={r.hours === 168 ? weekly?.added?.codes : null} />
+              <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע · מול השבוע שלפניו" to="/gematria" trend={weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d) ? { ...weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d), basis: "exact" } : null} />
+              <Tile value={corpus?.corpusTotal} label="ביטויים מאומתים במאגר" to="/gematria" />
+              <Tile value={d.posts_total} label="פוסטים באתר" to="/post" />
+              <Tile value={d.publications?.public_ciphers} label="צפנים שפורסמו" to="/codes" />
+              <Tile value={d.publications?.approved_convergences} label="התכנסויות שאושרו" to="/world" />
+            </div>
+        </section>
+        {center.model?.writers.length ? <section className="stats29-block" aria-labelledby="stats29-writers"><h2 id="stats29-writers">כותבים פעילים</h2><DiscoveryWriters writers={center.model.writers} bare /></section> : null}
         {crawlers?.by_bot?.length ? <section className="stats29-block" aria-labelledby="stats29-bots">
-          <h2 id="stats29-bots">מי סורק את SOD1820</h2>
+          <h2 id="stats29-bots">גוגל וסורקי בינה מלאכותית</h2>
           <p className="stats29-note">מכונות, לא אנשים: דפים שהוגשו לסורקים של מנועי חיפוש ובינה מלאכותית. נספר בקצה האתר.</p>
           <ol className="stats29-bars">{crawlers.by_bot.map(x => <li key={x.bot}><span>{BOTS[x.bot] || x.bot}</span><i style={{ width: Math.max(4, Math.round(x.hits / crawlers.by_bot[0].hits * 100)) + "%" }} /><small>{pulseCount(x.hits)}</small></li>)}</ol>
           {crawlers.by_section?.length ? <><h3>מה הם סורקים</h3><ol className="stats29-bars">{crawlers.by_section.filter(x => BUCKETS[x.bucket]).map(x => <li key={x.bucket}><span>{BUCKETS[x.bucket]}</span><i style={{ width: Math.max(4, Math.round(x.hits / crawlers.by_section[0].hits * 100)) + "%" }} /><small>{pulseCount(x.hits)}</small></li>)}</ol></> : null}
         </section> : null}
-        <section className="stats29-block" aria-labelledby="stats29-added">
-          <h2 id="stats29-added">נוסף לאתר</h2>
+        {d.history?.views_total ? <section className="stats29-block stats29-since" aria-labelledby="stats29-since">
+          <h2 id="stats29-since">הנתונים המצטברים מאז 2015</h2>
           <div className="stats29-grid">
-            <Tile value={added.community_messages} label="הודעות בקהילה" note={r.label} to="/community/chat" trend={r.hours === 168 ? weekly?.added?.community_messages : null} />
-            <Tile value={added.contributions} label="תרומות מחקר שאושרו" note={r.label} trend={r.hours === 168 ? weekly?.added?.contributions : null} />
-            <Tile value={added.posts} label="פוסטים חדשים" note={r.label} to="/post" trend={r.hours === 168 ? weekly?.added?.posts : null} />
-            <Tile value={added.codes} label="צפנים חדשים" note={r.label} to="/codes" trend={r.hours === 168 ? weekly?.added?.codes : null} />
-            <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע · מול השבוע שלפניו" to="/gematria" trend={weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d) ? { ...weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d), basis: "exact" } : null} />
-            <Tile value={corpus?.corpusTotal} label="ביטויים מאומתים במאגר" to="/gematria" />
-            <Tile value={d.posts_total} label="פוסטים באתר" to="/post" />
-            <Tile value={d.publications?.public_ciphers} label="צפנים שפורסמו" to="/codes" />
-            <Tile value={d.publications?.approved_convergences} label="התכנסויות שאושרו" to="/world" />
+            <Tile value={d.history.views_total} label="צפיות בדפים מאז תחילת המדידה" note="משני מקורות מדידה לאורך השנים, בלי ספירה כפולה" />
+            <Tile value={d.history.gematria_total} label="חישובי גימטריה שנרשמו" to="/gematria" />
           </div>
-        </section>
+          {d.history.top_values?.length ? <><h3>הערכים שחושבו הכי הרבה (יוני עד נובמבר 2026)</h3><ol className="stats29-chips">{d.history.top_values.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.count)} חישובים</small></Link></li>)}</ol></> : null}
+        </section> : null}
         <p className="stats29-note">כל רשימה מציגה רק פריטים שעברו 10 פעולות מ־5 ביקורים לפחות (וערך היסטורי רק מ־30 חישובים), כדי ששום פריט לא יצביע על אדם אחד. מספרים הם פעולות, לא אנשים; חיפושים פרטיים אינם מוצגים לעולם.
           {d.computed_at ? " עודכן " + new Date(d.computed_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) + "." : ""}</p>
       </> : null}

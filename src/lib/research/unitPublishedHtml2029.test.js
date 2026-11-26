@@ -5,10 +5,14 @@ import { createHash } from "node:crypto";
 import { unitToPublishedHtml, unitBlocksToPublishedHtml, insertUnitAtTop } from "./unitPublishedHtml2029.js";
 import { YAMIN_SMOL_APPROVED_TEXT, YAMIN_SMOL_UNIT_ID } from "./postPreviewUnits2029.js";
 import { allSections, contentSha256, inspectFragment } from "./unitFragmentSavePlan2029.js";
+import { extractPostGematriaClaims } from "./gematriaRootGate2029.js";
 
 // byte-exact body of post 5107 as read live (revision 266, md5 a10ea4de…): the dry run never touches the database
 const LIVE = readFileSync(new URL("../../../docs/reviews/elections-5107-unit-inventory-20261114/SOURCE_posts5107_rev266_22010.html", import.meta.url), "utf8");
 const unit = { id: YAMIN_SMOL_UNIT_ID };
+// the root gate the caller reads (gematria_words + gematria_methods): here built from the unit's own claims, each with the engine's column value for its method
+const METHODS = [{ method_key: "רגיל", db_column: "ragil", active: true, in_engine: true }, { method_key: "מילוי", db_column: "miluy", active: true, in_engine: true }, { method_key: "ריבוע", db_column: "ribua", active: true, in_engine: true }];
+const gateFor = (html, { drop = null, shift = 0 } = {}) => ({ methods: METHODS, roots: extractPostGematriaClaims(html).filter((c) => c.phrase !== drop).map((c) => ({ phrase: c.phrase, is_verified: true, is_published: true, is_encrypted: false, [METHODS.find((m) => m.method_key === c.methodKey).db_column]: c.stated + shift })) });
 
 test("the fixture is the live body (22,010 chars, md5 a10ea4de…) with the six known units", () => {
   assert.equal(LIVE.length, 22010);
@@ -48,7 +52,7 @@ test("the gematria breakdowns are kept in the published unit: an empty engine ho
 test("dry run on the live body: the unit goes on top, the six units and everything outside the insertion point stay byte-identical", async () => {
   const html = unitToPublishedHtml(unit, YAMIN_SMOL_APPROVED_TEXT);
   const expected = await contentSha256(LIVE);
-  const result = await insertUnitAtTop({ content: LIVE, expectedSha256: expected, fragmentHtml: html, unitId: unit.id });
+  const result = await insertUnitAtTop({ content: LIVE, expectedSha256: expected, fragmentHtml: html, unitId: unit.id, rootGate: gateFor(html) });
   assert.equal(result.ok, true, JSON.stringify(result));
   const before = allSections(LIVE).sections.map((s) => s.id);
   const after = allSections(result.content).sections.map((s) => s.id);
@@ -65,7 +69,7 @@ test("the insertion refuses: a changed body (conflict), the unit already there, 
   const html = unitToPublishedHtml(unit, YAMIN_SMOL_APPROVED_TEXT);
   const sha = await contentSha256(LIVE);
   assert.equal((await insertUnitAtTop({ content: LIVE + " ", expectedSha256: sha, fragmentHtml: html, unitId: unit.id })).code, "conflict");
-  const once = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id });
+  const once = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id, rootGate: gateFor(html) });
   assert.equal((await insertUnitAtTop({ content: once.content, expectedSha256: once.newSha256, fragmentHtml: html, unitId: unit.id })).code, "unit_already_present");
   const other = "<p>x</p>" + LIVE;
   assert.equal((await insertUnitAtTop({ content: other, expectedSha256: await contentSha256(other), fragmentHtml: html, unitId: unit.id })).code, "unknown_wrapper");
@@ -110,4 +114,24 @@ test("Bennett uses the election unit front with three independently sourced engi
 test("a matching number in another unit cannot inherit an election source trace", () => {
   const html = unitToPublishedHtml({ id: "another-unit" }, YAMIN_SMOL_APPROVED_TEXT);
   assert.doesNotMatch(html, /data-pu-trace=/);
+});
+
+test("gematria_auto_registry_law v2 at the unit publish path: a stated gematria needs a public root with the engine's value, otherwise nothing is inserted (fails closed)", async () => {
+  const html = unitToPublishedHtml(unit, YAMIN_SMOL_APPROVED_TEXT), sha = await contentSha256(LIVE);
+  const claims = extractPostGematriaClaims(html);
+  assert.ok(claims.length > 0, "the unit states at least one gematria");
+  const noGate = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id });
+  assert.deepEqual([noGate.ok, noGate.code], [false, "gematria_root_unchecked"]);
+  const missing = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id, rootGate: gateFor(html, { drop: claims[0].phrase }) });
+  assert.deepEqual([missing.ok, missing.code, missing.findings[0].kind], [false, "gematria_root_missing", "no_root"]);
+  const wrong = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id, rootGate: gateFor(html, { shift: 1 }) });
+  assert.deepEqual([wrong.ok, wrong.code, wrong.findings[0].kind], [false, "gematria_root_missing", "value_mismatch"]);
+  const ok = await insertUnitAtTop({ content: LIVE, expectedSha256: sha, fragmentHtml: html, unitId: unit.id, rootGate: gateFor(html) });
+  assert.equal(ok.ok, true);
+});
+test("a unit that states no gematria needs no root gate", async () => {
+  const plain = unitBlocksToPublishedHtml({ id: "plain-unit-1" }, [{ kind: "title", text: "כותרת" }, { kind: "p", text: "טקסט" }]);
+  assert.equal(extractPostGematriaClaims(plain).length, 0);
+  const result = await insertUnitAtTop({ content: LIVE, expectedSha256: await contentSha256(LIVE), fragmentHtml: plain, unitId: "plain-unit-1" });
+  assert.equal(result.ok, true, JSON.stringify(result));
 });

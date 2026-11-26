@@ -5,6 +5,7 @@
 import { parseYaminSmolText, parseFieldLine, parseBylineLine, YAMIN_SMOL_TRACE_CLAIMS, YAMIN_SMOL_UNIT_ID } from "./postPreviewUnits2029.js";
 import { inspectFragment, allSections, contentSha256 } from "./unitFragmentSavePlan2029.js";
 import { cleanGematriaItem } from "./postUnitBody2029.js";
+import { extractPostGematriaClaims, rootGateFindings } from "./gematriaRootGate2029.js";
 
 const esc = (value) => String(value ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const NUMBER = /(?<![\d.])\d{3,5}(?![\d.])/g;
@@ -76,7 +77,10 @@ export function unitBlocksToPublishedHtml(unit, blocks) {
 }
 
 // Insert the unit at the TOP of the body (right after the outer wrapper's opening tag). Returns { ok, content, ... } or { ok:false, code }. Never mutates its inputs.
-export async function insertUnitAtTop({ content, expectedSha256, fragmentHtml, unitId }) {
+// gematria_auto_registry_law v2 (ROOT BEFORE TREE): a unit that states a gematria (phrase / method / result) is inserted only when `rootGate` ({ roots, methods }: rows of gematria_words
+// and gematria_methods the caller read) shows a public canonical root with the engine's value for each claim. No gate with claims present, or any finding, fails closed:
+// "gematria_root_unchecked" / "gematria_root_missing". This covers ONLY the claims this path emits; it is not a site-wide scan.
+export async function insertUnitAtTop({ content, expectedSha256, fragmentHtml, unitId, rootGate = null }) {
   if (typeof content !== "string" || typeof fragmentHtml !== "string" || !/^[a-f0-9]{64}$/.test(String(expectedSha256))) return { ok: false, code: "bad_input" };
   const before = await contentSha256(content);
   if (before !== expectedSha256) return { ok: false, code: "conflict", before };
@@ -88,6 +92,12 @@ export async function insertUnitAtTop({ content, expectedSha256, fragmentHtml, u
   const inspected = inspectFragment(fragmentHtml);
   if (inspected.unsafe.length) return { ok: false, code: "unsafe_markup", unsafe: inspected.unsafe };
   if (inspected.duplicateIds.length) return { ok: false, code: "duplicate_ids", duplicateIds: inspected.duplicateIds };
+  const claims = extractPostGematriaClaims(fragmentHtml, `unit:${unitId}`);
+  if (claims.length) {
+    if (!rootGate || !Array.isArray(rootGate.roots) || !Array.isArray(rootGate.methods)) return { ok: false, code: "gematria_root_unchecked", claims: claims.length };
+    const findings = rootGateFindings(claims, rootGate.roots, rootGate.methods);
+    if (findings.length) return { ok: false, code: "gematria_root_missing", findings };
+  }
   const at = wrapper[0].length;
   const next = content.slice(0, at) + "\n" + fragmentHtml + content.slice(at);
   const after = allSections(next);

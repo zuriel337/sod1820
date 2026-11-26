@@ -31,8 +31,10 @@ export function publicLibraryQuery2029({ kind = "codes", slug = null, collection
   };
   return {
     table: "els_records", select: `${CIPHER_FIELDS}${exactSlug ? ",saved_shape:positions->>shapeUrl,saved_findings:positions->findings" : ""}`,
-    eq: { status: "published", visibility: "public", ...(exactSlug ? { slug: exactSlug } : collection === "research" ? { source: "research" } : {}) },
-    or: !exactSlug && term ? [`search_term.ilike.%${term}%,title.ilike.%${term}%`] : [],
+    // The detail address serves BOTH public tiers (ZURIEL 26.11.2026): the central library (approved) and a cipher its owner shows on their own page
+    // (self_published, no approval). Both are public and indexable; lists and collections stay the central library only. A private row never matches.
+    eq: exactSlug ? { visibility: "public", slug: exactSlug } : { status: "published", visibility: "public", ...(collection === "research" ? { source: "research" } : {}) },
+    or: exactSlug ? ["status.eq.published,self_published.eq.true"] : term ? [`search_term.ilike.%${term}%,title.ilike.%${term}%`] : [],
     order: [["created_at", false], ["id", false]], offset: exactSlug ? 0 : start, limit: exactSlug ? 2 : size + 1, pageSize: size,
   };
 }
@@ -56,14 +58,16 @@ export async function readPublicLibraryRows2029(spec, { signal } = {}) {
 
 export function projectPublicCipher2029(row, { detail = false } = {}) {
   const slug = slugValue(row?.slug), id = clean(row?.id);
-  if (!slug || !id || row.status !== "published" || row.visibility !== "public") return null;
+  // Central library = approved (published). Page tier = public and owner-shown, only on the detail address (its query already required the flag).
+  const library = row?.status === "published", page = detail && ["draft", "pending"].includes(row?.status);
+  if (!slug || !id || !(library || page) || row.visibility !== "public") return null;
   const title = clean(row.title) || clean(row.search_term);
   if (!title) return null;
   const exact = hasExactSavedMatrix(row);
   const image = publicNowMediaHref(row.image_url);
   const result = {
     kind: "codes", id, slug, title, href: `/codes/${encodeURIComponent(slug)}`,
-    sourceRef: `els_records:${id}`, sourceKind: "published_saved_cipher", sourceCollection: row.source === "research" ? "research" : "published",
+    sourceRef: `els_records:${id}`, sourceKind: library ? "published_saved_cipher" : "page_saved_cipher", tier: library ? "library" : "page", sourceCollection: row.source === "research" ? "research" : library ? "published" : "page",
     description: clean(row.description), author: publicAuthorName(row.author_name), createdAt: clean(row.created_at) || null,
     term: clean(row.search_term), scope: ["torah", "tanakh"].includes(row.scope) ? row.scope : null,
     skip: Number.isSafeInteger(row.skip_distance) ? row.skip_distance : null,

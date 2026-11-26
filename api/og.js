@@ -276,6 +276,7 @@ export default async function handler(req, res) {
   let writerProfile = null;
   let convergenceLd = null;
   let documentStatus = 200;
+  let cipherLd = null;   // schema.org for a public cipher (library or the owner's page): set only for a real, public row
   let postLookupFailed = false;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
@@ -715,6 +716,9 @@ export default async function handler(req, res) {
       });
       const meta = publicLibraryMetadata2029({ kind, item, detail: true });
       documentStatus = item ? 200 : 404;
+      if (kind === 'codes' && item) cipherLd = { '@context': 'https://schema.org', '@type': 'Article', headline: String(item.title).slice(0, 110), name: item.title, description: cleanDesc(meta.description, 300), url: canonical,
+        inLanguage: 'he-IL', mainEntityOfPage: canonical, ...(item.createdAt ? { datePublished: item.createdAt } : {}), ...(meta.image ? { image: [meta.image] } : {}),
+        author: { '@type': 'Person', name: item.author || SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } } };
       title = `${meta.title} · ${SITE_NAME}`; desc = cleanDesc(meta.description, 180);
       robots = meta.noindex ? 'noindex, follow' : 'index, follow';
       image = meta.image || cardUrl({ w: meta.title, sub: kind === 'books' ? 'ספר ומקור' : 'פרסום צופן שמור' });
@@ -1162,7 +1166,7 @@ export default async function handler(req, res) {
     canonical = SITE + '/codes/' + encodeURIComponent(slug);
     let publishedCipherFound = false;
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published${productionReading ? '&visibility=eq.public' : ''}&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&or=(status.eq.published,self_published.eq.true)&visibility=eq.public&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
       if (productionReading && !r.ok) throw new Error('cipher-source-unavailable');
       const rows = await r.json();
       if (productionReading && !Array.isArray(rows)) throw new Error('cipher-source-invalid');
@@ -1375,6 +1379,8 @@ export default async function handler(req, res) {
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
     };
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (cipherLd && documentStatus === 200) {
+    jsonLd = `<script type="application/ld+json">${JSON.stringify(cipherLd).replace(/</g, '\\u003c')}</script>`;
   } else if (homeIdentity) {
     jsonLd = homeIdentityLd().map(ld => `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`).join('');
   }

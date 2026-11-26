@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef, useState } from "react";
+import React, { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { ENTRY_METHODS_LEARNING_HREF, LEARN_SCOPE } from "../../lib/entryLearn2029.js";
 import "./learnMark2029.css";
 
@@ -25,6 +25,7 @@ export default function LearnMark2029({
   const [open, setOpen] = useState(false);
   const panelId = useId();
   const trigger = useRef(null);
+  const panel = useRef(null);
   // Screen-level help has a short visible name and full accessible context.
   // Inline concept help keeps its existing icon-only compact variant.
   const showLabel = !compact || scope === LEARN_SCOPE.SURFACE;
@@ -33,6 +34,15 @@ export default function LearnMark2029({
     ? `${visibleLabel} — ${ariaLabel || label}` : (ariaLabel || label);
 
   const close = () => { setOpen(false); trigger.current?.focus(); };
+  // The panel stays whole on screen wherever the button sits (the corner differs by page and by direction): shift it back inside the viewport, 8px from each edge.
+  useLayoutEffect(() => {
+    const node = panel.current;
+    if (!open || !node) return;
+    node.style.translate = "";
+    const box = node.getBoundingClientRect(), edge = document.documentElement.clientWidth - 8;
+    const shift = box.left < 8 ? 8 - box.left : box.right > edge ? edge - box.right : 0;
+    if (shift) node.style.translate = `${shift}px`;
+  }, [open]);
   useEffect(() => {
     if (!open || scope !== LEARN_SCOPE.SURFACE) return undefined;
     const onKey = event => { if (event.key === "Escape") { event.stopPropagation(); close(); } };
@@ -70,7 +80,7 @@ export default function LearnMark2029({
       <span className="sod29-learn-mark-symbol" aria-hidden="true">?</span>
       {showLabel ? <span className="sod29-learn-mark-label">{visibleLabel}</span> : null}
     </button>
-    {open ? <div id={panelId} className="sod29-learn-mark-disclosure">
+    {open ? <div id={panelId} ref={panel} className="sod29-learn-mark-disclosure">
       <div className="sod29-learn-mark-copy">{children}</div>
       {actions || scope === LEARN_SCOPE.SURFACE ? <div className="sod29-learn-mark-actions">
         {actions}

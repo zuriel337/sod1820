@@ -11,7 +11,7 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
   const uid = useId();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [keepPrivate, setKeepPrivate] = useState(false);
+  const [publishOnPage, setPublishOnPage] = useState(false);
   const ready = state?.verification?.state === "MATCH";
   const descriptionLength = description.trim().length;
   const descriptionValid = descriptionLength >= 1 && descriptionLength <= maxDescriptionLength;
@@ -23,12 +23,12 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
   useEffect(() => {
     setTitle(updating ? matrix.title || state.termRaw || state.term : state?.termRaw || state?.term || "");
     setDescription(copying ? "" : state?.provenance?.desc || "");
-    setKeepPrivate(false);
+    setPublishOnPage(false);
   }, [identity, matrix?.id, updating, copying]);
 
   const titleId = `${uid}-title`, descId = `${uid}-desc`, hintId = `${uid}-hint`;
   const resultMessage = result?.ok
-    ? (result.status === "updated" ? "הממצא השמור עודכן." : result.row?.status === "published" ? "הצופן נשמר ופורסם בספריית האתר." : result.row?.self_published ? "הצופן נשמר ואפשר לשתף את הקישור. הוא ממתין לאישור בספריית האתר." : "הצופן נשמר.")
+    ? (result.status === "updated" ? "הממצא השמור עודכן." : result.row?.status === "published" ? "הצופן נשמר ופורסם בספריית האתר." : result.row?.visibility === "public" && result.row?.self_published ? "הצופן נשמר ופורסם בדף שלי. אפשר לשתף את הקישור. הוספה לספרייה המרכזית נעשית בנפרד, באישור המנהל." : "הצופן נשמר פרטי. רק אתם יכולים לפתוח אותו.")
     : result?.error === "selection_changed" ? "הממצא השתנה בזמן השמירה. נסו לשמור את הממצא הנוכחי."
     : result?.error === "auth_required" ? "נדרשת התחברות לחשבון כדי לשמור."
     : "השמירה לא הושלמה. ההסבר נשאר כאן — אפשר לנסות שוב.";
@@ -36,13 +36,13 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
   // The shared Royal layer (royal2029.css, Design V2 §14.4/§14.13) draws every control here; this file adds no look of its own.
   return <div className="r29 els29-native-rail-scroll els29-native-save" hidden={!visible}>
     <strong>{updating ? "עדכון הממצא השמור" : "שמירת הצופן"}</strong>
-    <p className="els29-native-muted">{updating ? "הממצאים וההסבר יעדכנו את אותה רשומה, שנשארת פרטית." : copying ? "הצופן המקורי נשאר בידי מי ששמר אותו. השמירה יוצרת עותק משלך." : "השמירה כוללת את הציר, הממצאים והגדרות התצוגה. כברירת מחדל הצופן יפורסם בספריית הצפנים וכל אדם יוכל לפתוח ולשתף אותו. כדי שרק אתם תוכלו לפתוח אותו, בחרו לשמור פרטי."}</p>
+    <p className="els29-native-muted">{updating ? "הממצאים וההסבר יעדכנו את אותה רשומה, שנשארת פרטית." : copying ? "הצופן המקורי נשאר בידי מי ששמר אותו. השמירה יוצרת עותק משלך." : "השמירה כוללת את הציר, הממצאים והגדרות התצוגה. כברירת מחדל הצופן נשמר פרטי וגלוי רק לכם. אם תבחרו לפרסם אותו בדף שלי, כל אדם וגוגל יוכלו לפתוח ולשתף אותו, בלי אישור. הוספה לספרייה המרכזית היא בקשה נפרדת שמאשר המנהל."}</p>
     {!user ? <div className="els29-native-save-guest">
       <p className="els29-native-muted">אפשר לחפש ולבדוק צפנים בלי חשבון. כדי לשמור צופן ולחזור אליו, צריך להיכנס או להירשם.</p>
       <a className="r29-btn is-primary" href="/login">היכנסו לחשבון כדי לשמור</a>
     </div> : <form onSubmit={(event) => {
       event.preventDefault();
-      if (ready && !pending && !busy && descriptionValid) onSave({ title: title.trim(), desc: description.trim(), isPublic: !updating && !keepPrivate });
+      if (ready && !pending && !busy && descriptionValid) onSave({ title: title.trim(), desc: description.trim(), isPublic: !updating && publishOnPage });
     }}>
       <div className="r29-field">
         <label htmlFor={titleId}>שם הצופן</label>
@@ -59,9 +59,9 @@ export default function ElsSavePanel2029({ visible, state, matrix, user, pending
       </div>
       {/* The privacy choice and the save button stay together at the bottom of the scrolling sheet, so the primary action is always reachable (ZURIEL 26.11.2026). */}
       <div className="els29-native-save-actions">
-        {!updating ? <button type="button" className="r29-check" role="checkbox" aria-checked={keepPrivate} disabled={pending} onClick={() => setKeepPrivate(value => !value)}>
+        {!updating ? <button type="button" className="r29-check" role="checkbox" aria-checked={publishOnPage} disabled={pending} onClick={() => setPublishOnPage(value => !value)}>
           <span className="r29-check-box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
-          <span>לא לפרסם (לשמור פרטי)</span>
+          <span>פרסם בדף שלי (פתוח לכולם)</span>
         </button> : null}
         <button type="submit" className="r29-btn is-primary" aria-busy={pending || undefined} disabled={!ready || pending || busy || !descriptionValid}>{pending ? updating ? "מעדכן את הממצא…" : "שומר את הצופן…" : saveLabel}</button>
         {!ready ? <p className="r29-hint">בחרו מופע מאומת במטריצה כדי לשמור.</p> : null}

@@ -1,0 +1,6 @@
+# Throwaway local Supabase for the QA site check (ZURIEL 26.11.2026). It runs only inside a GitHub Actions job, holds synthetic data,
+# and is destroyed with the job. It never receives a production key, URL or row. See docs/site-check-2029.md.
+project_id = "sod1820-qa"
+
+[db]
+major_version = 17
