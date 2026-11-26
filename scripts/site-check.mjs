@@ -17,7 +17,8 @@ const SHA_IN_PAGE = /"sourceSha":"([0-9a-f]{40})"/;
 const BENIGN_THIRD_PARTY = /(google|googletagmanager|doubleclick|googlesyndication|facebook|fbcdn|spot\.im|gstatic|googleapis|adtrafficquality|fundingchoices)/i;
 
 /** The target must be one of the three public origins: the check is not a general scanner. */
-export function parseTarget(value = "https://sod1820.co.il") {
+export function parseTarget(value) {
+  value = value || "https://sod1820.co.il";
   let url;
   try { url = new URL(String(value)); } catch { throw new Error("invalid_url"); }
   if (url.protocol !== "https:" || !ALLOWED_HOSTS.includes(url.hostname) || url.username || url.password || url.port) throw new Error("url_not_allowed");
