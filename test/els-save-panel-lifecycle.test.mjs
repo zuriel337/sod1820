@@ -30,16 +30,16 @@ async function mount(t, overrides = {}) {
 }
 const checkboxes = root => root.root.findAll(node => node.type === 'button' && node.props.role === 'checkbox');
 
-test('new save requests publication by default, explains guest library access, and offers an explicit private choice', async t => {
+test('new save is private by default; publishing on my page is an explicit choice that explains open access and the separate library request', async t => {
   const f = await mount(t);
-  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן יפורסם בספריית הצפנים/);
-  assert.match(JSON.stringify(f.root.toJSON()), /כדי שרק אתם תוכלו לפתוח אותו/);
+  assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן נשמר פרטי וגלוי רק לכם/);
+  assert.match(JSON.stringify(f.root.toJSON()), /הוספה לספרייה המרכזית היא בקשה נפרדת שמאשר המנהל/);
   assert.equal(checkboxes(f.root)[0].props['aria-checked'], false);
   await f.submit();
-  assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });
+  assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: false });
   await act(async () => checkboxes(f.root)[0].props.onClick());
   await f.submit();
-  assert.equal(f.saves[1].isPublic, false);
+  assert.equal(f.saves[1].isPublic, true);
 });
 
 test('updating an owned private record keeps it private, including pending and hidden records', async t => {

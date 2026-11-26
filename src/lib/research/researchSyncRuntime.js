@@ -7,6 +7,8 @@ import { applyResearchOps, assertCloudSnapshot, emptyResearchState, normalizeRes
 import { normalizeResearchContext } from './researchContext.js';
 import { HEARTBEAT_MS, LEASE_TTL_MS, REAP_GRACE_MS, planPersist, planReap } from './researchJournalLifecycle.js';
 import { compactPassiveQueue } from './researchQueueCompaction.js';
+// Why the durable local journal could not be used. It is exposed so the person is told the real cause, never a guess.
+const isQuota = e => e?.name === 'QuotaExceededError' || e?.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e?.code === 22 || e?.code === 1014 || /quota/i.test(String(e?.message || ''));
 import { isCloudConfirmed } from './personalSaveDecision.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -38,13 +40,13 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   // Journal ownership (see researchJournalLifecycle.js): the journal key is claimed lazily, only when this tab has pending work to persist.
   let journalKey = null, restoredSnapshot = null, touched = false, heartbeatTimer = null;
   const contextKey = principalContextKey(principal);
-  let restoredFrom = null, restoredRaw = null, storageFault = false;
+  let restoredFrom = null, restoredRaw = null, storageFault = false, storageIssue = null;
   let cached = {}, journal = { revision: null, queue: [], inflight: null }, activeContext = null;
   let legacyContextKeyToRetire = null;
   try {
     if (disabled) { storage = null; session = null; }
-    cached = read(storage, key, {});
-    if (!object(cached)) throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
+    try { cached = read(storage, key, {}); } catch (e) { storageIssue = e?.name === 'SecurityError' ? 'blocked' : 'corrupt_state'; throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED'); }
+    if (!object(cached)) { storageIssue = 'corrupt_state'; throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED'); }
     activeContext = best(() => read(session, contextKey, null)) ?? null;
     // Guest only, and only when the current principal key is empty: the new key always wins.
     // Never adopt the unscoped legacy context into an authenticated principal.
@@ -56,23 +58,25 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (restoredFrom?.startsWith(`${key}:pending:`)) {
       restoredRaw = storage?.getItem(restoredFrom);
       if (restoredRaw) {
-        journal = JSON.parse(restoredRaw);
+        try { journal = JSON.parse(restoredRaw); } catch { storageIssue = 'invalid_journal'; throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED'); }
         restoredSnapshot = { revision: journal.revision, queue: clone(journal.queue || []), inflight: journal.inflight ? clone(journal.inflight) : null };
         if (journal.principal !== principal || !Array.isArray(journal.queue) ||
           (journal.revision !== null && (!Number.isSafeInteger(journal.revision) || journal.revision < 0)) ||
           journal.queue.some(b => !b.batch_id || !Array.isArray(b.ops) || !b.ops.length || b.ops.length > 100)) {
+          storageIssue = 'invalid_journal';
           throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
         }
         // Validate operations BEFORE any network call. Never silently discard an invalid journal.
-        applyResearchOps(emptyResearchState(), journal.queue.flatMap(b => b.ops));
+        try { applyResearchOps(emptyResearchState(), journal.queue.flatMap(b => b.ops)); } catch { storageIssue = 'invalid_journal'; throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED'); }
         if (journal.inflight && (!journal.queue[0] || journal.inflight.batch_id !== journal.queue[0].batch_id ||
           JSON.stringify(journal.inflight.ops) !== JSON.stringify(journal.queue[0].ops) ||
           !Number.isSafeInteger(journal.inflight.expected_revision) || journal.inflight.expected_revision < 0)) {
+          storageIssue = 'invalid_journal';
           throw new Error('RESEARCH_LOCAL_RECOVERY_REQUIRED');
         }
       }
     }
-  } catch { storageFault = true; journal = { revision: null, queue: [], inflight: null }; cached = {}; activeContext = null; legacyContextKeyToRetire = null; }
+  } catch { storageFault = true; storageIssue ??= 'unavailable'; journal = { revision: null, queue: [], inflight: null }; cached = {}; activeContext = null; legacyContextKeyToRetire = null; }
   let state = { ...normalizeResearchState(cached.state || cached), context: activeContext };
   let mode = cached.mode === 'discovery' ? 'discovery' : 'reader';
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
@@ -89,6 +93,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   const notify = () => {
     snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length, cloudConfirmed: isCloudConfirmed({ syncStatus: status, syncPending: queue.length }),
       syncRevision: revision, syncAwaitingAction: Boolean(userId && cloudEnabled && queue.length && !writeIntent),
+      storageIssue,
       legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
     for (const fn of listeners) fn();
   };
@@ -130,7 +135,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
   // Every mounted tab with pending work owns a separate journal. Copy-on-resume retains exact batch IDs/revisions;
   // duplicated tabs cannot overwrite another tab's pending operations. Version conflicts fail closed.
   // A tab with nothing to persist writes no journal at all (and removes its own once it drains).
-  function persist() {
+  function persist(reclaimed = false) {
     if (disabled || storageFault) return false;
     try {
       if (!storage) throw new Error('RESEARCH_STORAGE_UNAVAILABLE');
@@ -148,8 +153,14 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         best(() => session.removeItem(legacyContextKeyToRetire));
         legacyContextKeyToRetire = null;
       }
+      if (storageIssue === 'quota' || storageIssue === 'blocked' || storageIssue === 'unavailable') storageIssue = null;
       return true;
-    } catch { status = 'local_error'; return false; }
+    } catch (e) {
+      // A full browser store: first free only what is provably redundant (the existing lossless reap), then try once more. Nothing unsynced is touched.
+      if (!reclaimed && isQuota(e)) { reapRedundant(); return persist(true); }
+      storageIssue = isQuota(e) ? 'quota' : e?.name === 'SecurityError' ? 'blocked' : 'unavailable';
+      status = 'local_error'; return false;
+    }
   }
   // Lease upkeep: only the owner touches `owner.at`; `released` is set when the page goes away so a reload can continue the journal in place.
   function heartbeat() {

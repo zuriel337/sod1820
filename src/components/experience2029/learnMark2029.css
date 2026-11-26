@@ -152,5 +152,5 @@
 /* ONE page-help action (ZURIEL 26.11.2026), the same as the Hall intro's "? מה זה?": quiet 44px text button, 14px, one gold-line box over the page, closed by Escape or "סגירת ההסבר". */
 .sod29-root .sod29-learn-mark.scope-surface .sod29-learn-mark-trigger{padding:0 6px;border:0;background:none;font-size:var(--s29-type-micro,14px)}
 .sod29-learn-mark.scope-surface .sod29-learn-mark-symbol{width:auto;flex:none;font-size:inherit;color:inherit}
-.sod29-learn-mark.scope-surface .sod29-learn-mark-disclosure{position:absolute;inset:calc(100% + 4px) 0 auto auto;z-index:6;margin:0;width:min(520px,calc(100vw - 32px));padding:16px;border-color:var(--r29-gold,var(--s29-line-strong));background:var(--s29-panel)}
+.sod29-learn-mark.scope-surface .sod29-learn-mark-disclosure{position:absolute;inset-block-start:calc(100% + 4px);inset-inline:auto 0;z-index:6;margin:0;width:min(520px,calc(100vw - 32px));padding:16px;border-color:var(--r29-gold,var(--s29-line-strong));background:var(--s29-panel)}
 .sod29-entry-orientation-slot:not(.is-in-header){display:flex;justify-content:flex-end}

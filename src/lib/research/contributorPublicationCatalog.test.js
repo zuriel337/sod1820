@@ -61,16 +61,19 @@ test("a failed source remains unknown and preserves available articles", async (
   assert.equal(result.items[0].type, "writings");
 });
 
-test("cipher reader requires explicit public+published even when self_published bypasses RLS", async () => {
+test("researcher page lists both public tiers (approved, and shown by the owner) and never a private row", async () => {
   const { client, calls } = clientFixture({ count: 0 });
   await fetchContributorPublicationCatalog(identity, { client });
-  assert.ok(calls.some(c => c.table === "els_records" && c.key === "status" && c.value === "published"));
-  assert.ok(calls.some(c => c.table === "els_records" && c.key === "visibility" && c.value === "public"));
+  const filter = calls.find(c => c.table === "els_records" && c.filter)?.filter;
+  assert.ok(filter?.includes("or(status.eq.published,self_published.eq.true)") && filter.includes("visibility.eq.public"));
   const result = appendContributorPublicationCatalog(view(), { ciphers: { rows: [
     { id: "hidden", slug: "hidden", status: "hidden", visibility: "private", self_published: true },
+    { id: "private-flag", slug: "private-flag", status: "draft", visibility: "private", self_published: true },
     { id: "public", slug: "public", status: "published", visibility: "public" },
+    { id: "page", slug: "page", status: "draft", visibility: "public", self_published: true },
+    { id: "draft-public-unflagged", slug: "x", status: "draft", visibility: "public", self_published: false },
   ], complete: true } }, identity);
-  assert.deepEqual(result.items.map(i => i.id), ["els:public"]);
+  assert.deepEqual(result.items.map(i => i.id).sort(), ["els:page", "els:public"]);
   assert.equal(result.items[0].strength, null);
 });
 

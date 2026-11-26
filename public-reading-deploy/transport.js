@@ -13,6 +13,8 @@ import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2
 // server policies; authentication itself starts no model, write or credit action.
 export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "research_pulse_2029",
+  // "עולם הגילויים והתרומות" (ZURIEL 26.11.2026): two argument-less public readers over public material only (profiles gate credit and links on the server).
+  "discovery_center_feed_v1", "discovery_center_stats_v1",
   "gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale",
   "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey",
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",
@@ -488,6 +490,27 @@ function installPublicReadingWorker(policy) {
             ? Object.keys(body).sort().join(",") === "p_id,p_title" && uuid(body.p_id) && typeof body.p_title === "string" && body.p_title.length <= 400
             : Object.keys(body).join(",") === "p_id" && uuid(body.p_id);
           if (!exact) return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
+        // Bible code publication tiers (ZURIEL 26.11.2026): a verified member publishes their own cipher on their page and asks for
+        // library review. The database functions own ownership, the replay gate and the private guarantee; the worker admits only the exact bodies.
+        // Library approval itself (moderate_els_matrix) stays administrator-only and is not admitted here.
+        if ((rpc === "self_publish_matrix" || rpc === "request_els_library_review") && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.length > 500) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body) || Object.keys(body).sort().join(",") !== "p_id,p_on" || !uuid(body.p_id) || typeof body.p_on !== "boolean") return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
+        if (rpc === "els_my_strong_ciphers" && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.trim() && raw.trim() !== "{}") return denied();
           const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
           const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
           if (!uid || req.signal.aborted) return denied();

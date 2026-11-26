@@ -179,6 +179,24 @@ export async function selfPublishMatrix(id, on = true) {
   return data;
 }
 
+// 📚 בקשת אישור לספרייה המרכזית — בעלים בלבד, רק על צופן שפורסם בדף שלי. אינה מאשרת דבר: האישור נשאר בידי המנהל (moderate_els_matrix).
+// מחזיר {ok:true,status} או {ok:false,error:'not_public'|'withheld'|'not_owner'|'not_found'|'not_authenticated'}.
+export async function requestLibraryReview(id, on = true) {
+  const { data, error } = await supabase.rpc("request_els_library_review", { p_id: id, p_on: on });
+  // Deploy-order safety: before the SQL is applied the function does not exist (PGRST202 / 404). Say so; never throw a raw error at the owner.
+  if (error?.code === "PGRST202" || error?.status === 404) return { ok: false, error: "unavailable" };
+  if (error) throw error;
+  return data;
+}
+
+// 💡 צפנים חזקים של המשתמש עצמו — המלצה פרטית לבעלים בלבד (heuristic לא מכויל). ריק כשאין.
+export async function getMyStrongCiphers() {
+  const { data, error } = await supabase.rpc("els_my_strong_ciphers", {});
+  if (error?.code === "PGRST202" || error?.status === 404) return [];   // SQL not applied yet: no recommendation, nothing breaks
+  if (error) throw error;
+  return Array.isArray(data) ? data : [];
+}
+
 // ✏️🗑 ניהול הצפנים שלי — בעלים בלבד, ורק על רשומה שלא אושרה לפרסום (status != 'published').
 // RPC מחזיר {ok:true} או {ok:false,error:'not_authenticated'|'not_found'|'not_owner'|'published_locked'|'invalid_title'}.
 export async function renameMyMatrix(id, title) {
