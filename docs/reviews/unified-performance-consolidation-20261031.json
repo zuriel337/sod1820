@@ -4386,6 +4386,58 @@
         "open": "Merge and deploy need ZURIEL's separate approval for the exact commit; after deploy read the Home request count once in the live Network log.",
         "next_owner": "home session",
         "relates_to_groups": []
+      },
+      {
+        "id": "S-62",
+        "title_he": "עלות קריאות מרכז הגילויים במסד (feed ו־stats): נמדדה, מתועדת והגנות העומס הקיימות נבדקו, בלי הגנה חדשה",
+        "problem": "The Home and /stats call two public readers directly from the browser on every page load: discovery_center_feed_v1 (about 0.37 s cold) and discovery_center_stats_v1 (about 1.0 to 1.8 s cold, 0.41 s of it the distinct count of public gematria through gematria_public_word_eligible). The client Map cache (60 s / 10 min) lives in one page session and does not protect the database from repeated direct reads by different visitors or by a reload. No server-side cache exists.",
+        "surface": "Home and /stats (database reads)",
+        "source": {
+          "task_keys": [
+            "DISCOVERY_CENTER_20261126"
+          ],
+          "prs": [
+            1568
+          ],
+          "merged_via_pr": 1568,
+          "commits": [
+            "e47808fcb"
+          ],
+          "author": "claude",
+          "head_branch": "claude/home-discovery-stats-20261126"
+        },
+        "code_now": [
+          "src/lib/research/discoveryCenter2029.js",
+          "supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql"
+        ],
+        "merged": true,
+        "deployed": false,
+        "in_current_production": false,
+        "live_verified": false,
+        "live_evidence": "Database function D1 applied 26.11.2026 (ZURIEL approval, sha256 58ebbae5777be9a5…); the client section is merged (e47808fcb) and not deployed, so no visitor calls the readers yet.",
+        "measurement": {
+          "kind": "database read time (cold, single run)",
+          "before": "not applicable (new readers)",
+          "after": "feed about 0.37 s; stats about 1.0 to 1.8 s (statement alone about 1.0 s; 1.8 s included an extra verification count)",
+          "conditions": "live project linswmnnkjxvweumprav, 26.11.2026, read only, no cache",
+          "source": "execute_sql read-only runs of the function bodies after D0; EXPLAIN ANALYZE of the gematria count: 410 ms"
+        },
+        "protections_found": [
+          "PostgREST role authenticator: statement_timeout=8s and lock_timeout=8s (pg_roles.rolconfig), so a single reader can never run longer than 8 s",
+          "public-reading worker: reads go through readFetch with cache:'no-store' and no rate limit on admitted read RPCs; the two readers were added to PUBLIC_READING_READ_RPCS without changing any protection",
+          "middleware.js SG/CN limiter covers page requests at the edge; browser to Supabase REST calls do not pass through it",
+          "readDedupe (in-flight sharing and a 30 s memo per browser) lists only reviewed STABLE RPCs; the discovery readers are not listed and its guard forbids the name 'feed'; nothing was changed there",
+          "database max_connections=90 behind the platform pooler"
+        ],
+        "load_estimate": "About 3,100 human and 3,200 unclassified page views in 7 days (research_pulse_2029, 26.11.2026): at most about 900 calls per day to each reader (about one per minute), far from the 8 s limit and the connection cap. Crawlers do not run the client reads.",
+        "guard": [
+          "test/discovery-center-2029.test.mjs: a missing, failing or non-object reader answers null (nothing drawn)",
+          "supabase/proposed/discovery-center-20261126/VERIFY-D1.sql after apply"
+        ],
+        "rule": "A public reader called from the browser is documented here with its cold cost before it ships; the client cache is not a database protection. Server-side caching or a rule in readDedupe is a separate ZURIEL decision, and nothing in this entry builds or changes a protection.",
+        "open": "If page views grow by about two orders of magnitude, decide a server-side cache (a new object, needs ZURIEL). Read the real request count once in the live Network log after the unified deployment.",
+        "next_owner": "home session",
+        "relates_to_groups": []
       }
     ],
     "group_updates": [

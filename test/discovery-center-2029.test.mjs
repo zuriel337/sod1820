@@ -61,3 +61,9 @@ test("deploy-order degradation: a reader that is not applied yet (PGRST202 / 404
   assert.equal(discoveryModel(null), null);
   assert.deepEqual(discoveryTotals(null), []);
 });
+
+test("the writers tile says what it counts: writers with a public profile and public material (not everyone who wrote)", () => {
+  const tile = discoveryTotals({ writers_with_public_material: 15 }).find(row => row.key === "writers");
+  assert.equal(tile.value, 15);
+  assert.equal(tile.label, "כותבים בפרופיל ציבורי עם חומר");
+});

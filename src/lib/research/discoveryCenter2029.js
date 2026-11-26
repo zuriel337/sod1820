@@ -53,7 +53,7 @@ export function discoveryTotals(stats) {
     { key: "replies", label: "תגובות", value: count(stats.replies) },
     { key: "updates", label: "עדכוני מקור", value: count(stats.updates_live) },
     { key: "ciphers", label: "צפנים", value: count(stats.ciphers_public), to: "/codes" },
-    { key: "writers", label: "כותבים", value: count(stats.writers_with_public_material), to: "/community/researchers" },
+    { key: "writers", label: "כותבים בפרופיל ציבורי עם חומר", value: count(stats.writers_with_public_material), to: "/community/researchers" }   // only public profiles are counted (privacy gate): about 15 of 2,285 identities, not everyone who ever wrote,
   ].filter(item => item.value);
 }
 
