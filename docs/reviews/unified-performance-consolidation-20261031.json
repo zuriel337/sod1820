@@ -4546,8 +4546,43 @@
         "live_evidence": null,
         "measurement": null,
         "guard": null,
-        "open": "BY PRIORITY. (1) Merge approval of PR #1564 (S-62 stage 1 + S-63; stage 2 stays OFF), then a separate deploy approval, then the after-measurement per protocol_9bf41e6 (reminder 27.11 11:05 UTC). (2) Merge of the docs branch claude/work-public-discovery-log-read-ryfcnx (separate approval). (3) ingest_event: ONE owner, ONE combined allowlist change. Live md5 on 26.11 is 6dd7585345d10a3a323810fd768fcf3b; it matches none of the guards of the three open proposals (analytics_followups 60c470f6, els_action_telemetry 897f442a, #1528 app_health 4006c823), so each must be re-read and re-based before any apply; no new proposal is written here. #1528 is draft, mergeable_state dirty, head 2a231ef, and says do not merge or deploy before its SQL is approved. (4) Measurement findings of 12.11 (measurement-audit in #1321 @4a406fed2): P1 GA4 receives no campaign data (Meta does) - open GA4 work; P2 AdSense active by design - decision only; P3 content identity in GA inconsistent (/post/:item vs full root URL) - open GA4 work, derives from M3; P4 ingest_event runs anonymous by design (session/sod ids null, engagement only) - privacy decision in code, not a defect; its allowlist extensions are exactly the ingest_event item above, so P4 is not a separate task. (5) Video error measurement: not defined anywhere in the plan today; to be specified as an extension of the existing allowlist/#1528 family (no new collector), after (3). (6) Open items already in the map: S-55 options B/C (not approved), S-59 CLS sources, S-56 Google images canary, public-reading baseline lowering (203,216 vs 175,808), #1549 SQL v2 + Edge wa-channel-ingest. (7) S-62 stage 3 (SQL): NOT approved; kept on branch claude/gematria-word-floor-proposal-20261126 (01ec495).",
+        "open": "BY PRIORITY. (1) Merge approval of PR #1564 (S-62 stage 1 + S-63; stage 2 stays OFF), then a separate deploy approval, then the after-measurement per protocol_9bf41e6 (reminder 27.11 11:05 UTC). (2) Merge of the docs branch claude/work-public-discovery-log-read-ryfcnx (separate approval). (3) ingest_event: ONE owner, ONE combined allowlist change - PREPARED 26.11 (ZURIEL approved the consolidation): branch claude/ingest-event-consolidated-20261126 (fe08f55), supabase/proposed/ingest-event-app-health-20261126/{PROPOSAL,ROLLBACK,ACCEPTANCE}.sql + tests/ingest-event-app-health-20261126/realpg.sh (21 local checks pass; fixture reproduces the live function byte-for-byte, md5 6dd7585345d10a3a323810fd768fcf3b). Finding: analytics_followups (els search) and els_action_telemetry (els ui_action...) are ALREADY LIVE in ingest_event, and so are the other two parts of analytics_followups (fn_raziel_activity_notify, traffic_history notes); the only remaining delta is #1528's app_health family, whose old guard (4006c823) matched the 20.11 text, not the live one. NOT applied; needs a separate SQL approval; the rest of #1528 (apply.sql: reliability watch, schema validation) stays with its owner. Live md5 on 26.11 is 6dd7585345d10a3a323810fd768fcf3b; it matches none of the guards of the three open proposals (analytics_followups 60c470f6, els_action_telemetry 897f442a, #1528 app_health 4006c823), so each must be re-read and re-based before any apply; no new proposal is written here. #1528 is draft, mergeable_state dirty, head 2a231ef, and says do not merge or deploy before its SQL is approved. (4) Measurement findings of 12.11 (measurement-audit in #1321 @4a406fed2): P1 GA4 receives no campaign data (Meta does) - open GA4 work; P2 AdSense active by design - decision only; P3 content identity in GA inconsistent (/post/:item vs full root URL) - open GA4 work, derives from M3; P4 ingest_event runs anonymous by design (session/sod ids null, engagement only) - privacy decision in code, not a defect; its allowlist extensions are exactly the ingest_event item above, so P4 is not a separate task. (5) Video error measurement: not defined anywhere in the plan today; to be specified as an extension of the existing allowlist/#1528 family (no new collector), after (3). (6) Open items already in the map: S-55 options B/C (not approved), S-59 CLS sources, S-56 Google images canary, public-reading baseline lowering (203,216 vs 175,808), #1549 SQL v2 + Edge wa-channel-ingest. (7) S-62 stage 3 (SQL): NOT approved; kept on branch claude/gematria-word-floor-proposal-20261126 (01ec495).",
         "next_owner": "ZURIEL decision per item; one writer per scope",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-65",
+        "title_he": "עלויות הקריאה של מרכז הגילויים (בית ו־/stats) — נמדד, לא שונה",
+        "problem": "The merged Discovery Center (#1568) calls two anonymous RPCs from every visitor's browser on the home page and /stats. Measured read-only as role anon on 26.11.2026 (rolled-back transaction).",
+        "surface": "home, /stats (client RPC discovery_center_feed_v1, discovery_center_stats_v1)",
+        "source": {
+          "task_keys": [
+            "WORK_PUBLIC_DISCOVERY_20261122"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": null
+        },
+        "code_now": [
+          "src/lib/research/discoveryCenter2029.js: client cache in module memory only (feed 60 s, stats 10 min): per browser, not shared between visitors",
+          "public-reading-deploy/transport.js allowlists both RPCs",
+          "DB: discovery_center_feed_v1 306 ms / 9,033 buffers per call; discovery_center_stats_v1 1,054 ms / 134,322 buffers per call (both SECURITY DEFINER, STABLE, no cache table)"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": false,
+        "live_evidence": null,
+        "measurement": "Home + /stats page views in the last 24 h: 106 views from 65 sessions (of 6,307 page views): about 65 x 1.36 s = 1.5 DB-minutes a day today. Cost grows linearly with visitors and with crawlers that execute JS; every home visit pays it even when the home document itself is a CDN HIT (S-49).",
+        "guard": null,
+        "open": "RECOMMENDATIONS ONLY (none implemented, each needs its own approval): (1) Serve stats through the existing analytics_cache_get_v1 pattern of the sitewide-statistics package (a producer refreshes it; readers do one indexed read) - the stats totals change slowly. (2) Give the feed a short shared cache (60-300 s) at the edge or in the same cache table, with the featured-discovery change (D3) purging it, so a hidden or removed discovery disappears within the same bound as S-47. (3) Do not start the two RPCs on the home page before the section nears the viewport (the section is already lazy-loaded; load on approach, as toolOnApproach2029 does for posts). Keep: identical content for users and crawlers, privacy floor (only public writers), no new engine, no budget raise. After-measurement: same method, per protocol_9bf41e6.",
+        "next_owner": "ZURIEL decision; speed session implements; discovery-center owner for the SQL side",
         "relates_to_groups": []
       }
     ],
@@ -5197,6 +5232,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: sync with main e47808fc, consolidate backlog)",
         "what": "PR #1564 and the docs branch merged with main e47808fcb (no conflicts; S-62/S-63 kept); S-64 added: remaining speed/analytics/SEO work by priority, P1-P4 checked against #1528 and the ingest_event ownership (single owner; all three open allowlist proposals have stale md5 guards). Nothing merged, deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-26T20:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: consolidate ingest_event, include Discovery Center read costs)",
+        "what": "S-64: ingest_event consolidated into one proposal package on the live definition (branch claude/ingest-event-consolidated-20261126, fe08f55; not applied). S-65 added: Discovery Center read costs measured (feed 306 ms, stats 1,054 ms per call; client-cached per browser only). Nothing merged, deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
