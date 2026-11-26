@@ -4494,10 +4494,10 @@
         "code_now": [
           "api/sitemap.js (numbers block, one unpaged rpc/sitemap_numbers call)",
           "src/lib/admittedNumbers2029.js on the staged branch already contains the exact paged read with a proven total",
-          "PR #1564 (head a6cd06b2dc8dd77cdf9c8a33e1b58cbecbc9733c, merged with main e47808fcb): the paged reader fix is prepared and awaits merge approval; not merged, not deployed"
+          "PR #1564 MERGED into main 26.11.2026 (merge commit 6e7c422a24e74a10a10df35cdc131804cda42fce, head a6cd06b2dc8dd77cdf9c8a33e1b58cbecbc9733c, 14/14 gates green, ZURIEL approved the exact head). NOT deployed: the live site still serves 9bf41e6 until a separately approved deployment."
         ],
-        "merged": false,
-        "merge_commit": null,
+        "merged": true,
+        "merge_commit": "6e7c422a24e74a10a10df35cdc131804cda42fce",
         "deployed": false,
         "deployed_in": null,
         "deployed_in_sha": null,
@@ -5241,6 +5241,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: consolidate ingest_event, include Discovery Center read costs)",
         "what": "S-64: ingest_event consolidated into one proposal package on the live definition (branch claude/ingest-event-consolidated-20261126, fe08f55; not applied). S-65 added: Discovery Center read costs measured (feed 306 ms, stats 1,054 ms per call; client-cached per browser only). Nothing merged, deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-26T23:30:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: merge #1564 at the exact head)",
+        "what": "PR #1564 (S-62 stage 1 + S-63 + CI browser-install fix) merged into main: merge commit 6e7c422a24e74a10a10df35cdc131804cda42fce. Stage 2 stays OFF. Not deployed. After-measurement (protocol_9bf41e6) only after an approved deployment.",
         "previous": {
           "note": "previous revision above"
         }
