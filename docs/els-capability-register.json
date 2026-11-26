@@ -12,12 +12,11 @@
   "UNREACHABLE"
  ],
  "summary": {
-  "LIVE": 45,
+  "LIVE": 47,
   "NEVER": 1,
   "PARKED": 5,
-  "PARTIAL": 6,
+  "PARTIAL": 5,
   "SUPERSEDED": 4,
-  "UNKNOWN": 1,
   "UNREACHABLE": 23
  },
  "capabilities": [
@@ -2344,7 +2343,7 @@
    "id": "D03",
    "family": "D",
    "name": "Notable occurrences",
-   "disposition": "UNKNOWN",
+   "disposition": "LIVE",
    "contracts": [
     "els_single_engine_law@2"
    ],
@@ -2352,34 +2351,37 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "notable"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-notable"
     }
    ],
    "depends_on": [
     "els-engine-iframe",
-    "host-bridge:TzofenEmbed"
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
    "proof": {
-    "code": false,
-    "fixture_test": false,
+    "code": true,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "notable/SIGNIFICANT feed the classic occurrence panel; native use not confirmed",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "GAP (S2): the engine classifies notable skips (notable(): known number, round thousands, palindrome; ANCHORS) and scores them in the quality meter; nothing native shows the tag. Surface the existing engine output; no new computation."
-    }
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"דילוגים מיוחדים\": the engine notable() tag of the axis skip and of each shown finding skip (state.qualityDetail.notable / angles[].notable); classifies the number only. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2621,49 +2623,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "rarityOf"
-    }
-   ],
-   "depends_on": [
-    "els-engine-iframe",
-    "host-bridge:TzofenEmbed",
-    "verification:MATCH"
-   ],
-   "tests": [],
-   "proof": {
-    "code": true,
-    "fixture_test": false,
-    "live_desktop": false,
-    "live_mobile": false
-   },
-   "detected_by": [
-    "REGISTER_GUARD"
-   ],
-   "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
-    "surface": [
-     "classic-ui"
-    ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "GAP (S2): rarity exists only after the engine Monte-Carlo run (lastQuality.rarity) and travels to the host in the existing \"quality\" message, which the host uses only to save the admin quality; the matrix shows no rarity. Surface that output."
-    }
-   }
-  },
-  {
-   "id": "E04",
-   "family": "E",
-   "name": "Quality score / stars",
-   "disposition": "PARTIAL",
-   "contracts": [
-    "els_single_engine_law@2",
-    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
-   ],
-   "owner": [
+    },
     {
-     "file": "tools/els/els-code.template.html",
-     "symbol": "starsFromTq"
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-rarity"
     }
    ],
    "depends_on": [
@@ -2672,8 +2635,8 @@
     "verification:MATCH"
    ],
    "tests": [
-    "test/els-connected-cross.test.mjs",
-    "test/els-window-directions.test.mjs"
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2684,18 +2647,62 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "stars exist for cross meetings; qualityCalc runs only in the classic panel, so saves carry no quality",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "PARTIAL (S2): stars are shown natively per meeting and on library cards; the matrix-level quality meter (stars, verified badge, expandable detail) arrives in the same \"quality\" message and is not shown natively."
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"נדירות מדודה\": the engine Monte-Carlo (runQualityMC, shared with the Classic button) on explicit click, with a live indicator; displayed as one measurement, never as proof. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
+   },
+   "host_message": "native-control:quality-mc-run"
+  },
+  {
+   "id": "E04",
+   "family": "E",
+   "name": "Quality score / stars",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "starsFromTq"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality=\"ready\""
     }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-connected-cross.test.mjs",
+    "test/els-window-directions.test.mjs",
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native quality meter: engine stars and score (state.provenance.quality, state.qualityDetail.estimate) labelled as an estimate, with the score breakdown; saved quality shape unchanged. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2785,6 +2792,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "gridStep"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-angle"
     }
    ],
    "depends_on": [
@@ -2794,7 +2805,9 @@
    ],
    "tests": [
     "test/els-connected-cross.test.mjs",
-    "test/els-window-directions.test.mjs"
+    "test/els-window-directions.test.mjs",
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2806,16 +2819,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "GAP (S2): the angle / parallel classification (gridStep, qualityCalc parallels, crossFilter.parallel) has no native surface; ElsStructureResearch2029 counts parallel lattice relations, a different measure. Decide with ZURIEL whether this is the same capability before building."
-    }
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"זוויות ומקבילות\": the class each shown hit already receives in qualityCalc (vertical / diagonal / row / other) at the current matrix width; kept beside, and distinct from, the lattice geometry check of ElsStructureResearch2029. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -3744,8 +3753,7 @@
   "detected_by: REGISTER_GUARD = the static test above; TELEMETRY_UI_ACTION / TELEMETRY_OPERATION = existing els events (surface=els); APP_HEALTH_1528_PENDING = PR 1528 signals, not in main and not applied."
  ],
  "legacy_dependency_summary": {
-  "ENGINE_COMPUTE": 38,
-  "ENGINE_ONLY_LIVE": 4,
+  "ENGINE_COMPUTE": 42,
   "ENGINE_UNREACHABLE": 23,
   "NONE": 11,
   "VISUAL_LEGACY": 9
@@ -3890,7 +3898,8 @@
     "title": "Native surfaces for the true gaps",
     "scope": "expose existing engine output through shared Royal components; no new computation, lazy-loaded (Speed Law)",
     "gate": "fixture + browser test per row; speed gates unchanged",
-    "removes": "nothing"
+    "removes": "nothing",
+    "status": "IN PR 26.11.2026: D03, E03, E04, E07 have a native surface (ElsQualityMeter2029, lazy, inside the research tools) fed only by existing engine output; no new computation; saved quality shape unchanged; none live-verified. After this, no row is ENGINE_ONLY_LIVE."
    },
    {
     "id": "S3",
