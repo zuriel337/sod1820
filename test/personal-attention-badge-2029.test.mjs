@@ -21,3 +21,11 @@ test("opening a conversation reads its notification too, after the thread was re
   assert.match(hub, /markDmNotificationsRead\(conv\.counterpart, \{ userId: user\.id \}\)/);
   assert.ok(hub.indexOf("setMsgs(Array.isArray(m) ? m : [])") < hub.indexOf("markDmNotificationsRead(conv.counterpart"));
 });
+test("with something waiting the picture goes straight to it: messages first, else notifications; the frame only reads the mark's data attribute", () => {
+  const badge = read("../src/components/experience2029/PersonalAttentionBadge2029.jsx");
+  assert.match(badge, /attention\.messages > 0 \? "\/2029\/me\/messages" : "\/2029\/me\/notifications"/);
+  const frame = read("../src/components/experience2029/SystemFrame2029.jsx");
+  assert.match(frame, /dataset\?\.attentionHref/);
+  assert.equal((frame.match(/openPersonal/g) || []).length >= 4, true, "header, rail and mobile menu use the one entry");
+});
+

@@ -38,6 +38,13 @@ for (const width of [390, 1440]) {
     expect(box.x).toBeGreaterThanOrEqual(0); expect(box.x + box.width).toBeLessThanOrEqual(vw);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
     expect(reads.count).toBe(1);   // the three drawings of the picture share ONE read
+    // Direct entry: with a message waiting, the picture goes to the messages; after the conversation is read the mark falls and the entry is the plain workspace again.
+    const button = page.locator('.sod29-header-workspace:visible, .sod29-sidebar-workspace:visible').filter({ has: page.locator('.sod29-attention-badge') }).first();
+    await expect(button).toHaveAttribute('data-attention-href', '/2029/me/messages');
+    dmUnread = 0;   // what dm_thread does once the conversation is really opened
+    await page.evaluate(() => window.dispatchEvent(new Event('sod:personal-attention-refresh')));
+    await expect(page.locator('.sod29-attention-badge:visible').first()).toContainText('1 חדשים אליך', { timeout: 15_000 });   // only the reply is left, the message was not counted again
+    await expect(button).toHaveAttribute('data-attention-href', '/2029/me/notifications');
   });
 }
 
