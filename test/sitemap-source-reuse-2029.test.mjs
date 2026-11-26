@@ -37,7 +37,7 @@ async function invoke({ rows = posts, firstPostGate, postStarted, calls = [], fa
       if (failAssets) throw Error('asset source unavailable');
       return Response.json(assets);
     }
-    return Response.json([]);
+    return Response.json([], { headers: table === 'sitemap_numbers' ? { 'content-range': '*/0' } : {} });
   };
   const res = { headers: {}, setHeader(k,v) { this.headers[k.toLowerCase()] = v; }, status(n) { this.code = n; return this; }, send(b) { this.body = b; return this; } };
   try { await sitemap(legacy ? {} : { publicFoundationPreview: true, publicReadingProductionArtifact: true, publicReadingRelease: PUBLIC_READING_PROFILE_ID }, res); }
