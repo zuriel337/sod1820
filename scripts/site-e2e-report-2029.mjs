@@ -13,7 +13,7 @@ const lines = [];
 if (input && existsSync(input)) {
   const raw = readFileSync(input, 'utf8');
   if (input.endsWith('.json')) for (const r of JSON.parse(raw).results) lines.push({ ok: r.ok, text: r.name });
-  else for (const l of raw.split('\n')) { const m = /^(PASS|FAIL) (.*)$/.exec(l.trim()); if (m) lines.push({ ok: m[1] === 'PASS', text: m[2] }); }
+  else for (const l of raw.split('\n')) { const m = /^(?:\S+Z\s+)?(PASS|FAIL) (.*)$/.exec(l.trim()); if (m) lines.push({ ok: m[1] === 'PASS', text: m[2] }); }
 }
 
 // SQL that exists in the repository (applied migrations and proposed SQL); a function or table that is only in production cannot be built in the isolated stack.

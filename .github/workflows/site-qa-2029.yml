@@ -6,10 +6,6 @@ name: Site QA (isolated login)
 # here with a random password. No secret, no GitHub environment, no production key or row. Manual only.
 
 on:
-  # TEMPORARY (remove before merge): proves the runner from this branch.
-  push:
-    branches: [claude/site-e2e-p1]
-    paths: [.github/workflows/site-qa-2029.yml, scripts/qa-site-2029.mjs, scripts/qa-scenarios-p1.mjs, scripts/build-qa-*.mjs, qa/**]
   workflow_dispatch:
 
 permissions:

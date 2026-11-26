@@ -39,7 +39,8 @@ test('the report: no results means NOT_RUN, a failing line means FAIL, matching 
   const empty = report('');
   assert.equal(empty.totals.PASS, 0);
   const all = families.flatMap((f) => f.scenarios).filter((s) => s.results.length);
-  const pass = report(all.flatMap((s) => s.results).map((r) => `PASS ${r}`).join('\n'));
+  // raw GitHub job logs prefix every line with a timestamp
+  const pass = report(all.flatMap((s) => s.results).map((r) => `2026-11-26T22:52:14.8412527Z PASS ${r}`).join('\n'));
   assert.equal(pass.totals.PASS, all.length);
   assert.equal(pass.totals.FAIL, 0);
   const one = all[0], failing = report([`FAIL ${one.results[0]} (x)`, ...all.slice(1).flatMap((s) => s.results).map((r) => `PASS ${r}`)].join('\n'));
