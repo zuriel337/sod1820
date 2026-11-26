@@ -6,6 +6,7 @@ import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPol
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
 import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody, readingMeasurementPath, readingMeasurementBody } from "../src/lib/publicReadingTelemetry2029.js";
 import { readingStorySpec } from "../src/lib/publicReadingStorySpec2029.js";
+import { readingVideoSpec } from "../src/lib/publicReadingVideoSpec2029.js";
 import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
@@ -642,7 +643,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${registerMeasurementFamilies2029.toString()}\n${readingStorySpec.toString()}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${registerMeasurementFamilies2029.toString()}\n${readingStorySpec.toString()}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingVideoSpec.toString()}\nregisterMeasurementFamilies2029(readingVideoSpec());\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityFeedFields: COMMUNITY_FEED_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 
