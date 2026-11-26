@@ -4604,7 +4604,31 @@
           "fn_ti_daily": "not scheduled since 6.9; no function references it; it only calls fn_ti_project_demand and fn_metatron_recommend. Safe either way; scheduling it is a product decision (Metatron/Raziel are untouched here).",
           "post_exp legacy format in ingest_event": "STILL IN USE: 52 events in 7 days (post_exp/post_view, scroll_depth, layout_present and post_experience/*). Not removable now.",
           "/wp-content in page views": "21 page views in 30 days; negligible; no action needed beyond awareness."
-        }
+        },
+        "community_api_reduction_20261127": {
+          "question": "How to cut the about 45 API calls made by every entrance to /community/chat, with the existing infrastructure, without harming function, openness or measurement (ZURIEL 27.11). Analysis and recommendations only; nothing implemented.",
+          "measured_26_11_20_to_23_UTC (about 1,350 wave sessions, Supabase edge logs, browser calls)": {
+            "per_session": "posts 6.5, users 5.9, ingest_event 5.1, community_thread_updates 3.9, topic_cards_public 3.5, community_presence_online 2.9, nodes 2.7, community_message_context 2.7, world_group_source_arrivals_v2 2.6, community_feed_page_v2 2.4, research_contributions 2.4, community_replies_page 2.2, track_visit 2.1, community_staff_user_ids_v1 1.9, community_tree_hints_list 1.9: about 45; plus about 3.5 per session from Vercel Edge middleware (log_edge, log_crawl) that is server-side and separate.",
+            "note": "A direct headless probe of the live page was refused by the edge (403): not worked around; attribution below is from the edge logs plus the code (CommunityLive2029.jsx effects, communityArchive.js, communityPresence.js, communityTreeHints.js)."
+          },
+          "kinds_of_calls": {
+            "A_first_load_public_reads_same_for_everyone": "community_feed_page_v2, community_tree_hints_list, community_staff_user_ids_v1, community_presence_online (first read), topic_cards_public, nodes, and the batched lookups that follow the feed (posts, users, research_contributions, community_message_context, community_replies_page, world_group_source_arrivals_v2): identical for every visitor and every crawler for minutes at a time.",
+            "B_polling": "presence ping every 45 s, presence list every 60 s, guest-unreviewed every 30 s, community_thread_updates cursors: only meaningful for a visitor who stays.",
+            "C_measurement": "ingest_event (5.1 per session: page view, arrival, entry orientation, engagement and web vitals), track_visit: must stay as they are."
+          },
+          "options_existing_infrastructure_only": [
+            "1. Bake the first-load public data into the already cached document (S-49 class, 300 s + stale 3,600 s). The document handler already reads server-side for first words, Post articles and number anchors; add the first feed page, tree hints, staff ids and the first presence snapshot as one JSON block that is identical for users and crawlers. The first load then needs no read of group A; the page falls back to today's reads if the block is missing or older than its bound. Expected: group A (about 25 of the 45) disappears for every visitor, and the database sees one set of reads per 5 minutes per region instead of one per visitor. Freshness bound = the existing 300 s; hidden or removed messages follow the existing purge-by-tag route of S-47 (a new tag for the chat document).",
+            "2. Load on approach or interaction, not on mount: presence, tree hints, staff ids, linked accounts and thread-update cursors start when the section is visible or the visitor interacts (the toolOnApproach2029 pattern already used for posts). An entrance that never scrolls or touches the page makes none of them.",
+            "3. Polling only while the tab is visible and the visitor is engaged: the presence/guest-unreviewed/thread-update timers check document.hidden and stop after an idle period. Existing readDedupe (30 s per browser) already prevents duplicates inside one tab.",
+            "4. Combine the batched lookups after the feed (posts, users, research_contributions, message_context, replies_page) into the feed RPC response that already returns the page, so a first page costs one round trip. Needs SQL: separate approval."
+          ],
+          "what_must_not_change": "Identical content for people and crawlers (the baked block is the same bytes); open indexing and canonical (the document is unchanged apart from the data block); every measurement call (group C) stays; engagement and web vitals still fire; hidden or removed content disappears within the same bound as S-47; privacy floor (public data only, no account data in the shared document); no bot blocking.",
+          "recommended_order": "2 then 1 (client first, no SQL, smallest risk; then the shared document block), 3 together with 2, 4 last and only with its own SQL approval. After each: measure with the same method (edge logs per session, HIT/MISS, DB reads, TTFB, CLS 0).",
+          "expected_effect": "With options 1+2 an entrance that does not interact would make about 8 to 12 calls (the measurement set and the visit), instead of about 45, for wave and crawler traffic as well as for people. To be measured, not assumed.",
+          "status": "NOT started: needs ZURIEL's decision on which option to build and a branch under the speed law (shell budget unchanged, document handler stays server-side)."
+        },
+        "classification_v4_update_20261127": "PR #1579 head f27ebeed72d6b03cc7e006fa264a90462a13569c: identified (logged-in) visitors are never marked and are not counted toward the threshold (26.11: 3 of 4,840 signature sessions were identified); consistency across windows proven locally (day, three-day and unbounded windows agree row for row); 17 checks on PostgreSQL 16 and 17. PROPOSAL.sql sha256 e47db0f8fb8148ed..., ROLLBACK.sql 9e0ee82c3ffe1ad1.... Draft contract text in the folder README (EXTEND_EXISTING traffic_intelligence_law). Contract amendment and SQL are two separate approvals; not applied.",
+        "ga4_completion_update_20261127": "Exact hash for the write approval: supabase/proposed/ga4-history-completion-20261126/APPLY.sql sha256 cd0cecc6587c3e63... (PR #1579 head f27ebeed). The 124 new rows carry a provenance note: Google GA4 numbers as received (not measured here). Verification we can state: Oct 1-Nov 4 our sessions 10,799 vs Google 10,038 (ratio 1.08); our views 40,433 vs 33,289 (ours includes Legacy double counting, root-cause doc 3.1). 14 local checks on PostgreSQL 16 and 17. NOT written."
       },
       {
         "id": "S-65",
@@ -5342,6 +5366,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: prepare classification fix and GA4 completion)",
         "what": "Prepared, not applied: rule v4 classification proposal and the GA4 completion as frozen data with a refuse-if-exists guard (PR #1579, draft). Gates: #1577 14/14 green; #1575 11/11 green; #1574 pending (docs). Nothing merged, deployed, applied or written.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T05:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 27.11: merge #1575/#1577, classification v4 exact, GA4 hash, API-call analysis)",
+        "what": "#1575 merged (1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749) and #1577 merged (9576ae8206796d032fda2c64d4e849d55c84da53), both at the approved heads; SQL NOT applied; code NOT deployed (release order: SQL before the deployment that carries video). Classification v4 hardened (identified visitors, window consistency); GA4 completion carries a provenance label; community API-call reduction analysed (S-64). Nothing deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
