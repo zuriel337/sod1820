@@ -89,6 +89,7 @@ on:
       - "tests/world2029-release.spec.cjs"
       - "tests/entry-learn-2029.spec.cjs"
       - "tests/page-help-behavior-2029.spec.cjs"
+      - "tests/personal-attention-badge-2029.spec.cjs"
       - "tests/personal-save-full-store-2029.spec.cjs"
       - "supabase/migrations/20260919231500_g3_2029_web_vitals_acceptance_rum_v1.sql"
       - ".github/workflows/2029-isolation-gate.yml"
@@ -236,7 +237,7 @@ jobs:
       - name: Entry Orientation + Contextual Learn browser acceptance
         run: |
           mkdir -p test-results/release-visual
-          npx playwright test tests/entry-learn-2029.spec.cjs tests/page-help-behavior-2029.spec.cjs tests/personal-save-full-store-2029.spec.cjs --reporter=line
+          npx playwright test tests/entry-learn-2029.spec.cjs tests/page-help-behavior-2029.spec.cjs tests/personal-save-full-store-2029.spec.cjs tests/personal-attention-badge-2029.spec.cjs --reporter=line
       - name: World browser acceptance on pre-cutover preview
         run: SOD_WORLD_PRE_CUTOVER_FIXTURE=1 npx playwright test tests/world2029-release.spec.cjs --reporter=line
       - name: Upload native World screenshots
