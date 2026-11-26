@@ -418,6 +418,12 @@ jobs:
       - name: Post documents may be kept by the CDN, exactly and only when public and the same for every reader; the edge gate builds a recently changed Post (and every Post while its list is unknown) fresh, never from a kept copy
         run: node --test test/post-document-cdn-cache.test.mjs test/post-document-freshness.test.mjs
 
+      # S-62 (stage 1) and S-63 (ZURIEL 26.11.2026): the admitted-number decision and the sitemap read the SAME complete set (pages with an exact total, never a
+      # partial set, fail closed); a number document reads number_anchors once; the stage 2 CDN class for number and phrase documents stays OFF; the document
+      # is the same bytes for every reader; freshness, hidden content, a set that changes between pages and a failing read are covered.
+      - name: Number and phrase documents and the number sitemap (complete admitted set with an exact total, priority and lastmod kept, one anchor read, stage 2 CDN class off, fresh and hidden content, set changing between pages, failing read fails closed)
+        run: node --test test/admitted-numbers-2029.test.mjs test/number-phrase-document-reads-2029.test.mjs test/sitemap-numbers-complete-2029.test.mjs
+
       - name: Performance contracts (explicit column lists and one union count instead of repeated reads, batched topic findings, gallery paging, post cover priority, footer hidden while only the loading placeholder is shown so it cannot shift, Supabase preconnect; the public-candidate test reads the production build generated earlier in this job)
         run: >
           node --test
@@ -508,6 +514,9 @@ jobs:
         # packages (vite 8.3.0 -> 8.3.8) and the rebuild below was no longer the artifact that ships (the release shell budget caught it).
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          # Refresh the apt index first: a stale runner image index 404s on superseded security packages (libasound2t64) during --with-deps.
+          # Same browser version, same tests; only the package list is refreshed.
+          sudo apt-get update
           npx playwright install --with-deps chromium
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs
