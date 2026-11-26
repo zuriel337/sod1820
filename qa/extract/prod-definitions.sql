@@ -1157,3 +1157,347 @@ grant execute on function public.op_trace_finish_v1(p_trace_id uuid, p_root_span
 -- @@ fngrant public.op_trace_record_span_v1(p_trace_id uuid, p_span_id uuid, p_parent_span_id uuid, p_kind text, p_name text, p_started_at timestamp with time zone, p_ended_at timestamp with time zone, p_outcome text, p_detail jsonb)
 revoke all on function public.op_trace_record_span_v1(p_trace_id uuid, p_span_id uuid, p_parent_span_id uuid, p_kind text, p_name text, p_started_at timestamp with time zone, p_ended_at timestamp with time zone, p_outcome text, p_detail jsonb) from public;
 grant execute on function public.op_trace_record_span_v1(p_trace_id uuid, p_span_id uuid, p_parent_span_id uuid, p_kind text, p_name text, p_started_at timestamp with time zone, p_ended_at timestamp with time zone, p_outcome text, p_detail jsonb) to service_role;
+-- @@ table public.ai_usage
+create table public.ai_usage (
+  day date not null default ((now() AT TIME ZONE 'Asia/Jerusalem'::text))::date,
+  identity text not null,
+  tier text,
+  n integer not null default 0,
+  updated_at timestamp with time zone not null default now(),
+  constraint ai_usage_pkey PRIMARY KEY (day, identity)
+);
+-- @@ table public.profiles
+create table public.profiles (
+  user_id uuid not null,
+  credits integer not null default 0,
+  xp integer not null default 0,
+  level integer not null default 1,
+  tier integer not null default 0,
+  streak integer not null default 0,
+  joined_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  full_name text,
+  birth_date date,
+  hidden_widgets text[] not null default '{}'::text[],
+  constraint profiles_pkey PRIMARY KEY (user_id),
+  constraint profiles_tier_range CHECK (((tier >= 0) AND (tier <= 5)))
+);
+-- @@ table public.site_flags
+create table public.site_flags (
+  key text not null,
+  enabled boolean not null default false,
+  message text,
+  updated_at timestamp with time zone not null default now(),
+  mode text not null default 'all'::text,
+  constraint site_flags_pkey PRIMARY KEY (key)
+);
+-- @@ fk public.profiles.profiles_user_id_fkey
+alter table public.profiles add constraint profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+-- @@ index public.ai_usage.ai_usage_day_idx
+CREATE INDEX ai_usage_day_idx ON public.ai_usage USING btree (day);
+-- @@ rls public.ai_usage
+alter table public.ai_usage enable row level security;
+-- @@ rls public.profiles
+alter table public.profiles enable row level security;
+-- @@ rls public.site_flags
+alter table public.site_flags enable row level security;
+-- @@ policy public.profiles.profiles_owner_read
+create policy profiles_owner_read on public.profiles as PERMISSIVE for SELECT to authenticated using ((auth.uid() = user_id));
+-- @@ policy public.site_flags.site_flags_public_read
+create policy site_flags_public_read on public.site_flags as PERMISSIVE for SELECT to public using (true);
+-- @@ function public.ai_quota_check(p_identity text, p_tier text, p_limit_override integer)
+CREATE OR REPLACE FUNCTION public.ai_quota_check(p_identity text, p_tier text, p_limit_override integer DEFAULT NULL::integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_day date := (now() at time zone 'Asia/Jerusalem')::date;
+  v_used integer;
+  v_lim integer;
+begin
+  if p_identity is null or length(p_identity) = 0 then
+    return jsonb_build_object('allowed', true, 'used', 0, 'limit', null, 'tier', 'unknown');
+  end if;
+
+  if p_tier = 'admin' then
+    return jsonb_build_object('allowed', true, 'used', 0, 'limit', null, 'tier', 'admin');
+  end if;
+
+  v_lim := coalesce(p_limit_override, 2);
+
+  if v_lim <= 0 then
+    select n into v_used from public.ai_usage where day = v_day and identity = p_identity;
+    return jsonb_build_object('allowed', false, 'used', coalesce(v_used,0), 'limit', v_lim, 'tier', p_tier);
+  end if;
+
+  -- Single atomic insert/update gate: two concurrent requests cannot both pass
+  -- the same last remaining unit. The WHERE is evaluated while the conflict row
+  -- is locked by PostgreSQL.
+  insert into public.ai_usage(day, identity, tier, n)
+  values (v_day, p_identity, p_tier, 1)
+  on conflict (day, identity) do update
+    set n = public.ai_usage.n + 1,
+        tier = excluded.tier,
+        updated_at = now()
+    where public.ai_usage.n < v_lim
+  returning n into v_used;
+
+  if v_used is null then
+    select n into v_used from public.ai_usage where day = v_day and identity = p_identity;
+    return jsonb_build_object('allowed', false, 'used', coalesce(v_used,0), 'limit', v_lim, 'tier', p_tier);
+  end if;
+
+  return jsonb_build_object('allowed', true, 'used', v_used, 'limit', v_lim, 'tier', p_tier);
+end;
+$function$
+;
+-- @@ function public.fn_capability_execution_gate_v1(p_capability text, p_flag_key text, p_required_entitlement text, p_user_ref text, p_visitor text, p_identity text, p_budget_kind text, p_budget_tier text, p_budget_limit_override integer)
+CREATE OR REPLACE FUNCTION public.fn_capability_execution_gate_v1(p_capability text, p_flag_key text DEFAULT NULL::text, p_required_entitlement text DEFAULT NULL::text, p_user_ref text DEFAULT NULL::text, p_visitor text DEFAULT NULL::text, p_identity text DEFAULT NULL::text, p_budget_kind text DEFAULT 'none'::text, p_budget_tier text DEFAULT NULL::text, p_budget_limit_override integer DEFAULT NULL::integer)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_capability text := nullif(btrim(coalesce(p_capability,'')), '');
+  v_flag_key text := nullif(btrim(coalesce(p_flag_key,'')), '');
+  v_required text := lower(nullif(btrim(coalesce(p_required_entitlement,'')), ''));
+  v_budget_kind text := lower(coalesce(nullif(btrim(coalesce(p_budget_kind,'')), ''), 'none'));
+
+  v_ent jsonb;
+  v_context_type text;
+  v_is_admin boolean := false;
+  v_is_authenticated boolean := false;
+  v_entitlement_allowed boolean := false;
+  v_entitlement_state text := 'unresolved';
+
+  v_flag_found boolean := false;
+  v_flag_enabled boolean := false;
+  v_flag_mode text := null;
+  v_flag_message text := null;
+  v_availability_state text := 'open';
+  v_availability_allowed boolean := true;
+
+  v_budget jsonb := jsonb_build_object(
+    'kind','none','state','not_metered','allowed',true,
+    'used',0,'limit',null,'tier',null,'consumed',false
+  );
+  v_budget_allowed boolean := true;
+  v_budget_tier text;
+
+  v_allowed boolean;
+begin
+  if v_capability is null then
+    raise exception 'capability is required';
+  end if;
+
+  -- Entitlement identity comes from the existing canonical read-layer.
+  v_ent := public.fn_user_entitlement(p_user_ref, p_visitor);
+  v_context_type := coalesce(v_ent->>'context_type','public_user');
+  v_is_admin := coalesce((v_ent->>'is_admin')::boolean, false);
+  v_is_authenticated := v_context_type <> 'public_user';
+
+  -- Availability: explicit no-flag means this capability currently has no
+  -- site_flags availability gate. If a server contract names a flag and the
+  -- flag is missing/invalid, fail closed instead of silently opening expensive I/O.
+  if v_flag_key is not null then
+    select true, coalesce(f.enabled,false), coalesce(f.mode,'all'), f.message
+      into v_flag_found, v_flag_enabled, v_flag_mode, v_flag_message
+    from public.site_flags f
+    where f.key = v_flag_key
+    limit 1;
+
+    if not coalesce(v_flag_found,false) then
+      v_availability_state := 'unknown_flag';
+      v_availability_allowed := false;
+    elsif not v_flag_enabled then
+      v_availability_state := 'open';
+      v_availability_allowed := true;
+    elsif v_flag_mode = 'all' then
+      v_availability_state := case when v_is_admin then 'admin_bypass' else 'closed' end;
+      v_availability_allowed := v_is_admin;
+    elsif v_flag_mode = 'anon' then
+      v_availability_state := case
+        when v_is_admin then 'admin_bypass'
+        when v_is_authenticated then 'registered_bypass'
+        else 'registered_only'
+      end;
+      v_availability_allowed := v_is_admin or v_is_authenticated;
+    else
+      v_availability_state := 'invalid_mode';
+      v_availability_allowed := false;
+    end if;
+  end if;
+
+  -- Entitlement allocation remains a server-supplied policy input. G3 does not
+  -- invent final G5 product allocation. The function only resolves that input
+  -- against the existing entitlement owner.
+  if v_required is null or v_required = 'public' then
+    v_required := 'public';
+    v_entitlement_allowed := true;
+    v_entitlement_state := 'public';
+  elsif v_required in ('subscriber','admin') then
+    v_entitlement_allowed := coalesce(v_ent->'entitlements','[]'::jsonb) ? v_required;
+    v_entitlement_state := case when v_entitlement_allowed then 'allowed' else 'denied' end;
+  else
+    -- G3 intentionally refuses premium/credits or invented tier names. Final
+    -- Free/Registered/Premium/Credits allocation belongs to G5.
+    v_entitlement_allowed := false;
+    v_entitlement_state := 'unsupported_requirement';
+  end if;
+
+  -- Budget is consumed only after availability+entitlement pass.
+  if v_budget_kind = 'none' then
+    v_budget_allowed := true;
+  elsif v_budget_kind = 'ai_quota' then
+    if not v_availability_allowed or not v_entitlement_allowed then
+      v_budget_allowed := false;
+      v_budget := jsonb_build_object(
+        'kind','ai_quota','state','not_consumed_upstream_denied','allowed',false,
+        'used',null,'limit',null,'tier',null,'consumed',false
+      );
+    elsif nullif(btrim(coalesce(p_identity,'')), '') is null then
+      v_budget_allowed := false;
+      v_budget := jsonb_build_object(
+        'kind','ai_quota','state','missing_identity','allowed',false,
+        'used',null,'limit',null,'tier',null,'consumed',false
+      );
+    else
+      v_budget_tier := coalesce(
+        nullif(btrim(coalesce(p_budget_tier,'')), ''),
+        case when v_is_admin then 'admin' when v_is_authenticated then 'user' else 'anon' end
+      );
+      v_budget := public.ai_quota_check(p_identity, v_budget_tier, p_budget_limit_override);
+      v_budget_allowed := coalesce((v_budget->>'allowed')::boolean, false);
+      v_budget := coalesce(v_budget,'{}'::jsonb) || jsonb_build_object(
+        'kind','ai_quota',
+        'state',case when v_budget_allowed then 'allowed' else 'exhausted' end,
+        'consumed',case
+          when v_budget_allowed and (v_budget->>'limit') is not null then true
+          else false
+        end
+      );
+    end if;
+  else
+    v_budget_allowed := false;
+    v_budget := jsonb_build_object(
+      'kind',v_budget_kind,'state','unknown_budget_kind','allowed',false,
+      'used',null,'limit',null,'tier',null,'consumed',false
+    );
+  end if;
+
+  v_allowed := v_availability_allowed and v_entitlement_allowed and v_budget_allowed;
+
+  return jsonb_build_object(
+    'v',1,
+    'capability',v_capability,
+    'allowed',v_allowed,
+    'availability',jsonb_build_object(
+      'owner','site_flags_lock_law v3',
+      'flag_key',v_flag_key,
+      'flag_found',case when v_flag_key is null then null else coalesce(v_flag_found,false) end,
+      'enabled',case when v_flag_key is null then null else v_flag_enabled end,
+      'mode',case when v_flag_key is null then null else v_flag_mode end,
+      'state',v_availability_state,
+      'allowed',v_availability_allowed,
+      'message',v_flag_message
+    ),
+    'entitlement',jsonb_build_object(
+      'owner','platform_tiers_law v4',
+      'required',coalesce(v_required,'public'),
+      'state',v_entitlement_state,
+      'allowed',v_entitlement_allowed,
+      'context_type',v_context_type,
+      'entitlement',v_ent->>'entitlement',
+      'tier',v_ent->'tier',
+      'role',v_ent->>'role',
+      'is_admin',v_is_admin,
+      'is_subscriber',coalesce((v_ent->>'is_subscriber')::boolean,false),
+      'entitlements',coalesce(v_ent->'entitlements','[]'::jsonb)
+    ),
+    'budget',coalesce(v_budget,'{}'::jsonb) || jsonb_build_object(
+      'owner','ai_quota_law v3',
+      'allowed',v_budget_allowed
+    ),
+    'policy',jsonb_build_object(
+      'server_authoritative',true,
+      'final_product_allocation_defined_here',false,
+      'pricing_defined_here',false,
+      'supported_entitlement_requirements',jsonb_build_array('public','subscriber','admin'),
+      'named_availability_flag_must_exist',true
+    )
+  );
+end;
+$function$
+;
+-- @@ function public.fn_user_entitlement(p_user_ref text, p_visitor text)
+CREATE OR REPLACE FUNCTION public.fn_user_entitlement(p_user_ref text, p_visitor text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare v_uid uuid; v_role text; v_tier int; v_ct text; v_ent text;
+begin
+  begin v_uid := p_user_ref::uuid; exception when others then v_uid := null; end;
+  if v_uid is not null then
+    select u.role, coalesce(p.tier,0) into v_role, v_tier
+    from public.users u left join public.profiles p on p.user_id = u.id
+    where u.id = v_uid;
+  end if;
+  v_ct := case when v_role='admin' then 'admin'
+               when coalesce(v_tier,0) >= 3 then 'subscriber'
+               when v_uid is not null then 'authenticated_user'
+               else 'public_user' end;
+  v_ent := case when v_role='admin' then 'admin' when coalesce(v_tier,0)>=3 then 'subscriber' else 'public' end;
+  return jsonb_build_object(
+    'context_type', v_ct, 'entitlement', v_ent, 'tier', coalesce(v_tier,0), 'role', coalesce(v_role,'anon'),
+    'is_admin', v_role='admin', 'is_subscriber', v_ct in ('subscriber','admin'),
+    'entitlements', case v_ent when 'admin' then '["public","subscriber","premium","admin"]'::jsonb
+                               when 'subscriber' then '["public","subscriber"]'::jsonb
+                               else '["public"]'::jsonb end,
+    'source_of_truth','users.role + profiles.tier (paid_subscribers עתידי)', 'note','read-layer; אין מנויים מקבילים');
+end $function$
+;
+-- @@ trigger public.profiles.trg_credit_signup_grant
+CREATE TRIGGER trg_credit_signup_grant AFTER INSERT ON public.profiles FOR EACH ROW EXECUTE FUNCTION credit_signup_grant_tg();
+-- @@ tablegrant public.ai_usage
+grant DELETE on public.ai_usage to service_role;
+grant INSERT on public.ai_usage to service_role;
+grant REFERENCES on public.ai_usage to service_role;
+grant SELECT on public.ai_usage to service_role;
+grant TRIGGER on public.ai_usage to service_role;
+grant TRUNCATE on public.ai_usage to service_role;
+grant UPDATE on public.ai_usage to service_role;
+-- @@ tablegrant public.profiles
+grant SELECT on public.profiles to authenticated;
+grant DELETE on public.profiles to service_role;
+grant INSERT on public.profiles to service_role;
+grant REFERENCES on public.profiles to service_role;
+grant SELECT on public.profiles to service_role;
+grant TRIGGER on public.profiles to service_role;
+grant TRUNCATE on public.profiles to service_role;
+grant UPDATE on public.profiles to service_role;
+-- @@ tablegrant public.site_flags
+grant SELECT on public.site_flags to anon;
+grant SELECT on public.site_flags to authenticated;
+grant DELETE on public.site_flags to service_role;
+grant INSERT on public.site_flags to service_role;
+grant REFERENCES on public.site_flags to service_role;
+grant SELECT on public.site_flags to service_role;
+grant TRIGGER on public.site_flags to service_role;
+grant TRUNCATE on public.site_flags to service_role;
+grant UPDATE on public.site_flags to service_role;
+-- @@ colgrant public.profiles
+grant select (full_name, birth_date) on public.profiles to authenticated;
+-- @@ fngrant public.ai_quota_check(p_identity text, p_tier text, p_limit_override integer)
+revoke all on function public.ai_quota_check(p_identity text, p_tier text, p_limit_override integer) from public;
+grant execute on function public.ai_quota_check(p_identity text, p_tier text, p_limit_override integer) to service_role;
+-- @@ fngrant public.fn_capability_execution_gate_v1(p_capability text, p_flag_key text, p_required_entitlement text, p_user_ref text, p_visitor text, p_identity text, p_budget_kind text, p_budget_tier text, p_budget_limit_override integer)
+revoke all on function public.fn_capability_execution_gate_v1(p_capability text, p_flag_key text, p_required_entitlement text, p_user_ref text, p_visitor text, p_identity text, p_budget_kind text, p_budget_tier text, p_budget_limit_override integer) from public;
+grant execute on function public.fn_capability_execution_gate_v1(p_capability text, p_flag_key text, p_required_entitlement text, p_user_ref text, p_visitor text, p_identity text, p_budget_kind text, p_budget_tier text, p_budget_limit_override integer) to service_role;
+-- @@ fngrant public.fn_user_entitlement(p_user_ref text, p_visitor text)
+revoke all on function public.fn_user_entitlement(p_user_ref text, p_visitor text) from public;
+grant execute on function public.fn_user_entitlement(p_user_ref text, p_visitor text) to service_role;
