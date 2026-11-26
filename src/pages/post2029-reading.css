@@ -1766,3 +1766,11 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 .sod29-reading-post .sod29-post-tags{justify-content:center}
 .sod29-reading-post .sod29-reading-source-line{font-weight:400;font-size:13px;color:var(--s29-muted)}
 @media(max-width:760px){.sod29-reading-post .sod29-reading-hero-copy>.k29-cats{gap:4px}.sod29-reading-post .sod29-reading-hero-copy>.k29-cats .k29-cat{min-height:28px;font-size:12px;padding:1px 8px}}
+/* Touch targets 44×44 with compact looks (ZURIEL 25.11.2026): a small chip or tag keeps its small look and gets a full 44px press area; rows are spaced so the areas do not overlap. */
+.sod29-reading-post .sod29-reading-hero-copy>.k29-cats{row-gap:16px}
+.sod29-reading-post .sod29-reading-hero-copy>.k29-cats .k29-cat{position:relative}
+.sod29-reading-post .sod29-reading-hero-copy>.k29-cats .k29-cat::after{content:"";position:absolute;inset-block:-8px;inset-inline:-4px}
+.sod29-post-tags{gap:0 4px}
+.sod29-post-tags a{display:inline-flex;align-items:center;min-block-size:44px;padding-inline:6px}
+.sod29-post-tags a{min-inline-size:44px;justify-content:center}
+.sod29-post-comments>details>summary{display:flex;align-items:center;min-block-size:44px}

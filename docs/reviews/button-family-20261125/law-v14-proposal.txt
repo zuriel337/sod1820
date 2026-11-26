@@ -1,2 +1,0 @@
-הצעה להוספה ל־canonical_ui_components_law (גרסה חדשה v14, לאחר אישור ZURIEL; לא הוחלה):
-3א. משפחת הכפתורים כוללת גם: קבוצת כפתורים ממורכזת ברוחב אחיד (.r29-btn-group), כפתור אייקון (.r29-btn.is-icon) ובחירה מרובה כתיבות סימון (.r29-check / .r29-check-group) ב־royal2029.css. WatchButton מציג אותן דרך variant="check2029" (אותו מנוע). אין עיצוב כפתור בגיליון עמוד או inline. נאכף ב־test/button-family-guard-2029.test.mjs (מנוף חד־כיווני מול scripts/button-family-baseline-2029.json). מקורות: Design V2 §14.4.
