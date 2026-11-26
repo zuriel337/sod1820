@@ -17,7 +17,7 @@ import { appendCommunityAttachments, COMMUNITY_ATTACHMENT_ACCEPT, COMMUNITY_ATTA
 import { applySeo } from "../../lib/seo.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
 import { use2029Palette } from "../../lib/palette2029.js";
-import { attachCommunityPostLinks, COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityMessagePath, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
+import { attachCommunityPostLinks, COMMUNITY_ARCHIVE_TOTAL, COMMUNITY_PAGE_SIZE, COMMUNITY_SEARCH_MAX_LENGTH, COMMUNITY_SEARCH_MIN_LENGTH, VERIFIED_ARCHIVE_PROFILES, compareCommunityLikedRows, fetchCommunityArchivePage, fetchCommunityAuthorPage, fetchCommunityAuthorSummary, fetchCommunityReply, fetchCommunityReplies, fetchCommunityReplyCounts, fetchCommunityThread, fetchCommunityThreadTotals, fetchLinkedAccountProfiles, fetchPublicAuthorActivityPage, legacyLikeCount, normalizeCommunityThreadFocus, publishCommunityMessage, searchCommunityMessages } from "../../lib/community/communityArchive.js";
 import { captureCommunityScrollAnchor, focusCommunityReplyToggle, mergeCommunityRefreshRows, restoreCommunityScrollAnchor, startCommunityRefresh } from "../../lib/community/communityRefresh.js";
 import Sod2029Shell, { FrameState } from "../experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
@@ -27,7 +27,6 @@ import CommunityRichText2029 from "./CommunityRichText2029.jsx";
 import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
 import { COMMUNITY_PRESENCE_PING_MS, fetchCommunityPresenceOnline, fetchCommunityStaffIds, pingCommunityPresence } from "../../lib/community/communityPresence.js";
-import CommunityGuestReviewPanel2029 from "./CommunityGuestReviewPanel2029.jsx";
 import { fetchTreeHints, parseTreeHintNumbers, setTreeHint } from "../../lib/community/communityTreeHints.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
@@ -77,7 +76,9 @@ function DraftAttachment({ item, disabled, onRemove }) {
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 const PublicContributor2029Page = lazy(() => import("../../pages/PublicContributor2029Page.jsx"));
 // Staff-only (moderators): its code is never part of a visitor's download.
+// Staff only; both parts live in one lazy module, so no visitor downloads it.
 const CommunityNetBlocksPanel2029 = lazy(() => import("./CommunityNetBlocksPanel2029.jsx"));
+const GuestMessageModeration2029 = lazy(() => import("./CommunityNetBlocksPanel2029.jsx").then(module => ({ default: module.GuestMessageModeration })));
 
 function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showAvatar = true }) {
   const [currentParams] = useSearchParams();
@@ -123,6 +124,10 @@ function LiveLike({ row }) {
 // the set re-renders them without threading a prop through every thread level.
 const NO_GUEST_REVIEW = { ids: new Set(), review: null };
 const guestReviewHolder = { current: NO_GUEST_REVIEW };
+// Staff only: guest messages that can be hidden or whose network can be blocked (community_guest_recent_v1), keyed by message id. Set by the page like the
+// guest review above; empty for everyone else and until the server confirms the feature.
+const NO_GUEST_MODERATION = { items: new Map(), changed: null };
+const guestModerationHolder = { current: NO_GUEST_MODERATION };
 // Administrator-only "entered the tree" marker, set by the page like the guest review above.
 const NO_TREE_HINTS = { ids: new Set(), toggle: null };
 const treeHintHolder = { current: NO_TREE_HINTS };
@@ -150,6 +155,8 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
   const guestReview = guestReviewHolder.current;
   const row = { ...sourceRow, ...messageActions?.patches[sourceRow.id] };
   const guestUnreviewed = guestReview.ids.has(sourceRow.id);
+  const guestModeration = guestModerationHolder.current;
+  const moderationItem = guestModeration.items.get(sourceRow.id);
   const treeHints = treeHintHolder.current;
   const inTree = treeHints.ids.has(sourceRow.id);
   const permissions = messageActions?.items[row.id];
@@ -211,6 +218,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>
+    {moderationItem ? <Suspense fallback={null}><GuestMessageModeration2029 item={moderationItem} unreviewed={guestUnreviewed} onChanged={guestModeration.changed} /></Suspense> : null}
     {quoteNotice ? <p className="sod29-community-edited" role="status">{quoteNotice}</p> : null}
     {permissions?.reason === "source_requires_review" ? <p className="sod29-community-edited">עדכון המקור דורש בדיקה.</p> : null}
     {mode === "delete" ? <MessageConfirm key={`${actor}:${row.id}`} row={row} actions={messageActions} onCancel={close} onDone={close} /> : null}
@@ -354,41 +362,46 @@ const NO_ACCOUNT_PROFILES = {};
 const formatActivityDate = (value) => bilingualDateLabel(value) || "תאריך לא זמין";
 const countLabel = (value) => Number(value).toLocaleString("he-IL");
 
-// One corpus-search hit: the message (or reply) itself plus a way to open the
-// full public thread around it. Replies resolve their path on demand so only a
-// fully public chain can be opened.
-function SearchHit({ row, accountProfiles, onReply, messageActions }) {
-  const [currentParams] = useSearchParams();
-  const navigate = useNavigate();
+// One corpus-search hit. Its replies open IN PLACE, under the hit, with the reader's scroll position kept (same reader and anchor helpers as a feed thread);
+// there is no separate thread view to land in. Direct links (?thread / ?reply / ?path) are untouched: they still open the full thread.
+function SearchHit({ row, accountProfiles, onReply, messageActions, replyCounts, onRepliesLoaded, refreshToken, onReplyCountKnown }) {
   const [state, setState] = useState("idle");
-  const hrefFor = path => {
-    const next = new URLSearchParams(currentParams);
-    for (const key of ["reply", "path", "member", "memberCard", "claim"]) next.delete(key);
-    next.set("thread", path[0]);
-    if (path.length > 1) next.set("path", path.join(","));
-    return communityChatHref(next, "");
-  };
-  const openReply = async () => {
+  const [replies, setReplies] = useState([]);
+  const [total, setTotal] = useState(null);
+  const hitRef = useRef(null), anchorRef = useRef(null), toggleRef = useRef(null), restoreToggle = useRef(false);
+  const childrenId = `search-replies-${row.id}`;
+  const load = async (offset = 0) => {
+    anchorRef.current = captureCommunityScrollAnchor(hitRef.current);
     setState("loading");
     try {
-      const path = await fetchCommunityMessagePath(row.id);
-      if (!path) { setState("error"); return; }
-      navigate(hrefFor(path));
+      const page = await fetchCommunityReplies(row.id, { offset, limit: 20 });
+      const visible = page.rows.filter(item => item.id !== row.id);
+      setReplies(current => offset ? [...current, ...visible.filter(item => !current.some(existing => existing.id === item.id))] : visible);
+      setTotal(page.count); onRepliesLoaded(visible); setState("open");
     } catch { setState("error"); }
   };
-  return <div className="sod29-community-search-hit">
+  useLayoutEffect(() => { if (state === "loading") return; restoreCommunityScrollAnchor(anchorRef.current); anchorRef.current = null; }, [replies, state]);
+  useLayoutEffect(() => { if (state === "idle" && restoreToggle.current) { restoreToggle.current = false; focusCommunityReplyToggle(toggleRef.current); } }, [state]);
+  const opened = state === "open" || state === "loading" && replies.length > 0;
+  const toggle = () => { if (opened) { anchorRef.current = captureCommunityScrollAnchor(hitRef.current); restoreToggle.current = true; setReplies([]); setState("idle"); } else load(0); };
+  return <div className="sod29-community-search-hit" ref={hitRef}>
     <LiveMessage row={row} accountProfiles={accountProfiles} showSource onReply={onReply} formatDate={formatActivityDate} messageActions={messageActions} />
     <div className="sod29-community-search-hit-open">
-      {row.parentId
-        ? <button type="button" className="sod29-community-secondary" disabled={state === "loading"} onClick={openReply}>{state === "loading" ? "פותח…" : "פתיחת התגובה בשרשור"}</button>
-        : <Link className="sod29-community-secondary" to={hrefFor([row.id])}>פתיחת השיחה</Link>}
-      {state === "error" ? <span role="alert"> לא הצלחנו לפתוח את השרשור הזה.</span> : null}
+      <button ref={toggleRef} type="button" className="sod29-community-replies-toggle" aria-expanded={opened} aria-controls={childrenId} disabled={state === "loading"} onClick={toggle}>{state === "loading" ? "פותח…" : opened ? "סגירת תגובות" : "פתיחת תגובות"}</button>
+      {state === "error" ? <span role="alert"> לא הצלחנו לטעון את התגובות.</span> : null}
     </div>
+    {state === "open" ? <div id={childrenId} className="sod29-community-replies">
+      {replies.length ? replies.map(reply => <LiveThread key={reply.id} row={reply} onReply={onReply} accountProfiles={accountProfiles} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={refreshToken} ancestors={[row.id]} messageActions={messageActions} onReplyCountKnown={onReplyCountKnown} />) : <p className="sod29-community-end">אין תגובות ציבוריות להודעה הזו.</p>}
+      {total != null && replies.length < total ? <button type="button" className="sod29-community-more-replies" onClick={() => load(replies.length)}>{total - replies.length === 1 ? "תגובה נוספת אחת" : `עוד ${total - replies.length} תגובות`}</button> : null}
+    </div> : null}
   </div>;
 }
 
 // Controlled, embeddable author activity. Same LiveMessage/ReactionBar rows as the community feed;
 // the parent owns reading and state. Totals render only when supplied.
+// Test seam only (real-browser tests mount these two parts without the page's network and auth): not used by the app.
+export { LiveMessage as LiveMessageForTest, SearchHit as SearchHitForTest, guestModerationHolder as guestModerationHolderForTest };
+
 export function PublicCommunityActivity2029({ rows = [], count = null, loading = false, error = "", onRetry, hasMore = false, onLoadMore, loadingMore = false, fullHref = "", firstAt = null, likesTotal = null, likesSource = null, itemLabel = "הודעות", onReply, onMessagesChanged }) {
   const messageActions = useCommunityMessageActions2029(rows, onMessagesChanged);
   const firstLabel = firstAt ? bilingualDateLabel(firstAt) : "";
@@ -488,9 +501,8 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   const [guestSending, setGuestSending] = useState(false);
   const [guestPending, setGuestPending] = useState(() => []);
   const guestUnreviewedIds = useMemo(() => new Set(guestPending.map(item => item.id)), [guestPending]);
-  const [netBlocksReady, setNetBlocksReady] = useState(false);
-  const [netBlockFocus, setNetBlockFocus] = useState("");
-  const clearNetBlockFocus = useCallback(() => setNetBlockFocus(""), []);
+  const [guestModerationItems, setGuestModerationItems] = useState(() => NO_GUEST_MODERATION.items);
+  const [moderationVersion, setModerationVersion] = useState(0);
   const guestReviewRead = useRef(0);
   // null = the pinned strip is still loading and its place is kept. S-59 (25.11.2026): the place is kept only when this browser last saw pins;
   // with no pins (the usual case: none exist) the reserved strip collapsed on every visit and the composer and the feed jumped 58 px.
@@ -547,6 +559,17 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     catch { setNotice("הפעולה על הודעת האורח לא הושלמה. נסו שוב."); }
   }, []);
   const guestReview = useMemo(() => ({ ids: guestUnreviewedIds, review: reviewGuest }), [guestUnreviewedIds, reviewGuest]);
+  // Staff-only read of the recent guest messages (the same RPC the on-message actions need). Until the approved SQL is applied it fails quietly and nothing shows.
+  useEffect(() => {
+    if (!canModerateGuests || !user) { setGuestModerationItems(current => current.size ? NO_GUEST_MODERATION.items : current); return undefined; }
+    let live = true;
+    import("../../lib/community/communityNetBlocksApi.js").then(api => api.fetchRecentGuestMessages({ limit: 100 }))
+      .then(items => { if (live) setGuestModerationItems(new Map(items.map(item => [item.id, item]))); })
+      .catch(() => { if (live) setGuestModerationItems(NO_GUEST_MODERATION.items); });
+    return () => { live = false; };
+  }, [canModerateGuests, user?.id, moderationVersion, publishedFeedRefresh]);
+  const onModerationChanged = useCallback(() => { setModerationVersion(value => value + 1); setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); }, []);
+  const guestModeration = useMemo(() => ({ items: guestModerationItems, changed: onModerationChanged }), [guestModerationItems, onModerationChanged]);
   const { typingPeople, notifyTyping } = useCommunityTyping2029({ enabled: !actionsLocked && !memberId && !claimId });
   const composerPrincipal = actionsLocked ? null : user?.id || null;
   const activeComposerPrincipal = useRef(composerPrincipal);
@@ -1018,6 +1041,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   }, [user?.id, authVerified, authLoading, actionsLocked]);
 
   guestReviewHolder.current = guestReview;
+  guestModerationHolder.current = guestModeration;
   treeHintHolder.current = treeHintControl;
   onlinePresenceHolder.current = onlineIds;
   staffIdsHolder.current = staffIds;
@@ -1051,8 +1075,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           onCommunityReply={actionsLocked ? undefined : (item) => { closeProfile(); startReply(item); }} />
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunityTreeHints2029 hints={treeHints} />
-        {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} onBlockRequest={netBlocksReady ? setNetBlockFocus : null} /> : null}
-        {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 pendingIds={guestUnreviewedIds} focusId={netBlockFocus} onFocusHandled={clearNetBlockFocus} onReady={setNetBlocksReady} onChanged={() => { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); }} /></Suspense> : null}
+        {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 version={moderationVersion} onChanged={onModerationChanged} /></Suspense> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
@@ -1123,7 +1146,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
             {search.status === "error" ? <FrameState kind="error" title="החיפוש נכשל"><p>לא הצלחנו לחפש כרגע.</p><button type="button" className="sod29-community-secondary" onClick={() => setSearchRetry(count => count + 1)}>ניסיון נוסף</button></FrameState> : null}
             {search.status === "loading" ? <p className="sod29-community-end" role="status">מחפש…</p> : null}
             {search.status === "ready" && !search.rows.length ? <FrameState kind="empty" title="לא נמצאו התאמות לחיפוש"><p>חיפשנו בכל השיחות והתגובות בארכיון.</p><button type="button" className="sod29-community-secondary" onClick={() => setQuery("")}>ניקוי החיפוש</button></FrameState> : null}
-            <div className="sod29-community-feed sod29-community-search-results">{search.rows.map(row => <SearchHit key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} messageActions={messageActions} />)}</div>
+            <div className="sod29-community-feed sod29-community-search-results">{search.rows.map(row => <SearchHit key={row.id} row={row} accountProfiles={accountProfiles} onReply={actionsLocked ? undefined : startReply} messageActions={messageActions} replyCounts={replyCounts} onRepliesLoaded={onRepliesLoaded} refreshToken={threadRefresh} onReplyCountKnown={onReplyCountKnown} />)}</div>
             {searchMoreAvailable ? <button className="sod29-community-load" type="button" disabled={search.loadingMore} onClick={loadMoreSearch}>{search.loadingMore ? "טוען…" : "עוד תוצאות"} <span aria-hidden="true">↓</span></button> : null}
             {search.moreFailed ? <p role="alert">לא הצלחנו לטעון תוצאות נוספות. אפשר לנסות שוב.</p> : null}
           </> : <>

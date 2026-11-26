@@ -41,8 +41,12 @@
 ## 5. מהירות
 אין שינוי בקריאה, באינדוקס או בשער. התוספת רק בכתיבת אורח ובתגובת אורח: hash וחיפוש אחד בטבלה חלקית, כ־10 מיקרו־שנייה (נמדד). הממשק: קובץ lazy (`React.lazy`) שנטען למנהלים בלבד (`canModerateGuests && user`), ללא ייבוא סטטי חדש; שער ה־shell נבדק ב־`npm run build`.
 
-## 6. הממשק (נכתב)
-`CommunityNetBlocksPanel2029.jsx`, חלק מ־`CommunityLive2029` בטעינה עצלה. הפאנל **אינו מופיע בדף עד שהשרת מאשר את הפיצ'ר** (כל עוד ה־RPC לא הוחלו הוא חסר, בלי שגיאות). לוח מתקפל אחד: "הודעות אורח אחרונות" (לכל הודעה שני כפתורים נפרדים: "הסתרת הודעה" ו"חסימת כתיבה"; הודעה ישנה: רק הסתרה, עם הסבר), ו"חסימות" (מצב, משך, פקיעה, סיבה, מי חסם, "ביטול חסימה"). טופס החסימה: בחירת משך ב־`.r29-check-group` (`role="radiogroup"`, שלוש שורות), סיבה חובה עם מונה, `.r29-btn.is-primary` ו־`.r29-btn.is-quiet`, ובו הטקסט "ההודעה עצמה לא תוסתר". אין אפשרות "לצמיתות" אלא הערה שהיא מושבתת. אין צבע, גודל או צל מקומי (CSS פריסה בלבד). חיווי חי: "מבצע…" ו־`aria-busy`. בדיקות: `button-family-guard`, ‏`design-family-warn`, ‏`royal-sheet` ו־180 בדיקות קהילה עברו; הרצת הצד המשולב (CI) בהמשך.
+## 6. הממשק (נכתב; פושט ב־26.11 לבקשת ZURIEL)
+- **אין רשימת הודעות נוספת בראש הקהילה.** חלונית "ממתינות לבדיקה" הוסרה (`CommunityGuestReviewPanel2029.jsx` נמחק): הודעת אורח שטרם נבדקה מוצגת בשרשור עצמו עם "אישור / הסתרה" (כבר היה), ועליה נוספה רק "חסימת כתיבה".
+- **פעולות על ההודעה עצמה**, למנהל ולצוות בלבד, בשורה קומפקטית: "הסתרת הודעה" ו"חסימת כתיבה" (שתי פעולות נפרדות; חסימה אינה מסתירה). הטופס נפתח במקום: משך (`.r29-check-group`, שלוש שורות, ללא "לצמיתות"), סיבה חובה, `.r29-btn`. הקריאה אחת לצוות בלבד (`community_guest_recent_v1`, 100 האחרונות) ונכשלת בשקט כל עוד ה־SQL לא הוחל: אז אין שורה ואין פאנל.
+- **ניהול מרוכז אחד**: לוח מתקפל "חסימות כתיבה פעילות · N" עם "ביטול חסימה" וסיבה. נעלם כשאין חסימה פעילה.
+- **פתיחת תגובות בתוצאות חיפוש נעשית במקום**: "פתיחת תגובות" מתחת להודעה, אותו קורא תגובות ואותו עוגן גלילה כמו בשרשור בפיד, ללא ניווט לתצוגה נפרדת. (בפיד הרגיל זה כבר היה במקום.) קישורי `?thread` / `?reply` / `?path` / `returnTo` מבחוץ לא שונו ופותחים את השרשור המלא כמו קודם. הערה: תוצאת חיפוש שהיא תגובה פותחת את תגובותיה, לא את שרשור האב.
+- כל קוד הצוות בקובץ lazy אחד (`CommunityNetBlocksPanel2029.jsx` + CSS שלו), ללא ייבוא סטטי; אין שינוי ב־`community2029.css` ובמשפחת `.r29-*`.
 
 ## 7. בדיקות
 - `test/community-net-blocks-20261126-realpg.sh`: 55 בדיקות על Postgres אמיתי מבודד (העתק מדויק של שלושת מסלולי הכתיבה החיים, md5 נבדק): גשר מגבלות מ־IP גולמי ל־hash (המגבלות הקיימות נשמרות בחלון המעבר), היקף החסימה לקהילה בלבד (`openweb`/`community_2029`; פעולות מחוץ לקהילה לא מושפעות), תקרת 10 חסימות לשעה לאיש צוות בעשרות בקשות מקבילות (pgbench: בדיוק 10 מתוך 200), IPv6, הסתרה וחסימה כפעולות נפרדות, לצמיתות מושבת, החזרה לאחור מדויקת.
@@ -65,11 +69,11 @@
 | `supabase/proposed/20261126200000_community_net_blocks_ROLLBACK.sql` | `8f21d7af36c11d9d3b6b20c5a45a59d2fc5d9eb7a1996aae0c695b2e67031dbf` |
 | `test/community-net-blocks-20261126-realpg.sh` | `b13c11c2eeb78532fdaef57b32a3416ecf9640ca94adb3fdcd1213cc6bb0f527` |
 | `test/fixtures/community_writers_live_20261126.sql` | `ddcce509d04b55ea358fc4b5a844d87e5255c44ef327af06533a3ded4f2f007c` |
-| `test/community-net-blocks-panel-2029.test.mjs` | `845271eb5b10a3dbe108b59615669b98faf38b1e1bdb611f425c43397532abd8` |
+| `test/community-net-blocks-panel-2029.test.mjs` | `90b1c5292d07d67bb885d3c62b0130248d25378da56dd156a41c5e2864b19688` |
 | `src/lib/community/communityNetBlocksApi.js` | `b14f79a433bd904fe220e23a25c132a273124205fbdb41d5ece06d180d6a2ca5` |
 | `src/lib/community/communityNetBlocksApi.test.js` | `0727b0e8304a5cc5b0945392ff16812a43acb461db93164ffa7e45284c2ce031` |
-| `src/components/community2029/CommunityNetBlocksPanel2029.css` | `88d410ffab9d7eb2dbd8c878bf8105a8639623875df4673d9f465abbf8b563f2` |
-| `test/community-net-blocks-panel-2029.browser.mjs` | `801f2bccaae99d30f1671f84d6659a74fb59a12d122aed72399f259843821bca` |
-| `src/components/community2029/CommunityNetBlocksPanel2029.jsx` | `77bc655b3822160625b4c61813fb4486b73124d4145f311ce9ded45039daba6f` |
+| `src/components/community2029/CommunityNetBlocksPanel2029.css` | `286a2bbcc64b1814cdd94803edc297eee9dcbc7ea0d477ad4d3d1ecefff44396` |
+| `test/community-net-blocks-panel-2029.browser.mjs` | `8a689e39a006fc555e91cd676f3fd0375a1b7d21f03ecdeb231596998f2a6f89` |
+| `src/components/community2029/CommunityNetBlocksPanel2029.jsx` | `809076a5504aa8a4cdba6168034ab759bd811c4268f778ca5c60c9d8916046c1` |
 
 **השפעה על התיעוד הקנוני:** אין (הצעה והכנה בלבד).

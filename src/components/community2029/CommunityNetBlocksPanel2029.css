@@ -10,3 +10,6 @@
 .sod29-community-netblocks-body li{display:grid;gap:8px;min-inline-size:0}
 .sod29-community-netblocks-body .sod29-community-pending-line{white-space:normal;overflow-wrap:anywhere;text-overflow:clip;display:block}
 .sod29-community-netblocks-body .sod29-community-pending-actions{flex-wrap:wrap;gap:8px}
+/* Compact moderation row on one guest message (staff only; buttons are the existing .sod29-community-manage-action). */
+.sod29-community-guest-moderation{display:grid;gap:6px;min-inline-size:0;margin-block-start:4px}
+.sod29-community-guest-moderation-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
