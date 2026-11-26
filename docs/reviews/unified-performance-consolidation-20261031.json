@@ -1327,18 +1327,18 @@
   ],
   "current_state_20261117": {
     "task": "SPEED_CENTRE_CONTROL_20261117",
-    "checked_at": "2026-11-25T11:05:00Z",
-    "main": "97fc9de6130b16e9e61258d077d409b3ce063a78",
+    "checked_at": "2026-11-26T12:00:00Z",
+    "main": "9bf41e6a85ac5483b88bb92b9375a4e5e13eb880",
     "production": {
-      "deployment": "dpl_HmqYVcNE9j7fTXbjudLe5nqT1Fr4",
-      "sha": "97fc9de6130b16e9e61258d077d409b3ce063a78",
+      "deployment": "dpl_4HWrRqoQRLPdgUCg9d75ravDNAHX",
+      "sha": "9bf41e6a85ac5483b88bb92b9375a4e5e13eb880",
       "aliases": [
         "sod1820.co.il",
         "www.sod1820.co.il",
         "sod1820.vercel.app"
       ],
-      "rollback_point": "dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv (a5cf3d4)",
-      "evidence": "ZURIEL approved merge of #1555 at 1019885 and the Production deploy of 97fc9de on 25.11.2026 (#1552 /start sitemap, #1553 S-60, #1554 Post 2 image, #1549 code only, #1555 right-hand menu). create_deployment with the exact SHA, READY after one build of 42 s (shell budget PASS), assign_alias of the three domains (old deployment dpl_8w8EpbgdfUuAhT5jGzrU75b5hRAv, read before the move; get_alias re-read for sod1820.co.il only). Live: bootstrap sourceSha 97fc9de; /start 200 index, own canonical, in sitemap.xml?part=content; the entry has only the call site of the reading session (lazy); the rail lists in the Sod2029Shell chunk are the 11.11.2026 lists; Post 2 image loads from the exact stored file (200, 447 px) with the authored address kept in data-source-src. Post-Deploy Canary run 45599497946 success (deployment_status at 10:54:59, before the domains moved); next scheduled run 13:17 UTC. NOT measured: field metrics after this deploy; the S-55/S-59 after-measurements are due 26.11.2026 ~09:35 UTC."
+      "rollback_point": "dpl_ArHySsTQxH8Q6jbLLE9qhmujyCz1 (463bdc1, build 2029-BK3LoBjq)",
+      "evidence": "Unified package deployed by ZURIEL 26.11.2026: deployment created 10:44:43 UTC, READY 10:45:47, domains moved 10:50:21 UTC (get_alias updatedAt); live bootstrap sourceSha 9bf41e6a85ac5483b88bb92b9375a4e5e13eb880, entry /assets/2029-BcTZsiDj.js, /start 200 index. ZURIEL reported the canary green (not re-read here). Includes #1559 (image-only group messages open in the World)."
     },
     "build_evidence": [
       {
@@ -4126,7 +4126,47 @@
           "after": "18–25.11 (7 days): Posts phones TTFB p75 1,328 / LCP p75 2,386 / FCP p75 2,013 ms (n=346); Posts desktop TTFB 1,470 / LCP 3,352 / FCP 2,312 ms (n=163)",
           "conditions": "events surface=performance web_vital, one row per sample_id (final preferred), is_bot not true; mixed builds; not a controlled before/after",
           "source": "canonical Supabase read 2026-11-25",
-          "after_20261126": "24h 25.11 09:18 -> 26.11 09:18 UTC. /api/public-document (Vercel observability, same query as before): MISS 25,364 (84.8%), HIT 3,326 (11.1%), STALE 1,193 (4.0%), 9 empty, of 29,892. Before: MISS 86.7%, HIT 9.0%, STALE 4.4% of 28,476. Change-list reads (Supabase edge_logs, same string match, both windows): 52 -> 3,020. Function duration 8.21 -> 10.90 GB-h; middleware CPU 505 s -> 501 s. Field TTFB for Posts (own web_vital events, 1 sample per sample_id, burst excluded): phone 1,203 -> 1,659 ms (n 45 -> 30); desktop 1,266 -> 1,342 ms (n 35 -> 15). The Vercel Speed Insights query was rejected (402 payment_required), so the earlier 1,328/1,470 ms Speed Insights figures are not comparable."
+          "after_20261126": "24h 25.11 09:18 -> 26.11 09:18 UTC. /api/public-document (Vercel observability, same query as before): MISS 25,364 (84.8%), HIT 3,326 (11.1%), STALE 1,193 (4.0%), 9 empty, of 29,892. Before: MISS 86.7%, HIT 9.0%, STALE 4.4% of 28,476. Change-list reads (Supabase edge_logs, same string match, both windows): 52 -> 3,020. Function duration 8.21 -> 10.90 GB-h; middleware CPU 505 s -> 501 s. Field TTFB for Posts (own web_vital events, 1 sample per sample_id, burst excluded): phone 1,203 -> 1,659 ms (n 45 -> 30); desktop 1,266 -> 1,342 ms (n 35 -> 15). The Vercel Speed Insights query was rejected (402 payment_required), so the earlier 1,328/1,470 ms Speed Insights figures are not comparable.",
+          "protocol_9bf41e6": {
+            "status": "STARTED 26.11.2026 10:50 UTC; after-window closes 27.11.2026 ~11:05 UTC (reminder scheduled)",
+            "before_build": "2029-BK3LoBjq (463bdc1), Production 25.11 ~17:39 -> 26.11 10:50 UTC",
+            "after_build": "2029-BcTZsiDj (9bf41e6)",
+            "matched_hours_utc": "18:00-24:00 and 07:00-10:00. Before = 25.11 18:00-24:00 + 26.11 07:00-10:00; after = 26.11 18:00-24:00 + 27.11 07:00-10:00. Excluded hours (documented anomalies): 00:00-06:30 UTC (traffic wave), 06:00-06:30 (crawler-like spike). Vercel queries must use hourly granularity and sum whole hours (coarser buckets snap outside the requested window).",
+            "edge_logs_baseline_captured_26.11_(retention_24h_so_not_recomputable_later)": {
+              "window_A_25.11_18_24": {
+                "change_list_reads": 460,
+                "is_number_indexable": 175,
+                "posts_by_number_strict": 263,
+                "is_phrase_indexable": 1920,
+                "number_anchors": 406,
+                "gematria_words": 4187,
+                "node_ua_requests": 8078,
+                "all_requests": 58393
+              },
+              "window_B_26.11_07_10": {
+                "change_list_reads": 219,
+                "is_number_indexable": 147,
+                "posts_by_number_strict": 145,
+                "is_phrase_indexable": 1393,
+                "number_anchors": 245,
+                "gematria_words": 3013,
+                "node_ua_requests": 6017,
+                "all_requests": 22435
+              },
+              "sum_9h": {
+                "change_list_reads": 679,
+                "is_number_indexable": 322,
+                "posts_by_number_strict": 408,
+                "is_phrase_indexable": 3313,
+                "number_anchors": 651,
+                "gematria_words": 7200,
+                "node_ua_requests": 14095,
+                "all_requests": 80828
+              }
+            },
+            "vercel_baseline": "recomputed at after-time with the same hourly queries (route eq /api/public-document by cache_result; function_duration_gbhr; middleware function_cpu_time_ms; function ttfb p75). Field: own web_vital events, one sample per sample_id, device and path groups, n reported; n<30 marked weak.",
+            "nothing_measured_as_after_yet": true
+          }
         },
         "guard": [],
         "open": "Options for a decision, none implemented: (a) keep the change list warm at the edge so single reads can use a kept copy; (b) a longer fresh window with the existing purge; (c) move the database read nearer the function region. Each changes Production behaviour and needs ZURIEL approval. | STAGED PLAN 25.11 — step 2: within the existing S-47 layer only (POST_DOCUMENT_CDN_CACHE + post-document-freshness.js + the purge): let a single read use a kept copy when the edge holds a fresh change list, by reading the list on a timer per warm instance instead of only during a burst (same RPC post_document_recent_changes_v1, same 5 s lease, same fail-closed); measure single-read first byte before/after on the same Posts. Option (b), a longer fresh window, only with the existing purge and after (a) is measured. Approval: merge + deploy. | 25.11.2026 after release: sitemap catalog part 9.6 s on a cold read (it now also reads the Or HaGeula collection, 14 pages ≈ 4 s), then kept 1 h; content part 4.4 s cold. | 25.11.2026 STEP 2 IMPLEMENTED (option א, ZURIEL; branch claude/work-public-discovery-log-read-ryfcnx, PR #1551): the change list is refreshed on any Post request when missing or older than refreshAfterMs (2 s), not only in a burst; one read in flight per instance, at most one per 2 s, no timer, an instance that serves no Post makes no call; lease 5 s, 20-minute list, fail closed and the copy's life (300 s + 60 s) unchanged (no longer life, as instructed). BEFORE (24 h to 25.11 01:30 UTC, Vercel observability + Supabase logs): /api/public-document 28,476 requests — MISS 86.7% / HIT 9.0% / STALE 4.4%; list reads 44/day; one list read = 1.46 ms DB time (pg_stat_statements, n=412); function 8.21 GB-h/day; middleware CPU 505 s/day; Posts field TTFB p75 phone 1,328 / desktop 1,470 ms. Bound: at most one read per Post request (≈28k/day worst case ≈ 41 s DB time/day, vs ≈300k REST requests/day). Live lab: a single read is always 'stale' (MISS); a burst reaches 'clean' then HIT from the 4th request. AFTER: to be measured with the same queries 24 h after deployment (not deployed). | 25.11.2026 DEPLOYED (a5cf3d4, 09:18 UTC). Live: the second request to a different Post is already 'clean' and a HIT was seen. AFTER measurement with the same queries is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): the MISS share fell only ~2 points (86.7% -> 84.8%); the change-list read count rose 52 -> 3,020 as designed (each ~1.46 ms). The goal (most Post requests served from the kept copy) is NOT reached. Caveats: the window spans three builds (another session deployed 463bdc1 at ~17:39 UTC 25.11), and a synthetic burst of ~1,300 desktop samples on 26.11 00:00-06:00 UTC (one path per hour) inflated function and middleware cost; it was excluded from field figures only. Decision needed: option (b) a longer fresh window, or (c) move the read. | 26.11.2026 TRAFFIC WAVE vs COST (read-only; evidence: branch ccr-traffic-wave-20261126, docs/reviews/traffic-wave-20261126): the documented wave (HeadlessChrome, ~1,650 sessions, 00:37 to ~05:30 UTC; events per hour 107/305/261/365/446/166 wave-like sessions at 00..05 UTC) did NOT raise function cost or slow responses. Hours 00-05 UTC, 26.11 vs the same hours 25.11: /api/public-document MISS 7,082 vs 6,404 (+11%); function duration 2.27 vs 2.55 GB-h (-11%); function TTFB p75 680-920 ms vs 910-1,005 ms. The wave loaded full page assets (about 160 sessions per 30 min at 05:00) from the CDN. The cost spike is a SEPARATE event at 06:00-06:30 UTC, after the wave ended: 1,549 /api/public-document and 130 /api/card requests in 30 min with almost no asset requests (css 3, versus 160 during the wave), function duration 1.04 GB-h (about 2x), middleware CPU 10.4 s per 10 min (about 2.5x), function TTFB p75 1,176 ms. Its shape is crawler/share-preview traffic, not browsers; the source is not identified (Vercel request logs by user agent are not available through the tools). So the S-55 miss share and the GB-h figure in the 24 h after-measurement are dominated by this 06:00 event and the base load of about 1,000 /api/public-document MISS per hour, not by the wave. The wave harms measurement (traffic_daily), not cost.",
@@ -4387,6 +4427,53 @@
         "rule": "A reader, selector or callback used as an effect dependency is created ONCE (module level or a stable hook), never as a default parameter or inline in the component. A test of a component that fetches must mount it WITHOUT injecting the fetcher, count the requests and cover the failing case.",
         "open": "Merge and deploy need ZURIEL's separate approval for the exact commit; after deploy read the Home request count once in the live Network log.",
         "next_owner": "home session",
+        "relates_to_groups": []
+      },
+      {
+        "id": "S-62",
+        "title_he": "ממצא פתוח: דפי מספר וביטוי — בדיקת האינדוקס עולה כ־1 שנייה לכל בקשה וגוזלת כמחצית מזמן קריאות המסד של הפונקציות (קריאה בלבד, לא יושם)",
+        "problem": "Every document request of /number/<n> or a phrase page costs about 6 Supabase reads from the Vercel function (user agent node): is_number_indexable / is_phrase_indexable (api/og.js), number_anchors TWICE (api/og.js and first-words.js), gematria_words, posts_by_number_strict and posts (first-words.js). is_number_indexable runs select exists(select 1 from sitemap_numbers() where value=p) and so aggregates the whole admitted set for each call: EXPLAIN ANALYZE 46.6 ms execution + 51.7 ms planning and 17,226 buffer hits per call (1,274 admitted numbers); is_phrase_indexable reads sitemap_phrases_v1 (12,594 phrases). Under load the origin time of these two calls is about 1.0 s on average (p95 1.4 s) against about 0.25 s for the other reads.",
+        "surface": "number and phrase documents (server), Supabase reads",
+        "source": {
+          "task_keys": [
+            "WORK_PUBLIC_DISCOVERY_20261122"
+          ],
+          "prs": [],
+          "merged_via_pr": null,
+          "commits": [],
+          "author": "claude",
+          "head_branch": "claude/work-public-discovery-log-read-ryfcnx"
+        },
+        "code_now": [
+          "api/og.js (indexability RPC, number_anchors)",
+          "public-reading-deploy/first-words.js (numberFacts, phraseFacts, postsOfNumber)",
+          "public-reading-deploy/api/public-document.js (document cache classes)",
+          "src/lib/readDedupe.js (30 s dedupe rules, browser worker)",
+          "supabase sitemap_numbers() / sitemap_phrases_v1"
+        ],
+        "merged": false,
+        "merge_commit": null,
+        "deployed": false,
+        "deployed_in": null,
+        "deployed_in_sha": null,
+        "deployed_in_created": null,
+        "in_current_production": false,
+        "live_verified": "no",
+        "live_evidence": "Read-only evidence only. Nothing changed.",
+        "measurement": {
+          "kind": "load",
+          "before": "06:00-06:30 UTC 26.11 (crawler-like spike), Supabase edge_logs, user agent node: 4,649 reads (3.8x the half hour before); origin time by read: is_number_indexable 685 calls 700.6 s (avg 1,023 ms, p95 1,445), is_phrase_indexable 247 calls 241.3 s (977 ms), number_anchors 1,361 calls 340.9 s (251 ms), gematria_words 1,166 calls 290.4 s (249 ms), posts_by_number_strict 678 calls 188.8 s (279 ms), posts 196 calls 54.0 s. The two indexability reads are 942 s of 1,904 s (49%). Matched 9 h baseline (18-24 and 07-10 UTC): node reads 14,095 (is_phrase_indexable 3,313; is_number_indexable 322; number_anchors 651; gematria_words 7,200).",
+          "after": "not measured (nothing implemented)",
+          "conditions": "edge_logs retention is 24 h; the 06:00-06:30 data disappears 27.11 06:00 UTC (the figures above are the preserved copy).",
+          "source": "Supabase edge_logs (response.origin_time), pg EXPLAIN ANALYZE, Vercel observability"
+        },
+        "guard": [
+          "Open Index Law (24.11.2026): public number and phrase pages stay open and indexable; the indexability decision must stay byte-identical",
+          "traffic_intelligence_law v12 unchanged",
+          "no cache, SQL, WAF or threshold change without ZURIEL approval"
+        ],
+        "open": "RECOMMENDATIONS ONLY (none implemented; each needs its own approval; the order is by safety): (1) Per-instance memo of the admitted set in the document handler: ask sitemap_numbers() and sitemap_phrases_v1 ONCE per warm function instance and answer is_number_indexable / is_phrase_indexable from that memory for 5-10 minutes (the admitted set is 1,274 numbers and 12,594 phrases, and gematria_words has had no new row since 18.10.2026; sitemap XML is already kept 6 h with s-maxage 21600). The browser worker already has the same idea for these RPCs (READ_DEDUPE_RULES, 30 s). Same predicate, same output, only the freshness of a newly admitted number changes (minutes). Failure keeps today behaviour (503, noindex, nothing cached). Expected: removes about half of the origin time of these reads (942 s of 1,904 s in the spike half hour). (2) Read number_anchors once per document: og.js and first-words.js each read it (1,361 calls for 685 pages); pass one result to both. Expected: -680 calls per 30 min in the spike. (3) Measure before any CDN cache class for /number and phrase documents: in a quiet hour (07:00-08:00 UTC 26.11) about 1,175 public-document requests, the top paths are / (73), /gematria (105), /community/chat (61) and almost every other path appears once or twice, so a 5 min fresh + 1 h stale copy (the PAGE_DOCUMENT_CDN pattern, today only for / and /community/chat) would save only about 1-2% in a normal hour and nothing against a crawler walking distinct paths; its cost is freshness of number pages. Not recommended as a first step. (4) Not recommended: robots crawl-delay, WAF or bot rules (Open Index Law; ZURIEL decision). OBSERVATION (not an action): /number/1015 is served with first words but x-robots-tag noindex (1015 is not in sitemap_numbers: it needs 3 verified phrases or a gallery, topic or post); this follows the existing admission rule and is reported only so it is not mistaken for a fault. | 26.11.2026 SOURCE OF THE 06:00-06:30 EVENT: two components. (a) Vercel functions (one AWS us-east-1 address, user agent node) 4,649 reads on number and phrase data: number_anchors 1,361, gematria_words 1,166, is_number_indexable 685, posts_by_number_strict 678, is_phrase_indexable 247, posts 196; Vercel saw 1,549 /api/public-document requests whose 12 top paths are 11% of them (a long tail of distinct paths = a crawl) and 130 /api/card requests with almost no asset requests. crawl_daily (daily, not hourly): Meta 17-19 thousand a day (/number 3,255 so far on 26.11), Bingbot 1,040 on 26.11 against 243-555 on usual days (2,049 on 23.11, /number 678), Googlebot 658. Main suspects Bingbot and/or Meta on /number; the hour and the user agent of the document requests are NOT observable with the available tools. (b) One Israeli Windows browser (Bezeq, referer the site) about 1,700 Supabase requests (nodes 490, research_objects 172, ingest_event 152, gematria_words 152, edges 131, gallery_images 112): a real heavy user session.",
+        "next_owner": "ZURIEL decision (which recommendation, if any); speed session implements",
         "relates_to_groups": []
       }
     ],
@@ -5000,6 +5087,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: continue by the existing speed map only; read-only; no new measurement system, SQL change, merge or deploy)",
         "what": "Added to S-55: the 26.11 traffic wave did not raise function cost, cache misses or response time; the 06:00-06:30 UTC crawler-like spike did. Added to S-59: sources of the remaining CLS outliers. Option (b) and (c) of S-55 NOT implemented. The 3fc56a5 documentation was merged with the latest main without touching other sessions entries.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-26T12:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: unified package published, start the measurement stage by the protocol; add the number and phrase load findings; recommendations only)",
+        "what": "Production recorded as dpl_4HWrRqoQRLPdgUCg9d75ravDNAHX / 9bf41e6 (domains moved 10:50 UTC). Measurement protocol started: the edge_logs baseline for the matched hours was captured and recorded in S-55 (retention is 24 h). New S-62: the cost of the number and phrase documents, with read-only recommendations. Nothing implemented: no cache, SQL, WAF or threshold change.",
         "previous": {
           "note": "previous revision above"
         }
