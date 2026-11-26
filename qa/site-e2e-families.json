@@ -289,10 +289,22 @@
     },
     {
      "id": "messages.ui",
-     "label": "שליחה וקריאה דרך ממשק האזור האישי",
+     "label": "לחיצות בממשק: סימון על תמונת הפרופיל, פתיחת שיחה, תשובה ורענון (מחשב ופיקסל 7)",
      "role": "member x2",
-     "results": [],
-     "blocker": "UI flow not written yet: the personal-area route needs more of the production schema"
+     "results": [
+      "ui-messages desktop-1440: the unread mark on the profile picture counts",
+      "ui-messages desktop-1440: pressing the picture opens the messages",
+      "ui-messages desktop-1440: the conversation shows the sender",
+      "ui-messages desktop-1440: opening the conversation shows both messages",
+      "ui-messages desktop-1440: a reply is sent through the box",
+      "ui-messages desktop-1440: after a reload the conversation",
+      "ui-messages Pixel 7: the unread mark on the profile picture counts",
+      "ui-messages Pixel 7: pressing the picture opens the messages",
+      "ui-messages Pixel 7: the conversation shows the sender",
+      "ui-messages Pixel 7: opening the conversation shows both messages",
+      "ui-messages Pixel 7: a reply is sent through the box",
+      "ui-messages Pixel 7: after a reload the conversation"
+     ]
     }
    ]
   },
@@ -355,10 +367,14 @@
     },
     {
      "id": "notifications.ui",
-     "label": "תג ההתראות וסימון קריאה בממשק",
+     "label": "תג ההתראות על התמונה יורד אחרי קריאה, וההתראה השמורה נקראת (מחשב ופיקסל 7)",
      "role": "member",
-     "results": [],
-     "blocker": "UI flow not written yet"
+     "results": [
+      "ui-messages desktop-1440: the unread mark on the profile picture counts",
+      "ui-messages desktop-1440: the mark disappears and the database shows nothing unread",
+      "ui-messages Pixel 7: the unread mark on the profile picture counts",
+      "ui-messages Pixel 7: the mark disappears and the database shows nothing unread"
+     ]
     }
    ]
   },

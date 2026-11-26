@@ -26,6 +26,7 @@ function config() {
 }
 
 import { runP1 } from './qa-scenarios-p1.mjs';
+import { runMessagesUi } from './qa-ui-messages.mjs';
 
 async function syntheticAccount({ origin, service }, role = 'member') {
   const email = `qa-${role}-${randomBytes(6).toString('hex')}@qa.invalid`, password = randomBytes(18).toString('base64url');
@@ -106,6 +107,18 @@ const { chromium, devices } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch({ args: fixture.chromiumArgs, env: fixture.browserEnv });
 let failed = false;
 
+// One signed-in browser context for a synthetic account, through the real login form (the same steps the login scenario proves).
+const newSignedIn = async (options, who) => {
+  const context = await browser.newContext({ ...options, locale: 'he-IL' });
+  const page = await context.newPage();
+  await page.goto('https://sod1820.co.il/login?returnTo=%2Flogin', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.getByRole('button', { name: 'כניסה עם סיסמה', exact: true }).click({ timeout: 25000 });
+  await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(who.email, { timeout: 15000 });
+  await page.getByLabel('סיסמה', { exact: true }).fill(who.password, { timeout: 15000 });
+  await page.getByRole('button', { name: /כניסה לחשבון/ }).click({ timeout: 15000 });
+  await page.waitForFunction(({ key, id }) => JSON.parse(localStorage.getItem(key) || 'null')?.user?.id === id, { key: `sb-${PRODUCTION_REF}-auth-token`, id: who.id }, { timeout: 25000 });
+  return { context, page };
+};
 const browserOpen = async (slug, title, shouldShow) => {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'he-IL' });
   try {
@@ -140,6 +153,7 @@ try {
     } finally { await context.close(); }
   }
   try { await runP1({ ...settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'p1: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runMessagesUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-messages: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await tiers(settings, account, browserOpen); } catch (error) { failed = true; note(false, 'tiers: flow', String(error.message).split('\n')[0].slice(0, 160)); }
 } finally { await browser.close(); }
 const reachedLocalBackend = fixture.state.proxied.length > 0 && fixture.state.proxied.every(entry => entry.path.startsWith('/auth/v1/') || entry.path.startsWith('/rest/v1/') || entry.path.startsWith('/functions/v1/') || entry.path.startsWith('/storage/v1/'));
