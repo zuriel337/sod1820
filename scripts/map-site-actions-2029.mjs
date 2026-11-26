@@ -97,6 +97,9 @@ const summary = Object.fromEntries(Object.entries(bySection).map(([k, v]) => [k,
 const map = { as_of: '2026-11-26', source: 'src/App2029.jsx + import graph (depth 3) + tests index; static analysis, nothing executed', routes, rpcs: rpcIndex, summary,
   caveat: 'Reachable-by-import is an upper bound of what a route can do (shared components appear on many routes). Button labels are the literal JSX texts and aria-labels. A test listed here only mentions the route, component or RPC; it is not proof the action works end to end.' };
 const json = JSON.stringify(map, null, 1) + '\n';
-if (process.argv.includes('--check')) { const current = existsSync(join(root, 'docs/site-action-map-2029.json')) ? read('docs/site-action-map-2029.json') : ''; if (current !== json) { console.error('docs/site-action-map-2029.json is stale: run node scripts/map-site-actions-2029.mjs'); process.exit(1); } console.log('site action map is current'); process.exit(0); }
+// The check compares what the CODE determines (routes, guards, roles, RPCs, writes, buttons). The lists of tests that mention a route change whenever any
+// test file is added anywhere, so they are informational and do not make the map stale.
+const withoutTests = (text) => JSON.stringify(JSON.parse(text, (key, value) => (key === 'tests' ? undefined : value)));
+if (process.argv.includes('--check')) { const current = existsSync(join(root, 'docs/site-action-map-2029.json')) ? read('docs/site-action-map-2029.json') : ''; if (!current || withoutTests(current) !== withoutTests(json)) { console.error('docs/site-action-map-2029.json is stale: run node scripts/map-site-actions-2029.mjs'); process.exit(1); } console.log('site action map is current'); process.exit(0); }
 writeFileSync(join(root, 'docs/site-action-map-2029.json'), json);
 console.log(`routes ${routes.length}, rpcs ${Object.keys(rpcIndex).length}`); console.table(summary);
