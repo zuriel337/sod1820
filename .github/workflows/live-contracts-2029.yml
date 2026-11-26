@@ -503,6 +503,9 @@ jobs:
         # packages (vite 8.3.0 -> 8.3.8) and the rebuild below was no longer the artifact that ships (the release shell budget caught it).
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          # Refresh the apt index first: a stale runner image index 404s on superseded security packages (libasound2t64) during --with-deps.
+          # Same browser version, same tests; only the package list is refreshed.
+          sudo apt-get update
           npx playwright install --with-deps chromium
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs
