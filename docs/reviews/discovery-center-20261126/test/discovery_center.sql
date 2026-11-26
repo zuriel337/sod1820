@@ -130,3 +130,16 @@ BEGIN
   ASSERT (SELECT discovery_center_feed_v1()->'featured'->>'phrase') = 'ביטוי כפול', 'the first duplicate is displayable and shown';
   RAISE WARNING 'D3c display-guard tests: PASS';
 END $$;
+
+-- (11) D3b ו-NULL: אם הקורא אינו מציג את שתי הבחירות (כאן: רק הנבחר, ללא "לצדו"), הערך החסר הוא NULL והבדיקה חייבת להיכשל ולבטל את הכתיבה
+\set ON_ERROR_STOP off
+DELETE FROM site_flags WHERE key = 'home_featured_discovery';
+CREATE OR REPLACE FUNCTION discovery_center_feed_v1() RETURNS jsonb LANGUAGE sql STABLE AS $f$ SELECT jsonb_build_object('featured', jsonb_build_object('id', 'd057b2cf-c50b-4f4c-9e22-f3ff90ec008b', 'method', 'ריבוע'), 'featured_with', '[]'::jsonb) $f$;
+\i ../../../supabase/proposed/discovery-center-20261126/D3b-initial-featured.sql
+\set ON_ERROR_STOP on
+DO $$ BEGIN
+  ASSERT NOT EXISTS (SELECT 1 FROM site_flags WHERE key = 'home_featured_discovery'), 'D3b wrote the flag although the feed did not show both picks (NULL must cancel the write)';
+  RAISE WARNING 'D3b NULL-safety regression test: PASS';
+END $$;
+-- החזרת הקורא האמיתי
+\i ../../../supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql
