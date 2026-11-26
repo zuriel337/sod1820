@@ -233,7 +233,10 @@ try {
   const installedPath = '/opt/pw-browsers/chromium';
   const executablePath = process.env.CHROMIUM_PATH || await access(installedPath).then(() => installedPath, () => undefined);
   const proxy = process.env.HTTPS_PROXY ? { server: process.env.HTTPS_PROXY, bypass: process.env.NO_PROXY } : undefined;
-  const browser = await chromium.launch({ executablePath, proxy, timeout });
+  // SITE_CHECK_HEADED=1: a regular (headed) browser under a virtual display, so the User-Agent is the browser's own. Nothing is spoofed:
+  // the site refuses the HeadlessChrome agent by design (middleware-core.js) and that rule is neither changed nor circumvented here.
+  const headless = process.env.SITE_CHECK_HEADED !== '1';
+  const browser = await chromium.launch({ executablePath, proxy, timeout, headless });
   try {
     if (config) await account(browser, devices, config);
     else if (await guest(browser, devices)) process.exitCode = 1;

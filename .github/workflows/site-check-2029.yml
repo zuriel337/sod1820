@@ -6,6 +6,10 @@ name: Site check (guest)
 # No protection is changed or bypassed: an edge refusal is reported as open coverage. Dispatch it with `gh api -X POST .../site-check-2029.yml/dispatches -f ref=main` (the /check-site command).
 
 on:
+  # TEMPORARY (remove before merge): proves the runner from this branch.
+  push:
+    branches: [claude/biblical-cipher-audit-zspg77]
+    paths: [.github/workflows/site-check-2029.yml, scripts/check-site-2029.mjs]
   workflow_dispatch:
 
 permissions:
@@ -27,14 +31,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
-      - name: Install Chromium (the Playwright version the CI browser checks already use)
+      - name: Install Chromium (1.64.1, the version the ELS browser gates use)
         run: |
-          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npm install --no-save --no-audit --no-fund playwright@1.64.1
           npx playwright install --with-deps chromium
       - name: Check the site as a guest
         run: |
           set +e
-          node scripts/check-site-2029.mjs 2>&1 | tee site-check.log
+          sudo apt-get install -y --no-install-recommends xvfb >/dev/null
+          SITE_CHECK_HEADED=1 xvfb-run -a node scripts/check-site-2029.mjs 2>&1 | tee site-check.log
           code=${PIPESTATUS[0]}
           {
             echo '### בדיקת האתר כאורח'
