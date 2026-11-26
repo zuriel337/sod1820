@@ -35,6 +35,9 @@ mk 30 '2026-11-20 12:00:00+00' h4 /community/chat google; eng 'h4-%'
 mk 40 '2026-11-20 13:00:00+00' h5 /number/104 direct
 mk 24 '2026-11-20 14:00:00+00' h6 /community/chat google
 mk 25 '2026-11-20 15:00:00+00' h7 /community/chat google
+mk 30 '2026-11-20 16:00:00+00' h8 /community/chat google
+Q -c "update public.events set person_id=gen_random_uuid() where session_id in (select distinct session_id from public.events where session_id like 'h8-%' and (right(split_part(session_id,'-',3),1)::int % 5)=0)"
+mk 30 '2026-11-21 11:00:00+00' h9 /community/chat google
 Q -c "insert into public.events(ts,session_id,surface,event_type,path,props,is_bot) select ts, session_id||'-bot','arrival','source',path,props,true from public.events where session_id like 'h2-%' and surface='arrival' limit 5"
 OLD=$(Q -c "select count(*) from public.fn_human_entrances_old(null,null)")
 Q -f "$D/PROPOSAL.sql"
@@ -43,11 +46,15 @@ check "$(Q -c "select prosecdef||'|'||array_to_string(proconfig,',')||'|'||provo
 check "$(Q -c "select count(*) from (select * from public.fn_human_entrances(null,null) except select * from public.fn_human_entrances_old(null,null)) x where classification_reason is null")" 0 "rows that only the new rule touches all carry a reason"
 check "$(Q -c "select count(*) from (select session_id,day,first_ts,landing_path,source,device,country,visitor,is_logged_in,views,interactions,searches,engaged,bounce from public.fn_human_entrances(null,null) except select session_id,day,first_ts,landing_path,source,device,country,visitor,is_logged_in,views,interactions,searches,engaged,bounce from public.fn_human_entrances_old(null,null)) x")" 0 "every column except the classification is identical to the old function"
 chg() { Q -c "select coalesce(string_agg(split_part(n.session_id,'-',1)||'='||n.c, ',' order by split_part(n.session_id,'-',1)),'none') from (select session_id, count(*) c from public.fn_human_entrances(null,null) n where suspected_bot and classification_reason like '%(rule v4)' group by 1) n" ; }
-check "$(Q -c "select coalesce(string_agg(h||'='||c, ',' order by h),'none') from (select split_part(session_id,'-',1) h, count(*) c from public.fn_human_entrances(null,null) where classification_reason like '%(rule v4)' group by 1) q")" "h2=30,h3=30,h7=25" "flagged: busy hours only (30 and 30 and exactly 25); 12, 24 and the half-engaged hour are not"
+check "$(Q -c "select coalesce(string_agg(h||'='||c, ',' order by h),'none') from (select split_part(session_id,'-',1) h, count(*) c from public.fn_human_entrances(null,null) where classification_reason like '%(rule v4)' group by 1) q")" "h2=30,h3=30,h7=25,h9=30" "flagged: busy hours only (30, 30, exactly 25, 30); 12, 24 and the half-engaged hour are not; h8 (30 sessions of which 6 identified = 24 anonymous) is below the threshold"
 check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where split_part(session_id,'-',1)='h4' and suspected_bot")" 0 "30 sessions in an hour of which half engaged: 15 signature sessions < 25, nothing flagged"
 check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where split_part(session_id,'-',1)='h5' and suspected_bot")" "$(Q -c "select count(*) from public.fn_human_entrances_old(null,null) where split_part(session_id,'-',1)='h5' and suspected_bot")" "direct sessions: rules v2/v3 behave exactly as before"
+check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where is_logged_in and classification_reason like '%(rule v4)'")" 0 "an identified (logged-in) visitor is never marked by rule v4"
 check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where session_id like '%-bot'")" 0 "sessions with is_bot are still excluded"
-Q -f "$D/PROPOSAL.sql"; check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where classification_reason like '%(rule v4)'")" 85 "second apply is a no-op"
+# window consistency: the same session gets the same classification in a day window, a three-day window and the unbounded window
+check "$(Q -c "select count(*) from (select session_id, suspected_bot, classification_reason from public.fn_human_entrances(date '2026-11-20', date '2026-11-20') except select session_id, suspected_bot, classification_reason from public.fn_human_entrances(date '2026-11-19', date '2026-11-21') where day=date '2026-11-20') x")" 0 "day window equals the three-day window for the same day"
+check "$(Q -c "select count(*) from (select session_id, suspected_bot, classification_reason from public.fn_human_entrances(null,null) where day=date '2026-11-20' except select session_id, suspected_bot, classification_reason from public.fn_human_entrances(date '2026-11-20', date '2026-11-20')) x")" 0 "unbounded window equals the day window"
+Q -f "$D/PROPOSAL.sql"; check "$(Q -c "select count(*) from public.fn_human_entrances(null,null) where classification_reason like '%(rule v4)'")" 115 "second apply is a no-op"
 Q -f "$D/ROLLBACK.sql"; check "$(md)" "$LIVE" "rollback restores the exact live md5"
 check "$(Q -c "select count(*) from (select * from public.fn_human_entrances(null,null) except select * from public.fn_human_entrances_old(null,null)) x")" 0 "after rollback output equals the old function row for row"
 Q -f "$D/ROLLBACK.sql"; check "$(md)" "$LIVE" "second rollback is a no-op"

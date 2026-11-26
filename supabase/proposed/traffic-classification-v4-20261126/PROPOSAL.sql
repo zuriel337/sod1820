@@ -3,7 +3,7 @@
 -- What it changes: ONE function, public.fn_human_entrances(date,date), the existing classifier that every traffic reader already uses
 --   (refresh_traffic_daily_range_v1 and the admin/TI readers). Same signature, same columns, same return type. No new table, store, engine or cron.
 -- Rule v4: a session is marked suspected_bot (with its own classification_reason) only when ALL hold: arrival source google, exactly one view,
---   no interaction, no page-engagement event, AND at least 25 such sessions landed on the same path in the same hour (a volume anomaly).
+--   no interaction, no page-engagement event, NOT an identified (logged-in) visitor, AND at least 25 such sessions landed on the same path in the same hour (a volume anomaly).
 --   Normal Google readers of a page never reach 25 such sessions in an hour (30 days of history: the busiest normal hour has fewer than 10), so a real
 --   visitor in an ordinary hour is never marked; the wave of 26.11 (13 hours on /community/chat, 2 on /codes/:item, 1 on /post/:item) is.
 -- What it does NOT do: block, delete or rewrite anything. No event row is touched. The flag is computed at read time, as rules v2/v3 are. The only
@@ -21,7 +21,7 @@ begin;
     a2o text := 'ent as (select session_id, views, interactions, searches, arrival_source from sess';
     a2n text := 'ent as (select session_id, views, interactions, searches, engagements, arrival_source from sess';
     a3o text := E'               and (l.landing_path=''/numbers'' or l.landing_path like ''/number/%''))\n           ), false) suspected_bot\n';
-    a3n text := E'               and (l.landing_path=''/numbers'' or l.landing_path like ''/number/%''))\n             or\n             (l.source=''google'' and e.views=1 and e.interactions=0 and e.engagements=0\n               and count(*) filter (where l.source=''google'' and e.views=1 and e.interactions=0 and e.engagements=0)\n                     over (partition by date_trunc(''hour'', l.first_ts), l.landing_path) >= 25)\n           ), false) suspected_bot\n';
+    a3n text := E'               and (l.landing_path=''/numbers'' or l.landing_path like ''/number/%''))\n             or\n             (l.source=''google'' and not l.is_logged_in and e.views=1 and e.interactions=0 and e.engagements=0\n               and count(*) filter (where l.source=''google'' and not l.is_logged_in and e.views=1 and e.interactions=0 and e.engagements=0)\n                     over (partition by date_trunc(''hour'', l.first_ts), l.landing_path) >= 25)\n           ), false) suspected_bot\n';
     a4o text := E'             then ''direct + numeric_landing + single_view + no_interaction (rule v3)''\n           else null\n';
     a4n text := E'             then ''direct + numeric_landing + single_view + no_interaction (rule v3)''\n           when j.suspected_bot and j.source=''google''\n             then ''google + single_view + no_interaction + no_engagement + hourly_volume_anomaly>=25 (rule v4)''\n           else null\n';
     a text; o text; n text; i int;
