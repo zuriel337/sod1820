@@ -28,16 +28,16 @@ async function mount(t, overrides = {}) {
   return { root, saves, async update(next) { props = { ...props, ...next }; await act(async () => root.update(React.createElement(Panel, props))); },
     async submit() { await act(async () => root.root.findByType('form').props.onSubmit({ preventDefault() {} })); } };
 }
-const checkboxes = root => root.root.findAll(node => node.type === 'input' && node.props.type === 'checkbox');
+const checkboxes = root => root.root.findAll(node => node.type === 'button' && node.props.role === 'checkbox');
 
 test('new save requests publication by default, explains guest library access, and offers an explicit private choice', async t => {
   const f = await mount(t);
   assert.match(JSON.stringify(f.root.toJSON()), /כברירת מחדל הצופן יפורסם בספריית הצפנים/);
   assert.match(JSON.stringify(f.root.toJSON()), /כדי שרק אתם תוכלו לפתוח אותו/);
-  assert.equal(checkboxes(f.root)[0].props.checked, false);
+  assert.equal(checkboxes(f.root)[0].props['aria-checked'], false);
   await f.submit();
   assert.deepEqual(f.saves[0], { title: 'תורה', desc: state.provenance.desc, isPublic: true });
-  await act(async () => checkboxes(f.root)[0].props.onChange({ target: { checked: true } }));
+  await act(async () => checkboxes(f.root)[0].props.onClick());
   await f.submit();
   assert.equal(f.saves[1].isPublic, false);
 });
