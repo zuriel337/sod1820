@@ -12,12 +12,11 @@
   "UNREACHABLE"
  ],
  "summary": {
-  "LIVE": 45,
+  "LIVE": 47,
   "NEVER": 1,
   "PARKED": 5,
-  "PARTIAL": 6,
+  "PARTIAL": 5,
   "SUPERSEDED": 4,
-  "UNKNOWN": 1,
   "UNREACHABLE": 23
  },
  "capabilities": [
@@ -227,6 +226,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "centerMain"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "fitWindow"
     }
    ],
    "depends_on": [
@@ -234,10 +237,12 @@
     "host-bridge:TzofenEmbed",
     "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
    "proof": {
     "code": true,
-    "fixture_test": false,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
@@ -245,16 +250,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: centering and fit exist in the native matrix (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native: the matrix fits and centres on the main axis (fitWindow, effect on axis start/end); the browser test toggles fit; no explicit centre-position assertion. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -964,6 +965,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "playReveal"
+    },
+    {
+     "file": "src/components/experience2029/elsPresentation2029.js",
+     "symbol": "projectPresentation"
     }
    ],
    "depends_on": [
@@ -971,10 +976,12 @@
     "host-bridge:TzofenEmbed",
     "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-2029-presentation.test.mjs"
+   ],
    "proof": {
     "code": true,
-    "fixture_test": false,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
@@ -983,16 +990,12 @@
    ],
    "note": "absorbed: native camera mode; the engine function is classic-only",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: progressive reveal exists inside native presentation (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native \"מצב מצלמה\": step-by-step reveal with auto-play (projectPresentation, presentationPlan.earliest). The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -1008,6 +1011,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "startPresent"
+    },
+    {
+     "file": "src/components/experience2029/elsPresentation2029.js",
+     "symbol": "projectPresentation"
     }
    ],
    "depends_on": [
@@ -1015,10 +1022,12 @@
     "host-bridge:TzofenEmbed",
     "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-2029-presentation.test.mjs"
+   ],
    "proof": {
     "code": true,
-    "fixture_test": false,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
@@ -1027,16 +1036,12 @@
    ],
    "note": "absorbed: native presentation/camera mode; the engine function is classic-only",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: presentationPlan / steps exist natively (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): same native camera/presentation mode: primary axis first, then each shown word (same order as Classic). The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -1102,6 +1107,14 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "verseSpan"
+    },
+    {
+     "file": "src/components/experience2029/elsPresentation2029.js",
+     "symbol": "projectVerseWords"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "verse-context"
     }
    ],
    "depends_on": [
@@ -1109,10 +1122,13 @@
     "host-bridge:TzofenEmbed",
     "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
    "proof": {
     "code": true,
-    "fixture_test": false,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
@@ -1120,16 +1136,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: verse context lens exists (SourceLens); the span control is unverified"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native verse-context lens shows the source span (fromRef → toRef) and highlights verse words. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -1391,6 +1403,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "scopeN"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "scopeLabel"
     }
    ],
    "depends_on": [
@@ -1400,7 +1416,8 @@
    "tests": [
     "test/els-2029-classic-faithful-port.test.mjs",
     "test/els-connected-cross.test.mjs",
-    "test/els-explicit-lexicon.test.mjs"
+    "test/els-explicit-lexicon.test.mjs",
+    "test/els-joint-discovery.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -1412,16 +1429,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: scope selector and scope labels exist (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native scope in every search request; label \"תורה\". The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -1438,6 +1451,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "tanakhLocked"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "scopeLabel"
     }
    ],
    "depends_on": [
@@ -1445,7 +1462,8 @@
     "host-bridge:TzofenEmbed"
    ],
    "tests": [
-    "test/els-2029-classic-faithful-port.test.mjs"
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-joint-discovery.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -1457,16 +1475,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: tanakh scope exists natively (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native scope \"tanakh\" (label \"כל התנ״ך\"); the account gate (tanakhLocked) stays in the engine, which remains the only executor. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2248,6 +2262,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "showSearchStat"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "occurrence-next"
     }
    ],
    "depends_on": [
@@ -2255,10 +2273,12 @@
     "host-bridge:TzofenEmbed",
     "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
    "proof": {
     "code": true,
-    "fixture_test": false,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
@@ -2266,16 +2286,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: occurrence selection exists (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native occurrence count and previous/next (state.search.occurrences.total / selectedOrdinal). The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2327,7 +2343,7 @@
    "id": "D03",
    "family": "D",
    "name": "Notable occurrences",
-   "disposition": "UNKNOWN",
+   "disposition": "LIVE",
    "contracts": [
     "els_single_engine_law@2"
    ],
@@ -2335,34 +2351,37 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "notable"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-notable"
     }
    ],
    "depends_on": [
     "els-engine-iframe",
-    "host-bridge:TzofenEmbed"
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
    ],
-   "tests": [],
+   "tests": [
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
    "proof": {
-    "code": false,
-    "fixture_test": false,
+    "code": true,
+    "fixture_test": true,
     "live_desktop": false,
     "live_mobile": false
    },
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "notable/SIGNIFICANT feed the classic occurrence panel; native use not confirmed",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "no native trace found: surface the engine notable-occurrence output"
-    }
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"דילוגים מיוחדים\": the engine notable() tag of the axis skip and of each shown finding skip (state.qualityDetail.notable / angles[].notable); classifies the number only. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2421,6 +2440,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "crossPure"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "finding-radius"
     }
    ],
    "depends_on": [
@@ -2432,7 +2455,8 @@
    "tests": [
     "test/central-els-hint-media-world-2029.browser.test.mjs",
     "test/els-advanced-page-browser.test.mjs",
-    "test/els-browser-cutover.test.mjs"
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2445,16 +2469,12 @@
     "TELEMETRY_UI_ACTION"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native likely: finding radius exists (unverified)"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native \"מרחק מרבי מהציר הראשי\" select sends finding-radius to the engine. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2519,6 +2539,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "proxF"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "מיון מפגשי ההצלבה"
     }
    ],
    "depends_on": [
@@ -2528,7 +2552,8 @@
    ],
    "tests": [
     "test/els-connected-cross.test.mjs",
-    "test/els-window-directions.test.mjs"
+    "test/els-window-directions.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2540,16 +2565,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "partial native trace: gap ranking inputs exist; display unverified"
-    }
+    "removal": "keep",
+    "detail": "S1 (26.11.2026): native meeting list shows distance and engine stars and sorts by engine order, skip or distance. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2602,49 +2623,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "rarityOf"
-    }
-   ],
-   "depends_on": [
-    "els-engine-iframe",
-    "host-bridge:TzofenEmbed",
-    "verification:MATCH"
-   ],
-   "tests": [],
-   "proof": {
-    "code": true,
-    "fixture_test": false,
-    "live_desktop": false,
-    "live_mobile": false
-   },
-   "detected_by": [
-    "REGISTER_GUARD"
-   ],
-   "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
-    "surface": [
-     "classic-ui"
-    ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "no native trace found: surface the engine rarity output"
-    }
-   }
-  },
-  {
-   "id": "E04",
-   "family": "E",
-   "name": "Quality score / stars",
-   "disposition": "PARTIAL",
-   "contracts": [
-    "els_single_engine_law@2",
-    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
-   ],
-   "owner": [
+    },
     {
-     "file": "tools/els/els-code.template.html",
-     "symbol": "starsFromTq"
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-rarity"
     }
    ],
    "depends_on": [
@@ -2653,8 +2635,8 @@
     "verification:MATCH"
    ],
    "tests": [
-    "test/els-connected-cross.test.mjs",
-    "test/els-window-directions.test.mjs"
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2665,18 +2647,62 @@
    "detected_by": [
     "REGISTER_GUARD"
    ],
-   "note": "stars exist for cross meetings; qualityCalc runs only in the classic panel, so saves carry no quality",
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S1",
-     "note": "native shows stars on library cards; the matrix surface is unverified"
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"נדירות מדודה\": the engine Monte-Carlo (runQualityMC, shared with the Classic button) on explicit click, with a live indicator; displayed as one measurement, never as proof. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
+   },
+   "host_message": "native-control:quality-mc-run"
+  },
+  {
+   "id": "E04",
+   "family": "E",
+   "name": "Quality score / stars",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "starsFromTq"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality=\"ready\""
     }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-connected-cross.test.mjs",
+    "test/els-window-directions.test.mjs",
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "legacy_dependency": {
+    "class": "ENGINE_COMPUTE",
+    "surface": [
+     "engine-compute"
+    ],
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native quality meter: engine stars and score (state.provenance.quality, state.qualityDetail.estimate) labelled as an estimate, with the score breakdown; saved quality shape unchanged. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -2766,6 +2792,10 @@
     {
      "file": "tools/els/els-code.template.html",
      "symbol": "gridStep"
+    },
+    {
+     "file": "src/components/experience2029/ElsQualityMeter2029.jsx",
+     "symbol": "data-els-quality-angle"
     }
    ],
    "depends_on": [
@@ -2775,7 +2805,9 @@
    ],
    "tests": [
     "test/els-connected-cross.test.mjs",
-    "test/els-window-directions.test.mjs"
+    "test/els-window-directions.test.mjs",
+    "test/els-quality-detail.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2787,16 +2819,12 @@
     "REGISTER_GUARD"
    ],
    "legacy_dependency": {
-    "class": "ENGINE_ONLY_LIVE",
+    "class": "ENGINE_COMPUTE",
     "surface": [
-     "classic-ui"
+     "engine-compute"
     ],
-    "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
-    "plan": {
-     "slice": "S2",
-     "note": "no native trace found: surface the engine angle/parallel classification"
-    }
+    "removal": "keep",
+    "detail": "S2 (26.11.2026): native \"זוויות ומקבילות\": the class each shown hit already receives in qualityCalc (vertical / diagonal / row / other) at the current matrix width; kept beside, and distinct from, the lattice geometry check of ElsStructureResearch2029. The engine computes; the native 2029 component is the surface. Keep. Not live-verified on desktop or mobile."
    }
   },
   {
@@ -3725,8 +3753,7 @@
   "detected_by: REGISTER_GUARD = the static test above; TELEMETRY_UI_ACTION / TELEMETRY_OPERATION = existing els events (surface=els); APP_HEALTH_1528_PENDING = PR 1528 signals, not in main and not applied."
  ],
  "legacy_dependency_summary": {
-  "ENGINE_COMPUTE": 29,
-  "ENGINE_ONLY_LIVE": 13,
+  "ENGINE_COMPUTE": 42,
   "ENGINE_UNREACHABLE": 23,
   "NONE": 11,
   "VISUAL_LEGACY": 9
@@ -3863,14 +3890,16 @@
     "title": "Parity trace of the 13 Classic-only rows",
     "scope": "prove for each row the native code path and a fixture/browser test, or record the gap; update owners and class; no code change",
     "gate": "register test; ZURIEL reviews the gap list",
-    "removes": "nothing"
+    "removes": "nothing",
+    "status": "DONE 26.11.2026 (read only): 9 of 13 have a native surface with a fixture/browser test (reclassified ENGINE_COMPUTE); 4 remain (D03, E03, E04, E07) and move to S2. No code or data changed; none live-verified."
    },
    {
     "id": "S2",
     "title": "Native surfaces for the true gaps",
     "scope": "expose existing engine output through shared Royal components; no new computation, lazy-loaded (Speed Law)",
     "gate": "fixture + browser test per row; speed gates unchanged",
-    "removes": "nothing"
+    "removes": "nothing",
+    "status": "IN PR 26.11.2026: D03, E03, E04, E07 have a native surface (ElsQualityMeter2029, lazy, inside the research tools) fed only by existing engine output; no new computation; saved quality shape unchanged; none live-verified. After this, no row is ENGINE_ONLY_LIVE."
    },
    {
     "id": "S3",

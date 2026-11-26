@@ -2062,7 +2062,8 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         zones:st.crossMeetings?st.crossMeetings.length:0,zoneIndex:st.crossIdx,results:nativeCrossResults(),occurrences:nativeOccurrenceResults()},
       provenance:{editId:st.editId||null,cipherSlug:st.cipherSlug||"",cipherTerm:st.cipherTerm||"",
         postUrl:st.postUrl||"",postTitle:st.postTitle||"",desc:st.desc||"",author:st.author||"",
-        quality:st.lastQuality||null}
+        quality:st.lastQuality||null},
+      qualityDetail:st.lastQualityDetail||null
     });
   }
   // חתימה למניעת-שידור-כפול: render() נקרא הרבה; משדרים רק כשהמצב באמת השתנה.
@@ -2865,6 +2866,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       else if(d.action==="zoom-set"&&Number.isFinite(d.value)){st.fit=false;setZoom(d.value);}
       else if(d.action==="zoom-pinch"&&Number.isFinite(d.value))setZoom(d.value);   // צביטה: כמו הקלאסי, ההתאמה למסך נשארת
       else if(d.action==="fit-toggle")toggleFit();
+      else if(d.action==="quality-mc-run"){if(st._runQualityMC)st._runQualityMC();}
       else if(d.action==="axis-visibility"){st.hideMain=!st.hideMain;recolorOnly();emitState();}
       else if(d.action==="heat-toggle"){st.heat=!st.heat;recolorOnly();emitState();}
       else if(d.action==="niqqud-toggle")toggleNiqqud();
@@ -5860,7 +5862,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const lenB=Math.min(20,Math.max(0,(Lm-2)*3));
       const mainScore=rarity+lenB;
       // אשכול: לכל מילה מוצגת — בסיס(אורך) × מקדם-מקביליות × מקדם-קרבה
-      let words=0,parallels=0,diag=0,tight=0,cluster=0;
+      let words=0,parallels=0,diag=0,tight=0,cluster=0;const angles=[];   // 2029 native surface: the class each shown hit already receives below (read-only, no second computation)
       // ⭐ tq — מודל-הכוכבים האחיד (זהה לאזורי-ההתכנסות): ציר(נדירות×אורך) + לכל מונח אות-ליד-אות×קרבה×נדירות
       let tq=rarF(mh)*lenF(Lm)*0.9;
       st.words.forEach(w=>{const sh=shownHitsOf(w);if(!sh.length)return;words++;
@@ -5868,10 +5870,12 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         tq+=gapF(bstep)*proxF(best.cost)*lenF(norm(w.t))*rarF(rarityOf(w.t));
         sh.forEach(h=>{const L=norm(w.t).length,base=Math.min(18,(L-1)*2.2);
           const mod=((Math.abs(h.skip))%S+S)%S;let mult;
-          if(mod===0){mult=1.5;parallels++;}                         // אנכי / אותו-דילוג
-          else if(mod<=2||mod>=S-2){mult=2;parallels++;diag++;}       // אלכסון מקביל (הכי נדיר)
-          else if(Math.abs(h.skip)===1){mult=1.2;}                    // שורה חוצה
+          let kind="other";
+          if(mod===0){mult=1.5;parallels++;kind="vertical";}          // אנכי / אותו-דילוג
+          else if(mod<=2||mod>=S-2){mult=2;parallels++;diag++;kind="diagonal";}   // אלכסון מקביל (הכי נדיר)
+          else if(Math.abs(h.skip)===1){mult=1.2;kind="row";}         // שורה חוצה
           else mult=1;
+          if(angles.length<60){const sk=Math.abs(h.skip),nk=notable(sk);angles.push({term:w.t,skip:sk,direction:h.dir===1?"fwd":"back",kind,notable:nk?{tag:nk.tag,rank:nk.rank}:null});}
           const cm=h.cost<=3?3:h.cost<=12?1.6:1;if(h.cost<=3)tight++;
           cluster+=base*mult*cm*0.5;});
       });
@@ -5879,7 +5883,7 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
       const nt=notable(S),special=nt?(nt.rank<=1?18:nt.rank<=2?12:6):0;
       const total=Math.round(mainScore+cluster+family+special);
       const stars=starsFromTq(tq);   // כוכבים אחידים עם אזורי-ההתכנסות (עד הרצת Monte-Carlo)
-      return{total,stars,tq:Math.round(tq*100)/100,rarity,lenB,mainScore,words,parallels,diag,tight,family,special,nt,mh,Lm};
+      return{total,stars,tq:Math.round(tq*100)/100,rarity,lenB,mainScore,words,parallels,diag,tight,family,special,nt,mh,Lm,S,angles};
     }
     // ציון-מאומת = נדירות-הציר (חינם, כבר מחושב) + המובהקות המדודה של האשכול + דילוג-מיוחד. בלי חישוב נוסף.
     function mcPoints(m){const r=m.capped?9999:m.rar;return r>=150?70:r>=50?55:r>=15?42:r>=5?26:r>=2?13:4;}
@@ -5899,6 +5903,10 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
         rarity: mc?(mc.capped?null:mc.rar):null, rarityCapped: mc?!!mc.capped:false,
         percentile: mc?mc.perc:null, trials: mc?mc.TR:null,
         axisOcc: Q.mh, axisLen: Q.Lm, words: st.words.length };
+      // Read-only detail for the 2029 native surface (state.qualityDetail). Every number below was computed by qualityCalc/mc above; nothing is recomputed and nothing here is saved.
+      st.lastQualityDetail={estimate:{score:Q.total,stars:Q.stars,tq:Q.tq,mainScore:Q.mainScore,special:Q.special,family:Q.family,words:Q.words,parallels:Q.parallels,diagonals:Q.diag,tight:Q.tight,axisOccurrences:Q.mh,axisLength:Q.Lm,matrixWidth:Q.S},
+        notable:Q.nt?{tag:Q.nt.tag,rank:Q.nt.rank,skip:Math.abs(occ().skip)}:null,angles:Q.angles,
+        mc:st.mc&&st.mc.running?{state:"running"}:mc?{state:"done",rarity:mc.capped?null:mc.rar,capped:!!mc.capped,percentile:mc.perc,trials:mc.TR,observed:mc.sObs,mean:mc.mean}:st.mc&&st.mc.done&&st.mc.err&&st.mc.sig===mcSig()?{state:"error",message:String(st.mc.err)}:{state:"none"}};
       const badge=verified?'<span class="ql-verified" title="הכוכבים נגזרים מהמובהקות הסטטיסטית שמדדת">🔵 מאומת</span>':'<span class="ql-est" title="הערכה מהירה — לחץ 📊 בדוק מובהקות לאימות סטטיסטי">הערכה</span>';
       const starsHtml='<b class="stars">'+"★".repeat(stars)+'<span>'+"☆".repeat(5-stars)+'</span></b>'+badge;
       if(!st.qualityOpen){
@@ -5935,12 +5943,18 @@ function formatTanakhReferenceParts(book, chapterHe, verseHe = "") {
               '<button class="mc-run">↻ הרץ שוב</button>'+
               '<div class="mc-note">מודל: אותו טקסט, אותה גאומטריה (רוחב-דילוג + גובה-חלון), עמודת-ציר במיקום מוסט אקראית. מודד כמה נדיר שהמילים האלה ייפלו צמוד-לציר במקרה. <b>עדות סטטיסטית — לא הוכחה ולא ניבוי.</b></div></div>';}
         } else {mcArea.innerHTML='<button class="mc-run">📊 בדוק מובהקות (Monte-Carlo)</button><div class="mc-hint">משווה את צפיפות-האשכול סביב הציר ל־400 מקומות אקראיים באותו טקסט — ונותן מספר: כמה זה נדיר.</div>';}
-        const rb=mcArea.querySelector(".mc-run");if(rb)rb.onclick=()=>{st.mc={running:true};renderMC();
-          setTimeout(()=>{const res=runMonteCarlo();st.mc={...res,sig:mcSig(),done:true};updateQuality();
-            try{postHost({type:"quality",quality:st.lastQuality});}catch(e){}},20);};  // updateQuality → הכוכבים ננעלים; + צריבה חזרה לרשומה שמורה (host)
+        const rb=mcArea.querySelector(".mc-run");if(rb)rb.onclick=()=>{runQualityMC();};  // updateQuality → הכוכבים ננעלים; + צריבה חזרה לרשומה שמורה (host)
       }
       renderMC();
     }
+    // The only Monte-Carlo trigger: the Classic button and the native control "quality-mc-run" both call it (no second implementation).
+    function runQualityMC(){
+      if(st.mc&&st.mc.running)return;if(!hasGov(st.res)||!st.res.hits.length)return;
+      st.mc={running:true};updateQuality();try{emitState();}catch(e){}
+      setTimeout(()=>{const res=runMonteCarlo();st.mc={...res,sig:mcSig(),done:true};updateQuality();
+        try{postHost({type:"quality",quality:st.lastQuality});}catch(e){}try{emitState();}catch(e){}},20);
+    }
+    st._runQualityMC=runQualityMC;
     st._refreshQuality=updateQuality;   // חשיפה: מאפשר לרענן ולצרוב את st.lastQuality בזמן שמירה (מחוץ לסגור)
     st._renderNativeList=renderList;
     function renderList(){

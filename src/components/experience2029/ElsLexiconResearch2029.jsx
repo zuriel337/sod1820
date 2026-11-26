@@ -9,6 +9,8 @@ import { elsStructureView, inspectElsStructures, isElsStructureMemberMarked, ver
 import { projectElsDiscoveryStructures, prepareElsStructureAdditions, prepareElsStructureRestore } from "../../lib/research/elsDiscoveryStructureSources.js";
 import ElsJointDiscovery2029 from "./ElsJointDiscovery2029.jsx";
 import ElsStructureResearch2029 from "./ElsStructureResearch2029.jsx";
+// Loaded on demand (Speed Law): the quality, notable-skip and angle panel only costs a request when its section is opened.
+const ElsQualityMeter2029 = React.lazy(() => import("./ElsQualityMeter2029.jsx"));
 import ElsSavedDiscovery2029 from "./ElsSavedDiscovery2029.jsx";
 import { captureElsDiscoverySource, elsSavedDiscoveryMatches, elsDiscoveryResponseMatches } from "../../lib/research/elsSavedDiscovery.js";
 import "./royal2029.css";
@@ -36,7 +38,7 @@ const sourceLabel = ({ run }) => `${run.data.plan?.mode === "language" ? "ביט
 
 export default function ElsLexiconResearch2029({
   telemetrySource, state, scanWindow, visible, view, busy, response, onRequest, onRestore, onAdd, color, onFocus, onFindWords,
-  onProgress, onOpenFable, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId,
+  onProgress, onOpenFable, onOpenDiscovery, projection, onShow, selectedKey, readingExtension, structureTools, onShowStructure, findingsOperation, viewNavigation, returnProjection, discoveryId, onQualityRun,
 }) {
   const [run, setRun] = useState(null), [notice, setNotice] = useState("");
   const [structureSort, setStructureSort] = useState("diverse");
@@ -44,6 +46,7 @@ export default function ElsLexiconResearch2029({
   const [{ result, runs }, setDiscovery] = useState({ result: null, runs: {} });
   const [pendingStructure, setPendingStructure] = useState(null);
   const [inspectionVisited, setInspectionVisited] = useState(false);
+  const [qualityVisited, setQualityVisited] = useState(false);
   const [plan, setPlan] = useState({ mode: "language", minLength: 5, maxLength: 16, maxDistance: 120, minMembers: 2 });
   const [hideForwardSource, setHideForwardSource] = useState(false);
   const [excludedSourceIds, setExcludedSourceIds] = useState([]);
@@ -409,6 +412,12 @@ export default function ElsLexiconResearch2029({
           onOpenDiscovery();
           requestAnimationFrame(() => scanButton.current?.focus());
         }} /> : null}
+    </details>
+    <details className="els29-quality-section" data-els-quality-section onToggle={event => { if (event.currentTarget.open) setQualityVisited(true); }}>
+      <summary>איכות הצופן, דילוגים מיוחדים וזוויות</summary>
+      {qualityVisited ? <React.Suspense fallback={<p role="status">טוען את נתוני האיכות…</p>}>
+        <ElsQualityMeter2029 state={state} busy={busy || !!run} onRunMc={onQualityRun} />
+      </React.Suspense> : null}
     </details>
     {structureTools}
     </div>

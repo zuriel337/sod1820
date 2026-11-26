@@ -1820,6 +1820,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
       : operations.search?.status === "searching" ? `מחפש את המילה במטריצה…${Number.isInteger(operations.search?.found) ? ` · ${elsFoundSoFar(operations.search)}` : ""}`
       : operations.findings?.status === "searching" ? "סורק את הממצאים…"
       : savePending ? "שומר את הצופן…"
+      : engineState?.qualityDetail?.mc?.state === "running" ? "מודד נדירות מול 400 חלונות אקראיים…"
       : researchWorkspace && lexiconPhase ? lexiconPhase
       : researchWorkspace && readingActive ? readingPending ? "Fable סורק את המטריצה…" : "Fable סורק מופע אחר…"
       : lensPending ? "טוען מקור והקשר…" : null} />
@@ -2026,7 +2027,7 @@ export default function ElsNativeClassic2029({ initialSeed = "", matrix = null, 
                 busy={searchPending || !!loadPhase || ["searching", "verifying"].includes(operations.findings?.status)} response={lexiconResponse}
                 onRequest={target => setLensRequest({ lens: "matrix-lexicon", target })} onRestore={onResearchRestore}
                 onAdd={findings => requestFindingsChange(findings, { preserveRead: true, pending: true })}
-                findingsOperation={operations.findings} onShowStructure={setSplitRelation}
+                findingsOperation={operations.findings} onShowStructure={setSplitRelation} onQualityRun={() => requestControl("quality-mc-run")}
                 color={findings => nextFindingColor(findings, palette)} onFocus={selectFinding}
                 onFindWords={event => { openTool("findings", event.currentTarget, true); }}
                 projection={projectedOption ? null : readingProjection} onShow={showReadingFinding} selectedKey={selectedReading?.key}

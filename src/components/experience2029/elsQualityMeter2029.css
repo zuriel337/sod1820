@@ -1,0 +1,17 @@
+/* Royal surface for the engine quality outputs: the same --s29 tokens, r29-btn and bounded gold as the neighbouring research panels. */
+.els29-quality{min-width:0;margin-block:16px;padding:clamp(12px,2vw,24px);border:1px solid var(--s29-line);border-radius:20px;background:var(--s29-panel)}
+.els29-quality h3{font-size:var(--s29-type-title);margin:0 0 12px}
+.els29-quality h4{font-size:var(--s29-type-lead);margin:0 0 8px}
+.els29-quality h4 small{font-size:var(--s29-type-ui);opacity:.75;font-weight:400}
+.els29-quality p,.els29-quality li{font-size:max(var(--s29-type-body),18px);line-height:1.65}
+.els29-quality-caveat{padding:10px 12px;border:1px solid var(--s29-line);border-inline-start:4px solid var(--s29-gold,#d4af37);border-radius:12px;background:var(--s29-panel-soft)}
+.els29-quality-block{min-width:0;margin-block:14px;padding:12px;border:1px solid var(--s29-line);border-radius:14px}
+.els29-quality-block .r29-btn{min-height:44px;min-width:44px}
+.els29-quality-muted{opacity:.8}
+.els29-quality-stars{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:0 0 8px}
+.els29-quality-stars [role="img"]{font-size:1.6rem;letter-spacing:.1em;color:var(--s29-gold,#d4af37)}
+.els29-quality-chip{display:inline-flex;max-width:100%;padding:2px 10px;border:1px solid var(--s29-line);border-radius:999px;background:var(--s29-panel-soft);font-size:var(--s29-type-ui)}
+.els29-quality-list{margin:0;padding-inline-start:1.2em}
+.els29-quality details{margin-block:8px}
+.els29-quality summary{min-height:44px;display:flex;align-items:center;cursor:pointer}
+.els29-quality summary:focus-visible,.els29-quality button:focus-visible{outline:2px solid var(--s29-focus-ring);outline-offset:2px}

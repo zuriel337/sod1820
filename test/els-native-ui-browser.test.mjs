@@ -663,6 +663,59 @@ test('Research occurrence queue caps selection, cancels late work and resets on 
   },{realHost:true});
  });
 
+test('quality, notable skip and angle panel: engine output only, lazy, honest about what it is, beside the lattice check',
+ {skip:!canRun&&'Native browser tooling unavailable',timeout:180000},async()=>{
+  for(const width of [320,390,1440])await withNative({width,height:900},async page=>{
+    const requested=[];page.on('request',req=>{requested.push(req.url());});
+    await page.evaluate(()=>{window.__fixtureResearchProfile=true;window.__forceParentRender();});
+    await addSecondary(page,'תורה');
+    await openDiscoveryTools(page,'מבנים');
+    assert.equal(requested.some(url=>/ElsQualityMeter2029/.test(url)),false,'the panel is not loaded before its section opens');
+    await page.getByText('איכות הצופן, דילוגים מיוחדים וזוויות',{exact:true}).first().click();
+    const panel=page.locator('section[data-els-quality="ready"]');
+    await panel.waitFor();
+    assert.equal(requested.some(url=>/ElsQualityMeter2029/.test(url)),true,'the panel loads on demand');
+    const state=await page.evaluate(()=>window.__state);
+    const detail=state.qualityDetail,quality=state.provenance.quality;
+    assert.ok(detail?.estimate&&quality,'the engine publishes its own quality detail');
+    // E04: the native stars are the engine's stars, not a second computation; the panel says it is an estimate.
+    assert.equal(detail.estimate.stars,quality.stars);
+    assert.equal(await panel.locator('[data-els-quality-part=stars] [role=img]').getAttribute('aria-label'),`${quality.stars} כוכבים מתוך 5`);
+    assert.match(await panel.locator('.els29-quality-caveat').innerText(),/אינה הוכחה סטטיסטית/);
+    // E03: no measured rarity until asked; the run is the engine's own Monte-Carlo.
+    assert.equal(detail.mc.state,'none');
+    assert.equal(await panel.locator('[data-els-quality-rarity=none]').count(),1);
+    await panel.getByRole('button',{name:'מדוד נדירות',exact:true}).click();
+    await panel.locator('[data-els-quality-rarity=done],[data-els-quality-rarity=error]').first().waitFor({timeout:60000});
+    const measured=await page.evaluate(()=>window.__state);
+    assert.equal(measured.qualityDetail.mc.state,'done');
+    assert.equal(measured.qualityDetail.mc.trials,measured.provenance.quality.trials);
+    assert.equal(measured.qualityDetail.mc.percentile,measured.provenance.quality.percentile);
+    assert.equal(await panel.locator('[data-els-quality-rarity=done] bdi').first().innerText(),measured.qualityDetail.mc.capped?`נדיר מ־1 ל־${measured.qualityDetail.mc.trials}`:`בערך 1 ל־${measured.qualityDetail.mc.rarity}`);
+    // D03: the axis skip tag is the engine's notable() tag, or an explicit "not marked".
+    if(measured.qualityDetail.notable)assert.equal(await panel.locator('[data-els-quality-notable=axis] span').innerText(),measured.qualityDetail.notable.tag);
+    else assert.equal(await panel.locator('[data-els-quality-notable=none]').count(),1);
+    // E07: the angle classes are the ones the engine already scores, grouped as given, and the lattice check is still there.
+    const angles=measured.qualityDetail.angles;
+    assert.ok(angles.length>0);
+    for(const kind of ['vertical','diagonal','row','other']){
+      const count=angles.filter(angle=>angle.kind===kind).length;
+      assert.equal(await panel.locator(`[data-els-quality-angle=${kind}] li`).count(),count,kind);
+    }
+    assert.match(await panel.locator('[data-els-quality-part=angles]').innerText(),/שני המידעים נשמרים/);
+    assert.equal(await page.getByText('בדיקת הסימונים והשוואת מופעים',{exact:true}).count(),1);
+    // The axis, the matrix and the engine's saved quality shape are untouched by reading or measuring.
+    assert.deepEqual(measured.axis,state.axis);
+    assert.deepEqual(Object.keys(measured.provenance.quality).sort(),['axisLen','axisOcc','percentile','rarity','rarityCapped','score','stars','trials','verified','words'].sort());
+    // Royal/readable: targets, fonts, no horizontal scroll.
+    const size=await page.evaluate(()=>({w:document.documentElement.clientWidth,s:document.documentElement.scrollWidth}));
+    assert.ok(size.s<=size.w+1,JSON.stringify({width,size}));
+    assert.ok((await panel.locator('button:visible').evaluateAll(nodes=>nodes.map(n=>n.getBoundingClientRect().height))).every(h=>h>=44));
+    assert.ok(await panel.locator('p').evaluateAll(nodes=>nodes.every(n=>parseFloat(getComputedStyle(n).fontSize)>=18)));
+    assert.equal(requested.some(url=>/ai-analyze|els-dynamic-lexicon|tanakh-verses/.test(url)),false);
+  },{realHost:true});
+ });
+
 test('CI: native UI browser regression must not be skipped when required', () => {
   if (process.env.ELS_REQUIRE_EXECUTABLE) {
     assert.ok(canRun, 'ELS_REQUIRE_EXECUTABLE=1 requires Playwright, Vite/plugin-react and Chromium');
