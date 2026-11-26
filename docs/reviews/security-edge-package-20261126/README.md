@@ -82,7 +82,7 @@
 | `route-legitimacy.js` | `62249ef4be058bfe2cae039f0d63570db69a1f533dc94c7dc1df831d45fb0f22` |
 | `scripts/post-deploy-canary.mjs` | `2dc787b6167f169d68ac7d75aa631f65948f542ce9a66303210d477a730fbb69` |
 | `.github/workflows/post-deploy-canary.yml` | `bc950351e76c4b4ceee3319f638dc7981d0886df188695fe106187bffc00cb48` |
-| `.github/workflows/live-contracts-2029.yml` | `f1024e7e1bde2b13c036cc9cd18a828d8ca8e23ef55228f197e5995d1e506614` |
+| `.github/workflows/live-contracts-2029.yml` | `7983c015d616780b3254fc5057a5c1e1e93e8d46d84edd6d564e95d5660114ca` |
 | `supabase/functions/security-probe-log/index.ts` | `e1abef90cd4e86db58ea2ecdcc809cf0a7f190b2be9651df543da0ee7da63a93` |
 | `supabase/functions/_shared/securityProbeLogCore.js` | `68ad5e2f716caafbe9422a6f92e768c3c7c97cf71a3ca7214bf49c0abc556990` |
 | `supabase/functions/_shared/vercelProductionOidc.ts` | `aaa90b9400803fd7cdc4d69299bc851531da2fcb629008fdc7d77fe9b6c0a413` |
