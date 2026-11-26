@@ -26,3 +26,4 @@ __pycache__/
 # a node_modules symlink (not a directory) is not matched by "node_modules/"
 node_modules
 qa/supabase/migrations/*_qa_els.sql
+qa/supabase/migrations/*_qa_prod_defs.sql
