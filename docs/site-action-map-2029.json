@@ -5891,6 +5891,7 @@
    "tests": [
     "test/def001-email-exposure-contract.test.mjs",
     "test/push-subscription-rollout-order.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
     "test/rpc-deploy-order-contract.test.mjs"
    ]
   },
@@ -5903,6 +5904,7 @@
    "tests": [
     "test/def001-email-exposure-contract.test.mjs",
     "test/push-subscription-rollout-order.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
     "test/rpc-deploy-order-contract.test.mjs"
    ]
   },
@@ -6377,6 +6379,7 @@
    "tests": [
     "test/personal-attention-badge-2029.test.mjs",
     "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
     "tests/personal-attention-badge-2029.spec.cjs",
     "tests/personal-attention-transport-2029.spec.cjs"
    ]
@@ -6387,7 +6390,8 @@
     "/2029/me/:module"
    ],
    "tests": [
-    "test/personal-continuity-2029.test.mjs"
+    "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
    ]
   },
   "dm_thread": {
@@ -6397,6 +6401,7 @@
    ],
    "tests": [
     "test/personal-continuity-2029.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
     "tests/personal-attention-badge-2029.spec.cjs",
     "tests/personal-attention-transport-2029.spec.cjs"
    ]
