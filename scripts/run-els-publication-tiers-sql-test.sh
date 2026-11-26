@@ -22,6 +22,26 @@ q -f "$D/els-native-save-fixture.sql" >/dev/null
 q -f "$D/els-publication-tiers-pre.sql" >/dev/null
 q -f "$D/apply.sql"
 q -f "$D/els-publication-tiers-post.sql" >/dev/null
+# Race: the owner withdraws the page publication while the administrator approves the library request (two real sessions, row-locked).
+ID=a0000000-0000-0000-0000-000000000005; ADMIN=00000000-0000-0000-0000-000000000003; OWNER=00000000-0000-0000-0000-000000000001
+reset_row() { q -c "reset role; update els_records set status='pending', visibility='public', self_published=true where id='$ID';" >/dev/null; }
+as() { echo "begin; set local role authenticated; select set_config('request.jwt.claim.sub','$1',true);"; }
+state() { q -At -c "reset role; select status||'/'||visibility||'/'||self_published from els_records where id='$ID';"; }
+# 1) the administrator's decision holds the row first: the owner's withdrawal waits, then an approved cipher keeps its library access
+reset_row
+( { as $ADMIN; echo "select moderate_els_matrix('$ID','published'); select pg_sleep(2); commit;"; } | q >/dev/null ) &
+sleep 0.7
+{ as $OWNER; echo "select self_publish_matrix('$ID', false); commit;"; } | q >/dev/null
+wait
+[[ "$(state)" == "published/public/false" ]] || { echo "RACE admin-first: unexpected $(state)" >&2; exit 1; }
+# 2) the owner's withdrawal holds the row first: the approval then finds a private row and is refused; nothing becomes public
+reset_row
+( { as $OWNER; echo "select self_publish_matrix('$ID', false); select pg_sleep(2); commit;"; } | q >/dev/null ) &
+sleep 0.7
+if { as $ADMIN; echo "select moderate_els_matrix('$ID','published'); commit;"; } | q >/dev/null 2>&1; then echo "RACE owner-first: the approval must be refused" >&2; exit 1; fi
+wait
+[[ "$(state)" == "draft/private/false" ]] || { echo "RACE owner-first: unexpected $(state)" >&2; exit 1; }
+echo 'els-publication-tiers race: ok'
 q -f "$D/rollback.sql"
 q -c "begin; set local role anon; select test_expect((select count(*)=0 from els_records where id='a0000000-0000-0000-0000-000000000001'),'ROLLBACK keeps the leak closed: the private row stays unreadable'); commit;" >/dev/null
 q -c "reset role; insert into els_records(search_term,visibility,self_published,status,owner_user_id) values ('rb-private','private',true,'draft','00000000-0000-0000-0000-000000000001'); begin; set local role anon; select test_expect((select count(*)=0 from els_records where search_term='rb-private'),'ROLLBACK: the old flag on a private row never exposes it'); commit;" >/dev/null

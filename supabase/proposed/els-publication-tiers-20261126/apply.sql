@@ -193,7 +193,9 @@ begin
   if not exists (select 1 from public.users u where u.id=auth.uid() and u.role='admin') then raise exception 'not authorized'; end if;
   if p_status not in ('published','pending','hidden','draft') then raise exception 'bad status'; end if;   -- 'draft' = decline: back to the owner's page, never silent deletion
   if p_status='published' then
-    select * into r from public.els_records where id = p_id;
+    -- Row lock: an owner withdrawing the page publication at the same moment is serialized with this decision (self_publish_matrix locks the same row).
+    -- Whichever commits first wins consistently: a withdrawn (private) row is refused here; an approved row keeps its library access.
+    select * into r from public.els_records where id = p_id for update;
     -- A private row is never admitted to the central library; it must first be published by its owner.
     if found and r.visibility = 'private' then raise exception 'private rows are not publishable' using errcode = 'check_violation'; end if;
     -- forward-only: a row that is ALREADY published is not re-gated; any other row must pass the truth gate to publish.

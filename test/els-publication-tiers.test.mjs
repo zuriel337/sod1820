@@ -52,3 +52,16 @@ test('deploy-order safety: the two new client RPCs degrade when the SQL is not a
   const manifest = JSON.parse(read('supabase/proposed/APPLY-BEFORE-DEPLOY.json'));
   for (const rpc of ['request_els_library_review', 'els_my_strong_ciphers']) assert.ok(manifest.apply_before_deploy.some(e => e.rpc === rpc && e.sql.includes('els-publication-tiers-20261126')), rpc);
 });
+
+test('cache: a cipher document is never CDN-kept, so withdrawing a cipher takes effect on the next request; the sitemap bound is documented', async () => {
+  const doc = await import('../public-reading-deploy/api/public-document.js');
+  assert.deepEqual(Object.keys(doc.PAGE_DOCUMENT_CDN_PAGES), ['/', '/community/chat'], 'no cipher address has a CDN-kept document');
+  assert.equal(doc.postDocumentCdnCacheable({ method: 'GET', status: 200, state: 'public', originalDocument: true, path: '/codes/x', post: null, articleFirst: 'not-eligible' }), false);
+  assert.equal(doc.pageDocumentCdnCacheable({ method: 'GET', status: 200, state: 'public', originalDocument: true, path: '/codes/x', post: null, articleFirst: 'not-eligible' }), false);
+  assert.match(read('api/sitemap.js'), /SITEMAP_CACHE = 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=86400'/);
+});
+
+test('concurrency: the approval takes the same row lock as the owner withdrawal (proved by two real sessions in the SQL runner)', () => {
+  assert.match(code(read(dir + 'apply.sql')), /select \* into r from public\.els_records where id = p_id for update;\s*if found and r\.visibility = 'private'/);
+  assert.match(read('scripts/run-els-publication-tiers-sql-test.sh'), /RACE owner-first/);
+});
