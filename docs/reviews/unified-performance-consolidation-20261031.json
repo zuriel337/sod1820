@@ -4577,6 +4577,33 @@
             "D6 fn_ti_daily (demand to recommendations) not scheduled since 6.9; ti-post-37034-daily-watch is redundant: cleanup decisions from the root-cause document section 9.7",
             "D7 after-deployment speed measurements need the unified deployment first (live is 3205ecd7 without #1564)"
           ]
+        },
+        "wave_investigation_20261127": {
+          "what": "The /community/chat entrance wave of 26.11.2026 (read-only; the existing classification mechanism fn_human_entrances and the events table; nothing blocked, deleted or changed)",
+          "size": "4,701 /community/chat sessions on 26.11 (UTC day) against 116-157 on 17-25.11; google-source 4,617 against 43-60; direct stayed normal (73). Roughly 4,560 extra sessions, about 450 per hour, in two stretches (00-05 UTC and 15-23 UTC, still running at 23:00 UTC).",
+          "signature": "One page view + arrival/source=google, 2.0 events per session, 0.4% have an engagement event (normal Google sessions on this page: about 65% do), 0% content or entry events; chrome 49% / safari mix; per-session unique ids; steady hourly rate. Traffic from real readers on the same page is unchanged (direct 73, normal engagement).",
+          "why_classification_misses_it": "fn_human_entrances flags suspected_bot only for source='direct' (rules v2/v3). These sessions arrive with a google referrer, so they count as human entrances: traffic_daily 26.11 shows 5,596 entrances (1,219 engaged, 4,376 bounces, 37 suspected) against about 280 on a normal day.",
+          "cost": {
+            "vercel": "/community/chat document requests 7,711 on 26.11 against 2,645 on 25.11; cache result HIT 83.6% / STALE 15.2% / MISS 1.1% (25.11: 84.8 / 12.4 / 2.7). The S-49 CDN class absorbed the wave: MISS 82 against 72, so function invocations for the document did not grow.",
+            "supabase_api": "The cost lands on the database API, because each JS-executing session calls the REST API: 6 h (17-23 UTC) 19.6k /posts, 15.5k /users, 14.0k ingest_event, 12.7k research_contributions, 10.2k community_thread_updates, 8.9k log_edge, 8.3k topic_cards_public, 8.1k community_presence_online, 8.1k log_crawl, 6.7k world_group_source_arrivals_v2, 6.2k community_feed_page_v2, 5.7k track_visit. Total 24-38k requests per hour in wave hours against 7-14k in quiet hours (06-13 UTC): about 20k extra calls per hour, roughly 45 per wave session. community_feed_page_v2 alone: about 1,000 per hour in wave hours against 20-60.",
+            "not_the_cause": "The Storage egress alerts (warn 20:15, critical 21:15 UTC, bot share 91.8-98.0%) measure media storage egress, a separate meter; not shown to come from this wave."
+          },
+          "proposal_not_applied": "Classification rule v4 inside the existing fn_human_entrances (and refresh_traffic_daily_range_v1 follows it): mark suspected_bot with its own reason when source='google', one view, no interaction, no engagement event AND the same landing path has at least 5x its hourly 7-day median of such sessions in that hour (volume anomaly), so a real quiet Google visitor is never marked on a normal hour. Needs a traffic_intelligence_law amendment and SQL: both need ZURIEL approval. Historical rows are never rewritten; the flag is computed, not stored. No blocking: open-index law.",
+          "client_side_reduction_option": "The public chat page makes about 45 API calls per load even without engagement; deferring non-visible reads until approach/interaction (as toolOnApproach2029) would cut the cost of any crawler or wave without blocking: a separate speed item, not started."
+        },
+        "ga4_completion_prepared_not_executed": {
+          "gap": "traffic_history has no 'ga' day rows and no 'ga:country:IL' day rows for 2026-09-07..2026-11-07 (62 days each). ga: 104 days from 14.6 with that gap; ga:country:IL starts 8.11.",
+          "source_proof": "ga-sync-server dry run (days=80, dry_run=true, pg_net 64907, HTTP 200, read only): Google holds all 62 days: total 60,215 views / 21,519 sessions; IL 51,112 views. Compared with the database for the whole 81-day window: 62 missing rows (total) and 62 (IL); 19 existing days (8.11-26.11) in each series, of which 18 are identical and 1 differs (26.11, a partial day that the daily cron refreshes anyway).",
+          "exact_action_for_approval": "ONE call to the existing function, the same call the daily cron makes, with a longer window: select net.http_post(url := '.../functions/v1/ga-sync-server', headers := Content-Type + x-gsc-key from public.gsc_secrets(), body := {days:80, dry_run:false}). It uses only the existing writers ingest_ga_daily and ingest_ga_country_daily (insert ... on conflict (period, granularity, source) do update views/visitors/sessions; the note column is never written, so the 11-15.11 notes stay). Effect: 62 + 62 rows inserted; 19 + 19 existing rows rewritten with identical values (26.11 updated to the current partial value). No other table, no deletion.",
+          "guards_before_and_after": "Before: assert 0 rows exist for those two sources in 2026-09-07..2026-11-07. After: assert 62 + 62 rows, sum(views) = 60,215 and 51,112, and that every row outside the window is unchanged except 26.11.",
+          "rollback": "delete from traffic_history where granularity='day' and source in ('ga','ga:country:IL') and period between date '2026-09-07' and date '2026-11-07' (exact, because none existed before).",
+          "caveat": "Sept-Oct numbers come from GA4 as it stands; if the Legacy client double-counted page views there (not proven, see the root-cause document 3.1), views are overstated while sessions and users are not. An explanatory note on those rows is a separate optional update (the note column exists)."
+        },
+        "legacy_process_dependency_check_20261127": {
+          "ti-post-37034-daily-watch": "cron active, hourly, DO block in daily mode; no database function references it; 0 work_log reports in 30 days. Removal = cron.unschedule: a database change needing ZURIEL approval; no dependency found that blocks it. The root-cause document counted 30 daily zero-view notices in 30 days (user-facing noise).",
+          "fn_ti_daily": "not scheduled since 6.9; no function references it; it only calls fn_ti_project_demand and fn_metatron_recommend. Safe either way; scheduling it is a product decision (Metatron/Raziel are untouched here).",
+          "post_exp legacy format in ingest_event": "STILL IN USE: 52 events in 7 days (post_exp/post_view, scroll_depth, layout_present and post_experience/*). Not removable now.",
+          "/wp-content in page views": "21 page views in 30 days; negligible; no action needed beyond awareness."
         }
       },
       {
@@ -5297,6 +5324,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: finish analytics and speed to a final handover)",
         "what": "S-64 status board added: what is already done (not to be redone), what was verified live read-only, the gaps found (GA4 7.9-7.11 missing, runtime errors blind, video not measured, community/chat wave counted as human) and the decisions needed. video_2029 built (PR #1577) and added to the consolidated ingest_event package (#1575). Nothing merged, deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T02:30:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11 priorities 1-6)",
+        "what": "S-64: wave investigation (size, signature, why the existing classifier misses it, costs: Vercel absorbed by the S-49 CDN class, Supabase API about 20k extra calls per hour), exact GA4 completion action prepared (not executed), legacy-process dependency check. Nothing merged, deployed or applied.",
         "previous": {
           "note": "previous revision above"
         }
