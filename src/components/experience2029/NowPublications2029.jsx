@@ -1,5 +1,5 @@
 import { useSiteActivityView2029 } from "../../lib/useSiteActivityView2029.js";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useState } from "react";
 import ExternalVideoFacade2029 from "./ExternalVideoFacade2029.jsx";
 import { GroupMessageText } from "../research/GroupSourceMeta2029.jsx";
 import { externalVideoLinksFromText } from "../../lib/community/messageLinks.js";
@@ -7,6 +7,7 @@ import { recordTimeLabel } from "../../lib/relativeTime2029.js";
 import { availableNowLenses, buildNowEntries, defaultNowLens, latestRunAt, NOW_LENS_TONE, filterNowBySource, filterNowModels, nowLensCounts, nowModels, nowPinnedMessage, nowTodayBand, nowSecondaryChoices, nowSeriesHref, nowSourceChoices, nowSourceThreads } from "../../lib/nowPublications2029.js";
 import { NowPinnedMessage2029, NowSourceEmpty2029, NowSourcePicker2029 } from "./NowRoyalCenter2029.jsx";
 import BuildingSignupNote2029 from "./BuildingSignupNote2029.jsx";
+import NavigationIcon2029 from "./NavigationIcon2029.jsx";
 import NowPulseLineSlot2029 from "./NowPulseLineSlot2029.jsx";
 import { numberExpressionFocusHref } from "../../lib/research/numberExpressionFocus.js";
 import ShareActions from "../ShareActions.jsx";
@@ -88,7 +89,7 @@ function RowHead({ model, timeMode }) {
       <small className="sod29-nowpub-meta">
         {model.byline.length ? <span>{model.byline.join(" · ")}</span> : null}
         <span className={model.unverified ? "is-unverified" : undefined}>{model.typeLabel}</span>
-        {model.pinned ? <span className="sod29-nowpub-pin" data-now-pinned="true">📌 נעוץ</span> : null}
+        {model.pinned ? <span className="sod29-nowpub-pin r29-badge is-pinned" data-now-pinned="true"><NavigationIcon2029 name="kingdom" size={14} />נעוץ</span> : null}
         <SeriesLatestMark2029 model={model} />
         {/* Clear labels (ZURIEL 11.11.2026): "חדש" for an arrival the viewer has not seen, "עודכן" for a publication that received an update. */}
         {model.row?.isNew ? <span className="sod29-nowpub-label r29-badge is-new" data-now-label="new">חדש</span> : model.updated ? <span className="sod29-nowpub-label r29-badge is-updated" data-now-label="updated">עודכן</span> : null}
@@ -160,10 +161,10 @@ function RowDetail({ model, onOpen, feed, autoPlay = false, onSource = null, ope
     <ThreadReplies model={model} opened={opened} />
     {model.unverified ? <small className="is-unverified">מקור · טרם נבדק. זו הודעת מקור כפי שנשמרה ולא ממצא מאומת.</small> : null}
     <div className="sod29-nowpub-actions">
-      {fullHref ? <button type="button" className="sod29-action primary" onClick={open(fullHref)}>{model.unverified ? "למקור" : "לפרסום המלא"}</button> : <small>אין קישור מדויק לפריט; הוא מוצג כאן במלואו.</small>}
-      {seriesHref ? <button type="button" className="sod29-action" onClick={open(seriesHref)}>לסדרה{model.seriesLabel ? ` · ${model.seriesLabel}` : ""}</button> : null}
-      {model.creatorHref ? <button type="button" className="sod29-action" data-now-action="creator-profile" onClick={open(model.creatorHref)}>לפרופיל · {model.item.creator}</button> : null}
-      {onSource && model.sourceKey ? <button type="button" className="sod29-action" data-now-action="source-all" onClick={() => onSource(model.sourceKey)}>כל העדכונים מ{model.sourceName || "המקור"}</button> : null}
+      {fullHref ? <button type="button" className="r29-btn is-primary" onClick={open(fullHref)}>{model.unverified ? "למקור" : "לפרסום המלא"}</button> : <small>אין קישור מדויק לפריט; הוא מוצג כאן במלואו.</small>}
+      {seriesHref ? <button type="button" className="r29-btn is-quiet" onClick={open(seriesHref)}>לסדרה{model.seriesLabel ? ` · ${model.seriesLabel}` : ""}</button> : null}
+      {model.creatorHref ? <button type="button" className="r29-btn is-quiet" data-now-action="creator-profile" onClick={open(model.creatorHref)}>לפרופיל · {model.item.creator}</button> : null}
+      {onSource && model.sourceKey ? <button type="button" className="r29-btn is-quiet" data-now-action="source-all" onClick={() => onSource(model.sourceKey)}>כל העדכונים מ{model.sourceName || "המקור"}</button> : null}
     </div>
     {postShareUrl(model) ? <div className="sod29-nowpub-share" data-share-target={postShareUrl(model)} aria-label="שיתוף הפרסום">
       <ShareActions force compact type="post" url={postShareUrl(model)} title={model.title} entityId={model.item.id} sourceSurface="now-post"
@@ -258,7 +259,7 @@ function WideRow({ model, selected, onSelect, timeMode }) {
 }
 
 function WideDetail({ model, onOpen, feed, timeMode, autoPlay, onSource }) {
-  if (!model) return <p className="sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
+  if (!model) return <p className="r29-status sod29-nowpub-empty" role="status">בחרו פרסום מהרשימה.</p>;
   const when = recordTimeLabel(model.at, NOW_TIME_MODE, "זמן לא צוין");
   return <article className="sod29-nowpub-pane" data-tone={model.tone} aria-label={model.title}>
     <h3 className="sod29-nowpub-pane-title"><LiveDot label={model.dot} />{model.title}</h3>
@@ -283,12 +284,13 @@ function SourceThread({ thread, onOpen, feed, timeMode, onSource }) {
     {older.length ? <details className="sod29-nowpub-older">
       <summary>עוד {older.length} {older.length === 1 ? "פרסום קודם" : "פרסומים קודמים"} · {thread.label}</summary>
       <ul className="sod29-nowpub-list">{older.slice(0, THREAD_OLDER_SHOWN).map(row)}</ul>
-      {older.length > THREAD_OLDER_SHOWN && onSource ? <button type="button" className="sod29-action" data-now-action="source-all" onClick={() => onSource(thread.id)}>כל העדכונים מ{thread.label} ({thread.count})</button> : null}
+      {older.length > THREAD_OLDER_SHOWN && onSource ? <button type="button" className="r29-btn is-quiet" data-now-action="source-all" onClick={() => onSource(thread.id)}>כל העדכונים מ{thread.label} ({thread.count})</button> : null}
     </details> : null}
   </li>;
 }
 
 export default function NowPublications2029({ feed, onOpen, timeMode, compact = false }) {
+  const fieldId = useId();
   // The compact pane mounts only when the reader opens the "עכשיו" panel: that open is the domain view (one per mount).
   useSiteActivityView2029('now');
   // ZURIEL 11.11.2026 (approved design): the source picker is the primary control ("הכול" by default); lens, series and media move to "מסננים נוספים".
@@ -358,28 +360,28 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
     {lenses.length > 1 || choices.series.length > 0 || choices.media.length > 1 ? <details className="sod29-nowpub-more" open={secondaryActive || undefined}>
       <summary>מסננים נוספים{secondaryActive ? " · פעיל" : ""}</summary>
       <div className="sod29-nowpub-filters" role="group" aria-label="סינון פרסומים">
-        {lenses.map(item => <button key={item.id} type="button" className="sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
+        {lenses.map(item => <button key={item.id} type="button" className="r29-chip sod29-nowpub-chip" data-tone={NOW_LENS_TONE[item.id]} aria-pressed={activeLens === item.id}
           aria-label={`${item.label}, ${counts[item.id]} פרסומים שנטענו בחלונית`} title={`${counts[item.id]} פרסומים שנטענו בחלונית`}
           onClick={() => pick(setLens)(item.id)}>{item.label}<span className="sod29-nowpub-chip-count" aria-hidden="true">{counts[item.id]}</span></button>)}
       </div>
       <div className="sod29-nowpub-selects">
-        {choices.series.length > 0 ? <label>סדרה<select value={series} onChange={event => pick(setSeries)(event.target.value)}><option value="">כל הסדרות</option>{choices.series.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
-        {choices.media.length > 1 ? <label>מדיה<select value={media} onChange={event => pick(setMedia)(event.target.value)}><option value="">כל סוגי המדיה</option>{choices.media.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label> : null}
+        {choices.series.length > 0 ? <div className="r29-field"><label htmlFor={`${fieldId}-series`}>סדרה</label><select id={`${fieldId}-series`} className="r29-input" value={series} onChange={event => pick(setSeries)(event.target.value)}><option value="">כל הסדרות</option>{choices.series.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></div> : null}
+        {choices.media.length > 1 ? <div className="r29-field"><label htmlFor={`${fieldId}-media`}>מדיה</label><select id={`${fieldId}-media`} className="r29-input" value={media} onChange={event => pick(setMedia)(event.target.value)}><option value="">כל סוגי המדיה</option>{choices.media.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></div> : null}
       </div>
     </details> : null}
 
     <div className="sod29-nowpub-status" aria-live="polite">
-      {initialLoading ? <p role="status">טוען פרסומים…</p> : null}
-      {additionalLoading && !initialLoading ? <p role="status">קורא פרסומים נוספים…</p> : null}
-      {hardError ? <p role="alert">הפרסומים אינם זמינים כרגע. <button type="button" className="sod29-nowpub-link" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
-      {!hardError && models.length > 0 && (additionalUnavailable || partial) ? <p role="status">חלק מהמקורות לא נקראו. <button type="button" className="sod29-nowpub-link" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
-      {feed?.groupArrivals && feed.groupArrivals.state !== "connected" ? <p role="status">{feed.groupArrivals.message}</p> : null}
+      {initialLoading ? <p className="r29-status" data-state="loading" role="status">טוען פרסומים…</p> : null}
+      {additionalLoading && !initialLoading ? <p className="r29-status" data-state="loading" role="status">קורא פרסומים נוספים…</p> : null}
+      {hardError ? <p className="r29-status" data-state="error" role="alert">הפרסומים אינם זמינים כרגע. <button type="button" className="r29-btn is-quiet" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
+      {!hardError && models.length > 0 && (additionalUnavailable || partial) ? <p className="r29-status" role="status">חלק מהמקורות לא נקראו. <button type="button" className="r29-btn is-quiet" onClick={feed?.refreshNowDetails}>ניסיון נוסף</button></p> : null}
+      {feed?.groupArrivals && feed.groupArrivals.state !== "connected" ? <p className="r29-status" role="status">{feed.groupArrivals.message}</p> : null}
     </div>
 
     {!initialLoading && !hardError && chosenSource && !chosenSource.count ? <NowSourceEmpty2029 label={chosenSource.label} /> : null}
     {!initialLoading && !hardError && !additionalLoading && !shown.length && !(chosenSource && !chosenSource.count)
-      ? <p className="sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
-        {models.length && (activeLens !== "all" || secondaryActive || sourceKey) ? <> <button type="button" className="sod29-nowpub-link" onClick={clear}>הצג הכול</button></> : null}</p> : null}
+      ? <p className="r29-status sod29-nowpub-empty" role="status">{models.length ? "אין פרסומים בסינון הזה." : "אין כרגע פרסומים להצגה."}
+        {models.length && (activeLens !== "all" || secondaryActive || sourceKey) ? <> <button type="button" className="r29-btn is-quiet" onClick={clear}>הצג הכול</button></> : null}</p> : null}
 
     {threadsView && threads.length
       ? <ul className="sod29-nowpub-threads" data-now-threads="true">{threads.map(thread => <SourceThread key={thread.id} thread={thread} onOpen={onOpen} feed={feed} timeMode={timeMode} onSource={pick(setSourceKey)} />)}</ul>
@@ -399,8 +401,8 @@ export default function NowPublications2029({ feed, onOpen, timeMode, compact = 
             : entry.kind === "box" ? <BoxGroup key={entry.id} entry={entry}>{entry.models.map(row)}</BoxGroup> : row(entry.model);
         })}
       </ul>}
-    {!(threadsView && threads.length) && count < entries.length ? <button type="button" className="sod29-action sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
-    <button type="button" className="sod29-action sod29-nowpub-world" onClick={() => onOpen?.("/world")}>לחידושים בעולם ←</button>
+    {!(threadsView && threads.length) && count < entries.length ? <button type="button" className="r29-btn is-quiet sod29-nowpub-more-btn" onClick={() => setCount(n => n + PAGE)}>עוד · {visibleCount} מתוך {shown.length}</button> : null}
+    <button type="button" className="r29-btn is-quiet sod29-nowpub-world" onClick={() => onOpen?.("/world")}>לחידושים בעולם ←</button>
     <BuildingSignupNote2029 scope="now" />
   </section>;
 }
