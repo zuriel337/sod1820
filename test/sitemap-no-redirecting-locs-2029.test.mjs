@@ -17,7 +17,7 @@ async function run() {
     const url = new URL(raw);
     if ((options.method || "GET") === "HEAD") return new Response(null, { status: 200, headers: { "Content-Type": "application/pdf" } });
     if (url.pathname === "/rest/v1/posts") return new Response(JSON.stringify(Number(url.searchParams.get("offset") || 0) === 0 ? posts : []));
-    return new Response("[]");
+    return new Response("[]", { headers: url.pathname === "/rest/v1/rpc/sitemap_numbers" ? { "content-range": "*/0" } : {} });
   };
   const res = { code: null, headers: {}, setHeader(k, v) { this.headers[k.toLowerCase()] = v; }, status(c) { this.code = c; return this; }, send(b) { this.body = b; return this; } };
   try {

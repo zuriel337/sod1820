@@ -86,14 +86,30 @@ async function postsOfNumber(read, value) {
   return slugs.map(slug => rows.find(row => row.slug === slug)).filter(Boolean);
 }
 
-async function numberFacts(read, value, progress) {
+// The one read of a number's anchor, shared by everyone who asks for it at the same moment: the document's own metadata (api/og.js, through the
+// document handler) and these words. Only the read in flight is shared (kept for a moment so two callers of one request meet); nothing is
+// remembered beyond that, so a changed or hidden anchor is read again by the next request exactly as before.
+const anchorReads = new Map();
+export const NUMBER_ANCHOR_SHARE_MS = 1500;
+export function numberAnchorRows2029(value, fetchImpl = globalThis.fetch) {
+  const key = String(value);
+  if (anchorReads.has(key)) return anchorReads.get(key);
+  const pending = reader(fetchImpl, AbortSignal.timeout(FIRST_WORDS_DEADLINE_MS)).rows(`number_anchors?value=eq.${encodeURIComponent(key)}&select=fact,hint&limit=1`);
+  anchorReads.set(key, pending);
+  const forget = () => setTimeout(() => { if (anchorReads.get(key) === pending) anchorReads.delete(key); }, NUMBER_ANCHOR_SHARE_MS).unref?.();
+  pending.then(forget, forget);
+  return pending;
+}
+export function _resetNumberAnchorsForTests() { anchorReads.clear(); }
+
+async function numberFacts(read, value, progress, fetchImpl) {
   const [phrases, anchor, posts] = await Promise.all([
     read.rows(`gematria_words?ragil=eq.${value}&${VERIFIED}&select=phrase&order=lead_rank.asc.nullslast,visibility_tier.asc.nullslast,created_at.desc.nullslast&limit=60`).then(rows => {
       const phrases = unique(rows, "phrase");
       if (phrases.length) progress.partial = { kind: "number", value, phrases, anchor: null, posts: [] };
       return rows;
     }),
-    optional(read.rows(`number_anchors?value=eq.${value}&select=fact,hint&limit=1`)),
+    optional(numberAnchorRows2029(value, fetchImpl)),
     optional(postsOfNumber(read, value)),
   ]);
   const list = unique(phrases, "phrase");
@@ -164,7 +180,7 @@ export function firstWordsFamily2029(path) {
 
 async function readFacts(family, fetchImpl, deadlineMs, progress) {
   const read = reader(fetchImpl, AbortSignal.timeout(deadlineMs));
-  if (family.kind === "number") return numberFacts(read, family.value, progress);
+  if (family.kind === "number") return numberFacts(read, family.value, progress, fetchImpl);
   if (family.kind === "phrase") return phraseFacts(read, family.phrase);
   if (family.kind === "codes") return codesFacts(read, family);
   if (family.kind === "topic") return topicFacts(read, family.slug);

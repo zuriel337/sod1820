@@ -19,7 +19,7 @@ function source(t,{count=2051,failCount=false,badCount=false,failPage=false}={})
    const from=Number(u.searchParams.get('offset'));return Response.json(rows.slice(from,from+1000));
   }
   if(u.pathname.endsWith('/posts'))return Response.json([{id:1,slug:'first-post',source:'wordpress',link:'https://sod1820.co.il/first-post/',tags:['נושא'],categories:[],date:'2026-11-21'}]);
-  if(u.pathname.endsWith('/sitemap_numbers')){assert.equal(method,'POST');return Response.json([{value:1820,lastmod:'2026-11-21'}]);}
+  if(u.pathname.endsWith('/sitemap_numbers')){assert.equal(method,'POST');return Response.json([{value:1820,lastmod:'2026-11-21'}],{headers:{'content-range':'0-0/1'}});}
   assert.equal(method,'GET');return Response.json([]);
  });return calls;
 }
