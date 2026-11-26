@@ -13,6 +13,7 @@
 
 import { canonicalMediaPath, isCanonical2029MediaPath, isCanonicalImagePath, isCanonicalVideoOriginalPath, posterPathForOriginal } from "./mediaPosterLane.js";
 import { TRANSLATE_CANON_LANGS } from "./videoTranscriptPolicy.js";
+import { seriesTitleViolation } from "../../../src/lib/research/contentSeriesTitle2029.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const RASTER_POSTER_MIMES = new Set(["image/jpeg", "image/png"]);
@@ -195,6 +196,12 @@ export function preflightPost({ intent = {}, facts = {}, supabaseUrl = "" }) {
   const cats = asSet(facts.taxonomy?.categories), tags = asSet(facts.taxonomy?.tags);
   for (const c of intent.categories || []) if (!cats.has(c)) blockers.push(block("TAXONOMY_UNKNOWN_CATEGORY", c));
   for (const t of intent.tags || []) if (!tags.has(t)) blockers.push(block("TAXONOMY_UNKNOWN_TAG", t));
+
+  // Series title format (ZURIEL 25.11.2026): "<content title> | <series>", e.g. "… | מה קורה הבורא" like "… | מימד חמש".
+  if (title) {
+    const titleViolation = seriesTitleViolation({ title, tags: intent.tags || [], categories: intent.categories || [], author: intent.author ?? null });
+    if (titleViolation) blockers.push(block("SERIES_TITLE_FORMAT", `${titleViolation.seriesKey}: expected «${titleViolation.expected}»`));
+  }
 
   // Source / provenance / attribution (external media keeps a visible credit; provenance is not rewritten).
   // SOURCE != TRANSPORT: a meaningful source identity is source_kind (e.g. "uploaded_file") and/or platform.
