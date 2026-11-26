@@ -320,7 +320,8 @@ jobs:
         run: |
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
           sudo apt-get install -y -qq postgresql-17 >/dev/null
-          PG_BIN=$(ls -d /usr/lib/postgresql/*/bin | sort -V | tail -1)
+          # The runner image may also ship a newer major (18); the live database is 17.6, so pin 17 explicitly.
+          PG_BIN=/usr/lib/postgresql/17/bin
           "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
           PG_BIN="$PG_BIN" bash test/db-capacity-audit-20261126-realpg.sh
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
