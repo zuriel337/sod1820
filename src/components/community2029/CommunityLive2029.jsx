@@ -76,6 +76,8 @@ function DraftAttachment({ item, disabled, onRemove }) {
 }
 const sourceLabels = { openweb: "הצ׳אט הישן", community_2029: "הקהילה", number: "מספר", els: "צופן", forum: "דיון", community: "קהילה" };
 const PublicContributor2029Page = lazy(() => import("../../pages/PublicContributor2029Page.jsx"));
+// Staff-only (moderators): its code is never part of a visitor's download.
+const CommunityNetBlocksPanel2029 = lazy(() => import("./CommunityNetBlocksPanel2029.jsx"));
 
 function LiveAuthor({ row, accountProfiles, formatDate, linkAuthor = true, showAvatar = true }) {
   const [currentParams] = useSearchParams();
@@ -1047,6 +1049,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       </Suspense> : <div className="sod29-community-layout"><section className="sod29-community-main" aria-label="מרחב הקהילה">
         <CommunityTreeHints2029 hints={treeHints} />
         {canModerateGuests ? <CommunityGuestReviewPanel2029 pending={guestPending} onReview={reviewGuest} /> : null}
+        {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 onChanged={() => { setThreadRefresh(value => value + 1); setPublishedFeedRefresh(value => value + 1); }} /></Suspense> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
         {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>

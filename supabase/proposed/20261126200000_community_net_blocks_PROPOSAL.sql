@@ -1,29 +1,38 @@
 -- Community protection against repeated guest harassment (PROPOSAL, NOT APPLIED; ZURIEL 26.11.2026, requested for Emily). Apply only on an explicit ZURIEL approval of this
 -- exact file (CLAUDE.md 0.4: DDL, grants and function changes on the shared DB), as ONE transaction (apply_migration). Spec: docs/reviews/community-protection-20261126/README.md.
 -- EXTENDS the existing moderation mechanism (community_can_moderate_guests, community_guest_review, community_guest_posts, add_guest_community_message); no second system.
---  * A GUEST write from a blocked network is refused with 'community_write_blocked': guest replies (add_guest_community_message) and guest contributions (add_contribution, anonymous branch).
---    Reads, search engines, signed-in accounts and every other route are untouched.
+--  * A GUEST write from a blocked network is refused with 'community_write_blocked': guest replies (add_guest_community_message), guest contributions (add_contribution, anonymous branch)
+--    and guest likes/dislikes/reactions (toggle_contribution_reaction, only when auth.uid() is null). Reads, search engines and SIGNED-IN ACCOUNTS are never blocked (an account sharing a network
+--    with a blocked guest is not affected: every check is guarded by auth.uid() is null) and every other route is untouched.
+--  * The network address comes ONLY from the cf-connecting-ip header (set by Cloudflare, which replaces any client-sent value); x-real-ip and x-forwarded-for, which a client can write, are never used
+--    for a block or for the hash. No address header = no reference (guests fail closed as before; add_contribution skips its limit as before).
+--  * Hiding a message and blocking a network are two SEPARATE staff actions (no function does both).
+--  * Permanent blocks stay DISABLED (community_net_settings.permanent_enabled = false) until the owner's account identity is verified and ZURIEL explicitly enables them.
 --  * A network is identified ONLY by a keyed SHA-256 of the coarse address (IPv4 as is, IPv6 /64) made inside the database from the platform-set cf-connecting-ip (as the existing
 --    functions already prefer). The raw address is never stored by the new code and is replaced by the hash in the existing rate-limit log from now on. The key lives in a table
 --    nobody but the owner can read. Staff and clients never see the address or the hash (no function returns it).
 --  * A message is tied to its network ONLY at write time, from now on. Historical messages have no reference and can never be blocked "by message" (no guessing, no time matching).
---  * Staff block by message for 24 hours, 3 days or 7 days with a mandatory reason; blocks expire by themselves (checked at write time, no cron). Permanent blocks need a staff request and
---    the approval of ONE designated approver user (setting empty = nobody can approve = fail closed).
+--  * Staff block by message for 24 hours, 3 days or 7 days with a mandatory reason; blocks expire by themselves (checked at write time, no cron). Permanent blocks are disabled; once enabled they need
+--    a staff request and the approval of ONE designated approver user (setting empty = nobody can approve = fail closed).
 --  * Every action is recorded in an append-only event table: who, when, why.
--- Guard: md5(prosrc) of add_guest_community_message 4eb11358227e6b3d8d77b933e076b28a and add_contribution 2c2baa01ecf07abf1e1511f3cb951d3b (live 26.11.2026); anchored text patches, each anchor exactly once.
+-- Existing write limits are kept: the rate-limit queries and the log now use the keyed hash instead of the raw address (same counts per network: guests 3/hour, 10/24h, 60/hour globally; anonymous contributions 5/hour).
+-- Guard: md5(prosrc) of add_guest_community_message 4eb11358227e6b3d8d77b933e076b28a, add_contribution 2c2baa01ecf07abf1e1511f3cb951d3b, toggle_contribution_reaction 96af69da3d9d8b1b82113248b09e97fa (live 26.11.2026); anchored text patches, each anchor exactly once.
 -- Rollback: 20261126200000_community_net_blocks_ROLLBACK.sql (restores both functions exactly; keeps every table and row: no history is deleted).
 do $migration$
 declare
-  v_g text; v_c text;
+  v_g text; v_c text; v_t text;
 begin
   perform set_config('lock_timeout', '3s', true);
   if to_regprocedure('public.community_can_moderate_guests()') is null then raise exception 'community_can_moderate_guests is missing' using errcode = 'P0001'; end if;
   select prosrc into v_g from pg_proc where proname = 'add_guest_community_message' and pronamespace = 'public'::regnamespace;
   select prosrc into v_c from pg_proc where proname = 'add_contribution' and pronamespace = 'public'::regnamespace;
+  select prosrc into v_t from pg_proc where proname = 'toggle_contribution_reaction' and pronamespace = 'public'::regnamespace;
   if position('community_net_ref_v1' in coalesce(v_g,'')) = 0 and md5(v_g) is distinct from '4eb11358227e6b3d8d77b933e076b28a' then
     raise exception 'add_guest_community_message drift (md5 %); independent review required, nothing changed', md5(v_g) using errcode = 'P0001'; end if;
   if position('community_net_ref_v1' in coalesce(v_c,'')) = 0 and md5(v_c) is distinct from '2c2baa01ecf07abf1e1511f3cb951d3b' then
     raise exception 'add_contribution drift (md5 %); independent review required, nothing changed', md5(v_c) using errcode = 'P0001'; end if;
+  if position('community_net_ref_v1' in coalesce(v_t,'')) = 0 and md5(v_t) is distinct from '96af69da3d9d8b1b82113248b09e97fa' then
+    raise exception 'toggle_contribution_reaction drift (md5 %); independent review required, nothing changed', md5(v_t) using errcode = 'P0001'; end if;
 end
 $migration$;
 
@@ -37,8 +46,10 @@ insert into public.community_net_key(singleton, key)
   on conflict (singleton) do nothing;
 create table if not exists public.community_net_settings (
   singleton boolean primary key default true check (singleton),
+  permanent_enabled boolean not null default false,
   permanent_approver_user_id uuid,
   updated_at timestamptz not null default now());
+alter table public.community_net_settings add column if not exists permanent_enabled boolean not null default false;
 insert into public.community_net_settings(singleton) values (true) on conflict (singleton) do nothing;
 create table if not exists public.community_net_blocks (
   id uuid primary key default gen_random_uuid(),
@@ -72,6 +83,16 @@ revoke all on public.community_net_key, public.community_net_settings, public.co
 alter table public.community_guest_posts add column if not exists net_ref text;
 
 -- 2. internal helpers (not callable by clients)
+create or replace function public.community_trusted_client_ip_v1() returns text
+language plpgsql stable set search_path to 'public', 'pg_temp' as $f$
+declare v_h jsonb; v_ip text;
+begin
+  begin v_h := nullif(current_setting('request.headers', true), '')::jsonb; exception when others then return null; end;
+  v_ip := nullif(btrim(coalesce(v_h->>'cf-connecting-ip', '')), '');
+  if v_ip is null then return null; end if;
+  begin perform v_ip::inet; exception when others then return null; end;
+  return v_ip;
+end $f$;
 create or replace function public.community_net_ref_v1(p_ip text) returns text
 language plpgsql stable security definer set search_path to 'public', 'pg_temp' as $f$
 declare v_norm text; v_key bytea;
@@ -90,7 +111,7 @@ language sql stable security definer set search_path to 'public', 'pg_temp' as $
   select p_ref is not null and exists (select 1 from public.community_net_blocks b
     where b.net_ref = p_ref and b.lifted_at is null and (b.expires_at is null or b.expires_at > now()))
 $f$;
-revoke all on function public.community_net_ref_v1(text), public.community_net_blocked_v1(text) from public, anon, authenticated;
+revoke all on function public.community_net_ref_v1(text), public.community_net_blocked_v1(text), public.community_trusted_client_ip_v1() from public, anon, authenticated;
 
 -- 3. the two guest write routes: anchored patches (the address becomes a hash at once; the block is checked before any log write)
 do $migration$
@@ -99,8 +120,8 @@ declare
   g1 constant text := $a$  -- Fail closed: without an address the limits cannot be enforced.
   if v_ip is null then raise exception 'rate_limited'; end if;
 $a$;
-  g1n constant text := $a$  -- Community network protection (26.11.2026): from here v_ip is a keyed hash of the coarse network, never the raw address.
-  v_ip := public.community_net_ref_v1(v_ip);
+  g1n constant text := $a$  -- Community network protection (26.11.2026): from here v_ip is a keyed hash of the coarse network taken ONLY from cf-connecting-ip, never the raw address.
+  v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
   -- Fail closed: without an address the limits cannot be enforced.
   if v_ip is null then raise exception 'rate_limited'; end if;
   if public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
@@ -114,9 +135,15 @@ $a$;
 $a$;
   c1n constant text := $a$    v_ip := nullif(btrim(v_ip), '');
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
-    v_ip := public.community_net_ref_v1(v_ip);
+    v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
     if v_ip is not null and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
     if v_ip is not null then
+$a$;
+  t1 constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
+$a$;
+  t1n constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
+  -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
+  if auth.uid() is null and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
 $a$;
 begin
   v_def := pg_get_functiondef('public.add_guest_community_message(text,uuid,text,text)'::regprocedure);
@@ -131,11 +158,17 @@ begin
       raise exception 'add_contribution anchor is not exactly once; refusing' using errcode = 'P0001'; end if;
     execute replace(v_def, c1, c1n);
   end if;
+  v_def := pg_get_functiondef('public.toggle_contribution_reaction(uuid,text,text)'::regprocedure);
+  if position('community_net_ref_v1' in v_def) = 0 then
+    if (length(v_def) - length(replace(v_def, t1, ''))) / length(t1) <> 1 then
+      raise exception 'toggle_contribution_reaction anchor is not exactly once; refusing' using errcode = 'P0001'; end if;
+    execute replace(v_def, t1, t1n);
+  end if;
 end
 $migration$;
 
 -- 4. staff API (authenticated; moderators and admins only; nothing returns an address or a network reference)
-create or replace function public.community_guest_block_from_message_v1(p_message_id uuid, p_duration text, p_reason text, p_hide boolean default true)
+create or replace function public.community_guest_block_from_message_v1(p_message_id uuid, p_duration text, p_reason text)
 returns uuid language plpgsql security definer set search_path to 'public', 'pg_temp' as $f$
 declare v_uid uuid := auth.uid(); v_ref text; v_id uuid; v_recent int; v_exp timestamptz; v_reason text := btrim(coalesce(p_reason, ''));
 begin
@@ -155,11 +188,6 @@ begin
   insert into public.community_net_blocks(net_ref, duration_kind, created_by, reason, expires_at, source_message_id)
     values (v_ref, p_duration, v_uid, v_reason, v_exp, p_message_id) returning id into v_id;
   insert into public.community_net_block_events(actor, action, block_id, message_id, reason) values (v_uid, 'block_created', v_id, p_message_id, v_reason);
-  if coalesce(p_hide, true) then
-    update public.research_contributions set status = 'hidden', updated_at = now() where id = p_message_id and status = 'approved';
-    update public.community_guest_posts set reviewed_at = now(), reviewed_by = v_uid where contribution_id = p_message_id;
-    insert into public.community_net_block_events(actor, action, block_id, message_id, reason) values (v_uid, 'message_hidden', v_id, p_message_id, v_reason);
-  end if;
   return v_id;
 end $f$;
 create or replace function public.community_guest_hide_v1(p_message_id uuid, p_reason text) returns void
@@ -188,6 +216,7 @@ language plpgsql security definer set search_path to 'public', 'pg_temp' as $f$
 declare v_uid uuid := auth.uid(); v_reason text := btrim(coalesce(p_reason, ''));
 begin
   if v_uid is null or not public.community_can_moderate_guests() then raise exception 'not authorized'; end if;
+  if not coalesce((select permanent_enabled from public.community_net_settings where singleton), false) then raise exception 'permanent_disabled'; end if;
   if char_length(v_reason) < 10 or char_length(v_reason) > 300 then raise exception 'reason_required'; end if;
   update public.community_net_blocks set permanent_requested_at = now(), permanent_requested_by = v_uid, permanent_request_reason = v_reason
     where id = p_block_id and lifted_at is null and duration_kind <> 'permanent' and permanent_requested_at is null;
@@ -199,12 +228,23 @@ language plpgsql security definer set search_path to 'public', 'pg_temp' as $f$
 declare v_uid uuid := auth.uid(); v_reason text := btrim(coalesce(p_reason, ''));
 begin
   if v_uid is null or v_uid is distinct from (select permanent_approver_user_id from public.community_net_settings where singleton) then raise exception 'not authorized'; end if;
+  if not coalesce((select permanent_enabled from public.community_net_settings where singleton), false) then raise exception 'permanent_disabled'; end if;
   if char_length(v_reason) < 10 or char_length(v_reason) > 300 then raise exception 'reason_required'; end if;
   update public.community_net_blocks set duration_kind = 'permanent', expires_at = null, permanent_approved_at = now(), permanent_approved_by = v_uid
     where id = p_block_id and lifted_at is null and permanent_requested_at is not null and duration_kind <> 'permanent' and (expires_at is null or expires_at > now());
   if not found then raise exception 'not_found'; end if;
   insert into public.community_net_block_events(actor, action, block_id, reason) values (v_uid, 'permanent_approved', p_block_id, v_reason);
 end $f$;
+create or replace function public.community_guest_recent_v1(p_limit integer default 30)
+returns table(id uuid, created_at timestamptz, author_name text, body text, status text, reviewed boolean, can_block boolean, network_blocked boolean)
+language sql stable security definer set search_path to 'public', 'pg_temp' as $f$
+  select r.id, g.created_at, r.author_name, left(r.body, 400), r.status, g.reviewed_at is not null,
+         g.net_ref is not null, public.community_net_blocked_v1(g.net_ref)
+    from public.community_guest_posts g join public.research_contributions r on r.id = g.contribution_id
+   where public.community_can_moderate_guests() and r.deleted_at is null and g.created_at > now() - interval '14 days'
+   order by g.created_at desc
+   limit least(greatest(coalesce(p_limit, 30), 1), 100)
+$f$;
 create or replace function public.community_net_blocks_list_v1(p_include_ended boolean default false, p_limit integer default 50)
 returns table(id uuid, state text, duration_kind text, created_at timestamptz, expires_at timestamptz, reason text, created_by_name text, source_message_id uuid,
               linked_messages integer, permanent_requested boolean, lifted_at timestamptz, lifted_by_name text, lift_reason text)
@@ -225,7 +265,7 @@ language sql stable security definer set search_path to 'public', 'pg_temp' as $
    order by b.created_at desc
    limit least(greatest(coalesce(p_limit, 50), 1), 200)
 $f$;
-revoke all on function public.community_guest_block_from_message_v1(uuid,text,text,boolean), public.community_guest_hide_v1(uuid,text), public.community_net_block_lift_v1(uuid,text),
-  public.community_net_block_request_permanent_v1(uuid,text), public.community_net_block_approve_permanent_v1(uuid,text), public.community_net_blocks_list_v1(boolean,integer) from public, anon;
-grant execute on function public.community_guest_block_from_message_v1(uuid,text,text,boolean), public.community_guest_hide_v1(uuid,text), public.community_net_block_lift_v1(uuid,text),
-  public.community_net_block_request_permanent_v1(uuid,text), public.community_net_block_approve_permanent_v1(uuid,text), public.community_net_blocks_list_v1(boolean,integer) to authenticated;
+revoke all on function public.community_guest_block_from_message_v1(uuid,text,text), public.community_guest_hide_v1(uuid,text), public.community_net_block_lift_v1(uuid,text),
+  public.community_net_block_request_permanent_v1(uuid,text), public.community_net_block_approve_permanent_v1(uuid,text), public.community_net_blocks_list_v1(boolean,integer), public.community_guest_recent_v1(integer) from public, anon;
+grant execute on function public.community_guest_block_from_message_v1(uuid,text,text), public.community_guest_hide_v1(uuid,text), public.community_net_block_lift_v1(uuid,text),
+  public.community_net_block_request_permanent_v1(uuid,text), public.community_net_block_approve_permanent_v1(uuid,text), public.community_net_blocks_list_v1(boolean,integer), public.community_guest_recent_v1(integer) to authenticated;

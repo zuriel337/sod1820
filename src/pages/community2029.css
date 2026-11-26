@@ -1107,3 +1107,12 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
     max-width:100%;
   }
 }
+
+/* Staff network-block panel (moderators only; layout only, buttons and check rows come from the Royal family). */
+.sod29-community-netblocks-body{display:grid;gap:12px}
+.sod29-community-netblocks-body h3{margin:8px 0 0;font-size:1rem}
+.sod29-community-netblocks-body ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.sod29-community-netblocks-form{display:grid;gap:10px;margin-block-start:8px;padding-block-start:8px;border-block-start:1px solid var(--s29-line-strong)}
+.sod29-community-netblocks-reason{display:grid;gap:6px}
+.sod29-community-netblocks-reason textarea{inline-size:100%;min-block-size:64px;resize:vertical;border:1px solid var(--s29-line-strong);border-radius:6px;padding:10px;background:var(--community-input);color:var(--s29-ink)}
+.sod29-community-netblocks-buttons{display:flex;flex-wrap:wrap;gap:8px}

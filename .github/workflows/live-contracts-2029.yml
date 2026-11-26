@@ -323,7 +323,7 @@ jobs:
           PG_BIN=/usr/lib/postgresql/17/bin
           "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
           PG_BIN="$PG_BIN" bash test/community-net-blocks-20261126-realpg.sh
-          node --test src/lib/community/communityNetBlocksApi.test.js src/lib/community/communityGuestApi.test.js
+          node --test src/lib/community/communityNetBlocksApi.test.js src/lib/community/communityGuestApi.test.js test/community-net-blocks-panel-2029.test.mjs
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)

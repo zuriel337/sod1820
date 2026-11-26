@@ -19,7 +19,13 @@ const ERRORS = {
   too_many_blocks: "בוצעו הרבה חסימות בשעה האחרונה. נסו שוב מאוחר יותר.",
   bad_duration: "משך החסימה אינו תקין.",
   not_found: "החסימה לא נמצאה או שכבר הסתיימה.",
+  permanent_disabled: "חסימה לצמיתות מושבתת עד לאישור הבעלים.",
 };
+// The RPCs exist only after the SQL is approved and applied; until then the panel stays out of the page instead of showing errors.
+export function netBlocksUnavailable(error) {
+  const text = `${error?.code || ""} ${error?.message || ""} ${error?.details || ""}`;
+  return /PGRST202|42883|Could not find the function|does not exist|schema cache|not authorized|permission denied|404/i.test(text);
+}
 export function netBlockErrorMessage(error) {
   const text = `${error?.message || ""} ${error?.details || ""}`;
   for (const [code, message] of Object.entries(ERRORS)) if (text.includes(code) || text.includes(code.replace("_", " "))) return message;
@@ -30,8 +36,9 @@ export function cleanNetBlockReason(value) {
 }
 export const netBlockReasonValid = value => cleanNetBlockReason(value).length >= NET_BLOCK_REASON_MIN;
 const call = async (client, name, args) => { const { data, error } = await client.rpc(name, args); if (error) throw error; return data; };
-export const blockGuestFromMessage = ({ messageId, duration, reason, hide = true }, client = supabase) =>
-  call(client, "community_guest_block_from_message_v1", { p_message_id: messageId, p_duration: duration, p_reason: cleanNetBlockReason(reason), p_hide: hide !== false });
+// Blocking a network and hiding a message are two separate actions: this call never hides anything.
+export const blockGuestFromMessage = ({ messageId, duration, reason }, client = supabase) =>
+  call(client, "community_guest_block_from_message_v1", { p_message_id: messageId, p_duration: duration, p_reason: cleanNetBlockReason(reason) });
 export const hideGuestMessage = ({ messageId, reason }, client = supabase) =>
   call(client, "community_guest_hide_v1", { p_message_id: messageId, p_reason: cleanNetBlockReason(reason) });
 export const liftNetBlock = ({ blockId, reason }, client = supabase) =>
@@ -46,5 +53,13 @@ export async function fetchNetBlocks({ includeEnded = false, limit = 50 } = {}, 
     id: row.id, state: row.state, duration: row.duration_kind, createdAt: row.created_at || null, expiresAt: row.expires_at || null,
     reason: typeof row.reason === "string" ? row.reason : "", by: row.created_by_name || "", linkedMessages: Number(row.linked_messages) || 0,
     permanentRequested: row.permanent_requested === true, liftedAt: row.lifted_at || null, liftedBy: row.lifted_by_name || "", liftReason: row.lift_reason || "",
+  }));
+}
+export async function fetchRecentGuestMessages({ limit = 30 } = {}, client = supabase) {
+  const data = await call(client, "community_guest_recent_v1", { p_limit: limit });
+  return (Array.isArray(data) ? data : []).filter(row => typeof row?.id === "string").map(row => ({
+    id: row.id, createdAt: row.created_at || null, authorName: typeof row.author_name === "string" && row.author_name.trim() ? row.author_name.trim() : "אורח",
+    body: typeof row.body === "string" ? row.body : "", status: row.status || "", reviewed: row.reviewed === true,
+    canBlock: row.can_block === true, networkBlocked: row.network_blocked === true,
   }));
 }
