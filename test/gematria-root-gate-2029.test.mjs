@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { extractPostGematriaClaims, claimsFromUnitItems, rootGateFindings } from "../scripts/lib/gematriaRootGate2029.mjs";
+import { extractPostGematriaClaims, claimsFromUnitItems, rootGateFindings } from "../src/lib/research/gematriaRootGate2029.js";
 
 // gematria_auto_registry_law v2 (GEMATRIA ROOT GATE): a gematria that lives only inside a Post body is a finding.
 const METHODS = [

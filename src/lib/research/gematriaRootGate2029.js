@@ -3,6 +3,7 @@
 // engine computed for that method. A claim that exists only inside a Post body is a finding. This module only DETECTS; it never writes and never calculates:
 // values are the engine's, read from the root row's own method column (gematria_methods.db_column). The same rule runs live as
 // docs/reviews/discovery-center-20261126/db/E1-gematria-root-gate-check.sql (read only).
+// COVERAGE LIMIT (ZURIEL review 26.11.2026): it sees only claims written as the "phrase / method / result" blocks that the unit publish path emits (and unit items). It does NOT scan free text, comments, books, ciphers or other sources, and it does not prove the law is enforced across the whole site.
 const squash = (value) => String(value ?? "").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 export const normalizePhrase = (value) => squash(value).toLowerCase();
 
