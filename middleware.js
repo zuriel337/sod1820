@@ -5,7 +5,7 @@ import coreMiddleware, { SUPABASE_ANON_KEY } from './middleware-core.js';
 export const config = {
   matcher: [
     '/((?!api/|assets/|.*\\.).*)',
-    '/(.*)\\.[pP][hH][pP]',
+    '/(.*\\.php)',
     '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
     '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
   ],

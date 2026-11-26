@@ -20,8 +20,30 @@ const LEGIT = ["/", "/world", "/post", "/post/some-slug", "/number/1820", "/comm
   "/wp-content/uploads/2020/05/photo.jpg", "/assets/index-abc.js", "/favicon.ico", "/robots.txt", "/sitemap.xml", "/og.png", "/.well-known/security.txt",
   "/.envelope", "/2029/control", "/phpmyadmin-fan-page-not-real-but-ok".replace("phpmyadmin-", "x-"), "/vendors", "/wp-contents"];
 
+// Vercel compiles each matcher source with path-to-regexp (6.x): ONLY the text inside ( ) is a regular expression; everything outside a group
+// (including [ ] ? + *) is a LITERAL, and the result is case-insensitive and ends with an optional / # ?. A plain RegExp would hide a source such as
+// '/(.*)\\.[pP][hH][pP]' that compiles to the literal text "[pP][hH][pP]" on Vercel (found in the protected Preview of 26.11.2026: /wp-login.php was
+// not covered). This helper mirrors those rules for the sources used here; a ":param" or a regex token outside a group is a test failure.
+function compileMatcher(source) {
+  let out = "";
+  for (let i = 0; i < source.length; i += 1) {
+    const ch = source[i];
+    if (ch === "\\") { out += "\\" + source[i + 1]; i += 1; continue; }
+    if (ch === "(") {
+      let depth = 1; let j = i + 1;
+      for (; j < source.length && depth > 0; j += 1) {
+        if (source[j] === "\\") { j += 1; continue; }
+        if (source[j] === "(") depth += 1; else if (source[j] === ")") depth -= 1;
+      }
+      out += "(?:" + source.slice(i, j) + ")"; i = j - 1; continue;
+    }
+    assert.ok(!/[\[\]?+*:{}|^$]/.test(ch), `matcher source ${source} has a regex or parameter token outside a group (${ch}); Vercel treats it as literal text`);
+    out += ch.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
+  }
+  return new RegExp("^" + out + "[\\/#\\?]?$", "i");
+}
 function matcherCoversPath(config, path) {
-  return config.matcher.some((source) => new RegExp("^" + source + "$").test(path));
+  return config.matcher.some((source) => compileMatcher(source).test(path));
 }
 
 test("probe shapes are recognised, ordinary addresses and every known route are not", () => {
