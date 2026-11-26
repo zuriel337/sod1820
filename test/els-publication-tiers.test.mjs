@@ -44,3 +44,11 @@ test('isolated PostgreSQL proof: private never readable, page tier, library requ
   assert.equal(run.status, 0, run.stderr + run.stdout.slice(-800));
   assert.match(run.stdout, /els-publication-tiers SQL: ok/);
 });
+
+test('deploy-order safety: the two new client RPCs degrade when the SQL is not applied yet (request_els_library_review, els_my_strong_ciphers)', () => {
+  const lib = read('src/lib/elsMatrices.js');
+  assert.match(lib, /request_els_library_review[\s\S]{0,260}PGRST202/);
+  assert.match(lib, /els_my_strong_ciphers[\s\S]{0,260}PGRST202/);
+  const manifest = JSON.parse(read('supabase/proposed/APPLY-BEFORE-DEPLOY.json'));
+  for (const rpc of ['request_els_library_review', 'els_my_strong_ciphers']) assert.ok(manifest.apply_before_deploy.some(e => e.rpc === rpc && e.sql.includes('els-publication-tiers-20261126')), rpc);
+});
