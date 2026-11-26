@@ -5,6 +5,10 @@ name: Site Check
 # A member (write) suite is NOT in this file: it needs an environment with a required reviewer and a protected secret, set up by ZURIEL.
 
 on:
+  # TEMPORARY (remove before merge): lets this branch prove the runner on a real runner, because a dispatchable workflow must exist on main first.
+  push:
+    branches: [claude/biblical-cipher-audit-zspg77]
+    paths: [scripts/site-check.mjs, .github/workflows/site-check.yml]
   workflow_dispatch:
     inputs:
       url:
