@@ -101,12 +101,14 @@ function passiveJournals({ storage, key, principal, now = Date.now() }) {
     try { record = JSON.parse(storage.getItem(name)); } catch { continue; }
     if (record?.principal !== principal || !Array.isArray(record.queue) || record.inflight) continue;
     const owner = record.owner;
-    if (!owner || typeof owner !== 'object') continue;
-    if (owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
+    // A journal with NO owner was written by the oldest runtime, which created one on every page load and never removed it. No current runtime writes an
+    // ownerless journal, so it is abandoned; it is still removed only on an explicit, confirmed reclaim, only when it holds nothing but navigation history/Context.
+    const ownerless = !owner || typeof owner !== 'object';
+    if (!ownerless && owner.released !== true && !(Number.isFinite(owner.at) && now - owner.at > STALE_MS)) continue;
     if (!record.queue.every(batch => Array.isArray(batch?.ops) && batch.ops.every(op => PASSIVE_KINDS.has(op?.kind)))) continue;
     const raw = storage.getItem(name);
     if (raw == null || JSON.stringify(record) !== raw) continue;
-    out.push({ name, raw, bytes: name.length + raw.length, at: Number.isFinite(owner.at) ? owner.at : 0, record });
+    out.push({ name, raw, bytes: name.length + raw.length, at: !ownerless && Number.isFinite(owner.at) ? owner.at : 0, record });
   }
   return out;
 }
