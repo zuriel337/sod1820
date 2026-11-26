@@ -67,3 +67,9 @@ test("the writers tile says what it counts: writers with a public profile and pu
   assert.equal(tile.value, 15);
   assert.equal(tile.label, "כותבים בפרופיל ציבורי עם חומר");
 });
+
+test("the ciphers tile is titled by what it counts: the central library", () => {
+  const tile = discoveryTotals({ ciphers_public: 116 }).find(row => row.key === "ciphers");
+  assert.equal(tile.value, 116);
+  assert.equal(tile.label, "צפנים בספרייה");
+});
