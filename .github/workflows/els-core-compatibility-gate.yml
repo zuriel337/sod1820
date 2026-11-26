@@ -58,6 +58,8 @@ on:
       - 'test/els-search-parity-repairs.test.mjs'
       - 'test/els-*.test.mjs'
       - 'docs/els-capability-register.json'
+      - 'supabase/proposed/els-private-guarantee-20261126/**'
+      - 'scripts/run-els-private-guarantee-sql-test.sh'
       - 'docs/els-capability-audit.md'
       - 'test/helpers/els-matrix-reading*.mjs'
       - 'test/fixtures/els-matrix-reading*.sql'
@@ -108,6 +110,9 @@ jobs:
 
       - name: ELS capability register (85 rows - owners still exist, counts match the audit, no dead button or silent engine entry point, no live claim without proof)
         run: node --test test/els-capability-register.test.mjs
+
+      - name: ELS private guarantee (policy and function proposal, isolated PostgreSQL proof; nothing is applied)
+        run: node --test test/els-private-guarantee.test.mjs
 
       - name: Deterministic template -> public/tzofen.html build sync
         run: |

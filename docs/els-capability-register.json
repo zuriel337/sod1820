@@ -2635,7 +2635,8 @@
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
     "docs/els-f3-f4-privacy-handoff.md",
-    "CLAUDE.md Open Index Law §1"
+    "CLAUDE.md Open Index Law §1",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2657,7 +2658,8 @@
    "tests": [
     "test/els-browser-truth-census.test.mjs",
     "test/els-native-ui-browser.test.mjs",
-    "test/els-save-panel-lifecycle.test.mjs"
+    "test/els-save-panel-lifecycle.test.mjs",
+    "test/els-private-guarantee.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2679,7 +2681,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2716,7 +2719,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2732,7 +2736,8 @@
    ],
    "tests": [
     "test/els-native-ui-browser.test.mjs",
-    "test/els-verify-batch.test.mjs"
+    "test/els-verify-batch.test.mjs",
+    "test/els-private-guarantee.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2820,7 +2825,8 @@
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
     "docs/els-f3-f4-privacy-handoff.md",
-    "CLAUDE.md Open Index Law §1"
+    "CLAUDE.md Open Index Law §1",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2833,7 +2839,8 @@
     "host-bridge:TzofenEmbed"
    ],
    "tests": [
-    "test/els-saved-cipher-owner-actions.test.mjs"
+    "test/els-saved-cipher-owner-actions.test.mjs",
+    "test/els-private-guarantee.test.mjs"
    ],
    "proof": {
     "code": true,
@@ -2844,7 +2851,8 @@
    "detected_by": [
     "REGISTER_GUARD",
     "TELEMETRY_UI_ACTION"
-   ]
+   ],
+   "note": "Private-guarantee fix proposed 26.11.2026 (not applied): the RLS policy public_read_self_published_els ignores visibility, so a private row with self_published=true is publicly readable (1 live row)."
   },
   {
    "id": "G07",
@@ -2854,7 +2862,8 @@
    "contracts": [
     "els_single_engine_law@2",
     "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
-    "docs/els-f3-f4-privacy-handoff.md"
+    "docs/els-f3-f4-privacy-handoff.md",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {
@@ -2960,7 +2969,8 @@
    "disposition": "UNREACHABLE",
    "contracts": [
     "els_single_engine_law@2",
-    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "audits/els_lifecycle_reconciliation/ELS_LIFECYCLE_CONTRACT_DECISION_PACK.md (addendum 26.11.2026: private always guarantees privacy)"
    ],
    "owner": [
     {

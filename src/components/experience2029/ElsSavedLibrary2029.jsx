@@ -51,6 +51,7 @@ const OWNER_ERRORS = {
   not_owner: "אפשר לנהל רק צפנים שאתם שמרתם.",
   not_authenticated: "נדרשת התחברות לחשבון.",
   not_found: "הצופן כבר לא קיים.",
+  withheld: "הצופן הוסתר או הועבר לארכיון ואי אפשר לפרסם אותו כאן.",
   invalid_title: "כתבו שם של עד 160 תווים.",
 };
 
@@ -90,7 +91,7 @@ function CipherOwnerActions({ row, onChanged }) {
       <button type="submit" className="sod29-action primary" disabled={busy || !title.trim()}>{busy ? "שומר…" : "שמור שם"}</button>
     </form> : null}
     {mode === "publish" ? <div className="els29-library-owner-form" role="group" aria-label="אישור הצגה בתיק הציבורי">
-      <p>הצגה בתיק הציבורי תאפשר לכל מבקר לראות את הצופן, את ההסבר ואת הממצאים שלו. אפשר להסיר אותו משם בכל עת.</p>
+      <p>זו פעולת פרסום: הצגה בתיק הציבורי תאפשר לכל מבקר לראות את הצופן, את ההסבר ואת הממצאים שלו. הצופן אינו הופך לממצא מאושר, ואפשר להסיר אותו משם בכל עת.</p>
       <button type="button" className="sod29-action primary" disabled={busy} onClick={() => run(() => selfPublishMatrix(row.id, true), "הצופן מוצג בתיק הציבורי שלך.")}>הצג בתיק הציבורי</button>
       <button type="button" className="sod29-action" disabled={busy} onClick={() => setMode(null)}>ביטול</button>
     </div> : null}

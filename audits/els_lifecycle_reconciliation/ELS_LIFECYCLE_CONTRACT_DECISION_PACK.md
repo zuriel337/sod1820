@@ -65,3 +65,19 @@ The first implementation should scope around the legacy semantics safely.
 ## HUMAN-GATE DECISION REQUIRED
 
 ZURIEL to approve/reject this semantic contract before `moderate_els_matrix -> decision_ledger` wiring is implemented.
+
+## ADDENDUM 2026-11-26 — private always guarantees privacy (ZURIEL recommendation; proposal, not applied)
+
+Status: recommendation by ZURIEL, with the exact SQL and tests prepared on branch `claude/biblical-cipher-audit-zspg77`; **not applied to the database and not yet Human-Gate approved.**
+
+FACT (read-only, live 26.11.2026): the pack's section C (`self_published=true` exposes a row publicly "under the existing legacy behavior") is implemented by the RLS policy `public_read_self_published_els USING (self_published = true)`, which does **not** look at `visibility`. One private draft (`אליהו`, `status=draft, visibility=private, self_published=true`) is readable by an anonymous reader. The 116 public ciphers are `status=published AND visibility=public` (103 of them also carry the flag); no row is `hidden`+flag, so no existing public cipher depends on the flag alone.
+
+Amended rules (they refine A–C, nothing else changes):
+1. `visibility='private'` is readable only by its owner and administrators. No flag overrides it.
+2. `self_published` stays the owner's public-file projection flag, readable only together with `visibility='public'`.
+3. "Show in the public file" (`self_publish_matrix`, the existing action; no second publication mechanism) is an explicit publication: it passes the same canonical replay gate as a public save, moves the access state (`visibility → public`), turns a `draft` into `pending` (awaiting moderation) and never sets `published`. Withdrawal returns an owner-published record to `private`/`draft`.
+4. An approved public cipher (`published` + `public`) keeps its library access when the owner clears the flag.
+5. Nothing here is a canonical finding, a `decision_ledger` entry or a Human-Gate decision (section D–E unchanged).
+6. Withheld (`hidden`) and archived records are not republished by their owner.
+
+Prepared, not applied: `supabase/proposed/els-private-guarantee-20261126/{apply,rollback,optional-data-fix-one-row}.sql`. Tests: `test/els-private-guarantee.test.mjs` (static contract + isolated PostgreSQL proof via `scripts/run-els-private-guarantee-sql-test.sh`). Any database change needs a separate exact approval.
