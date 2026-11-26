@@ -529,3 +529,45 @@ None of the above is authorized for implementation by this closure. This section
 No code was changed, no schema was changed, no migration was drafted or applied, no engine/UI/DB behavior changed, `findAtSkips` was not implemented, the Journey branch was not merged, `MatrixStack3D` was not merged, no capability was promoted to `research_objects`, and no capability was retired. This is a documentation/state-reconciliation closure at the Foundation level only.
 
 **Provenance:** `work_log actor=CLAUDE task=ELS_85_CAPABILITY_LIVE_RECONCILIATION` (READ-ONLY pass, 2026-09-01) → `task=ELS_85_CAPABILITY_CANONICAL_CLOSURE` (this closure, docs-only, 2026-09-01). Cross-referenced against `docs/els-capability-workarea-unification.md` (disposition vocabulary, unchanged) and `SOD1820_MASTER_ROADMAP.md` `WS-ELS-CAPABILITY-AUDIT` / `SOD1820_MASTER_STATE.md` §23.24.
+
+---
+
+## 13. LIVE RECONCILIATION — 2026-11-26 (`ELS_85_CAPABILITY_RECONCILIATION_20261126`, actor=CLAUDE, Human-Gate ZURIEL)
+
+**סטטוס:** תוספת בלבד. §1–§12 נשמרים כפי שהם (`everything_additive_law` / NO-DISAPPEARING-CAPABILITY). סעיף זה מחליף רק את עמודת הסטטוס של 85 השורות. כל ה־ID וההגדרות לא שונו. נבדק מול `origin/main` `ce408e5a3`, המסד `linswmnnkjxvweumprav` (קריאה בלבד) ו־Vercel (alias `sod1820.co.il` → `dpl_ArHySsTQxH8Q6jbLLE9qhmujyCz1`, מקור `463bdc177`; ההפרש ל־main הוא קומיט World אחד שאינו נוגע בצופן).
+
+**מה לא נבדק:** האתר החי עצמו לא נבדק בדפדפן (הדומיין חסום מסביבת הסשן ואישור לשינוי רשת לא ניתן); לא נעשתה שמירה אמיתית בייצור; לא נעשתה בדיקה על מכשיר נייד אמיתי. בדיקות הדפדפן שרצו הן אמולציה מקומית מול fixture.
+
+### 13.1 ממצא מבני: ממשק הקלאסי של המנוע אינו נגיש
+`ElsNativeClassic2029.jsx` מעלה את ה־iframe עם `engineOnly={!classicOpen}`, וכל קריאת `setClassicOpen(...)` בקוד מעבירה `false` (נבדק ב־grep). `/tzofen.html` מנותב ל־`/code`. לכן פונקציית מנוע שנקראת רק מלחצני ה־DOM הקלאסיים אינה נגישה, גם אם קיימת בקוד. §12 ספר אותן כ־LIVE; כאן הן מסומנות **UNREACHABLE (BROKEN)** אלא אם יש מקבילה מקורית ב־2029. הכלל הוא סיווג של הסשן הזה ודורש אישור צוריאל: לפי הכלל "קיימת הגדרה = LIVE" הספירה חוזרת ל־68 LIVE. `ElsWorkAreaPage.jsx` הוסר עם פרישת Legacy. `public/tzofen.html` מסונכרן עם התבנית.
+
+### 13.2 ספירה (סכום 85)
+LIVE/ABSORBED 45 · PARTIAL 6 · PARKED 5 · SUPERSEDED 4 · NEVER 1 · UNKNOWN 1 · UNREACHABLE 23.
+
+### 13.3 שינויים לעומת §12.1
+- **שיפור:** A17 (UNKNOWN→LIVE: `nativeFindingControl`), B19 (PARTIAL→LIVE: `lineContextCells`), C02 (PARKED→LIVE בפרופיל מחקר: `buildJourneyPromotion`; חסימה בבנייה ציבורית לא נבדקה), B12 (PARKED→PARTIAL: חיפוש טווח דילוגים ודילוג מדויק חיים; רשימת דילוגים שרירותית לא).
+- **LIVE→PARTIAL:** A25 (כרטיס שיתוף נבנה בשמירה, אין הורדת PNG מקורית), B06 (שני צירים + שלישי; N מונחים רק בקלאסי), E04 (כוכבים בהצלבה בלבד; `st.lastQuality` ריק בשמירה מקורית).
+- **LIVE→SUPERSEDED:** A07, A08, A09 (ערכות הנושא של 2029 מחליפות; שמות לא נבדקו), F04 (שקילות לא נבדקה).
+- **LIVE→UNKNOWN:** D03.
+- **LIVE→UNREACHABLE (23):** A20, B07, B08, B09, B11, B15, B16, E02, E05, E06, E08, E09, E10, F01, F02, F05, F06, F07, G04, G05, G08, G09, G10.
+- **נשארו LIVE במנגנון אחר:** A14, A21, A22, A26, D04, F03, F08.
+- **ללא שינוי:** PARTIAL C03, G02; PARKED B13, B14, B18, C04, C05; NEVER B20; שאר A/B/C/D/E/G שסומנו LIVE ב־§12 ונשארו (A01–A06, A10–A13, A15, A16, A18, A19, A23, A24, B01–B05, B10, B17, C01, D01, D02, D05, D06, E01, E03, E07, G01, G03, G06, G07).
+
+### 13.4 GAP-8 (טרי)
+`findAtSkips` (:1532), `buildComments` (:5777), `qualityForMatrix` (:6029), `removeFromGallery` (:1711): הגדרה אחת וללא קריאה.
+
+### 13.5 יכולות חדשות שאינן ב־85 (רשימה בלבד, לא נוספו לרישום)
+בדיקת דילוג מדויק; חיפוש טווח דילוגים בשרת (`els-search-bridge`); תכנית מחקר אוטומטית וסורק אדפטיבי; גילוי משותף; בדיקת מבנה; גילוי שמור ולקסיקון; מטריצה מקופלת ומפוצלת; ציר שלישי; קריאת מטריצה (Fable/Raziel); זהות `occurrence_id`; תמונות חזרה למחקר; בקרות סטטיסטיות (`els2029StatisticalControls.js`, אין חיבור ל־E09/E10).
+
+### 13.6 מה לא אומת בדוח היכולות
+מסלול הלחיצה של A12; שמות ערכות הנושא (A07–A09); C04/C05 לעומק; רמת `research_objects` של C03 (לא נבדקה במסד); שימוש מקורי ב־D03; חיבור הבקרות הסטטיסטיות ל־E09/E10; ממשק מנהל־עריכה של G10 (`ElsModerationTab` אינו מוזכר ב־`src`; משטחי `/2029/control` לא נבדקו); חסימות הבנייה הציבורית (`publicReadingActionsLocked`) נבדקו רק עבור C03. גרף הקריאות היה היוריסטי, וכל "לא נגיש" נבדק גם ב־grep, אך לא כל קורא נקרא במלואו.
+
+### 13.7 P0 — שמירות (נבדק 26.11.2026)
+- **מסד:** `els_records` = 140 שורות (116 ציבוריות, 24 פרטיות, 0 ממתינות). שורות הקהילה האחרונות: 9.9.2026 (כולן של חברים רשומים). השורות האחרונות בכלל: 9.11.2026 (4, מקור מנהל, כולן עם `engine_detail`, ללא `image_url`). קהילה לפי חודש: יולי 27, אוגוסט 76, ספטמבר 9, אוקטובר ואילך 0. RLS: משתמש אנונימי רואה 116 ציבוריות ו־0 פרטיות.
+- **#1492:** גוף `save_els_matrix` בייצור זהה (md5 `8f0fee18…`) ל־`supabase/proposed/community-cipher-publication-20261122/apply.sql`; הוחל כמיגרציה `20261124131241 community_cipher_publication_20261122` באישור צוריאל (יומן 24.11). הטענה ב־#1528 ש"לא הוחל" אינה עדכנית.
+- **12 תווים:** חובת ההסבר היא בקשת צוריאל 20.7.2026 (הערה בשורה 1637 במנוע ורשומת יומן `0f882c2e`). הסף 12 נקבע בביצוע ואינו מופיע בחוזה פעיל (נבדקו `research_workspace_law` v5, `canonical_ui_components_law` v13, `els_single_engine_law` v2). השרת אינו אוכף אורך מינימלי (אין `char_length`); המסלול הציבורי (`transport.js`) מגביל רק מקסימום 4,000. נאכף ב־3 מקומות בלקוח (`ElsSavePanel2029.jsx`, חלון המנוע `MIN=12`, `minLength`). באוגוסט נשמרו 76 צפנים קהילתיים, האורך המינימלי בהם בדיוק 12; לכן הסף אינו הסיבה היחידה לירידה.
+- **מדידה:** טלמטריית ELS קיימת מ־18.11: 87 סשנים, 15 מחוברים (6 חשבונות), 49 חיפשו. אין אירוע של התחלה/אישור/כשל שמירה (`app_health` של #1528 לא הוחל ולא ב־main). לכן היעדר שמירות אינו מובחן מכישלון שקט. ביומני ה־API (24 שעות אחרונות בלבד): 0 קריאות ל־`save_els_matrix`.
+- **חשד שלא הוכח:** העלאת כרטיס הצופן (`uploadCipherCard`, נתיב `gallery/sod1820/ciphers/`) אינה ברשימת ההיתרים של `transport.js` (מתיר רק `gallery/community/`), והיא בולעת שגיאות ומחזירה `null`; כל 4 שורות 9.11 נשמרו ללא תמונה, בעוד שורות ספטמבר עם תמונה. דורש שמירת בדיקה אמיתית כדי להוכיח.
+- **#1470** הוא issue תיאום (לא PR). **#1528** טיוטה ב־`dirty`, לא מוזג, ה־SQL שלו לא הוחל.
+- **ממשק (אמולציה, 390/360/1440):** אין גלישה אופקית; כפתור השמירה 48, קישורים 46, "הוסף למחקר" 44; תיבת "לא לפרסם" 20×20 בשורה של 28 (מתחת ל־44 הנדרש ב־#1470); ב־390 כפתור השמירה נחתך בתחתית הגיליון בכ־17px (מצילום מסך). סף 12 נאכף (11 חסום, 12 מותר, רווחים נחתכים).
+- **כיתוב:** הכפתור "שמירה בענן" → "שמירת צופן" בענף בלבד (קומיט `c29d9b01d`). טקסטי התוצאה "נשמר בענן" לא שונו; ממתין להחלטה.
