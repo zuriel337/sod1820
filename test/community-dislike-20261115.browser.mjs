@@ -41,7 +41,27 @@ for(const width of [390,1280])for(const viewer of ['guest','member']){
    await page.goto(fixture.origin+'/community/chat',{waitUntil:'domcontentloaded'});
    const dislikes=page.getByRole('button',{name:'הוסף דיסלייק',exact:true});
    const likes=page.getByRole('button',{name:'הוסף לייק',exact:true});
-   await dislikes.first().waitFor({timeout:20000});assert.equal(await dislikes.count(),2);
+   // A signed-in page may briefly remount its feed while Auth verifies the principal.
+   // Keep the exact two-buttons assertion, but wait for the complete invariant,
+   // not the first transient button. Never pass on a single missing reaction.
+   try {
+    await page.waitForFunction(() =>
+     document.querySelectorAll('button[aria-label="הוסף דיסלייק"]').length === 2
+     && document.querySelectorAll('button[aria-label="הוסף לייק"]').length === 2,
+     null, { timeout: 20000 });
+   } catch (error) {
+    // Synthetic fixture only. Diagnostics explain missing feed vs locked actions.
+    const evidence = await page.evaluate(() => ({
+     dislikes: document.querySelectorAll('button[aria-label="הוסף דיסלייק"]').length,
+     likes: document.querySelectorAll('button[aria-label="הוסף לייק"]').length,
+     reactionContainers: document.querySelectorAll('.sod29-community-reactions').length,
+     threads: document.querySelectorAll('.sod29-community-thread').length,
+     notices: [...document.querySelectorAll('[role="alert"],[role="status"]')].slice(0,5).map(n => n.textContent?.trim().slice(0,140)),
+    }));
+    throw new Error(`Community reaction controls unavailable after account handoff: ${JSON.stringify({width,viewer,evidence,errors})}`, { cause: error });
+   }
+   assert.equal(await dislikes.count(),2);
+   assert.equal(await likes.count(),2);
    for(let i=0;i<2;i++){
     assert.equal((await dislikes.nth(i).innerText()).trim(),'11');assert.equal((await likes.nth(i).innerText()).trim(),'30');
     assert.equal(await dislikes.nth(i).getAttribute('aria-pressed'),null,'additive counter has no selected/toggled state');
