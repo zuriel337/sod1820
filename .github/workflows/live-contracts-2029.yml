@@ -313,6 +313,17 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs test/old-journey-410-2029.test.mjs
+      # Community network protection (proposal 26.11.2026, nothing applied): the guest write routes with a keyed network reference, staff blocks, expiry, audit and rollback,
+      # on an isolated real PostgreSQL of the live major version; and the staff API client.
+      - name: Real PostgreSQL 17 apply/rollback of the community network-block proposal (isolated) and its API client
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y -qq postgresql-17 >/dev/null
+          # The runner image may also ship a newer major (18); the live database is 17.6, so pin 17 explicitly.
+          PG_BIN=/usr/lib/postgresql/17/bin
+          "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
+          PG_BIN="$PG_BIN" bash test/community-net-blocks-20261126-realpg.sh
+          node --test src/lib/community/communityNetBlocksApi.test.js src/lib/community/communityGuestApi.test.js test/community-net-blocks-panel-2029.test.mjs
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)

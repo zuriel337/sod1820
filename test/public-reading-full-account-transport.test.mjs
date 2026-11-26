@@ -498,6 +498,28 @@ test('community_guest_review admits only the exact approve/hide body, from a ver
  assert.equal((await guest.request(path,{jwt:'',body:{p_id:a,p_action:'hide'}})).status,403);
 });
 
+test('guest-harassment management RPCs: exact bodies from a verified signed-in NON-admin account (a moderator); never anonymous; permanent-block RPCs are never admitted',async()=>{
+ const base='/rest/v1/rpc/';
+ const reason='הטרדה חוזרת של אורח';
+ const good=[['community_guest_recent_v1',{p_limit:30}],['community_net_blocks_list_v1',{p_include_ended:true,p_limit:30}],['community_guest_hide_v1',{p_message_id:a,p_reason:reason}],
+  ['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'d3',p_reason:reason}],['community_net_block_lift_v1',{p_block_id:a,p_reason:reason}]];
+ for(const [name,body] of good){
+  const moderator=worker({role:'user'});
+  assert.equal((await moderator.request(base+name,{body})).status,200,name);
+  const guest=worker();
+  assert.equal((await guest.request(base+name,{jwt:'',body})).status,403,name+' anonymous');
+ }
+ const bad=[['community_guest_recent_v1',{p_limit:0}],['community_guest_recent_v1',{p_limit:30,extra:1}],['community_net_blocks_list_v1',{p_include_ended:'yes',p_limit:30}],
+  ['community_guest_hide_v1',{p_message_id:'x',p_reason:reason}],['community_guest_hide_v1',{p_message_id:a,p_reason:'קצר'}],['community_guest_hide_v1',{p_message_id:a,p_reason:'א'.repeat(301)}],
+  ['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'permanent',p_reason:reason}],['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'d3',p_reason:reason,p_hide:true}],
+  ['community_net_block_lift_v1',{p_block_id:'x',p_reason:reason}],
+  ['community_net_block_request_permanent_v1',{p_block_id:a,p_reason:reason}],['community_net_block_approve_permanent_v1',{p_block_id:a,p_reason:reason}]];
+ for(const [name,body] of bad){
+  const w=worker({role:'user'});
+  assert.equal((await w.request(base+name,{body})).status,403,name+' '+JSON.stringify(body));
+ }
+});
+
 test('community link preview: only the exact public GET is forwarded, without session or key',async()=>{
  const base='/functions/v1/link-preview?url=';
  const good=base+encodeURIComponent('https://example.org/article?id=1');
