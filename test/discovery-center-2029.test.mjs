@@ -19,6 +19,7 @@ test("the feed model keeps credit only as the server sent it and is null when it
     active_writers: [{ slug: "sod1820", display_name: "sod1820", is_site_account: true, gematria: 7 }, { display_name: "" }],
   });
   assert.equal(model.featured.creditSlug, "sali-mor");
+  assert.equal(model.featured.method, "רגיל", "a discovery without a method is the regular one");
   assert.equal(model.latest.length, 1, "an item without a phrase is dropped");
   assert.equal(model.latest[0].creditName, null, "no public writer, no credit");
   assert.equal(model.contributions.length, 1);
@@ -37,4 +38,15 @@ test("the public-reading worker admits the two argument-less readers; the admin 
   assert.ok(PUBLIC_READING_READ_RPCS.includes("discovery_center_feed_v1"));
   assert.ok(PUBLIC_READING_READ_RPCS.includes("discovery_center_stats_v1"));
   assert.ok(!PUBLIC_READING_READ_RPCS.includes("admin_set_home_featured_discovery_v1"));
+});
+
+test("the identity of a discovery is phrase + method + value; a non-regular method keeps its own place and its own value", () => {
+  const model = discoveryModel({
+    featured: { id: "w1", phrase: "תפרצי בתשפז", method: "ריבוע", method_label: "ריבוע", value: 5787, credit_name: "יניב לוי", credit_slug: "yaniv-levi" },
+    featured_with: [{ id: "w2", phrase: "ימין ושמאול תפרצי", method: "מילוי", method_label: "מילוי", value: 2026, credit_name: "יניב לוי", credit_slug: "yaniv-levi" }, { id: "w3", phrase: "א", method: "מסתתר", value: 1 }, { id: "w4", phrase: "ב", method: "רגיל", value: 2 }],
+    latest_discoveries: [{ id: "a", phrase: "רוסיה איראן סין ארהב", method: "מסתתר", method_label: "מסתתר", value: 1237 }],
+  });
+  assert.deepEqual([model.featured.method, model.featured.value], ["ריבוע", 5787]);
+  assert.deepEqual(model.featuredWith.map(d => [d.method, d.value]), [["מילוי", 2026], ["מסתתר", 1]], "at most two beside the featured one");
+  assert.equal(model.latest[0].method, "מסתתר");
 });

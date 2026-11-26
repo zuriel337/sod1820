@@ -75,7 +75,7 @@ test("reader-visible text has no version names, Legacy, old/new system wording, 
 test("the featured-discovery control is for the admin only and never reaches the public", () => {
   const src = fs.readFileSync("src/components/experience2029/DiscoveryCenter2029.jsx", "utf8");
   assert.match(src, /const admin = isAdmin === true && Boolean\(user\?\.id\)/);
-  assert.match(src, /admin && item\.id !== featuredId \? <ChooseFeatured/);
+  assert.match(src, /admin && !\(model\.featured\?\.id === item\.id[^?]*\? <ChooseFeatured/);
   const stats = fs.readFileSync("src/pages/Stats2029Page.jsx", "utf8");
   assert.match(stats, /admin=\{false\}/, "/stats never carries the admin control");
 });

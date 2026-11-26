@@ -20,11 +20,7 @@
 
 .dc29-grid{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch}
 @media (min-width:900px){.dc29-grid{grid-template-columns:1.1fr 1fr}}
-.dc29-areas{grid-template-areas:"f" "l" "w"}
-.dc29-areas>.dc29-featured{grid-area:f}.dc29-areas>.dc29-latest{grid-area:l}.dc29-areas>.dc29-writers{grid-area:w}
-.dc29-areas>.dc29-fill{display:flex;flex-direction:column}
-@media (min-width:900px){.dc29-areas{grid-template-areas:"f l" "w l"}}
-.dc29-auto>:last-child:nth-child(odd){grid-column:1/-1}
+.dc29-one{grid-template-columns:1fr}
 .dc29-col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .dc29-col>.dc29-fill{flex:1 1 auto;display:flex;flex-direction:column}
 .dc29-card,.dc29-featured{min-width:0;padding:14px;border-radius:12px;border:1px solid var(--s29-line);background:var(--s29-panel-soft)}
@@ -56,3 +52,15 @@
 .dc29 a:focus-visible,.dc29 button:focus-visible,.dc29-card a:focus-visible,.dc29-featured a:focus-visible,.dc29-card button:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
 .stats29-block>.dc29-totals,.stats29-block>.dc29-grid{margin-block-end:12px}
 .stats29 .dc29-card h3{margin:0 0 6px;font:600 15px/1.4 var(--s29-font-ui);color:var(--s29-accent-text)}
+
+/* The featured discovery and what stands beside it: cards of one height, the primary first. */
+.dc29-featuredrow{display:grid;grid-template-columns:1fr;gap:12px;align-items:stretch}
+@media (min-width:900px){.dc29-featuredrow[data-count="2"]{grid-template-columns:1.25fr 1fr}.dc29-featuredrow[data-count="3"]{grid-template-columns:1.25fr 1fr 1fr}}
+.dc29-featuredrow>.dc29-featured{display:flex;flex-direction:column}
+.dc29-featuredrow>.dc29-featured .dc29-actions{margin-block-start:auto;padding-block-start:12px}
+.dc29-method{margin:0 0 4px;font:500 14px/1.4 var(--s29-font-ui);color:var(--s29-muted)}
+.dc29-m{font-style:normal;font-weight:400;color:var(--s29-muted);font-size:13px}
+.dc29-admin{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex:1 1 100%}
+.dc29-admin .r29-btn{min-block-size:44px;font-size:13px}
+.dc29-featured .sod29-ugx{margin-block:8px}
+.dc29-tag{align-self:flex-start}

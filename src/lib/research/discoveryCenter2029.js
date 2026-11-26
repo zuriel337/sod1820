@@ -50,6 +50,8 @@ export function discoveryTotals(stats) {
 
 const discovery = row => row && row.phrase && Number.isFinite(Number(row.value)) ? {
   id: String(row.id), phrase: String(row.phrase), value: Number(row.value), createdAt: row.created_at || null,
+  // The identity of a discovery is phrase + method + value (ZURIEL 26.11.2026): the method and its value come from the engine through the reader, never always "regular".
+  method: row.method || "רגיל", methodLabel: row.method_label || row.method || "רגיל",
   creditName: row.credit_name || null, creditSlug: row.credit_slug || null,
 } : null;
 
@@ -57,6 +59,7 @@ const discovery = row => row && row.phrase && Number.isFinite(Number(row.value))
 export function discoveryModel(feed) {
   if (!feed) return null;
   const featured = discovery(feed.featured);
+  const featuredWith = (Array.isArray(feed.featured_with) ? feed.featured_with : []).map(discovery).filter(Boolean).slice(0, 2);
   const latest = (Array.isArray(feed.latest_discoveries) ? feed.latest_discoveries : []).map(discovery).filter(Boolean);
   const contributions = (Array.isArray(feed.latest_contributions) ? feed.latest_contributions : []).filter(row => row && row.excerpt).map(row => ({
     id: String(row.id), excerpt: String(row.excerpt), createdAt: row.created_at || null, authorName: row.author_name || null, authorSlug: row.author_slug || null,
@@ -66,7 +69,7 @@ export function discoveryModel(feed) {
     contributions: count(row.contributions), gematria: count(row.gematria), research: count(row.research),
   }));
   if (!featured && !latest.length && !contributions.length && !writers.length) return null;
-  return { featured, latest, contributions, writers };
+  return { featured, featuredWith, latest, contributions, writers };
 }
 
 /** The writer's page, the number's page: exact links, no search. A source or an unnamed credit has no page. */
@@ -82,9 +85,9 @@ export function writerActivityLine(writer) {
   return parts.join(" · ");
 }
 
-/** Admin only (the function itself refuses anyone else): select the featured discovery. Only a discovery the feed lists can be chosen. */
-export async function setFeaturedDiscovery(wordId) {
-  const { error } = await supabase.rpc("admin_set_home_featured_discovery_v1", { p_word_id: wordId });
+/** Admin only (the server refuses anyone else): choose the featured discovery and up to two beside it. Each pick is { id, method }; only a discovery the feed lists can be chosen. */
+export async function setFeaturedDiscovery(picks) {
+  const { error } = await supabase.rpc("admin_set_home_featured_discovery_v1", { p_picks: picks.slice(0, 3).map(pick => ({ id: pick.id, method: pick.method })) });
   if (error) throw error;
   forgetDiscoveryReads();
 }

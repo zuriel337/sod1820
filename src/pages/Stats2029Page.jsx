@@ -111,9 +111,10 @@ export default function Stats2029Page() {
         <section className="stats29-block" aria-labelledby="stats29-discoveries" data-stats-discoveries="true">
           <h2 id="stats29-discoveries">גילויים ותרומות</h2>
           <DiscoveryTotals totals={center.totals} />
-          {center.model?.featured || center.model?.latest.length || center.model?.contributions.length ? <div className="dc29-grid">
-            <div className="dc29-col"><DiscoveryFeatured featured={center.model.featured} mode="stats" /><DiscoveryContributions items={center.model.contributions} mode="stats" stack /></div>
-            <div className="dc29-col"><DiscoveryLatest items={center.model.latest} featuredId={center.model.featured?.id} mode="stats" admin={false} /></div>
+          <DiscoveryFeatured featured={center.model?.featured} featuredWith={center.model?.featuredWith} mode="stats" />
+          {center.model?.latest.length || center.model?.contributions.length ? <div className={`dc29-grid${center.model.latest.length && center.model.contributions.length ? "" : " dc29-one"}`}>
+            {center.model.latest.length ? <div className="dc29-col"><DiscoveryLatest items={center.model.latest} model={center.model} mode="stats" admin={false} /></div> : null}
+            {center.model.contributions.length ? <div className="dc29-col"><DiscoveryContributions items={center.model.contributions} mode="stats" stack /></div> : null}
           </div> : null}
           <h3 id="stats29-added">נוסף לאתר · {r.label}</h3>
             <div className="stats29-grid">
