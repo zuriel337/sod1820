@@ -4,7 +4,6 @@ import { access } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 
 const production = 'https://sod1820.co.il';
-const productionRef = 'linswmnnkjxvweumprav';
 const core = [
   ['/'],
   ['/world', /העולם/],
@@ -40,25 +39,6 @@ const sitemapFamilies = [
 ];
 const timeout = 18_000;
 let step = 'configuration';
-
-function httpsOrigin(value) {
-  const url = new URL(value);
-  assert(url.protocol === 'https:' && url.href === url.origin + '/', 'A bare HTTPS origin is required');
-  return url;
-}
-
-function accountConfig() {
-  const origin = httpsOrigin(process.env.SOD1820_QA_ORIGIN);
-  const backend = httpsOrigin(process.env.SOD1820_QA_SUPABASE_ORIGIN);
-  const ref = backend.hostname.split('.')[0];
-  assert(!/(^|\.)sod1820\.co\.il$/.test(origin.hostname) && origin.hostname !== 'sod1820.vercel.app',
-    'Production is forbidden in account mode');
-  assert(/^[a-z]{20}\.supabase\.co$/.test(backend.hostname) && ref !== productionRef,
-    'An isolated Supabase project is required');
-  const { SOD1820_QA_EMAIL: email, SOD1820_QA_PASSWORD: password, SOD1820_QA_USER_ID: userId } = process.env;
-  assert(email && password && /^[a-f0-9-]{36}$/i.test(userId ?? ''), 'Dedicated QA account configuration is missing');
-  return { origin: origin.origin, backend: backend.origin, ref, email, password, userId };
-}
 
 async function goto(page, origin, path, status = 200) {
   const response = await page.goto(origin + path, { waitUntil: 'domcontentloaded', timeout });
@@ -174,60 +154,8 @@ async function guest(browser, devices) {
   return failed;
 }
 
-async function account(browser, devices, config) {
-  const { origin, backend, ref, email, password, userId } = config;
-  for (const [profile, options] of [
-    ['desktop-1440', { viewport: { width: 1440, height: 900 } }],
-    ['Pixel 7', devices['Pixel 7']],
-  ]) {
-    step = `${profile}: QA origin and backend`;
-    const context = await browser.newContext({ ...options, locale: 'he-IL' });
-    try {
-      await context.route('**/*', (route) => {
-        const target = new URL(route.request().url()).origin;
-        return [origin, backend].includes(target) ? route.continue() : route.abort();
-      });
-      const page = await context.newPage();
-      const response = await goto(page, origin, '/login?returnTo=%2Flogin');
-      const csp = (await response.headerValue('content-security-policy')) ?? '';
-      const connectSources = csp.split(';').find((directive) => directive.trim().startsWith('connect-src '))?.trim().split(/\s+/);
-      assert(connectSources?.includes(backend) && !csp.includes(productionRef));
-      step = `${profile}: dedicated account login`;
-      await page.getByRole('button', { name: 'כניסה עם סיסמה', exact: true }).click({ timeout });
-      await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(email, { timeout });
-      await page.getByLabel('סיסמה', { exact: true }).fill(password, { timeout });
-      await page.getByRole('button', { name: /כניסה לחשבון/ }).click({ timeout });
-      const identityMatches = () => page.waitForFunction(
-        ({ key, id }) => JSON.parse(localStorage.getItem(key) || 'null')?.user?.id === id,
-        { key: `sb-${ref}-auth-token`, id: userId }, { timeout },
-      );
-      await identityMatches();
-      step = `${profile}: reload retains the same account`;
-      await goto(page, origin, '/login');
-      await identityMatches();
-      await page.locator('[data-auth-state="signed-in"]').waitFor({ timeout });
-      for (const module of ['messages', 'notifications', 'research']) {
-        step = `${profile}: ${module}`;
-        await goto(page, origin, `/2029/me/${module}`);
-        await identityMatches();
-        await page.locator(`[data-personal-module="${module}"][data-state="ready"] > .wp-body > div:not([inert])`).first().waitFor({ timeout });
-        console.log(`PASS ${step}`);
-      }
-    } finally {
-      await context.close();
-    }
-  }
-}
-
 try {
-  const args = process.argv.slice(2);
-  assert(args.length === 0 || (args.length === 1 && args[0] === '--account'));
-  const config = args.length ? accountConfig() : null;
-  if (config) {
-    for (const key of ['SOD1820_QA_EMAIL', 'SOD1820_QA_PASSWORD', 'SOD1820_QA_USER_ID', 'DEBUG', 'PWDEBUG']) {
-      delete process.env[key];
-    }
-  }
+  assert(process.argv.length === 2, 'The guest check takes no arguments; the login check is scripts/qa-site-2029.mjs');
   step = 'Chromium startup';
   const { chromium, devices } = createRequire(import.meta.url)('playwright');
   const installedPath = '/opt/pw-browsers/chromium';
@@ -238,14 +166,11 @@ try {
   const headless = process.env.SITE_CHECK_HEADED !== '1';
   const browser = await chromium.launch({ executablePath, proxy, timeout, headless });
   try {
-    if (config) await account(browser, devices, config);
-    else if (await guest(browser, devices)) process.exitCode = 1;
+    if (await guest(browser, devices)) process.exitCode = 1;
   } finally {
     await browser.close();
   }
 } catch (error) {
-  // Playwright diagnostics may include locator call arguments. Keep credentials,
-  // browser state, and network payloads out of all reports in account mode.
   console.error(`FAIL ${step} (${error.name})`);
   process.exitCode = 1;
 }
