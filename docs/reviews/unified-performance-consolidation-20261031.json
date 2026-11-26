@@ -4494,7 +4494,7 @@
         "code_now": [
           "api/sitemap.js (numbers block, one unpaged rpc/sitemap_numbers call)",
           "src/lib/admittedNumbers2029.js on the staged branch already contains the exact paged read with a proven total",
-          "PR #1564 MERGED into main 26.11.2026 (merge commit 6e7c422a24e74a10a10df35cdc131804cda42fce, head a6cd06b2dc8dd77cdf9c8a33e1b58cbecbc9733c, 14/14 gates green, ZURIEL approved the exact head). NOT deployed: the live site still serves 9bf41e6 until a separately approved deployment."
+          "PR #1564 MERGED into main 26.11.2026 (merge commit 6e7c422a24e74a10a10df35cdc131804cda42fce, head a6cd06b2dc8dd77cdf9c8a33e1b58cbecbc9733c, 14/14 gates green, ZURIEL approved the exact head). NOT deployed: the live site serves 3205ecd7d55825225448d8dd4e4c4de32c8d0416 (dpl_562GoZWmagD2A7snDnkxZbEzFDmY), which does not contain #1564; the fix ships in the next unified deployment, by separate approval."
         ],
         "merged": true,
         "merge_commit": "6e7c422a24e74a10a10df35cdc131804cda42fce",
@@ -5250,6 +5250,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 26.11: merge #1564 at the exact head)",
         "what": "PR #1564 (S-62 stage 1 + S-63 + CI browser-install fix) merged into main: merge commit 6e7c422a24e74a10a10df35cdc131804cda42fce. Stage 2 stays OFF. Not deployed. After-measurement (protocol_9bf41e6) only after an approved deployment.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T00:30:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: correct the live state)",
+        "what": "CORRECTION: production is dpl_562GoZWmagD2A7snDnkxZbEzFDmY, source main 3205ecd7d55825225448d8dd4e4c4de32c8d0416 (Merge #1565), verified on Vercel (alias sod1820.co.il, READY); NOT 9bf41e6. #1564 (merge 6e7c422) is in main but not in that deployment. The speed fixes ship in the unified deployment, no separate deploy. Waiting state until the after-deployment measurements (protocol_9bf41e6 method; the baseline build is 2029-BcTZsiDj).",
         "previous": {
           "note": "previous revision above"
         }
