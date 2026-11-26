@@ -20,8 +20,8 @@ const LEGIT = ["/", "/world", "/post", "/post/some-slug", "/number/1820", "/comm
   "/wp-content/uploads/2020/05/photo.jpg", "/assets/index-abc.js", "/favicon.ico", "/robots.txt", "/sitemap.xml", "/og.png", "/.well-known/security.txt",
   "/.envelope", "/2029/control", "/phpmyadmin-fan-page-not-real-but-ok".replace("phpmyadmin-", "x-"), "/vendors", "/wp-contents"];
 
-// Vercel compiles each matcher source with path-to-regexp (6.x): ONLY the text inside ( ) is a regular expression; everything outside a group
-// (including [ ] ? + *) is a LITERAL, and the result is case-insensitive and ends with an optional / # ?. A plain RegExp would hide a source such as
+// Vercel compiles each matcher source with @vercel/routing-utils sourceToRegex (path-to-regexp 6.x): ONLY the text inside ( ) is a regular expression; everything outside
+// a group (including [ ] ? + *) is a LITERAL, and the compiled expression is CASE-SENSITIVE and anchored ('^(?:\\/(.*\\.php))$'; the protected Preview of 26.11.2026 showed /x.PHP uncovered by '/(.*\\.php)'). A plain RegExp would hide a source such as
 // '/(.*)\\.[pP][hH][pP]' that compiles to the literal text "[pP][hH][pP]" on Vercel (found in the protected Preview of 26.11.2026: /wp-login.php was
 // not covered). This helper mirrors those rules for the sources used here; a ":param" or a regex token outside a group is a test failure.
 function compileMatcher(source) {
@@ -40,7 +40,7 @@ function compileMatcher(source) {
     assert.ok(!/[\[\]?+*:{}|^$]/.test(ch), `matcher source ${source} has a regex or parameter token outside a group (${ch}); Vercel treats it as literal text`);
     out += ch.replace(/[.*+?^${}()|[\]\\\/]/g, "\\$&");
   }
-  return new RegExp("^" + out + "[\\/#\\?]?$", "i");
+  return new RegExp("^" + out + "$");
 }
 function matcherCoversPath(config, path) {
   return config.matcher.some((source) => compileMatcher(source).test(path));
@@ -65,6 +65,21 @@ test("matcher: ordinary pages keep the old coverage, static assets stay outside,
   }
   for (const p of ["/", "/world", "/post/x", "/number/1820"]) assert.equal(matcherCoversPath(rootConfig, p), true, p);
   for (const p of PROBES.filter((x) => /[.]/.test(x))) assert.equal(matcherCoversPath(rootConfig, p), true, `dotted probe ${p} reaches the middleware`);
+});
+
+test("matcher: every one of the eight upper/lower-case spellings of the php suffix reaches the middleware and is a probe; look-alikes and SEO files do not", () => {
+  // Recorded from @vercel/routing-utils sourceToRegex on 26.11.2026: the entry '/(.*\\.[pP][hH][pP])' covers all eight; '/(.*\\.php)' covered only the lower-case one.
+  const combos = []; for (const a of "pP") for (const b of "hH") for (const c of "pP") combos.push(a + b + c);
+  assert.equal(combos.length, 8);
+  for (const c of combos) {
+    assert.equal(matcherCoversPath(rootConfig, `/x.${c}`), true, `/x.${c} must reach the middleware`);
+    assert.equal(isSecurityProbe(`/x.${c}`), true, `/x.${c} must be a probe`);
+    assert.equal(matcherCoversPath(rootConfig, `/wp-login.${c}`), true, `/wp-login.${c} must reach the middleware`);
+  }
+  for (const p of ["/phpinfo", "/x.phpx", "/x.ph", "/a.php/b", "/php", "/post/phpbb", "/dir.php/index.html", "/robots.txt", "/sitemap.xml", "/ads.txt", "/favicon.ico", "/googleab12.html", "/.well-known/security.txt"]) {
+    assert.equal(matcherCoversPath(rootConfig, p), p === "/post/phpbb" || p === "/php" || p === "/phpinfo" ? true : false, `${p}: coverage must be exactly as before for non-probe paths`);
+  }
+  for (const p of ["/phpinfo", "/x.phpx", "/x.ph", "/a.php/b", "/php", "/post/phpbb", "/robots.txt", "/sitemap.xml", "/ads.txt", "/favicon.ico"]) assert.equal(isSecurityProbe(p), false, `${p} must never be a probe`);
 });
 
 async function invoke(path, agent, headers = {}) {

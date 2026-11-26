@@ -76,13 +76,13 @@
 | קובץ | sha256 |
 |---|---|
 | `edge-security-probe.js` | `39c0075f8b155b7689e9f18f9f88870e85ca70a2d82c2d6dac6f246500e13297` |
-| `middleware-core.js` | `37794937a047d9b94b727ddec091b3388043963dcaf50c88bd968e5b3fd0d94e` |
-| `middleware.js` | `181bf6bdba70657702b609549a42ddc32c7adcc32e9cb48919c9af0a28932c39` |
-| `public-reading-deploy/middleware.js` | `dc2fb30fbbf2fad6fdc0f30ea0c42131a04fa6fb87898e88cf72fceb4f58dbac` |
+| `middleware-core.js` | `891c69c1209a1b161b5cbf131902b9fa7a7c73d99cd80e56628ea4f6a9a07de6` |
+| `middleware.js` | `a32b58338cc5ef37281d878479498f7aec15469147c0d4c6b1035a16cbbd9a84` |
+| `public-reading-deploy/middleware.js` | `d7482470e89995761e2eb8e95e07f296c17f74566c3a37fcfc793b512f8be50c` |
 | `route-legitimacy.js` | `62249ef4be058bfe2cae039f0d63570db69a1f533dc94c7dc1df831d45fb0f22` |
 | `scripts/post-deploy-canary.mjs` | `2dc787b6167f169d68ac7d75aa631f65948f542ce9a66303210d477a730fbb69` |
 | `.github/workflows/post-deploy-canary.yml` | `bc950351e76c4b4ceee3319f638dc7981d0886df188695fe106187bffc00cb48` |
-| `.github/workflows/live-contracts-2029.yml` | `7983c015d616780b3254fc5057a5c1e1e93e8d46d84edd6d564e95d5660114ca` |
+| `.github/workflows/live-contracts-2029.yml` | `cbc4cd9925482ded6accaba3978a95410b875a16b0ae1ace9f78eb20a7e23034` |
 | `supabase/functions/security-probe-log/index.ts` | `e1abef90cd4e86db58ea2ecdcc809cf0a7f190b2be9651df543da0ee7da63a93` |
 | `supabase/functions/_shared/securityProbeLogCore.js` | `68ad5e2f716caafbe9422a6f92e768c3c7c97cf71a3ca7214bf49c0abc556990` |
 | `supabase/functions/_shared/vercelProductionOidc.ts` | `aaa90b9400803fd7cdc4d69299bc851531da2fcb629008fdc7d77fe9b6c0a413` |
@@ -98,7 +98,7 @@
 **בדיקות ו־patch:**
 | קובץ | sha256 |
 |---|---|
-| `test/edge-security-probe-20261126.test.mjs` | `65a10c2a0cde9d71b062b644cc19fef13f189ec91d7a5a71c1c3d6fd1849e192` |
+| `test/edge-security-probe-20261126.test.mjs` | `ed87643476b6fff7fefaa085fcf14999bac726b9058445e8827b7b85dff21d5d` |
 | `test/security-probe-log-20261126.test.mjs` | `396242d5bf0ce3b95caa5a2c589a7e3c45ec951cc338d443543ef2b55d472a35` |
 | `test/security-edge-realpg-20261126.sh` | `f013cb93d4dd67d0fcc543fc954565afb64eaaa9a29eb055788d33de9749c706` |
 | `docs/reviews/security-edge-package-20261126/PREVIEW_GATE_APPROVAL.patch` | `d3d0e0e95bb0bb819e72a61c46888380ed7e9b15d697a178551f76a9c21719af` |

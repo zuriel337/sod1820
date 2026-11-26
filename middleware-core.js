@@ -31,7 +31,7 @@ export const config = {
   // כדי שיגיעו לשומר-הסף ויירשמו; אף נכס-סטטי רגיל אינו תואם להן, ולכן אין עלות לגלישה רגילה.
   matcher: [
     '/((?!api/|assets/|.*\\.).*)',
-    '/(.*\\.php)',
+    '/(.*\\.[pP][hH][pP])',
     '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
     '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
   ],

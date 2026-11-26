@@ -8,7 +8,7 @@ export { default } from "../middleware.js";
 export const config = {
   matcher: [
     '/((?!api/|assets/|.*\\.).*)',
-    '/(.*\\.php)',
+    '/(.*\\.[pP][hH][pP])',
     '/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
     '/(.*)/\\.(env|git|aws|ssh|vscode|DS_Store)(.*)',
   ],
