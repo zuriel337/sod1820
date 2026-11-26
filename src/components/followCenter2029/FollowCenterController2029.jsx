@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
+import { PERSONAL_ATTENTION_REFRESH_EVENT } from "../../lib/notifications.js";
 import { followCenterIO } from "../../lib/userCenter/followCenter2029.js";
 import { includesFollowSubject } from "../../lib/followIdentity.js";
 import { buildFollowCenterModel } from "./followCenterModel2029.js";
@@ -117,6 +118,8 @@ function AccountCenter({ userId, authLoading, io, returnHref, onSignIn }) {
       // Only acknowledged IDs in this account snapshot change; partial/empty acks never clear everything.
       setUpdates(value => ({ ...value, items: value.items.map(item => ids.has(item.id) ? { ...item, read_at: item.read_at || new Date().toISOString() } : item) }));
       setReadChange("idle");
+      // The unread mark on the profile picture reads once per event: tell it that something was read here (found by the end-to-end run: it stayed until a reload).
+      window.dispatchEvent(new Event(PERSONAL_ATTENTION_REFRESH_EVENT));
     } catch { if (active()) setReadChange("failed"); }
     finally { if (active()) readLock.current = false; }
   }
