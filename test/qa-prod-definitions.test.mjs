@@ -23,11 +23,11 @@ test('no data and no secret in the definitions', () => {
   assert.ok(!/@gmail\.com|@(?!x\.test)[a-z0-9-]+\.(co\.il|com)\b.*(insert|values)/i.test(text), 'no personal address');
 });
 
-test('scope: tables and functions of the first families only, triggers whose function is outside the scope are excluded by the generator', () => {
+test('scope: tables and functions of the extracted families only (messages, notifications, counters and the ELS verification path), triggers whose function is outside the scope are excluded by the generator', () => {
   const fns = objects.filter((o) => o.kind === 'function').map((o) => /^public\.(\w+)\(/.exec(o.name)[1]).sort();
-  assert.deepEqual(fns, ['dm_inbox', 'dm_send', 'dm_thread', 'notify_on_dm', 'push_subscription_delete_v1', 'push_subscription_upsert_v1', 'view_count']);
+  assert.deepEqual(fns, ['dm_inbox', 'dm_send', 'dm_thread', 'edge_rate_limit_check', 'els_stream_letters_v1', 'els_stream_relation_v1', 'els_verify_batch_core_v1', 'els_verify_batch_v1', 'els_verify_occurrence_v1', 'fn_els_corpus_id', 'notify_on_dm', 'push_subscription_delete_v1', 'push_subscription_upsert_v1', 'view_count']);
   const tables = objects.filter((o) => o.kind === 'table').map((o) => o.name).sort();
-  assert.deepEqual(tables, ['public.direct_messages', 'public.notification_prefs', 'public.page_views', 'public.push_subscriptions', 'public.user_activity', 'public.user_notifications', 'public.users']);
+  assert.deepEqual(tables, ['private.edge_rate_limit_buckets', 'public.direct_messages', 'public.notification_prefs', 'public.page_views', 'public.push_subscriptions', 'public.tanakh_stream', 'public.torah_stream', 'public.user_activity', 'public.user_notifications', 'public.users']);
 });
 
 test('the parity query uses the same extraction text, and the generator output is reproducible', () => {
