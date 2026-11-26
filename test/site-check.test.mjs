@@ -24,11 +24,12 @@ test('the summary states the verdict, the source identity and what was not check
 });
 
 test('read-only by construction: no secret, no login, no write, no spoofed identity, no bypass of any protection', () => {
-  const script = read('scripts/site-check.mjs'), workflow = read('.github/workflows/site-check.yml');
+  const code = text => text.split('\n').filter(line => !line.trim().startsWith('#') && !line.trim().startsWith('//')).join('\n');
+  const script = code(read('scripts/site-check.mjs')), workflow = code(read('.github/workflows/site-check.yml'));
   assert.doesNotMatch(workflow, /secrets\./, 'the read suite uses no secret');
   assert.doesNotMatch(workflow, /environment:/, 'no write environment in the read workflow');
   assert.match(workflow, /permissions:\s+contents: read/);
   assert.doesNotMatch(script, /userAgent\s*:|setExtraHTTPHeaders|x-vercel-protection-bypass|x-vercel-bypass|signInWith|\.rpc\(|method:\s*["'](POST|PUT|PATCH|DELETE)/i);
-  assert.match(script, /חסימה בקצה[^\n]*דווחו ואל תעקפו/, 'an edge block is reported, never bypassed');
+  assert.match(read('scripts/site-check.mjs'), /חסימה בקצה[^\n]*דווחו ואל תעקפו/, 'an edge block is reported, never bypassed');
   assert.match(read('.claude/commands/check-site.md'), /do not ask for a password or a login code/);
 });
