@@ -125,7 +125,6 @@ export default function Stats2029Page() {
               <Tile value={corpus?.corpusAdded7d} label="ביטויים חדשים במאגר" note="השבוע · מול השבוע שלפניו" to="/gematria" trend={weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d) ? { ...weeklyTrend(corpus?.corpusAdded7d, before?.corpusAddedPrev7d), basis: "exact" } : null} />
               <Tile value={corpus?.corpusTotal} label="ביטויים מאומתים במאגר" to="/gematria" />
               <Tile value={d.posts_total} label="פוסטים באתר" to="/post" />
-              <Tile value={d.publications?.public_ciphers} label="צפנים שפורסמו" to="/codes" />
               <Tile value={d.publications?.approved_convergences} label="התכנסויות שאושרו" to="/world" />
             </div>
         </section>
