@@ -83,3 +83,6 @@
 
 /* Keep the shared Royal typography and states; this surface sets readable sizing only. */
 .els29-lexicon-research .r29-btn{font-size:16px;min-width:44px;white-space:normal}
+/* The collapsible entry in the research tools: same rule line as the neighbouring inspection section, its own class so the existing locators stay unique. */
+.els29-quality-section{border-block-start:1px solid var(--s29-line);margin-block-start:20px;padding-block-start:12px}
+.els29-quality-section>summary{min-height:44px;display:flex;align-items:center;cursor:pointer}

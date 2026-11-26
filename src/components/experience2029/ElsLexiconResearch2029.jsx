@@ -413,7 +413,7 @@ export default function ElsLexiconResearch2029({
           requestAnimationFrame(() => scanButton.current?.focus());
         }} /> : null}
     </details>
-    <details className="els29-discovery-inspection" data-els-quality-section onToggle={event => { if (event.currentTarget.open) setQualityVisited(true); }}>
+    <details className="els29-quality-section" data-els-quality-section onToggle={event => { if (event.currentTarget.open) setQualityVisited(true); }}>
       <summary>איכות הצופן, דילוגים מיוחדים וזוויות</summary>
       {qualityVisited ? <React.Suspense fallback={<p role="status">טוען את נתוני האיכות…</p>}>
         <ElsQualityMeter2029 state={state} busy={busy || !!run} onRunMc={onQualityRun} />
