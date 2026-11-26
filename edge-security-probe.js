@@ -6,8 +6,9 @@
 // This module restores the same signal in the EXISTING edge middleware (middleware-core.js), without a function invocation,
 // without a new table, and without touching a healthy browsing request:
 //   * PREVENTION  - an exact, short list of paths no 2029 page can have is answered 403 at the edge, before any database read.
-//   * RECORDING   - the existing RPC log_security (country, path, user agent, coarse address), fire-and-forget (waitUntil),
-//                   capped per instance so a scan cannot flood the database.
+//   * RECORDING   - one report per probe to the Supabase edge function security-probe-log (fire-and-forget, waitUntil), which verifies
+//                   the Vercel OIDC token of this Production deployment and calls log_security with the service role. log_security is
+//                   no longer callable with the public anon key. Capped per instance here and globally inside log_security.
 //   * ALERTING ON SILENCE - a scheduled canary (scripts/post-deploy-canary.mjs) sends one synthetic probe with PROBE_CANARY_UA;
 //                   check_security_spike (SQL proposal 20261126160000) alerts when no canary row arrived for 13 hours.
 // WAF custom rules are NOT part of this (a Vercel setting; separate approval). Nothing here is a Human proof or a country policy.
@@ -53,7 +54,7 @@ export function coarseAddress(value) {
   return '';
 }
 
-export const PROBE_LOG_PER_MINUTE = 20;
+export const PROBE_LOG_PER_MINUTE = 10;
 
 // A per-instance admission window: at most `limit` probe rows per minute per instance. The 403 itself is never rate-limited.
 export function createProbeAdmission({ limit = PROBE_LOG_PER_MINUTE, windowMs = 60_000, now = () => Date.now() } = {}) {
@@ -67,14 +68,26 @@ export function createProbeAdmission({ limit = PROBE_LOG_PER_MINUTE, windowMs = 
   };
 }
 
-export function probeLogBody({ country, pathname, userAgent, forwardedFor }) {
-  const canary = isProbeCanary(userAgent);
+// The report sent to security-probe-log. The user agent is sent as received; the FUNCTION decides whether it is a canary (only with a valid
+// proof header) and otherwise labels a canary-looking agent "forged-canary". The canary proof is opaque here: the edge never holds the key.
+export function probeLogBody({ country, pathname, userAgent, forwardedFor, canaryProof }) {
   return {
-    p_country: String(country || 'XX').slice(0, 2),
-    p_path: String(pathname || '').slice(0, 300),
-    p_ua: String(userAgent || '').slice(0, 300),
-    p_ip: canary ? '' : coarseAddress(forwardedFor),
+    country: String(country || 'XX').slice(0, 2),
+    path: String(pathname || '').slice(0, 300),
+    ua: String(userAgent || '').slice(0, 300),
+    ip: coarseAddress(forwardedFor),
+    proof: typeof canaryProof === 'string' && /^\d{1,10}\.[0-9a-f]{64}$/.test(canaryProof) ? canaryProof : '',
   };
+}
+
+// Vercel gives a running deployment its OIDC token in this request header (the env var is only a build/dev fallback), as the SG limiter
+// already relies on. Without a token nothing is recorded: the 403 still happens, and the missing rows are what the silence alert watches.
+export function vercelOidcToken(request) {
+  try {
+    const fromHeader = String(request?.headers?.get?.('x-vercel-oidc-token') || '').trim();
+    if (fromHeader) return fromHeader;
+  } catch { /* fall through */ }
+  try { return typeof process !== 'undefined' ? String(process.env?.VERCEL_OIDC_TOKEN || '').trim() : ''; } catch { return ''; }
 }
 
 export function probeDeniedResponse() {

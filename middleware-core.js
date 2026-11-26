@@ -4,7 +4,7 @@ import { createPostDocumentGate, postDocumentBypassUrl, postDocumentGateCandidat
 import { createCountryPolicyCache, COUNTRY_POLICY_TIMING } from './edge-country-policy.js';
 import { createBigNumberEligibility, readBigNumberList, bigNumberUnavailableResponse } from './edge-big-number-eligibility.js';
 import { oldJourneyAddress, oldJourneyGoneResponse } from './edge-old-journey.js';
-import { createProbeAdmission, isSecurityProbe, probeDeniedResponse, probeLogBody } from './edge-security-probe.js';
+import { createProbeAdmission, isSecurityProbe, probeDeniedResponse, probeLogBody, vercelOidcToken } from './edge-security-probe.js';
 
 // ── שומר-סף + לוג צד-שרת (Vercel Edge) ────────────────────────────────────────
 // רץ על כל ניווט-דף (כולל index.html הסטטי, שפונקציית API לא רואה).
@@ -357,16 +357,19 @@ export default async function middleware(request, context) {
 
   let path = '/'; try { path = new URL(request.url).pathname; } catch { /* ignore */ }
 
-  // 🛡️ Security probes (wp-admin, .env, *.php ...): 403 before any database read, and one row in security_log through the existing RPC
-  // log_security (the signal the retired Legacy honeypot used to write). Counted per instance (PROBE_ADMISSION); the 403 is never capped.
-  // Health of this recording is watched by check_security_spike through the scheduled canary, not by this code.
+  // 🛡️ Security probes (wp-admin, .env, *.php ...): 403 before any database read, and one report to the edge function security-probe-log, which
+  // authenticates this deployment (Vercel OIDC) and writes security_log through log_security (service role only). Capped per instance
+  // (PROBE_ADMISSION); the 403 is never capped. No token -> no report (fail-open for the visitor; the missing rows trigger the silence alert).
   if (isSecurityProbe(path)) {
-    if (PROBE_ADMISSION()) {
+    const oidc = vercelOidcToken(request);
+    if (oidc && PROBE_ADMISSION()) {
       context.waitUntil(
-        fetch(`${SUPABASE_URL}/rest/v1/rpc/log_security`, {
+        fetch(`${SUPABASE_URL}/functions/v1/security-probe-log`, {
           method: 'POST',
-          headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-          body: JSON.stringify(probeLogBody({ country, pathname: path, userAgent: uaRaw, forwardedFor: request.headers.get('x-forwarded-for') })),
+          headers: { Authorization: 'Bearer ' + oidc, 'Content-Type': 'application/json' },
+          body: JSON.stringify(probeLogBody({ country, pathname: path, userAgent: uaRaw, forwardedFor: request.headers.get('x-forwarded-for'),
+            canaryProof: request.headers.get('x-sod-canary') })),
+          signal: AbortSignal.timeout(3000),
         }).catch(() => {}),
       );
     }

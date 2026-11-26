@@ -3,7 +3,7 @@
 -- by the silence check stay as provenance. Apply as ONE transaction.
 do $guard$
 begin
-  if (select md5(prosrc) from pg_proc where oid='public.check_security_spike()'::regprocedure) <> '6905846f7032672afb43a8677aa5ab36' then
+  if (select md5(prosrc) from pg_proc where oid='public.check_security_spike()'::regprocedure) <> '26d47e89396e088cc25be8a09829d61c' then
     raise exception 'check_security_spike is not the monitor-silence version; reconcile before rolling back';
   end if;
 end

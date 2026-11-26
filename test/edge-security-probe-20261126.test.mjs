@@ -48,53 +48,66 @@ test("matcher: ordinary pages keep the old coverage, static assets stay outside,
 async function invoke(path, agent, headers = {}) {
   const pending = [], calls = [], original = globalThis.fetch;
   globalThis.fetch = async (url, init) => {
-    const u = new URL(url); calls.push({ path: u.pathname, body: init?.body ? JSON.parse(init.body) : null });
+    const u = new URL(url); calls.push({ path: u.pathname, body: init?.body ? JSON.parse(init.body) : null, auth: init?.headers?.Authorization || "" });
     if (u.pathname === "/rest/v1/edge_blocked_countries") return Response.json([]);
     if (u.pathname === "/rest/v1/rpc/content_big_numbers") return Response.json([]);
-    if (["/rest/v1/rpc/log_edge", "/rest/v1/rpc/log_crawl", "/rest/v1/rpc/log_security"].includes(u.pathname)) return new Response(null, { status: 204 });
+    if (["/rest/v1/rpc/log_edge", "/rest/v1/rpc/log_crawl", "/functions/v1/security-probe-log"].includes(u.pathname)) return new Response(null, { status: 204 });
+    if (u.pathname === "/rest/v1/rpc/log_security") throw new Error("the edge must never call log_security with the public key");
     throw new Error("unexpected synthetic dependency: " + u.pathname);
   };
   try {
     const response = await middleware(new Request("https://sod1820.co.il" + path, {
-      headers: { "user-agent": agent, "x-vercel-ip-country": "CN", "x-forwarded-for": "203.0.113.77", ...headers },
+      headers: { "user-agent": agent, "x-vercel-ip-country": "CN", "x-forwarded-for": "203.0.113.77", "x-vercel-oidc-token": "oidc.test.token", ...headers },
     }), { waitUntil: (promise) => pending.push(promise) });
     await Promise.all(pending); return { response, calls };
   } finally { globalThis.fetch = original; }
 }
 
-test("a probe is denied at the edge with no database read except the two existing counters and one security_log row", async () => {
+test("a probe is denied at the edge with no database read except the existing counter and ONE authenticated report to security-probe-log", async () => {
   const { response, calls } = await invoke("/wp-login.php?redirect_to=1", BROWSER);
   assert.equal(response.status, 403);
   assert.equal(response.headers.get("x-sod-probe"), "denied");
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal(await response.text(), "Access denied");
   const names = calls.map((c) => c.path.split("/").pop());
-  assert.equal(names.filter((n) => n === "log_security").length, 1, "exactly one security_log row");
-  assert.ok(names.every((n) => ["log_edge", "log_security"].includes(n)), `no country-policy read, no slug or big-number lookup, no crawl row (${names})`);
-  const row = calls.find((c) => c.path.endsWith("/log_security")).body;
-  assert.deepEqual(Object.keys(row).sort(), ["p_country", "p_ip", "p_path", "p_ua"]);
-  assert.equal(row.p_country, "CN");
-  assert.equal(row.p_path, "/wp-login.php", "the query string is never stored");
-  assert.equal(row.p_ip, "203.0.113.0/24", "a coarse address, not the visitor's address");
-  assert.equal(row.p_ua, BROWSER);
+  assert.equal(names.filter((n) => n === "security-probe-log").length, 1, "exactly one report");
+  assert.ok(names.every((n) => ["log_edge", "security-probe-log"].includes(n)), `no country-policy read, no slug or big-number lookup, no crawl row (${names})`);
+  const call = calls.find((c) => c.path.endsWith("/security-probe-log"));
+  assert.equal(call.auth, "Bearer oidc.test.token", "the report is authenticated with the deployment's own OIDC token, never the anon key");
+  const row = call.body;
+  assert.deepEqual(Object.keys(row).sort(), ["country", "ip", "path", "proof", "ua"]);
+  assert.equal(row.country, "CN");
+  assert.equal(row.path, "/wp-login.php", "the query string is never sent");
+  assert.equal(row.ip, "203.0.113.0/24", "a coarse address, not the visitor's address");
+  assert.equal(row.ua, BROWSER);
+  assert.equal(row.proof, "");
 });
 
-test("the canary is recorded with a recognisable user agent and no address; the 403 is the same", async () => {
-  const { response, calls } = await invoke(PROBE_CANARY_PATH, PROBE_CANARY_UA, { "x-forwarded-for": "198.51.100.9" });
+test("the canary is reported with its user agent and its opaque proof; the edge never decides what is a genuine canary; the 403 is the same", async () => {
+  const proof = `${Math.floor(Date.now() / 60000)}.${"ab".repeat(32)}`;
+  const { response, calls } = await invoke(PROBE_CANARY_PATH, PROBE_CANARY_UA, { "x-sod-canary": proof });
   assert.equal(response.status, 403);
-  const row = calls.find((c) => c.path.endsWith("/log_security")).body;
-  assert.equal(row.p_ua, PROBE_CANARY_UA); assert.equal(row.p_ip, ""); assert.equal(isProbeCanary(row.p_ua), true);
+  const row = calls.find((c) => c.path.endsWith("/security-probe-log")).body;
+  assert.equal(row.ua, PROBE_CANARY_UA); assert.equal(row.proof, proof); assert.equal(isProbeCanary(row.ua), true);
+  const junk = await invoke(PROBE_CANARY_PATH, PROBE_CANARY_UA, { "x-sod-canary": "not-a-proof; drop table" });
+  assert.equal(junk.calls.find((c) => c.path.endsWith("/security-probe-log")).body.proof, "", "a malformed proof is not forwarded");
+});
+
+test("no OIDC token (a Preview, a local run): the visitor still gets the 403, nothing is reported, and nothing else is called", async () => {
+  const { response, calls } = await invoke("/.env", BROWSER, { "x-vercel-oidc-token": "" });
+  assert.equal(response.status, 403);
+  assert.equal(calls.some((c) => c.path.endsWith("/security-probe-log")), false);
 });
 
 test("ordinary requests never touch security_log; blocked-bot and country behaviour is unchanged", async () => {
   for (const path of ["/", "/world", "/post/some-slug", "/number/1820", "/wp-content/uploads/2020/05/photo.jpg", "/admin"]) {
     const { calls } = await invoke(path, BROWSER, { "x-vercel-ip-country": "IL" });
-    assert.equal(calls.some((c) => c.path.endsWith("/log_security")), false, path);
+    assert.equal(calls.some((c) => c.path.endsWith("/security-probe-log")), false, path);
   }
   const bot = await invoke("/world", "curl/8.0", { "x-vercel-ip-country": "IL" });
   assert.equal(bot.response.status, 403);
   assert.ok(bot.calls.some((c) => c.path.endsWith("/log_crawl")), "a bad bot on an ordinary path is still counted by crawl intelligence");
-  assert.equal(bot.calls.some((c) => c.path.endsWith("/log_security")), false);
+  assert.equal(bot.calls.some((c) => c.path.endsWith("/security-probe-log")), false);
 });
 
 test("a scan cannot flood the database: rows are capped per minute per instance, every probe still gets its 403", async () => {
@@ -102,10 +115,10 @@ test("a scan cannot flood the database: rows are capped per minute per instance,
   for (let i = 0; i < 40; i += 1) {
     const { response, calls } = await invoke(`/wp-admin/flood-${i}`, "scanner/1.0");
     if (response.status === 403) denied += 1;
-    logged += calls.filter((c) => c.path.endsWith("/log_security")).length;
+    logged += calls.filter((c) => c.path.endsWith("/security-probe-log")).length;
   }
   assert.equal(denied, 40);
-  assert.ok(logged >= 1 && logged <= 20, `at most 20 rows per minute per instance (got ${logged})`);
+  assert.ok(logged >= 1 && logged <= 10, `at most 10 reports per minute per instance (got ${logged})`);
 });
 
 test("admission window and address masking helpers", () => {
@@ -114,18 +127,20 @@ test("admission window and address masking helpers", () => {
   assert.equal(coarseAddress("203.0.113.77, 10.0.0.1"), "203.0.113.0/24");
   assert.equal(coarseAddress("2001:db8:abcd:12::1"), "2001:db8:abcd::/48");
   assert.equal(coarseAddress(""), ""); assert.equal(coarseAddress("not-an-ip"), "");
-  assert.equal(probeLogBody({ country: "il", pathname: "/x".repeat(400), userAgent: "u".repeat(400), forwardedFor: "1.2.3.4" }).p_path.length, 300);
+  assert.equal(probeLogBody({ country: "il", pathname: "/x".repeat(400), userAgent: "u".repeat(400), forwardedFor: "1.2.3.4" }).path.length, 300);
 });
 
 test("the edge layer adds no client code and no new store: it reuses log_security and ships no new function", () => {
   const core = readFileSync(new URL("../middleware-core.js", import.meta.url), "utf8");
-  assert.match(core, /\/rest\/v1\/rpc\/log_security/);
+  assert.match(core, /\/functions\/v1\/security-probe-log/);
+  assert.doesNotMatch(core, /\/rest\/v1\/rpc\/log_security/, "the public key is never used to write security_log");
   assert.doesNotMatch(core, /\/api\/honeypot/);
   assert.equal(JSON.parse(readFileSync(new URL("../public-reading-deploy/vercel.json", import.meta.url), "utf8")).rewrites?.some?.((r) => r.destination === "/api/honeypot") ?? false, false);
 });
 
 // ── the scheduled canary: report-only first, enforcing on a flag ─────────────────────────────────────────────
 import { runCanary } from "../scripts/post-deploy-canary.mjs";
+import { canaryProof, canaryProofValid } from "../supabase/functions/_shared/securityProbeLogCore.js";
 
 function canaryFetch({ probe }) {
   return async (url, init = {}) => {
@@ -157,4 +172,27 @@ test("canary: the probe check records the denial; a missing 403 never blocks in 
   assert.equal(enforced.checks.find((c) => c.name === "security_probe_denied").ok, false);
   const thrown = await runCanary("https://x.test", { fetchImpl: canaryFetch({ probe: () => { throw new Error("boom"); } }), securityMode: "enforce" });
   assert.equal(thrown.ok, false);
+});
+
+test("canary: with SECURITY_CANARY_KEY the request carries a verifiable proof; without it none", async () => {
+  let seen = null;
+  const fetchImpl = canaryFetch({ probe: () => new Response("x", { status: 403, headers: { "x-sod-probe": "denied" } }) });
+  const spy = async (url, init = {}) => { if (new URL(url).pathname === PROBE_CANARY_PATH) seen = init.headers; return fetchImpl(url, init); };
+  const fixed = Date.UTC(2026, 10, 26, 12, 0, 0);
+  await runCanary("https://x.test", { fetchImpl: spy, canaryKey: "k-test", now: () => fixed });
+  assert.equal(seen["x-sod-canary"], await canaryProof("k-test", Math.floor(fixed / 60000)));
+  assert.equal(await canaryProofValid(seen["x-sod-canary"], "k-test", fixed), true);
+  assert.equal(await canaryProofValid(seen["x-sod-canary"], "other-key", fixed), false);
+  await runCanary("https://x.test", { fetchImpl: spy, canaryKey: "" });
+  assert.equal("x-sod-canary" in seen, false);
+});
+
+test("canary: it blocks automatically from the first deployed SHA that contains the layer; it is never advisory-forever", () => {
+  const src = readFileSync(new URL("../scripts/post-deploy-canary.mjs", import.meta.url), "utf8");
+  assert.match(src, /process\.env\.SECURITY_PROBE_LAYER === "present"/);
+  const wf = readFileSync(new URL("../.github/workflows/post-deploy-canary.yml", import.meta.url), "utf8");
+  assert.match(wf, /contents\/edge-security-probe\.js\?ref=\$\{TARGET_SHA\}/, "the layer is detected at the exact deployed SHA");
+  assert.match(wf, /SECURITY_PROBE_LAYER: \$\{\{ steps\.probe_layer\.outputs\.present \}\}/);
+  assert.match(wf, /SECURITY_CANARY_KEY: \$\{\{ secrets\.SECURITY_CANARY_KEY \}\}/);
+  assert.match(wf, /STATE="failure"/, "the existing failure semantics are untouched");
 });

@@ -5,16 +5,19 @@
 // No service_role credential leaves Supabase and no public write RPC is introduced.
 import { pathToFileURL } from "node:url";
 import { PROBE_CANARY_PATH, PROBE_CANARY_UA } from "../edge-security-probe.js";
+import { canaryProof } from "../supabase/functions/_shared/securityProbeLogCore.js";
 
 export const CANARY_BUDGET_PER_DAY = 4;
 const DEFAULT_SUPABASE_URL = "https://linswmnnkjxvweumprav.supabase.co";
 const DEFAULT_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpbnN3bW5ua2p4dndldW1wcmF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2Mjg3NjIsImV4cCI6MjA5NjIwNDc2Mn0.R6Zz1PCdGdCDnZ0Ltza4OMFOc146zCIOQrBtTWpujiM";
 const SHA_RE = /^[0-9a-f]{40}$/;
 
-// SECURITY_CANARY_MODE (decision 337): "report" (default) records the security-probe check but does not decide ok, so merging the edge
-// probe layer before it is deployed cannot block a release; "enforce" makes it a release-blocking check. Flip it in the workflow after
-// the first scheduled run that shows the probe denied on the deployed SHA.
-export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000, securityMode = "report" } = {}) {
+// Security probe check (decision 337). securityMode "enforce" makes security_probe_denied a release-blocking check; "report" records it as
+// advisory evidence only. The mode is NOT a permanent switch: the CLI below derives it from the deployed SHA itself (SECURITY_PROBE_LAYER=present
+// when edge-security-probe.js exists at that SHA, set by the workflow), so the check blocks automatically from the first deployment that
+// contains the layer and can never be left advisory once it ships. Before the layer ships the check is advisory because it could not pass.
+// SECURITY_CANARY_KEY (optional, a GitHub Actions secret) signs the canary so the edge function records the row as a genuine canary.
+export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000, securityMode = "report", canaryKey = "", now = Date.now } = {}) {
   const origin = String(base).replace(/\/+$/, "");
   const checks = [];
   const get = async (path) => {
@@ -65,7 +68,9 @@ export async function runCanary(base, { fetchImpl = fetch, timeoutMs = 15000, se
   // security_log row; check_security_spike (SQL) alerts when no such row has arrived for 13 hours. This check proves the 403 half
   // from the outside; the row half is proven by the SQL watch. Never follows redirects, never sends credentials.
   try {
-    const res = await fetchImpl(origin + PROBE_CANARY_PATH, { redirect: "manual", headers: { "user-agent": PROBE_CANARY_UA }, signal: AbortSignal.timeout(timeoutMs) });
+    const headers = { "user-agent": PROBE_CANARY_UA };
+    if (canaryKey) headers["x-sod-canary"] = await canaryProof(canaryKey, Math.floor(now() / 60000));
+    const res = await fetchImpl(origin + PROBE_CANARY_PATH, { redirect: "manual", headers, signal: AbortSignal.timeout(timeoutMs) });
     await res.text();
     const denied = res.status === 403 && res.headers.get("x-sod-probe") === "denied";
     addSecurity(denied, `status=${res.status} mode=${securityMode}`);
@@ -97,7 +102,8 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     process.exit(2);
   }
   try {
-    const result = await runCanary(url, { securityMode: process.env.SECURITY_CANARY_MODE === "enforce" ? "enforce" : "report" });
+    const securityMode = process.env.SECURITY_PROBE_LAYER === "present" || process.env.SECURITY_CANARY_MODE === "enforce" ? "enforce" : "report";
+    const result = await runCanary(url, { securityMode, canaryKey: process.env.SECURITY_CANARY_KEY || "" });
     const heartbeat = await readHeartbeat();
     const hbOk = heartbeat?.healthy === true;
     const checks = [...result.checks, {
