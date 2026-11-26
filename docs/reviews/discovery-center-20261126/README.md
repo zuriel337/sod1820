@@ -4,12 +4,14 @@
 
 | קובץ | מה | שינוי מסד |
 |---|---|---|
-| `D0-shared_helpers.sql` | `public_discovery_writer_v1` (תנאי יחיד לבחירה ולהצגה) ו־`rc_unique_contributor_for_user_v1` (כלל שיוך יחיד) | `CREATE FUNCTION` ×2 |
+| `D0-shared_helpers.sql` | `gematria_word_method_value_v1` (זהות: ביטוי+שיטה+ערך מהמנוע), `home_featured_picks_v1`, `public_discovery_writer_v1` (תנאי יחיד לבחירה ולהצגה) ו־`rc_unique_contributor_for_user_v1` (כלל שיוך יחיד) | `CREATE FUNCTION` ×4 |
 | `D1-discovery_center_v1.sql` | `discovery_center_feed_v1` (מהיר, 91ms) ו־`discovery_center_stats_v1` (מטמון 10 דקות). שער פרופילים ציבוריים בלבד | `CREATE FUNCTION` ×2 |
 | `D2-writer_public_material_v1.sql` | כל החומר הציבורי של כותב לפי סוג (כולל פוסטים ותגובות), עימוד יציב לפי `(created_at, dedupe_key)` | `CREATE FUNCTION` |
-| `D3-admin_set_home_featured_discovery_v1.sql` | בחירת הגילוי למנהל, כותבת ל־`site_flags` הקיים, אותו תנאי כמו ההצגה | `CREATE FUNCTION` + כתיבה ל־`site_flags` דרכה בלבד |
+| `D3-admin_set_home_featured_discovery_v1.sql` | בחירת הגילוי הנבחר ושל מה שלצדו (עד 3, כל אחד עם שיטה), למנהל, כותבת ל־`site_flags` הקיים, אותו תנאי כמו ההצגה | `CREATE FUNCTION` + כתיבה ל־`site_flags` דרכה בלבד |
+| `D3b-initial-featured.sql` | הבחירה הראשונית: תפרצי בתשפז = 5787 (ריבוע) ולצדו ימין ושמאול תפרצי = 2026 (מילוי); מוגנת בבדיקת ערכים | כתיבה אחת ל־`site_flags` |
 | `D4-trg_rc_resolve_author_contributor.sql` | שיוך נכון בקליטה לפי הכלל היחיד | `CREATE FUNCTION` + `CREATE TRIGGER` |
 | `D5-add_contribution_single_attribution_rule.sql` | `add_contribution` על אותו כלל (5 שורות, מוגן ב־md5) | `CREATE OR REPLACE FUNCTION` |
+| `E1-gematria-root-gate-check.sql` | בדיקת אכיפה (קריאה בלבד) לחוק gematria_auto_registry_law v2: גימטריה בגוף פוסט חייבת שורש ב־gematria_words | אין |
 | `VERIFY-AFTER-APPLY.sql` | בדיקות הרשאה ופרטיות אחרי החלה | אין (קריאה בלבד) |
 
 הביקורת המלאה: [AUDIT.md](AUDIT.md). כל אחד מהקבצים דורש אישור מדויק נפרד.
@@ -24,3 +26,10 @@
 
 ## הערה על עדכוני ערוץ
 ב־RLS הציבורי עדכון ערוץ גלוי רק במצב `live`. עדכוני `published` (135) שהתיקון B2 עדכן אינם `live`, ולכן אינם נספרים בסטטיסטיקה ואינם מוצגים עד שיהפכו ל־`live`.
+
+
+## עדכון 26.11.2026: זהות גילוי (ביטוי + שיטה + ערך) ומונים אוטומטיים
+- הגילוי הנבחר נושא `phrase`, `method` (מפתח ברשימה הקנונית), `method_label` ו־`value`. הערך נקרא מעמודת המנוע של אותה שיטה (`gematria_methods.db_column`), לא תמיד `ragil`; שיטה שאינה רשומה נדחית בבחירה ונופלת ל"רגיל" רק בהצגה ללא בחירה מפורשת.
+- בחירה מרובה: הנבחר ועד שניים לצדו (`featured`, `featured_with`). נשמרת בשורת `site_flags` הקיימת כמערך `{id, method}`; הפורמט הישן (מזהה בלבד) נקרא כמו קודם.
+- מונים: הכול נגזר חי מ־`gematria_words` לפי תנאי הזכאות הקיים, ללא הזנה ידנית. הסטטיסטיקה ודף הכותב סופרים **ביטוי ייחודי** פעם אחת (בנתונים הציבוריים אין כפילויות כיום; ההגנה לעתיד). עדכון ערוץ שאינו `live` לא נספר.
+- בדיקות: `test/run-sql-test.sh` (Postgres מקומי זמני, בלי מסד חי) מריץ את D0–D3 על סכמה מדומה: זהות שיטה, בחירה, הרשאות, אובדן זכאות, מונה אוטומטי וללא כפל, דף הכותב. תוצאה: PASS.

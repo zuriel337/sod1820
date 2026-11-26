@@ -1,4 +1,4 @@
--- D2 · writer_public_material_v1(p_contributor_id, p_kind, p_limit, p_before_at, p_before_key) · כל החומר הציבורי של כותב אחד לפי סוג, בלי כפילויות ועם עימוד יציב.
+-- D2 (עודכן 26.11.2026: גימטריה מוצגת כביטוי+שיטה+ערך, ביטוי נספר פעם אחת) · writer_public_material_v1(p_contributor_id, p_kind, p_limit, p_before_at, p_before_key) · כל החומר הציבורי של כותב אחד לפי סוג, בלי כפילויות ועם עימוד יציב.
 -- *** טיוטה לאישור מדויק. לא הוחלה. *** קריאה בלבד, STABLE, SECURITY DEFINER. שומר כותב כמו writer_public_contributions_page_v1: פעיל, לא ממוזג, לא נעול, לא בבנייה, visibility='public';
 --   כותב פרטי/נעול מחזיר אפס שורות. שיוך: מזהה ← משתמש ← שם/כינוי ייחודי של פרופיל ציבורי בלבד. מוסתר/ממתין/פרטי לעולם לא מוחזר.
 -- סוגים: contribution | reply | research | gematria | update | cipher | content | post. עדכוני ערוץ: live בלבד. פוסטים: לא מסומנים "טיוטה" (posts_anon_read), לפי שם כותב ייחודי.
@@ -27,9 +27,13 @@ items AS (
   FROM p JOIN public.research_contributions r ON r.deleted_at IS NULL AND r.status IN ('approved', 'published') AND r.parent_id IS NOT NULL
    AND (r.author_contributor_id = p.cid OR (r.author_contributor_id IS NULL AND r.author_user_id IS NOT NULL AND r.author_user_id = p.uid))
   UNION ALL
-  SELECT 'gematria', g.id::text, g.created_at, 'gw:' || g.id, g.phrase, g.phrase || ' = ' || g.ragil
+  SELECT 'gematria', g.id::text, g.created_at, 'gw:' || g.id, g.phrase,
+         g.phrase || ' = ' || mv.value || CASE WHEN mv.method_key <> 'רגיל' THEN ' (' || mv.method_key || ')' ELSE '' END   -- זהות הגילוי: ביטוי + שיטה + ערך
   FROM p JOIN public.gematria_words g ON (g.is_encrypted = false OR g.is_encrypted IS NULL) AND g.is_verified AND g.is_published AND public.gematria_public_word_eligible(g.id)
    AND EXISTS (SELECT 1 FROM uq WHERE uq.cid = p.cid AND uq.nm = lower(btrim(regexp_replace(coalesce(g.source, ''), '^contribution:', ''))))
+   AND NOT EXISTS (SELECT 1 FROM public.gematria_words g2 WHERE lower(btrim(g2.phrase)) = lower(btrim(g.phrase)) AND (g2.created_at, g2.id) < (g.created_at, g.id)   -- ביטוי נספר פעם אחת
+                   AND (g2.is_encrypted = false OR g2.is_encrypted IS NULL) AND g2.is_verified AND g2.is_published AND public.gematria_public_word_eligible(g2.id))
+  CROSS JOIN LATERAL public.gematria_word_method_value_v1(g.id, NULL) mv
   UNION ALL
   SELECT 'research', o.id::text, o.created_at, 'ro:' || o.id, NULL, left(btrim(coalesce(o.statement, '')), 200)
   FROM p JOIN public.channel_updates cu ON cu.contributor_id = p.cid

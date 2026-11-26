@@ -1,4 +1,4 @@
--- D1 · שני קוראים לבית: discovery_center_feed_v1() (מהיר: גילוי נבחר, גילויים חדשים, תרומות חדשות, כותבים פעילים) ו-discovery_center_stats_v1() (סטטיסטיקות כלליות, יקר יותר, נשמר במטמון).
+-- D1 (עודכן 26.11.2026: זהות גילוי = ביטוי+שיטה+ערך, עד שלוש בחירות, ביטוי נספר פעם אחת) · שני קוראים לבית: discovery_center_feed_v1() (מהיר: גילוי נבחר, גילויים חדשים, תרומות חדשות, כותבים פעילים) ו-discovery_center_stats_v1() (סטטיסטיקות כלליות, יקר יותר, נשמר במטמון).
 -- *** טיוטה לאישור מדויק. לא הוחלה. *** קריאה בלבד, STABLE, SECURITY DEFINER, ללא טבלה חדשה. תלויים ב-D0 (העזר public_discovery_writer_v1).
 -- שער הפרסום: כותב מוצג (שם, קישור, ספירת כותבים, כותבים פעילים, קרדיט) רק אם הפרופיל פעיל, לא ממוזג, לא נעול (locked), לא בבנייה (building) ו-dossier_settings.visibility='public'
 --   (כמו writer_public_contributions_page_v1). בפועל רק 32 מ-2,285 הזהויות הן ציבוריות; כל השאר (private) לא מופיעות ברשימות, בקרדיט או בספירת הכותבים, ותרומה שלהן מוצגת כ"חבר/ת הקהילה".
@@ -19,21 +19,28 @@ WITH pubw AS (
 ), uq AS (
   SELECT nm, (array_agg(id))[1] AS cid FROM names GROUP BY nm HAVING count(DISTINCT id) = 1
 ), cand AS (   -- מקורות עם שם: מסננים לפני פונקציית הזכאות
-  SELECT g.id, g.phrase, g.ragil, g.source, g.created_at, u.cid, p.slug AS cslug, p.display_name AS cname
+  SELECT g.id, g.phrase, g.source, g.created_at, u.cid, p.slug AS cslug, p.display_name AS cname
   FROM public.gematria_words g
   JOIN uq u ON u.nm = lower(btrim(regexp_replace(coalesce(g.source, ''), '^contribution:', '')))
   JOIN pubw p ON p.id = u.cid
   WHERE (g.is_encrypted = false OR g.is_encrypted IS NULL) AND g.is_verified AND g.is_published
     AND nullif(btrim(g.source), '') IS NOT NULL
     AND g.source !~* '^(promoted|excel_import|entity_|emotion_|auto:|admin_curated|wp_id|wa-vip)' AND lower(btrim(g.source)) <> 'sod1820'
-), named AS (SELECT * FROM cand WHERE public.gematria_public_word_eligible(id)),
-flag AS (
-  SELECT (regexp_match(message, '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'))[1]::uuid AS wid FROM public.site_flags WHERE key = 'home_featured_discovery' AND enabled
-), chosen AS (
-  SELECT n.* FROM named n JOIN flag f ON f.wid = n.id WHERE public.public_discovery_writer_v1(n.id) IS NOT DISTINCT FROM n.cid
+), named AS (   -- זהות הגילוי: ביטוי + שיטה + ערך (השיטה והערך מהמנוע דרך העזר, לא תמיד רגיל); ביטוי נספר פעם אחת (הראשון)
+  SELECT c.*, mv.method_key AS method, mv.value, mv.label AS method_label
+  FROM cand c CROSS JOIN LATERAL public.gematria_word_method_value_v1(c.id, NULL) mv
+  WHERE public.gematria_public_word_eligible(c.id)
+    AND NOT EXISTS (SELECT 1 FROM cand c2 WHERE lower(btrim(c2.phrase)) = lower(btrim(c.phrase)) AND (c2.created_at, c2.id) < (c.created_at, c.id))
+), chosen AS (   -- בחירות המנהל (עד 3, כל אחת עם שיטה): אותו תנאי כמו בבחירה (D3)
+  SELECT pk.ord, n.id, n.phrase, n.created_at, n.cid, n.cslug, n.cname, mv.method_key AS method, mv.value, mv.label AS method_label
+  FROM public.home_featured_picks_v1() pk
+  JOIN named n ON n.id = pk.word_id
+  CROSS JOIN LATERAL public.gematria_word_method_value_v1(pk.word_id, pk.method) mv
+  WHERE public.public_discovery_writer_v1(n.id) IS NOT DISTINCT FROM n.cid
 ), featured AS (
-  SELECT * FROM chosen UNION ALL
-  (SELECT * FROM named WHERE NOT EXISTS (SELECT 1 FROM chosen) ORDER BY created_at DESC, id DESC LIMIT 1)
+  SELECT * FROM chosen
+  UNION ALL
+  (SELECT 1, n.id, n.phrase, n.created_at, n.cid, n.cslug, n.cname, n.method, n.value, n.method_label FROM named n WHERE NOT EXISTS (SELECT 1 FROM chosen) ORDER BY n.created_at DESC, n.id DESC LIMIT 1)
 ), recent_rc AS (
   SELECT r.id, r.created_at, r.parent_id, r.author_name, r.author_user_id, r.title, r.body,
          coalesce(r.author_contributor_id, CASE WHEN r.author_user_id IS NULL THEN (SELECT cid FROM uq WHERE nm = lower(btrim(r.author_name))) END) AS cid
@@ -59,8 +66,9 @@ flag AS (
 )
 SELECT jsonb_build_object(
   'generated_at', now(),
-  'featured', (SELECT to_jsonb(f) FROM (SELECT id, phrase, ragil AS value, created_at, cname AS credit_name, cslug AS credit_slug FROM featured LIMIT 1) f),
-  'latest_discoveries', coalesce((SELECT jsonb_agg(to_jsonb(d)) FROM (SELECT id, phrase, ragil AS value, created_at, cname AS credit_name, cslug AS credit_slug FROM named ORDER BY created_at DESC, id DESC LIMIT 5) d), '[]'::jsonb),
+  'featured', (SELECT to_jsonb(f) FROM (SELECT id, phrase, method, method_label, value, created_at, cname AS credit_name, cslug AS credit_slug FROM featured ORDER BY ord LIMIT 1) f),
+  'featured_with', coalesce((SELECT jsonb_agg(to_jsonb(f) ORDER BY f.ord) FROM (SELECT ord, id, phrase, method, method_label, value, created_at, cname AS credit_name, cslug AS credit_slug FROM featured ORDER BY ord OFFSET 1) f), '[]'::jsonb),
+  'latest_discoveries', coalesce((SELECT jsonb_agg(to_jsonb(d)) FROM (SELECT id, phrase, method, method_label, value, created_at, cname AS credit_name, cslug AS credit_slug FROM named ORDER BY created_at DESC, id DESC LIMIT 5) d), '[]'::jsonb),
   'latest_contributions', coalesce((SELECT jsonb_agg(to_jsonb(c)) FROM (
       SELECT r.id, r.created_at,
              coalesce(nullif(left(btrim(regexp_replace(regexp_replace(coalesce(nullif(btrim(r.title), ''), btrim(r.body)), 'https?://\S+', '', 'g'), '\s+', ' ', 'g')), 120), ''), '(קישור)') AS excerpt,
@@ -94,7 +102,7 @@ pub_gw AS (
   SELECT DISTINCT cid FROM c WHERE public.gematria_public_word_eligible(id))
 SELECT jsonb_build_object(
   'generated_at', now(),
-  'gematria_public', (SELECT count(*) FROM public.gematria_words g WHERE (g.is_encrypted = false OR g.is_encrypted IS NULL) AND g.is_verified AND g.is_published AND public.gematria_public_word_eligible(g.id)),
+  'gematria_public', (SELECT count(DISTINCT lower(btrim(g.phrase))) FROM public.gematria_words g WHERE (g.is_encrypted = false OR g.is_encrypted IS NULL) AND g.is_verified AND g.is_published AND public.gematria_public_word_eligible(g.id)),
   'contributions', (SELECT count(*) FROM public.research_contributions r WHERE r.deleted_at IS NULL AND r.status IN ('approved', 'published') AND r.parent_id IS NULL AND nullif(btrim(r.body), '') IS NOT NULL),
   'replies', (SELECT count(*) FROM public.research_contributions r WHERE r.deleted_at IS NULL AND r.status IN ('approved', 'published') AND r.parent_id IS NOT NULL AND nullif(btrim(r.body), '') IS NOT NULL),
   'research_public', (SELECT count(*) FROM public.research_objects o LEFT JOIN public.channel_updates cu ON split_part(coalesce(o.source_ref, ''), '#', 1) = 'channel_updates:' || cu.id::text
