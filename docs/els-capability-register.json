@@ -1,0 +1,3004 @@
+{
+ "as_of": "2026-11-26",
+ "base": "f6f1051d3",
+ "source": "docs/els-capability-audit.md section 13 (disposition) + section 4 (names)",
+ "vocabulary": [
+  "LIVE",
+  "PARTIAL",
+  "PARKED",
+  "SUPERSEDED",
+  "NEVER",
+  "UNKNOWN",
+  "UNREACHABLE"
+ ],
+ "summary": {
+  "LIVE": 45,
+  "NEVER": 1,
+  "PARKED": 5,
+  "PARTIAL": 6,
+  "SUPERSEDED": 4,
+  "UNKNOWN": 1,
+  "UNREACHABLE": 23
+ },
+ "capabilities": [
+  {
+   "id": "A01",
+   "family": "A",
+   "name": "Pan / drag",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "enablePan"
+    },
+    {
+     "file": "src/components/experience2029/ElsFoldedMatrix2029.jsx",
+     "symbol": "useMatrixDrag"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A02",
+   "family": "A",
+   "name": "Pinch zoom",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "zoom-pinch"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "onZoomChange"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:zoom-pinch",
+   "tests": [
+    "test/els-matrix-side-rail.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A03",
+   "family": "A",
+   "name": "Zoom − / +",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "setZoom"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "zoom-in"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:zoom-in",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-matrix-side-rail.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A04",
+   "family": "A",
+   "name": "Fit to screen",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "fitMatrixToScreen"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "fit-toggle"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:fit-toggle",
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A05",
+   "family": "A",
+   "name": "Focus / center on axis",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "centerMain"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "A06",
+   "family": "A",
+   "name": "Tap letter → exact location",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "locateLetter"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "letter-context"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:letter-context",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A07",
+   "family": "A",
+   "name": "Theme — Royal dark",
+   "disposition": "SUPERSEDED",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "2029 frame themes replace the engine themes; names Day/Parchment/Night not verified on the cipher surface"
+  },
+  {
+   "id": "A08",
+   "family": "A",
+   "name": "Theme — Classic light",
+   "disposition": "SUPERSEDED",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "same as A07"
+  },
+  {
+   "id": "A09",
+   "family": "A",
+   "name": "Theme — Parchment (קלף)",
+   "disposition": "SUPERSEDED",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "same as A07"
+  },
+  {
+   "id": "A10",
+   "family": "A",
+   "name": "Niqqud display",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "ensureNiqqud"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "niqqud-toggle"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:niqqud-toggle",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A11",
+   "family": "A",
+   "name": "Color findings (palette)",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "colorSets"
+    },
+    {
+     "file": "src/components/experience2029/elsFindingColors2029.js",
+     "symbol": "nextFindingColor"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A12",
+   "family": "A",
+   "name": "Change finding color",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "recomputeWords"
+    },
+    {
+     "file": "src/components/TzofenEmbed.jsx",
+     "symbol": "update-findings"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "update-findings",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-browser-truth-census.test.mjs",
+    "test/els-host-bridge.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "colour choice reaches update-findings; the picker click path was not traced"
+  },
+  {
+   "id": "A13",
+   "family": "A",
+   "name": "Show / hide axis",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "hideMain"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "axis-visibility"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:axis-visibility",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-matrix-share.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A14",
+   "family": "A",
+   "name": "Draw finding line",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "lineContextCells"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "LineExplorer"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:line-context",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ],
+   "note": "absorbed: native line explorer replaces the classic line strip"
+  },
+  {
+   "id": "A15",
+   "family": "A",
+   "name": "Expand finding",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "controlNativeOccurrence"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "occurrence-select"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:occurrence-select",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "absorbed: native hit list replaces buildOccPanel"
+  },
+  {
+   "id": "A16",
+   "family": "A",
+   "name": "Remove finding",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "removeFinding"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "update-findings",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-host-bridge.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A17",
+   "family": "A",
+   "name": "Manual finding reorder",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "nativeFindingControl"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "move-up"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-finding-control",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A18",
+   "family": "A",
+   "name": "Manual cell selection",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "selMode"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "selection-mode"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:selection-mode",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-matrix-side-rail.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A19",
+   "family": "A",
+   "name": "Heat map",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "computeHeat"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "heat-toggle"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:heat-toggle",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A20",
+   "family": "A",
+   "name": "3D view",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "enable3D"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "engine 3D tilt is reachable only from the classic UI; no native path (MatrixStack3D is on a separate branch)"
+  },
+  {
+   "id": "A21",
+   "family": "A",
+   "name": "Film / reveal",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "playReveal"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "absorbed: native camera mode; the engine function is classic-only"
+  },
+  {
+   "id": "A22",
+   "family": "A",
+   "name": "Presentation mode",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "startPresent"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "absorbed: native presentation/camera mode; the engine function is classic-only"
+  },
+  {
+   "id": "A23",
+   "family": "A",
+   "name": "Verse reading",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "verseContextLens"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "SourceLens"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:verse-context",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "A24",
+   "family": "A",
+   "name": "Verse span",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "verseSpan"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "A25",
+   "family": "A",
+   "name": "Matrix PNG / share card",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "cipherCardDataURL"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "share card is built at save; no native PNG download (downloadMatrixPNG is classic-only)"
+  },
+  {
+   "id": "A26",
+   "family": "A",
+   "name": "Share link",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-matrix-projection-contract-v1.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "encodeMatrix"
+    },
+    {
+     "file": "src/components/experience2029/ElsMatrixShare2029.jsx",
+     "symbol": "ElsMatrixShare2029"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "absorbed: native share component"
+  },
+  {
+   "id": "B01",
+   "family": "B",
+   "name": "Normal ELS search",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "findAll"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "requestSearch"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-search:regular",
+   "tests": [
+    "test/els-advanced-page-browser.test.mjs",
+    "test/els-background-research.browser.test.mjs",
+    "test/els-browser-cutover.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ]
+  },
+  {
+   "id": "B02",
+   "family": "B",
+   "name": "Simple cross search",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "runCrossSimple"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "requestSearch"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-search:cross",
+   "tests": [
+    "test/central-els-hint-media-world-2029.browser.test.mjs",
+    "test/els-advanced-page-browser.test.mjs",
+    "test/els-browser-cutover.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ]
+  },
+  {
+   "id": "B03",
+   "family": "B",
+   "name": "Add a word to current matrix",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "updateNativeFindingsOperation"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "onFindingControl"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "update-findings",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-host-bridge.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "B04",
+   "family": "B",
+   "name": "Torah scope (default)",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "scopeN"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs",
+    "test/els-connected-cross.test.mjs",
+    "test/els-explicit-lexicon.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "B05",
+   "family": "B",
+   "name": "Full Tanakh / Deep scope",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "tanakhLocked"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "B06",
+   "family": "B",
+   "name": "Multi-term cross search",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "runCrossThree"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "crossThirdTerm"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-search:cross-three",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-optional-third-term.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ],
+   "note": "two axes plus an optional third are native; N-term crossFindMulti is classic-only"
+  },
+  {
+   "id": "B07",
+   "family": "B",
+   "name": "Free convergence (no fixed axis)",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "crossFindFree"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "pure kernel exists; runCrossFree is bound to the classic DOM"
+  },
+  {
+   "id": "B08",
+   "family": "B",
+   "name": "Bridge (engine finds the axis)",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "runBridge"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic-only caller (xbridge)"
+  },
+  {
+   "id": "B09",
+   "family": "B",
+   "name": "All-sides / mirror cross",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "runCrossSides"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic-only caller"
+  },
+  {
+   "id": "B10",
+   "family": "B",
+   "name": "Split / Join — 8 forms",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "formsOf"
+    },
+    {
+     "file": "src/pages/Els2029Page.jsx",
+     "symbol": "formsPreviewRequest"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "preview-forms-batch",
+   "tests": [
+    "test/els-browser-truth-census.test.mjs",
+    "test/els-forms-preview-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ]
+  },
+  {
+   "id": "B11",
+   "family": "B",
+   "name": "classical ciphers, cheap because window-bounded",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "lensMirror"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic-only; only reversal spellings are native"
+  },
+  {
+   "id": "B12",
+   "family": "B",
+   "name": "opens skip families that today cannot be asked at all",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "fixedSkipCandidates"
+    },
+    {
+     "file": "src/lib/research/elsAdvancedPage.js",
+     "symbol": "buildElsExactSkipProbe"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "probe-exact-skip",
+   "tests": [
+    "test/els-browser-truth-census.test.mjs",
+    "test/els-host-bridge.test.mjs",
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ],
+   "note": "range search and exact skip are live; findAtSkips (arbitrary skip list) still has no caller"
+  },
+  {
+   "id": "B13",
+   "family": "B",
+   "name": "tests \"is this skip structurally special?\"",
+   "disposition": "PARKED",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "no Fibonacci/prime/power-of-2 search anywhere"
+  },
+  {
+   "id": "B14",
+   "family": "B",
+   "name": "book-level rarity is the honest denominator for book-local claims",
+   "disposition": "PARKED",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "scope is torah or tanakh only"
+  },
+  {
+   "id": "B15",
+   "family": "B",
+   "name": "Wildcard patterns",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "scanPattern"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "pure kernel exists; lensPattern is bound to the classic DOM"
+  },
+  {
+   "id": "B16",
+   "family": "B",
+   "name": "Neighborhood / radius search",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "scanNeighborhood"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "pure kernel exists; lensRadius is bound to the classic DOM"
+  },
+  {
+   "id": "B17",
+   "family": "B",
+   "name": "Spelling variants (FORMS registry)",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "formsOf"
+    },
+    {
+     "file": "src/pages/Els2029Page.jsx",
+     "symbol": "formsPreviewRequest"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "preview-forms-batch",
+   "tests": [
+    "test/els-browser-truth-census.test.mjs",
+    "test/els-forms-preview-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "same path as B10"
+  },
+  {
+   "id": "B18",
+   "family": "B",
+   "name": "future non-Hebrew inputs",
+   "disposition": "PARKED",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "no non-Hebrew derivation"
+  },
+  {
+   "id": "B19",
+   "family": "B",
+   "name": "reading context is how a finding becomes meaningful",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "lineContextCells"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "LineExplorer"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:line-context",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "B20",
+   "family": "B",
+   "name": "—",
+   "disposition": "NEVER",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "forbidden by the capability map (approximate search)"
+  },
+  {
+   "id": "C01",
+   "family": "C",
+   "name": "evidence access",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "controlNativeOccurrence"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "SourceLens"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "host_message": "native-control:occurrence-select",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "C02",
+   "family": "C",
+   "name": "closes the research loop `find → inspect → promote → search again → return`",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "research_workspace_law@5"
+   ],
+   "owner": [
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "openLetterOccurrence"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "research profile only; public-build gating not traced"
+  },
+  {
+   "id": "C03",
+   "family": "C",
+   "name": "ELS stops being an island; `research_workspace_law` requires it",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "research_workspace_law@5"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/research/elsJourneyReopen.js",
+     "symbol": "addAxisFinding"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "ResearchProvider"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "reaches the workspace tier only; research_objects tier not re-checked"
+  },
+  {
+   "id": "C04",
+   "family": "C",
+   "name": "the only honest way to show geometry/scope sensitivity",
+   "disposition": "PARKED",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "no compare surface"
+  },
+  {
+   "id": "C05",
+   "family": "C",
+   "name": "adversarial review of one's own finding",
+   "disposition": "PARKED",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [],
+   "depends_on": [],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "no ELS challenge path"
+  },
+  {
+   "id": "D01",
+   "family": "D",
+   "name": "Occurrence count",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "showSearchStat"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "D02",
+   "family": "D",
+   "name": "Occurrence picker",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "controlNativeOccurrence"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "ElsOccurrencePlanner2029"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:occurrence-page",
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "D03",
+   "family": "D",
+   "name": "Notable occurrences",
+   "disposition": "UNKNOWN",
+   "contracts": [
+    "els_single_engine_law@2"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "notable"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "notable/SIGNIFICANT feed the classic occurrence panel; native use not confirmed"
+  },
+  {
+   "id": "D04",
+   "family": "D",
+   "name": "Range / filter by skip",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/research/elsAdvancedPage.js",
+     "symbol": "skipMin"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-background-principal.browser.test.mjs",
+    "test/els-search-bridge.test.mjs",
+    "test/els-background-research.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "absorbed: skip range in the advanced search"
+  },
+  {
+   "id": "D05",
+   "family": "D",
+   "name": "Proximity meter",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "crossPure"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-search:cross",
+   "tests": [
+    "test/central-els-hint-media-world-2029.browser.test.mjs",
+    "test/els-advanced-page-browser.test.mjs",
+    "test/els-browser-cutover.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "D06",
+   "family": "D",
+   "name": "Show N findings",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "showN"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "finding-count"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "native-control:finding-count",
+   "tests": [
+    "test/els-background-research.browser.test.mjs",
+    "test/els-browser-cutover.test.mjs",
+    "test/els-matrix-reading-saved-result.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "E01",
+   "family": "E",
+   "name": "Gap / proximity ranking",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "proxF"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-connected-cross.test.mjs",
+    "test/els-window-directions.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "E02",
+   "family": "E",
+   "name": "Strength score",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "strengthOf"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "callers are classic lenses only"
+  },
+  {
+   "id": "E03",
+   "family": "E",
+   "name": "Rarity",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "rarityOf"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [],
+   "proof": {
+    "code": true,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "E04",
+   "family": "E",
+   "name": "Quality score / stars",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "starsFromTq"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-connected-cross.test.mjs",
+    "test/els-window-directions.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "stars exist for cross meetings; qualityCalc runs only in the classic panel, so saves carry no quality"
+  },
+  {
+   "id": "E05",
+   "family": "E",
+   "name": "Signature",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "computeSignature"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic lens only"
+  },
+  {
+   "id": "E06",
+   "family": "E",
+   "name": "Anchors",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "lensAnchor"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic lens only"
+  },
+  {
+   "id": "E07",
+   "family": "E",
+   "name": "Angle / parallel classification",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "gridStep"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "tests": [
+    "test/els-connected-cross.test.mjs",
+    "test/els-window-directions.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ]
+  },
+  {
+   "id": "E08",
+   "family": "E",
+   "name": "Zone chain",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "zoneChain"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic cross panel only"
+  },
+  {
+   "id": "E09",
+   "family": "E",
+   "name": "Monte Carlo (null model)",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "runMonteCarlo"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "the native save path skips it; other callers are classic"
+  },
+  {
+   "id": "E10",
+   "family": "E",
+   "name": "Zone Monte Carlo",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding",
+    "CLAUDE.md Speed Law §1/§3",
+    "CLAUDE.md Operation Visibility Law"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "zoneMonteCarlo"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic button only"
+  },
+  {
+   "id": "F01",
+   "family": "F",
+   "name": "`suggestCluster` — nearby word cluster",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "suggestCluster"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [
+    "test/els-browser-truth-census.test.mjs"
+   ],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "computed in run, displayed only by the classic chips"
+  },
+  {
+   "id": "F02",
+   "family": "F",
+   "name": "`autoTerms` — terms from axis/neighbourhood",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "autoTerms"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [
+    "test/els-browser-truth-census.test.mjs"
+   ],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic callers only"
+  },
+  {
+   "id": "F03",
+   "family": "F",
+   "name": "`scanCandidates` — dictionary inside window",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "matrixLexiconLens"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "matrix-lexicon"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:matrix-lexicon",
+   "tests": [
+    "test/els-my-research-reopen.browser.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-explicit-lexicon.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ],
+   "note": "absorbed: native lexicon lens replaces scanCandidates"
+  },
+  {
+   "id": "F04",
+   "family": "F",
+   "name": "`scanNeighborhood` — nearby words",
+   "disposition": "SUPERSEDED",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "guidedMatrixDiscoveryLens"
+    },
+    {
+     "file": "src/lib/research/elsAutomaticResearchPlan.js",
+     "symbol": "matrix-discovery"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "host_message": "request-lens:matrix-discovery",
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-guided-discovery.test.mjs",
+    "test/els-search-planners.test.mjs"
+   ],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "nearest native equivalent; equivalence not compared"
+  },
+  {
+   "id": "F05",
+   "family": "F",
+   "name": "`gemGen` — numerical candidates",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "gemGen"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic only"
+  },
+  {
+   "id": "F06",
+   "family": "F",
+   "name": "`discoverHotAreas` — candidate regions",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "discoverHotAreas"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic only"
+  },
+  {
+   "id": "F07",
+   "family": "F",
+   "name": "`buildHypotheses` — research hypotheses",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "buildHypotheses"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic only"
+  },
+  {
+   "id": "F08",
+   "family": "F",
+   "name": "`scanAxisLineNow` — words on axis continuation",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "CLAUDE.md §11 Truth/Human Gate: a candidate is not a finding"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "scanLineWords"
+    },
+    {
+     "file": "src/components/experience2029/ElsNativeClassic2029.jsx",
+     "symbol": "LineExplorer"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "verification:MATCH"
+   ],
+   "host_message": "request-lens:line-context",
+   "tests": [
+    "test/els-browser-cutover.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-2029-classic-faithful-port.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "TELEMETRY_OPERATION"
+   ],
+   "note": "absorbed: native line scan replaces scanAxisLineNow"
+  },
+  {
+   "id": "G01",
+   "family": "G",
+   "name": "Save matrix to cloud",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md",
+    "CLAUDE.md Open Index Law §1"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "performSaveToGallery"
+    },
+    {
+     "file": "src/components/experience2029/ElsSavePanel2029.jsx",
+     "symbol": "ElsSavePanel2029"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:save_els_matrix",
+    "auth"
+   ],
+   "host_message": "native-save",
+   "tests": [
+    "test/els-browser-truth-census.test.mjs",
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-save-panel-lifecycle.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "APP_HEALTH_1528_PENDING"
+   ]
+  },
+  {
+   "id": "G02",
+   "family": "G",
+   "name": "Anonymous save",
+   "disposition": "PARTIAL",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "saveMatrixAnon"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:save_els_matrix_anon",
+    "auth"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ],
+   "note": "the anonymous branch exists but the native panel only offers a login link"
+  },
+  {
+   "id": "G03",
+   "family": "G",
+   "name": "Update a saved matrix",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md"
+   ],
+   "owner": [
+    {
+     "file": "src/components/TzofenEmbed.jsx",
+     "symbol": "update_els_matrix"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:update_els_matrix",
+    "auth"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs",
+    "test/els-verify-batch.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION",
+    "APP_HEALTH_1528_PENDING"
+   ]
+  },
+  {
+   "id": "G04",
+   "family": "G",
+   "name": "Variants",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "getAllVariants"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:merge_els_variant",
+    "auth"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "host helper with no caller"
+  },
+  {
+   "id": "G05",
+   "family": "G",
+   "name": "Duplicate detection",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "getDuplicatesOf"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "host helper with no caller"
+  },
+  {
+   "id": "G06",
+   "family": "G",
+   "name": "Gallery",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md",
+    "CLAUDE.md Open Index Law §1"
+   ],
+   "owner": [
+    {
+     "file": "src/pages/Els2029Page.jsx",
+     "symbol": "ElsSavedLibrary2029"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "tests": [
+    "test/els-saved-cipher-owner-actions.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "G07",
+   "family": "G",
+   "name": "Load a saved matrix",
+   "disposition": "LIVE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13",
+    "docs/els-f3-f4-privacy-handoff.md"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "loadMatrix"
+    },
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "getMatrixById"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed"
+   ],
+   "host_message": "load-matrix",
+   "tests": [
+    "test/els-background-research.browser.test.mjs",
+    "test/els-browser-cutover.test.mjs",
+    "test/els-my-research-reopen.browser.test.mjs"
+   ],
+   "proof": {
+    "code": true,
+    "fixture_test": true,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD",
+    "TELEMETRY_UI_ACTION"
+   ]
+  },
+  {
+   "id": "G08",
+   "family": "G",
+   "name": "Contribution from ELS",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "tools/els/els-code.template.html",
+     "symbol": "shareFinding"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:add_contribution"
+   ],
+   "host_message": "contributed",
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "classic-only trigger; the host handler has no native sender"
+  },
+  {
+   "id": "G09",
+   "family": "G",
+   "name": "Researcher dossier",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "elsToDossier"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:admin_els_to_dossier",
+    "auth"
+   ],
+   "tests": [],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "host helper with no caller"
+  },
+  {
+   "id": "G10",
+   "family": "G",
+   "name": "Human moderation",
+   "disposition": "UNREACHABLE",
+   "contracts": [
+    "els_single_engine_law@2",
+    "SOD1820_DESIGN_CONTRACT_V2 §14.4/§14.13 + canonical_ui_components_law@13"
+   ],
+   "owner": [
+    {
+     "file": "src/lib/elsMatrices.js",
+     "symbol": "moderateMatrix"
+    }
+   ],
+   "depends_on": [
+    "els-engine-iframe",
+    "host-bridge:TzofenEmbed",
+    "rpc:moderate_els_matrix",
+    "auth"
+   ],
+   "tests": [
+    "test/els-native-ui-browser.test.mjs"
+   ],
+   "proof": {
+    "code": false,
+    "fixture_test": false,
+    "live_desktop": false,
+    "live_mobile": false
+   },
+   "detected_by": [
+    "REGISTER_GUARD"
+   ],
+   "note": "only the classic delete message calls it; no moderation UI in src (control-plane surfaces not checked)"
+  }
+ ],
+ "engine_only": [
+  {
+   "kind": "lens",
+   "name": "cross-third-axis",
+   "reason": "The engine lens is exercised only by direct postMessage in test/els-native-ui-browser.test.mjs. The host UI reaches a third axis through native-search kind cross-three (B06). Wire it from the host or retire it; until then it is listed here on purpose."
+  }
+ ],
+ "notes": [
+  "Single source for the per-capability mapping (binding contract, responsible component, dependency, test, actual state). The audit document keeps the narrative; test/els-capability-register.test.mjs keeps both honest.",
+  "proof.live_desktop / proof.live_mobile stay false until a real run on the live site is recorded in live_evidence; CI and fixture tests are not live proof.",
+  "detected_by: REGISTER_GUARD = the static test above; TELEMETRY_UI_ACTION / TELEMETRY_OPERATION = existing els events (surface=els); APP_HEALTH_1528_PENDING = PR 1528 signals, not in main and not applied."
+ ]
+}
