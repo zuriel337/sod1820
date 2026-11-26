@@ -24,6 +24,12 @@ export function renderRegisterMarkdown(reg) {
     lines.push('', '## תלות Legacy בתוך הצופן', '', `סיכום: ${Object.entries(reg.legacy_dependency_summary).map(([k, v]) => `${k} ${v}`).join(' · ')}. המנוע החישובי הקנוני נשמר; מה שניתן להוציא הוא ממשק Legacy בלבד, ורק אחרי העברה ואימות שאין אובדן יכולות.`, '');
     for (const e of reg.legacy_dependency_findings) lines.push(`- **${e.id} · ${e.area}** (${e.removal}): ${e.finding}`);
   }
+  if (reg.legacy_removal_plan) {
+    lines.push('', '## תוכנית מדורגת: איחוד הציור והוצאת ממשק Legacy', '', reg.legacy_removal_plan.principle, '');
+    for (const sl of reg.legacy_removal_plan.slices) lines.push(`- **${sl.id} · ${sl.title}** — ${sl.scope}. שער: ${sl.gate}. מוציא: ${sl.removes}.`);
+    const rows = reg.capabilities.filter(c => c.legacy_dependency?.plan);
+    lines.push('', '| יכולת | שלב | הערה |', '|---|---|---|', ...rows.map(c => `| ${c.id} ${esc(c.name)} | ${c.legacy_dependency.plan.slice} | ${esc(c.legacy_dependency.plan.note)} |`));
+  }
   lines.push('', '## נקודות כניסה במנוע בלי שולח מהממשק (מוצהרות במכוון)', '');
   for (const e of reg.engine_only || []) lines.push(`- ${e.kind} \`${e.name}\`: ${e.reason}`);
   lines.push('');

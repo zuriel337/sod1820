@@ -37,6 +37,9 @@ export function validateRegister(reg, io) {
     const own = c.owner || [];
     if (['LIVE', 'PARTIAL'].includes(c.disposition) && own.length && own.every(o => o.file.includes('tools/els/')) && l.class === 'ENGINE_COMPUTE') errors.push(`${c.id}: engine-only live capability cannot be ENGINE_COMPUTE`);
   }
+  const sliceIds = new Set((reg.legacy_removal_plan?.slices || []).map(sl => sl.id));
+  if (sliceIds.size < 8) errors.push('legacy_removal_plan.slices missing');
+  for (const c of caps) if (['ENGINE_ONLY_LIVE', 'VISUAL_LEGACY'].includes(c.legacy_dependency?.class) && !sliceIds.has(c.legacy_dependency.plan?.slice)) errors.push(`${c.id}: ${c.legacy_dependency.class} must name a plan slice`);
   const summary = {}; for (const c of caps) if (c.legacy_dependency) summary[c.legacy_dependency.class] = (summary[c.legacy_dependency.class] || 0) + 1;
   if (JSON.stringify(Object.entries(summary).sort()) !== JSON.stringify(Object.entries(reg.legacy_dependency_summary || {}).sort())) errors.push('legacy_dependency_summary does not match the rows');
   if (!Array.isArray(reg.legacy_dependency_findings) || reg.legacy_dependency_findings.length < 10) errors.push('legacy_dependency_findings missing');

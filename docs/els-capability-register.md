@@ -108,6 +108,45 @@
 - **LDF-10 · hidden dependencies** (decide): elsMatrixZoom.js mirrors the classic engine geometry (duplicate presentation math); spatial fixtures import public/tzofen.html and the tk data; /tzofen.html has redirects and routes; 37 test/script files reference the template or its output; the old els-logo.png is used on the Home page.
 - **LDF-11 · computation kept** (keep): The canonical engine (search, verification, ranking, geometry, the replay gate) is not Legacy UI and is kept; no function in this register is to be replaced or duplicated.
 
+## תוכנית מדורגת: איחוד הציור והוצאת ממשק Legacy
+
+one computational engine, one 2029 drawing mechanism, one design language, one Brand Core; zero Legacy UI without losing a research capability (ZURIEL 26.11.2026). Work is tracked through this register: every row below names its slice.
+
+- **S0 · Finish #1565** — grant hardening SQL, merge, deployment, canary, one real save. שער: separate exact approval per step: SQL, merge, deploy, alias. מוציא: nothing.
+- **S1 · Parity trace of the 13 Classic-only rows** — prove for each row the native code path and a fixture/browser test, or record the gap; update owners and class; no code change. שער: register test; ZURIEL reviews the gap list. מוציא: nothing.
+- **S2 · Native surfaces for the true gaps** — expose existing engine output through shared Royal components; no new computation, lazy-loaded (Speed Law). שער: fixture + browser test per row; speed gates unchanged. מוציא: nothing.
+- **S3 · One 2029 card renderer** — pure model-to-image module fed by the native projection (state.matrix), palette.matrix + projectFindingColor, TYPEFACE, the Brand Core lockup and elsMatrixZoom geometry; minimum cell 26 px (the app default); a long axis gets a taller card, never smaller letters; tested on 3 long-axis samples against real crawler previews before the OG variant is fixed. שער: sample approval by ZURIEL; render determinism test; no Legacy import. מוציא: nothing (builders retire in S6).
+- **S4 · Automatic image on save and update** — save and update ask the 2029 renderer (not the engine canvas); deterministic public path v2/<id>.png; private rows get a private bucket image, never image_url. שער: SQL proposal (private bucket, policies, CHECK) needs its own approval; isolated Postgres tests. מוציא: nothing.
+- **S5 · Backfill of existing ciphers** — worker on the existing media-thumbs pattern; exact rows re-rendered from stored locators, legacy rows only when a single occurrence matches, the rest to a review list; image_url backup first; private ones rendered by their owner on next open. שער: dry run first; approval to run; old objects kept 30 days; orphan cleanup is separate. מוציא: nothing.
+- **S6 · Retire the Legacy engine UI** — (a) close Classic entry points, (b) remove the els29-classic-fallback mount, (c) cut UI code from tools/els while the computation stays, (d) remove themes, canvas builders, els-logo assets and the mirrored geometry, (e) migrate the 37 referencing tests. שער: S1/S2 parity complete, S5 done, each deletion approved by ZURIEL; history in Git is the recovery path. מוציא: engine UI only.
+- **S7 · Home section marker** — replace the old /els-logo.png image with the existing NavigationIcon2029 "els" (Brand Core governs the lockup, not section icons); one image request fewer. שער: visual check at 390 and 1440 px. מוציא: the Home use of els-logo.png.
+- **S8 · One geometry source** — elsMatrixZoom.js is the single presentation geometry (native, folded matrix and the card renderer); the engine copies (buildMatrix, fitMatrixToScreen, markedBBox) and the card builders constants disappear with S6; parity test until then. שער: existing zoom tests + a card/native parity test. מוציא: duplicate geometry.
+
+| יכולת | שלב | הערה |
+|---|---|---|
+| A05 Focus / center on axis | S1 | native likely: centering and fit exist in the native matrix (unverified) |
+| A07 Theme — Royal dark | S6 | retire with the engine themes once the card renderer (S3) has replaced them |
+| A08 Theme — Classic light | S6 | retire with the engine themes once the card renderer (S3) has replaced them |
+| A09 Theme — Parchment (קלף) | S6 | retire with the engine themes once the card renderer (S3) has replaced them |
+| A11 Color findings (palette) | S3 | the renderer applies projectFindingColor at draw time; stored slot colours stay as data |
+| A12 Change finding color | S3 | same projection; the picker path is traced in S1 |
+| A21 Film / reveal | S1 | native likely: progressive reveal exists inside native presentation (unverified) |
+| A22 Presentation mode | S1 | native likely: presentationPlan / steps exist natively (unverified) |
+| A24 Verse span | S1 | native likely: verse context lens exists (SourceLens); the span control is unverified |
+| A25 Matrix PNG / share card | S3 | replaced by the single 2029 renderer; builders retire in S6 |
+| B04 Torah scope (default) | S1 | native likely: scope selector and scope labels exist (unverified) |
+| B05 Full Tanakh / Deep scope | S1 | native likely: tanakh scope exists natively (unverified) |
+| D01 Occurrence count | S1 | native likely: occurrence selection exists (unverified) |
+| D03 Notable occurrences | S2 | no native trace found: surface the engine notable-occurrence output |
+| D05 Proximity meter | S1 | native likely: finding radius exists (unverified) |
+| E01 Gap / proximity ranking | S1 | partial native trace: gap ranking inputs exist; display unverified |
+| E03 Rarity | S2 | no native trace found: surface the engine rarity output |
+| E04 Quality score / stars | S1 | native shows stars on library cards; the matrix surface is unverified |
+| E07 Angle / parallel classification | S2 | no native trace found: surface the engine angle/parallel classification |
+| G01 Save matrix to cloud | S4 | save asks the 2029 renderer; deterministic path; private image |
+| G03 Update a saved matrix | S4 | update regenerates through the 2029 renderer at the same path |
+| G06 Gallery | S5 | library images move to the v2 card through the backfill |
+
 ## נקודות כניסה במנוע בלי שולח מהממשק (מוצהרות במכוון)
 
 - lens `cross-third-axis`: The engine lens is exercised only by direct postMessage in test/els-native-ui-browser.test.mjs. The host UI reaches a third axis through native-search kind cross-three (B06). Wire it from the host or retire it; until then it is listed here on purpose.

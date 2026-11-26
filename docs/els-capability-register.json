@@ -250,7 +250,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: centering and fit exist in the native matrix (unverified)"
+    }
    }
   },
   {
@@ -332,7 +336,11 @@
      "body-class"
     ],
     "removal": "migrate-first",
-    "detail": "Engine theme button (royal). SUPERSEDED in the table, but still drives st.theme, the three canvas card builders and the Classic UI."
+    "detail": "Engine theme button (royal). SUPERSEDED in the table, but still drives st.theme, the three canvas card builders and the Classic UI.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
    }
   },
   {
@@ -365,7 +373,11 @@
      "body-class"
     ],
     "removal": "migrate-first",
-    "detail": "Engine theme button (classic/light); same dependency as A07."
+    "detail": "Engine theme button (classic/light); same dependency as A07.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
    }
   },
   {
@@ -398,7 +410,11 @@
      "body-class"
     ],
     "removal": "migrate-first",
-    "detail": "Engine theme button (klaf/parchment); same dependency as A07."
+    "detail": "Engine theme button (klaf/parchment); same dependency as A07.",
+    "plan": {
+     "slice": "S6",
+     "note": "retire with the engine themes once the card renderer (S3) has replaced them"
+    }
    }
   },
   {
@@ -494,7 +510,11 @@
      "finding-colors"
     ],
     "removal": "migrate-first",
-    "detail": "Engine assigns 12 legacy slot colours that are stored in saved findings; the 2029 matrix projects them through projectFindingColor, the card builders do not."
+    "detail": "Engine assigns 12 legacy slot colours that are stored in saved findings; the 2029 matrix projects them through projectFindingColor, the card builders do not.",
+    "plan": {
+     "slice": "S3",
+     "note": "the renderer applies projectFindingColor at draw time; stored slot colours stay as data"
+    }
    }
   },
   {
@@ -545,7 +565,11 @@
      "finding-colors"
     ],
     "removal": "migrate-first",
-    "detail": "Colour change reaches update-findings with engine slot colours; the 2029 projection is presentation only."
+    "detail": "Colour change reaches update-findings with engine slot colours; the 2029 projection is presentation only.",
+    "plan": {
+     "slice": "S3",
+     "note": "same projection; the picker path is traced in S1"
+    }
    }
   },
   {
@@ -964,7 +988,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: progressive reveal exists inside native presentation (unverified)"
+    }
    }
   },
   {
@@ -1004,7 +1032,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: presentationPlan / steps exist natively (unverified)"
+    }
    }
   },
   {
@@ -1093,7 +1125,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: verse context lens exists (SourceLens); the span control is unverified"
+    }
    }
   },
   {
@@ -1137,7 +1173,11 @@
      "logo"
     ],
     "removal": "migrate-first",
-    "detail": "buildShareCard / buildCipherCanvas / buildCipherGrid draw by st.theme (royal/klaf/classic), Georgia/Arial, engine slot colours and a text-only brand; not the 2029 matrix, palette or Brand Core."
+    "detail": "buildShareCard / buildCipherCanvas / buildCipherGrid draw by st.theme (royal/klaf/classic), Georgia/Arial, engine slot colours and a text-only brand; not the 2029 matrix, palette or Brand Core.",
+    "plan": {
+     "slice": "S3",
+     "note": "replaced by the single 2029 renderer; builders retire in S6"
+    }
    }
   },
   {
@@ -1377,7 +1417,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: scope selector and scope labels exist (unverified)"
+    }
    }
   },
   {
@@ -1418,7 +1462,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: tanakh scope exists natively (unverified)"
+    }
    }
   },
   {
@@ -2223,7 +2271,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: occurrence selection exists (unverified)"
+    }
    }
   },
   {
@@ -2306,7 +2358,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine notable-occurrence output"
+    }
    }
   },
   {
@@ -2394,7 +2450,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native likely: finding radius exists (unverified)"
+    }
    }
   },
   {
@@ -2485,7 +2545,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "partial native trace: gap ranking inputs exist; display unverified"
+    }
    }
   },
   {
@@ -2561,7 +2625,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine rarity output"
+    }
    }
   },
   {
@@ -2604,7 +2672,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S1",
+     "note": "native shows stars on library cards; the matrix surface is unverified"
+    }
    }
   },
   {
@@ -2720,7 +2792,11 @@
      "classic-ui"
     ],
     "removal": "after-parity",
-    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first."
+    "detail": "Reachable only through the engine's own Classic UI (no 2029 owner). Removing Classic needs a native surface or an accepted loss first.",
+    "plan": {
+     "slice": "S2",
+     "note": "no native trace found: surface the engine angle/parallel classification"
+    }
    }
   },
   {
@@ -3233,7 +3309,11 @@
      "canvas-card"
     ],
     "removal": "migrate-first",
-    "detail": "Native save asks the engine for image+shape (legacy canvas), TzofenEmbed uploads them to the public gallery bucket under random names; private saves get no image."
+    "detail": "Native save asks the engine for image+shape (legacy canvas), TzofenEmbed uploads them to the public gallery bucket under random names; private saves get no image.",
+    "plan": {
+     "slice": "S4",
+     "note": "save asks the 2029 renderer; deterministic path; private image"
+    }
    }
   },
   {
@@ -3326,7 +3406,11 @@
      "canvas-card"
     ],
     "removal": "migrate-first",
-    "detail": "Update path re-uploads the legacy canvas image (a new random object each time)."
+    "detail": "Update path re-uploads the legacy canvas image (a new random object each time).",
+    "plan": {
+     "slice": "S4",
+     "note": "update regenerates through the 2029 renderer at the same path"
+    }
    }
   },
   {
@@ -3450,7 +3534,11 @@
      "images"
     ],
     "removal": "migrate-first",
-    "detail": "Library cards, page and OG read image_url, which holds the legacy card (120 of 143 rows)."
+    "detail": "Library cards, page and OG read image_url, which holds the legacy card (120 of 143 rows).",
+    "plan": {
+     "slice": "S5",
+     "note": "library images move to the v2 card through the backfill"
+    }
    }
   },
   {
@@ -3759,5 +3847,73 @@
    ],
    "removal": "keep"
   }
- ]
+ ],
+ "legacy_removal_plan": {
+  "principle": "one computational engine, one 2029 drawing mechanism, one design language, one Brand Core; zero Legacy UI without losing a research capability (ZURIEL 26.11.2026). Work is tracked through this register: every row below names its slice.",
+  "slices": [
+   {
+    "id": "S0",
+    "title": "Finish #1565",
+    "scope": "grant hardening SQL, merge, deployment, canary, one real save",
+    "gate": "separate exact approval per step: SQL, merge, deploy, alias",
+    "removes": "nothing"
+   },
+   {
+    "id": "S1",
+    "title": "Parity trace of the 13 Classic-only rows",
+    "scope": "prove for each row the native code path and a fixture/browser test, or record the gap; update owners and class; no code change",
+    "gate": "register test; ZURIEL reviews the gap list",
+    "removes": "nothing"
+   },
+   {
+    "id": "S2",
+    "title": "Native surfaces for the true gaps",
+    "scope": "expose existing engine output through shared Royal components; no new computation, lazy-loaded (Speed Law)",
+    "gate": "fixture + browser test per row; speed gates unchanged",
+    "removes": "nothing"
+   },
+   {
+    "id": "S3",
+    "title": "One 2029 card renderer",
+    "scope": "pure model-to-image module fed by the native projection (state.matrix), palette.matrix + projectFindingColor, TYPEFACE, the Brand Core lockup and elsMatrixZoom geometry; minimum cell 26 px (the app default); a long axis gets a taller card, never smaller letters; tested on 3 long-axis samples against real crawler previews before the OG variant is fixed",
+    "gate": "sample approval by ZURIEL; render determinism test; no Legacy import",
+    "removes": "nothing (builders retire in S6)"
+   },
+   {
+    "id": "S4",
+    "title": "Automatic image on save and update",
+    "scope": "save and update ask the 2029 renderer (not the engine canvas); deterministic public path v2/<id>.png; private rows get a private bucket image, never image_url",
+    "gate": "SQL proposal (private bucket, policies, CHECK) needs its own approval; isolated Postgres tests",
+    "removes": "nothing"
+   },
+   {
+    "id": "S5",
+    "title": "Backfill of existing ciphers",
+    "scope": "worker on the existing media-thumbs pattern; exact rows re-rendered from stored locators, legacy rows only when a single occurrence matches, the rest to a review list; image_url backup first; private ones rendered by their owner on next open",
+    "gate": "dry run first; approval to run; old objects kept 30 days; orphan cleanup is separate",
+    "removes": "nothing"
+   },
+   {
+    "id": "S6",
+    "title": "Retire the Legacy engine UI",
+    "scope": "(a) close Classic entry points, (b) remove the els29-classic-fallback mount, (c) cut UI code from tools/els while the computation stays, (d) remove themes, canvas builders, els-logo assets and the mirrored geometry, (e) migrate the 37 referencing tests",
+    "gate": "S1/S2 parity complete, S5 done, each deletion approved by ZURIEL; history in Git is the recovery path",
+    "removes": "engine UI only"
+   },
+   {
+    "id": "S7",
+    "title": "Home section marker",
+    "scope": "replace the old /els-logo.png image with the existing NavigationIcon2029 \"els\" (Brand Core governs the lockup, not section icons); one image request fewer",
+    "gate": "visual check at 390 and 1440 px",
+    "removes": "the Home use of els-logo.png"
+   },
+   {
+    "id": "S8",
+    "title": "One geometry source",
+    "scope": "elsMatrixZoom.js is the single presentation geometry (native, folded matrix and the card renderer); the engine copies (buildMatrix, fitMatrixToScreen, markedBBox) and the card builders constants disappear with S6; parity test until then",
+    "gate": "existing zoom tests + a card/native parity test",
+    "removes": "duplicate geometry"
+   }
+  ]
+ }
 }
