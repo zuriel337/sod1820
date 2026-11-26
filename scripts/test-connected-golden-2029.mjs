@@ -8,7 +8,7 @@ const app=read("src/App2029.jsx");
 const frame=read("src/components/experience2029/SystemFrame2029.jsx") + "\n" + read("src/components/experience2029/WorkspaceProjection2029.jsx") + "\n" + read("src/components/experience2029/InspectProjection2029.jsx"); // the personal workspace panel moved to its own lazy module (shell budget, 16.11.2026)
 const home=read("src/pages/Home2029Page.jsx");
 const post=read("src/pages/Post2029Page.jsx");
-// One shared rail: SystemFrame mounts SurfaceContextRail2029 for every surface and Post only adds section navigation
+// One shared rail: SystemFrame mounts SurfaceContextRail2029 for every surface. The Post no longer adds a section-tab row (ZURIEL 25.11.2026: a clean Post)
 // (the former per-Post ReadingContextRail2029 was removed from Post2029Page in d88ddd50; test/post2029-living-tree-infra.test.mjs
 // forbids a duplicate Post rail).
 const rail=read("src/components/experience2029/SurfaceContextRail2029.jsx");
@@ -17,7 +17,7 @@ const paletteHook=read("src/lib/palette2029.js");
 
 assert.match(app,/path="\/post\/:slug"/);
 assert.match(home,/Home2029/);
-assert.match(post,/SurfaceSectionNav2029/);
+assert.equal(/SurfaceSectionNav2029|PostSemanticLegend2029/.test(post),false,"the Post carries no section tabs and no legend (ZURIEL 25.11.2026)");
 assert.equal(/<ReadingContextRail2029/.test(post),false);
 assert.match(frame,/showContextRail \? <SurfaceContextRail2029[\s\S]{0,600}?onAskRaziel=\{razielLocked \? null :/);
 // The in-page rail and the mobile context sheet both honour the Raziel lock.

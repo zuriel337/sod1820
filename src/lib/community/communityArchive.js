@@ -5,6 +5,8 @@ import { getPublicResearchClient } from "../research/researchViewMode.js";
 import { addContribution } from "../contributions.js";
 import { COMMUNITY_THREAD_UUID as UUID_PATTERN, normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 import { MESSAGE_FORMAT_PREFIX } from "./messageFormatting.js";
+import { publicPostHref } from "../publicPostUrls.js";
+import { publicPostOnlyFilter } from "../research/publicPostBoundary.js";
 export { normalizeCommunityThreadFocus } from "./communityThreadFocus.js";
 
 // Public reading never borrows the current account or admin session.
@@ -237,11 +239,35 @@ export function compareCommunityLikedRows(a, b) {
     || String(b.id).localeCompare(String(a.id));
 }
 
+// A comment written in a Post is ONE record (research_contributions: target_type "post", target_id posts.id, origin community_2029) and is also a Community message.
+// Here the Community learns which Post it came from (ZURIEL 26.11.2026): one read of the target columns for the page's roots, one read of the public posts they name,
+// and `postLink {href, title}` on those rows. A failure never breaks the feed: the rows simply show without the link.
+export async function attachCommunityPostLinks(rows, { client = communityReadClient() } = {}) {
+  try {
+    const roots = (rows || []).filter(row => row && !row.isDeleted && !row.parentId && row.id && COMMUNITY_ORIGINS.includes(row.origin));
+    if (!roots.length || !client) return rows;
+    const { data: targets, error } = await client.from("research_contributions").select("id,target_type,target_id")
+      .in("id", roots.map(row => row.id)).eq("target_type", "post").eq("status", "approved");
+    if (error || !Array.isArray(targets) || !targets.length) return rows;
+    const postIds = [...new Set(targets.map(item => item.target_id).filter(id => /^[1-9]\d*$/.test(String(id))))];
+    if (!postIds.length) return rows;
+    const { data: posts, error: postsError } = await client.from("posts").select("id,slug,title,source,wp_id,link").in("id", postIds).or(publicPostOnlyFilter());
+    if (postsError || !Array.isArray(posts)) return rows;
+    const byId = new Map(posts.map(post => [String(post.id), post]));
+    const byRow = new Map(targets.map(item => [item.id, byId.get(String(item.target_id))]));
+    return rows.map(row => {
+      const post = byRow.get(row.id);
+      const href = post ? publicPostHref(post) : null;
+      return href ? { ...row, postLink: { href, title: String(post.title || "").trim() || "הפוסט" } } : row;
+    });
+  } catch { return rows; }
+}
+
 export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_PAGE_SIZE, sort = "newest", client = communityReadClient() } = {}) {
   const safeOffset = Math.max(0, Math.trunc(offset));
   const safeLimit = Math.max(1, Math.min(100, Math.trunc(limit)));
   const projected = await readCommunityFeedRpc({ p_offset: safeOffset, p_limit: safeLimit, p_sort: sort === "oldest" ? "oldest" : "newest" }, client);
-  if (projected) return { rows: projected.map(normalizeCommunityRow), count: safeOffset === 0 ? projected.length ? knownCount(projected[0].total_count) : 0 : null, nextOffset: safeOffset + projected.length, replyCounts: communityFeedReplyCounts(projected) };
+  if (projected) return { rows: await attachCommunityPostLinks(projected.map(normalizeCommunityRow), { client }), count: safeOffset === 0 ? projected.length ? knownCount(projected[0].total_count) : 0 : null, nextOffset: safeOffset + projected.length, replyCounts: communityFeedReplyCounts(projected) };
   const { data, error, count } = await client
     .from("research_contributions")
     .select("id,parent_id,author_name,author_user_id,title,body,reactions,origin,created_at,author_contributor_id,contributor:contributors!research_contributions_author_contributor_id_fkey(id,user_id,display_name,avatar_url)", { count: safeOffset === 0 ? "exact" : undefined })
@@ -252,7 +278,7 @@ export async function fetchCommunityArchivePage({ offset = 0, limit = COMMUNITY_
     .order("id", { ascending: sort === "oldest" })
     .range(safeOffset, safeOffset + safeLimit - 1);
   if (error) throw error;
-  return { rows: (data || []).map(normalizeCommunityRow), count: count ?? null, nextOffset: safeOffset + (data || []).length };
+  return { rows: await attachCommunityPostLinks((data || []).map(normalizeCommunityRow), { client }), count: count ?? null, nextOffset: safeOffset + (data || []).length };
 }
 
 // Corpus-wide text search over every public message and reply. The server

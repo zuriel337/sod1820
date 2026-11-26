@@ -1,0 +1,263 @@
+<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>הרכיבים הקנוניים · תצוגה מקדימה</title>
+<style>/* ROYAL 2029 — the shared Royal design layer of SOD1820 (ZURIEL 11.11.2026). Prototype surface: "עכשיו · המרכז".
+   Opt-in: only an element carrying .r29 (and its subtree) uses it, so no other surface changes until it is adopted on purpose.
+
+   NO parallel palette. Every colour below is a role of the canonical 2029 palette (paletteTokens2029.js → SystemFrame2029 shellStyle → --s29-*),
+   resolved per preset (Day / Parchment / Night) by the frame itself:
+     gold      ← --s29-brand-gold          (crown gold; the identity)
+     violet    ← --s29-accent-secondary    (Design V2 "violet depth")
+     sapphire  ← --s29-brand-sapphire      (royal blue)
+     azure     ← --s29-accent-text         (readable royal blue on the surface)
+     teal      ← --s29-discovery           (discovery / turquoise)
+     amber     ← --s29-warm-accent         (warm gold)
+   Surfaces, ink, lines, focus, type and motion are the canonical --s29-* tokens. Intensity is the only thing tuned per preset
+   (deep glow at Night, a lighter wash in Day and Parchment) so the same component reads richly and legibly in all three.
+
+   Components:  .r29-hall (a royal surface with layered light and a double hairline frame) · .r29-medal (medallion) · .r29-coin (a number)
+                .r29-badge (new / updated / pinned / kind) · .r29-chip (a choice with a medallion) · .r29-btn (primary / gold / quiet)
+                .r29-card (a row in a hue, open = deeper) · .r29-rule (an ornamental divider)
+   Hue per kind: [data-r29-kind] or the existing [data-tone] → --r29-hue. */
+
+.r29{
+  --r29-gold:var(--s29-brand-gold);
+  --r29-gold-ink:color-mix(in oklab,var(--s29-brand-gold) 82%,var(--s29-ink));
+  --r29-violet:var(--s29-accent-secondary);
+  --r29-violet-deep:color-mix(in oklab,var(--s29-accent-secondary) 58%,var(--s29-brand-sapphire));  /* royal purple: violet depth × sapphire */
+  --r29-sapphire:var(--s29-brand-sapphire);
+  --r29-azure:var(--s29-accent-text);
+  --r29-teal:var(--s29-discovery);
+  --r29-amber:var(--s29-warm-accent);
+  --r29-rose:color-mix(in oklab,var(--s29-accent-secondary) 62%,var(--s29-brand-gold));
+  /* intensity (Night) */
+  --r29-wash:10%;--r29-wash-open:18%;--r29-glow:34%;--r29-frame:46%;--r29-hair:26%;
+  --r29-shadow:0 18px 44px -18px color-mix(in srgb,var(--s29-page) 85%,transparent),0 2px 0 0 color-mix(in srgb,var(--s29-ink) 4%,transparent) inset;
+  --r29-radius:20px;--r29-radius-sm:14px;
+  --r29-shine:white;  /* neutral specular light (not a hue) */
+  --r29-hue:var(--r29-gold);
+}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29{
+  --r29-wash:6%;--r29-wash-open:12%;--r29-glow:16%;--r29-frame:48%;--r29-hair:30%;
+  --r29-shadow:0 14px 34px -20px color-mix(in srgb,var(--s29-ink) 40%,transparent),0 1px 0 0 color-mix(in srgb,var(--r29-shine) 70%,transparent) inset;
+}
+
+/* Hue by kind — one mapping for the whole site. */
+.r29 :is([data-r29-kind="post"],[data-r29-kind="site"],[data-tone="sky"]){--r29-hue:var(--r29-azure)}
+.r29 :is([data-r29-kind="channel"],[data-r29-kind="all"],[data-tone="gold"]){--r29-hue:var(--r29-gold)}
+.r29 :is([data-r29-kind="group"],[data-tone="teal"]){--r29-hue:var(--r29-teal)}
+.r29 :is([data-r29-kind="series"],[data-tone="violet"]){--r29-hue:var(--r29-violet)}
+.r29[data-r29-kind="pinned"],.r29 [data-r29-kind="pinned"]{--r29-hue:var(--r29-violet-deep)}
+.r29 :is([data-r29-kind="hint"],[data-tone="rose"]){--r29-hue:var(--r29-rose)}
+.r29 [data-r29-kind="update"]{--r29-hue:var(--r29-gold)}
+.r29 [data-tone="ember"]{--r29-hue:var(--r29-amber)}
+/* the older Now tones resolve to the same canonical roles inside a Royal surface */
+.r29 [data-tone]{--tone:var(--r29-hue)}
+
+/* Hall: layered royal light (gold crown light from above, violet depth, sapphire floor), a double hairline frame and a top sheen. */
+.r29-hall{position:relative;isolation:isolate;border-radius:var(--r29-radius);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:
+    radial-gradient(90% 60% at 50% -12%,color-mix(in srgb,var(--r29-gold) var(--r29-glow),transparent),transparent 70%),
+    radial-gradient(70% 70% at 100% 10%,color-mix(in srgb,var(--r29-violet-deep) var(--r29-glow),transparent),transparent 65%),
+    radial-gradient(80% 60% at 0% 110%,color-mix(in srgb,var(--r29-sapphire) var(--r29-glow),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow),inset 0 0 0 3px color-mix(in srgb,var(--s29-panel) 70%,transparent),inset 0 0 0 4px color-mix(in srgb,var(--r29-hue) var(--r29-hair),transparent)}
+.r29-hall.is-feature{--r29-wash:calc(var(--r29-wash-open) * 1.6)}  /* a featured hall (the pinned Post): the deep hue carries the surface */
+.r29-hall::before{content:"";position:absolute;z-index:-1;inset-inline:18%;inset-block-start:-1px;block-size:1px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 90%,var(--r29-shine)),transparent)}
+
+/* Medallion: a gold-ringed disc holding an approved icon or logo. */
+.r29-medal{display:grid;place-items:center;flex:none;inline-size:var(--r29-medal,40px);block-size:var(--r29-medal,40px);border-radius:50%;overflow:hidden;
+  color:color-mix(in srgb,var(--r29-hue) 85%,var(--s29-ink));
+  background:radial-gradient(circle at 50% 28%,color-mix(in srgb,var(--r29-hue) 30%,var(--s29-panel)),color-mix(in srgb,var(--s29-page) 35%,var(--s29-panel)) 72%);
+  box-shadow:0 0 0 1.5px color-mix(in srgb,var(--r29-gold) 70%,transparent),0 0 0 3.5px color-mix(in srgb,var(--s29-panel) 80%,transparent),0 0 0 4.5px color-mix(in srgb,var(--r29-hue) 40%,transparent),
+    0 6px 14px -6px color-mix(in srgb,var(--r29-hue) 60%,transparent)}
+.r29-medal :is(img){inline-size:100%;block-size:100%;object-fit:cover}
+.r29-medal svg{inline-size:55%;block-size:55%}
+
+/* Coin: a number, struck in gold. */
+.r29-coin{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:2px 14px;border-radius:999px;text-decoration:none;color:var(--r29-gold-ink);
+  border:1px solid color-mix(in srgb,var(--r29-gold) 70%,transparent);
+  background:radial-gradient(120% 140% at 50% 0%,color-mix(in srgb,var(--r29-gold) 30%,var(--s29-panel)),color-mix(in srgb,var(--r29-gold) 10%,var(--s29-panel)) 70%);
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 22%,transparent),inset 0 -2px 0 color-mix(in srgb,var(--s29-page) 30%,transparent),0 4px 12px -6px color-mix(in srgb,var(--r29-gold) 70%,transparent)}
+.r29-coin b{font:800 1em/1.1 var(--s29-font-numeric,var(--s29-font-ui,inherit));letter-spacing:.03em;font-variant-numeric:tabular-nums;color:inherit}
+
+/* Badge: new (gold, finite pulse) · updated (violet) · pinned (violet, static) · kind (its hue, quiet). */
+.r29-badge{display:inline-flex;align-items:center;gap:5px;padding:0 9px;min-block-size:22px;border-radius:999px;font:750 12.5px/1 var(--s29-font-ui,inherit);white-space:nowrap;
+  color:color-mix(in srgb,var(--r29-hue) 78%,var(--s29-ink));border:1px solid color-mix(in srgb,var(--r29-hue) 45%,transparent);background:color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel))}
+.r29-badge.is-new{--r29-hue:var(--r29-gold);color:var(--s29-page);border-color:transparent;background:var(--r29-gold);box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 35%,transparent);
+  animation:r29-pulse 1.4s ease-out 3}
+.r29-badge.is-updated,.r29-badge.is-pinned{--r29-hue:var(--r29-violet)}
+:where(.sod29-root[data-frame-theme-preset="light"],.sod29-root[data-frame-theme-preset="parchment"]) .r29 .r29-badge.is-new{background:color-mix(in oklab,var(--r29-gold) 78%,var(--s29-ink))}
+@keyframes r29-pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--r29-hue) 60%,transparent)}100%{box-shadow:0 0 0 7px transparent}}
+
+/* Chip: a choice with its medallion; pressed = lit in its hue. */
+.r29-chip{display:inline-flex;align-items:center;gap:8px;min-block-size:46px;padding:4px 14px 4px 8px;border-radius:999px;cursor:pointer;font:inherit;color:var(--s29-ink);text-align:start;white-space:nowrap;
+  border:1px solid color-mix(in srgb,var(--r29-hue) 38%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel));
+  transition:background-color var(--s29-motion,180ms) ease,border-color var(--s29-motion,180ms) ease,box-shadow var(--s29-motion,180ms) ease}
+.r29-chip .r29-medal{--r29-medal:30px}
+.r29-chip[aria-pressed="true"]{border-color:color-mix(in srgb,var(--r29-hue) 85%,transparent);
+  background:radial-gradient(120% 120% at 50% 0%,color-mix(in srgb,var(--r29-hue) 34%,var(--s29-panel)),color-mix(in srgb,var(--r29-hue) 16%,var(--s29-panel)));
+  box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-hue) 40%,transparent),0 6px 18px -8px color-mix(in srgb,var(--r29-hue) 80%,transparent)}
+
+/* Buttons. */
+.r29-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-block-size:44px;padding:0 16px;border-radius:999px;cursor:pointer;text-decoration:none;
+  font:700 15px/1 var(--s29-font-ui,inherit);color:var(--s29-ink);border:1px solid color-mix(in srgb,var(--r29-hue) 50%,var(--s29-line));background:color-mix(in srgb,var(--r29-hue) 12%,var(--s29-panel))}
+/* Primary = royal blue (Design V2 §14.2, ZURIEL 19.11.2026; formerly violet depth): the palette's accent button fill with onAccent text,
+   a thin gold hairline as the brand ornament. Exact tones are pending the preview (§14.7). */
+.r29-btn.is-primary{--r29-hue:var(--s29-accent);color:var(--s29-on-accent);border-color:color-mix(in srgb,var(--r29-gold) 38%,transparent);
+  background:var(--s29-accent-btn,var(--s29-accent));
+  box-shadow:inset 0 1px 0 color-mix(in srgb,var(--r29-shine) 24%,transparent),0 8px 20px -10px color-mix(in srgb,var(--s29-accent) 85%,transparent)}
+/* One button family, groups and choice rows (§14.3–§14.4, ZURIEL 25.11.2026): a button group is centered with equal widths in a row; an icon button is one 44px square;
+   a multiple choice is a checkbox row (.r29-check), never a large button. All of it lives HERE; a surface never writes its own button look. */
+.r29-btn-group{display:flex;flex-wrap:wrap;justify-content:center;align-items:stretch;gap:8px;inline-size:100%}
+.r29-btn-group>.r29-btn{flex:1 1 0;min-inline-size:8.5rem}
+.r29-btn.is-icon{inline-size:44px;padding:0}
+.r29-btn-group>.r29-btn.is-icon{flex:none;min-inline-size:44px}
+.r29-check-group{display:grid;gap:6px;inline-size:100%}
+.r29-check{display:flex;align-items:center;gap:10px;box-sizing:border-box;inline-size:100%;min-block-size:44px;padding:0 12px;border-radius:12px;cursor:pointer;text-align:start;
+  font:600 15px/1.3 var(--s29-font-ui,inherit);color:var(--s29-ink);background:transparent;border:1px solid color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))}
+.r29-check-box{flex:none;display:grid;place-items:center;inline-size:22px;block-size:22px;border-radius:6px;border:2px solid color-mix(in srgb,var(--r29-gold) 60%,var(--s29-line));color:transparent}
+.r29-check-box svg{inline-size:14px;block-size:14px}
+.r29-check[aria-checked="true"]{border-color:color-mix(in srgb,var(--s29-accent) 60%,transparent)}
+.r29-check[aria-checked="true"] .r29-check-box{background:var(--s29-accent-btn,var(--s29-accent));border-color:var(--s29-accent);color:var(--s29-on-accent)}
+.r29-check:disabled,.r29-check[aria-busy="true"]{cursor:default;opacity:.6}
+.r29-check-note{margin:2px 0 0;font-size:13px;color:var(--s29-muted)}
+.r29 .r29-check:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+@media (forced-colors:active){.r29 .r29-check{border:1px solid CanvasText;background:Canvas}.r29 .r29-check[aria-checked="true"] .r29-check-box{background:Highlight;color:HighlightText}}
+/* Forms, dialogs and action feedback (§14.13, ZURIEL 25.11.2026): one field look, one sheet, one status line. Surfaces use these classes and write no look of their own. */
+.r29-field{display:grid;gap:4px;inline-size:100%;text-align:start}
+.r29-field>label,.r29-field-label{font:600 14px/1.4 var(--s29-font-ui,inherit);color:var(--s29-ink)}
+.r29-input{box-sizing:border-box;inline-size:100%;min-block-size:44px;padding:8px 12px;border-radius:12px;font:400 16px/1.6 var(--s29-font-ui,inherit);color:var(--s29-ink);
+  background:var(--s29-panel-soft,var(--s29-panel));border:1px solid color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))}
+.r29 .r29-input{font:400 16px/1.6 var(--s29-font-ui,inherit)}   /* wins over a global input type size: one field size everywhere */
+textarea.r29-input{min-block-size:110px;resize:vertical}
+.r29-input::placeholder{color:var(--s29-muted)}
+.r29-input[aria-invalid="true"]{border-color:var(--s29-danger,currentColor)}
+.r29 .r29-input:focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:2px}
+.r29-hint{margin:0;font-size:13px;line-height:1.5;color:var(--s29-muted)}
+.r29-status{margin:0;font-size:14px;line-height:1.6;color:var(--s29-muted);text-align:center}
+.r29-status[data-state="success"]{color:var(--s29-success,var(--s29-ink))}
+.r29-status[data-state="error"]{color:var(--s29-danger,var(--s29-ink))}
+.r29-sheet-backdrop{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:16px;background:color-mix(in srgb,var(--s29-panel) 72%,transparent)}
+.r29-sheet{box-sizing:border-box;inline-size:min(400px,100%);max-block-size:80vh;overflow:auto;padding:16px;border-radius:16px;display:grid;gap:12px;text-align:center;outline:0;
+  color:var(--s29-ink);background:var(--s29-panel);border:1px solid color-mix(in srgb,var(--r29-gold) 55%,var(--s29-line))}
+.r29-sheet>h2{margin:0;font:700 17px/1.4 var(--s29-font-ui,inherit);color:var(--r29-azure)}
+.r29-sheet p{margin:0;font-size:14px;line-height:1.6;color:var(--s29-muted)}
+@media (forced-colors:active){.r29 :is(.r29-input,.r29-sheet){border:1px solid CanvasText;background:Canvas}}
+/* One button family (§14.4): one height, a full-width block form, a platform mark, and the same press/disabled/busy states everywhere. */
+.r29-btn.is-block{inline-size:100%;min-block-size:48px;font-size:16px}
+.r29-btn .r29-btn-icon{display:inline-grid;place-items:center;flex:none}
+.r29-btn .r29-btn-icon svg{inline-size:20px;block-size:20px}
+.r29-btn .r29-mark{display:inline-grid;place-items:center;flex:none;inline-size:24px;block-size:24px;border-radius:50%;color:var(--r29-shine)}
+.r29-btn .r29-mark svg{inline-size:14px;block-size:14px}
+.r29-btn{transition:transform var(--s29-motion,180ms) ease,filter var(--s29-motion,180ms) ease,background-color var(--s29-motion,180ms) ease}
+@media (hover:hover){.r29-btn:not(:disabled):hover{filter:brightness(1.06)}}
+.r29-btn:not(:disabled):active{transform:scale(.97)}
+.r29-btn:disabled,.r29-btn[aria-busy="true"]{cursor:default;opacity:.6;transform:none}
+.r29-btn[data-state="success"]{border-color:color-mix(in srgb,var(--action-success,var(--s29-accent)) 70%,transparent)}
+.r29-btn.is-gold{--r29-hue:var(--r29-gold)}
+.r29-btn.is-quiet{background:transparent;border-color:color-mix(in srgb,var(--r29-gold) 34%,var(--s29-line))}
+
+/* Card: a thin row in its hue — a lit edge, a soft wash; open = a deeper wash and a full hue frame. */
+.r29-card{position:relative;border-radius:var(--r29-radius-sm);color:var(--s29-ink);
+  border:1px solid color-mix(in srgb,var(--r29-hue) var(--r29-hair),var(--s29-line));
+  background:linear-gradient(90deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),color-mix(in srgb,var(--s29-panel) 92%,transparent))}
+.r29-card::before{content:"";position:absolute;inset-block:10px;inset-inline-start:-1px;inline-size:3px;border-radius:3px;background:var(--r29-hue);
+  box-shadow:0 0 10px color-mix(in srgb,var(--r29-hue) 70%,transparent)}
+.r29-card:is([open],.is-open,.is-selected){border-color:color-mix(in srgb,var(--r29-hue) var(--r29-frame),var(--s29-line));
+  background:radial-gradient(120% 70% at 100% 0%,color-mix(in srgb,var(--r29-hue) var(--r29-wash-open),transparent),transparent 70%),
+    linear-gradient(180deg,color-mix(in srgb,var(--r29-hue) var(--r29-wash),var(--s29-panel)),var(--s29-panel));
+  box-shadow:var(--r29-shadow)}
+.r29-card:is([open],.is-open,.is-selected)::before{inset-block:0}
+
+/* Ornamental rule: a gold line with a diamond. */
+.r29-rule{display:flex;align-items:center;gap:10px;color:var(--r29-gold);font-size:10px}
+.r29-rule::before,.r29-rule::after{content:"";flex:1;block-size:1px;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--r29-gold) 60%,transparent))}
+.r29-rule::after{transform:scaleX(-1)}
+
+.r29 :is(.r29-btn,.r29-chip,.r29-coin):focus-visible{outline:2px solid var(--s29-focus-ring,var(--s29-accent));outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.r29 .r29-badge.is-new{animation:none}.r29 :is(.r29-chip,.r29-btn){transition:none}.r29 .r29-btn:active{transform:none}}
+@media (forced-colors:active){.r29 :is(.r29-hall,.r29-card,.r29-chip,.r29-btn,.r29-coin,.r29-badge){border:1px solid CanvasText;background:Canvas;box-shadow:none}.r29-card::before{background:Highlight}}
+
+/* Share (Design V2 §14.2/§14.4): one royal-blue main action, then the channels as equal quiet buttons in a centered 2-column grid. */
+.r29-share{display:grid;gap:10px;justify-items:center;inline-size:100%}
+.r29-share-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;inline-size:100%}
+.r29-share-grid .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
+.r29-share .sod-action-announcement:empty{display:none}
+.r29-share-grid>:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;inline-size:min(100%,calc(50% - 4px))}
+/* «שתפו בקהילה» and QR inside the one share window (ZURIEL 19.11.2026): the same quiet buttons as the channels, one row of two. */
+.r29-share-more{display:grid;gap:8px;inline-size:100%;padding-block-start:10px;border-block-start:1px solid color-mix(in srgb,var(--r29-gold) 16%,var(--s29-line))}
+.r29-share-more-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.r29-share-more-row .r29-btn{inline-size:100%;min-block-size:46px;padding-inline:12px}
+.r29-qr-glyph{font-size:18px;line-height:1}
+.r29-share-hint{margin:0;text-align:center;font-size:14px;line-height:1.5;color:var(--s29-muted)}
+.r29-share-qr{display:grid;justify-items:center;gap:8px;margin:4px 0 0}
+/* the QR drawing carries its own white quiet zone (uqr, border 2 modules), so the layer adds no colour of its own */
+.r29-share-qr-code{inline-size:min(208px,70vw);aspect-ratio:1;border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px color-mix(in srgb,var(--r29-gold) 30%,transparent)}
+.r29-share-qr-code svg{display:block;inline-size:100%;block-size:100%}
+.r29-share-qr figcaption,.r29-share-qr p{margin:0;text-align:center;font-size:14px;color:var(--s29-muted)}
+</style><style>body{margin:0;font:400 15px/1.5 'Noto Sans Hebrew','Rubik',Arial,sans-serif}.preset{padding:16px;display:grid;gap:12px}.label{margin:0;font:700 14px var(--s29-font-ui);color:var(--s29-brand-gold)}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr))}.box{padding:12px;display:grid;gap:10px;align-content:start}.box h3{margin:0;font:700 15px var(--s29-font-ui)}.sheetbox{display:grid;place-items:center}</style></head><body>
+<section class="r29 preset" data-preset="dark" style="--s29-page:#0B0907;--s29-panel:#17120E;--s29-panel-soft:#211A13;--s29-line:rgba(212,175,55,0.18);--s29-line-strong:rgba(212,175,55,0.38);--s29-accent:#315DD5;--s29-accent-text:#A8C7FF;--s29-accent-secondary:#C2A8FA;--s29-discovery:#69DED7;--s29-focus-ring:#69DED7;--s29-warm-accent:#DEBD77;--s29-brand-sapphire:#1957D9;--s29-brand-gold:#F9BA3F;--s29-ink:#F5F5F0;--s29-muted:#C6C6C1;--s29-on-accent:#FFFFFF;--s29-accent-btn:linear-gradient(135deg, #3A6BEE, #2858DE);--s29-success:#81DDB0;--s29-danger:#FF9AA6;--s29-font-ui:'Rubik','Noto Sans Hebrew',Arial,sans-serif;--s29-motion:180ms;background:#0B0907;color:#F5F5F0">
+<h2 class="label">ערכה: dark</h2>
+<div class="grid">
+ <div class="r29-hall box"><h3>כפתורים</h3>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">פעולה ראשית</button><button class="r29-btn is-quiet">פעולה משנית</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-quiet is-icon" aria-label="שיתוף">⤴</button><button class="r29-btn is-quiet is-icon" aria-label="שמירה">☆</button><button class="r29-btn is-quiet is-icon" aria-label="מעקב">◔</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary" disabled aria-busy="true">שולח…</button></div></div>
+ <div class="r29-hall box"><h3>בחירה מרובה</h3>
+  <div class="r29-check-group" role="group" aria-label="בחירה"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: רמזים חזקים</span></button>
+  <button class="r29-check" role="checkbox" aria-checked="false"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: תיעוד אירועים</span></button></div></div>
+ <div class="r29-hall box"><h3>טפסים</h3>
+  <div class="r29-field"><label for="n-dark">שם (לא חובה)</label><input id="n-dark" class="r29-input" value=""/></div>
+  <div class="r29-field"><label for="t-dark">התגובה שלך</label><textarea id="t-dark" class="r29-input" rows="3" aria-invalid="true">טקסט שנכשל בשליחה</textarea><p class="r29-hint">תגובת אורח מתפרסמת אחרי אישור.</p></div></div>
+ <div class="r29-hall box"><h3>חיווי פעולה</h3>
+  <p class="r29-status" role="status" data-state="loading">טוען…</p>
+  <p class="r29-status" role="status" data-state="success">התגובה פורסמה.</p>
+  <p class="r29-status" role="alert" data-state="error">לא הצלחנו לשלוח. הטקסט נשמר; אפשר לנסות שוב.</p></div>
+ <div class="box sheetbox"><div class="r29-sheet" role="dialog" aria-modal="true" aria-labelledby="s-dark"><h2 id="s-dark">מעקב</h2><p>עדכון באתר כשמתפרסם פוסט חדש. בלי מייל ובלי התראות דפדפן.</p>
+  <div class="r29-check-group"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: בחירות</span></button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">סגירה</button></div></div></div>
+</div></section>
+<section class="r29 preset" data-preset="light" style="--s29-page:#F4F7FC;--s29-panel:#FFFFFF;--s29-panel-soft:#EAF0F9;--s29-line:rgba(42,62,87,0.18);--s29-line-strong:rgba(42,62,87,0.34);--s29-accent:#315DD5;--s29-accent-text:#2454B8;--s29-accent-secondary:#7249A5;--s29-discovery:#086C70;--s29-focus-ring:#086C70;--s29-warm-accent:#80601D;--s29-brand-sapphire:#1957D9;--s29-brand-gold:#875E13;--s29-ink:#172B46;--s29-muted:#526580;--s29-on-accent:#FFFFFF;--s29-accent-btn:linear-gradient(135deg, #315DD5, #2454B8);--s29-success:#236D49;--s29-danger:#B52B3C;--s29-font-ui:'Rubik','Noto Sans Hebrew',Arial,sans-serif;--s29-motion:180ms;background:#F4F7FC;color:#172B46">
+<h2 class="label">ערכה: light</h2>
+<div class="grid">
+ <div class="r29-hall box"><h3>כפתורים</h3>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">פעולה ראשית</button><button class="r29-btn is-quiet">פעולה משנית</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-quiet is-icon" aria-label="שיתוף">⤴</button><button class="r29-btn is-quiet is-icon" aria-label="שמירה">☆</button><button class="r29-btn is-quiet is-icon" aria-label="מעקב">◔</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary" disabled aria-busy="true">שולח…</button></div></div>
+ <div class="r29-hall box"><h3>בחירה מרובה</h3>
+  <div class="r29-check-group" role="group" aria-label="בחירה"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: רמזים חזקים</span></button>
+  <button class="r29-check" role="checkbox" aria-checked="false"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: תיעוד אירועים</span></button></div></div>
+ <div class="r29-hall box"><h3>טפסים</h3>
+  <div class="r29-field"><label for="n-light">שם (לא חובה)</label><input id="n-light" class="r29-input" value=""/></div>
+  <div class="r29-field"><label for="t-light">התגובה שלך</label><textarea id="t-light" class="r29-input" rows="3" aria-invalid="true">טקסט שנכשל בשליחה</textarea><p class="r29-hint">תגובת אורח מתפרסמת אחרי אישור.</p></div></div>
+ <div class="r29-hall box"><h3>חיווי פעולה</h3>
+  <p class="r29-status" role="status" data-state="loading">טוען…</p>
+  <p class="r29-status" role="status" data-state="success">התגובה פורסמה.</p>
+  <p class="r29-status" role="alert" data-state="error">לא הצלחנו לשלוח. הטקסט נשמר; אפשר לנסות שוב.</p></div>
+ <div class="box sheetbox"><div class="r29-sheet" role="dialog" aria-modal="true" aria-labelledby="s-light"><h2 id="s-light">מעקב</h2><p>עדכון באתר כשמתפרסם פוסט חדש. בלי מייל ובלי התראות דפדפן.</p>
+  <div class="r29-check-group"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: בחירות</span></button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">סגירה</button></div></div></div>
+</div></section>
+<section class="r29 preset" data-preset="parchment" style="--s29-page:#F4EDDE;--s29-panel:#FFF9EE;--s29-panel-soft:#EEE3CF;--s29-line:rgba(89,70,39,0.20);--s29-line-strong:rgba(89,70,39,0.38);--s29-accent:#315DD5;--s29-accent-text:#284E9F;--s29-accent-secondary:#764B87;--s29-discovery:#176965;--s29-focus-ring:#176965;--s29-warm-accent:#80601D;--s29-brand-sapphire:#1957D9;--s29-brand-gold:#80570E;--s29-ink:#312B23;--s29-muted:#706252;--s29-on-accent:#FFFFFF;--s29-accent-btn:linear-gradient(135deg, #315DD5, #284E9F);--s29-success:#316740;--s29-danger:#A52D36;--s29-font-ui:'Rubik','Noto Sans Hebrew',Arial,sans-serif;--s29-motion:180ms;background:#F4EDDE;color:#312B23">
+<h2 class="label">ערכה: parchment</h2>
+<div class="grid">
+ <div class="r29-hall box"><h3>כפתורים</h3>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">פעולה ראשית</button><button class="r29-btn is-quiet">פעולה משנית</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-quiet is-icon" aria-label="שיתוף">⤴</button><button class="r29-btn is-quiet is-icon" aria-label="שמירה">☆</button><button class="r29-btn is-quiet is-icon" aria-label="מעקב">◔</button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary" disabled aria-busy="true">שולח…</button></div></div>
+ <div class="r29-hall box"><h3>בחירה מרובה</h3>
+  <div class="r29-check-group" role="group" aria-label="בחירה"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: רמזים חזקים</span></button>
+  <button class="r29-check" role="checkbox" aria-checked="false"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: תיעוד אירועים</span></button></div></div>
+ <div class="r29-hall box"><h3>טפסים</h3>
+  <div class="r29-field"><label for="n-parchment">שם (לא חובה)</label><input id="n-parchment" class="r29-input" value=""/></div>
+  <div class="r29-field"><label for="t-parchment">התגובה שלך</label><textarea id="t-parchment" class="r29-input" rows="3" aria-invalid="true">טקסט שנכשל בשליחה</textarea><p class="r29-hint">תגובת אורח מתפרסמת אחרי אישור.</p></div></div>
+ <div class="r29-hall box"><h3>חיווי פעולה</h3>
+  <p class="r29-status" role="status" data-state="loading">טוען…</p>
+  <p class="r29-status" role="status" data-state="success">התגובה פורסמה.</p>
+  <p class="r29-status" role="alert" data-state="error">לא הצלחנו לשלוח. הטקסט נשמר; אפשר לנסות שוב.</p></div>
+ <div class="box sheetbox"><div class="r29-sheet" role="dialog" aria-modal="true" aria-labelledby="s-parchment"><h2 id="s-parchment">מעקב</h2><p>עדכון באתר כשמתפרסם פוסט חדש. בלי מייל ובלי התראות דפדפן.</p>
+  <div class="r29-check-group"><button class="r29-check" role="checkbox" aria-checked="true"><span class="r29-check-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><span>קטגוריה: בחירות</span></button></div>
+  <div class="r29-btn-group"><button class="r29-btn is-primary">סגירה</button></div></div></div>
+</div></section></body></html>

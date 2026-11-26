@@ -55,12 +55,17 @@ jobs:
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@3c2f5e2ae34c34e428e8e206e2c4d21fa2d20fbf # v2.1.1 action
         with:
-          version: latest
+          # PINNED (ZURIEL 26.11.2026). 3.2.0 is the last version with a recorded green run of this gate (21.11.2026, run 44956153651).
+          # `latest` moved to 3.4.0, whose `supabase init` writes supabase/config.jsonc instead of supabase/config.toml (reproduced: 3.2.0 and 3.3.0 write
+          # config.toml, 3.4.0 does not), so the isolated workdir preparation failed before any migration, SQL, RLS or privilege test ran. Nothing in the gate is
+          # skipped or weakened by the pin. Moving it up is a reviewed change that must also update the config step below.
+          version: 3.2.0
 
       - name: Record toolchain
         shell: bash
         run: |
           set -euo pipefail
+          test "$(supabase --version)" = "3.2.0"   # the toolchain is exactly the pinned one
           supabase --version
           docker --version
           if ! command -v psql >/dev/null 2>&1; then

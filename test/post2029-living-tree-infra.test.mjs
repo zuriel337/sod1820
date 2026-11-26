@@ -305,6 +305,7 @@ test("Unified Experience exposes one shared rail and section navigation without 
   assert.match(rail, /בתוך הפוסט/);
   assert.match(rail, /בתוך הציר/);
   assert.match(tabs, /data-experience-capability="surface-section-nav"/);
-  assert.match(post, /SurfaceSectionNav2029/);
+  // ZURIEL 25.11.2026: the in-page tab row (story · sources · comments · next) and the symbol legend are gone from every Post; the rail keeps its own outline.
+  assert.doesNotMatch(post, /SurfaceSectionNav2029|PostSemanticLegend2029/);
   assert.doesNotMatch(post, /<ReadingContextRail2029/);
 });
