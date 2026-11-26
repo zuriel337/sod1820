@@ -1,0 +1,38 @@
+name: SOD1820 QA account check
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sod1820-qa-account
+  cancel-in-progress: false
+
+jobs:
+  account:
+    if: github.repository == 'zuriel337/sod1820' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    environment: sod1820-qa
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Install Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-audit --no-fund playwright@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Check dedicated QA account
+        env:
+          SOD1820_QA_ORIGIN: ${{ vars.SOD1820_QA_ORIGIN }}
+          SOD1820_QA_SUPABASE_ORIGIN: ${{ vars.SOD1820_QA_SUPABASE_ORIGIN }}
+          SOD1820_QA_USER_ID: ${{ secrets.SOD1820_QA_USER_ID }}
+          SOD1820_QA_EMAIL: ${{ secrets.SOD1820_QA_EMAIL }}
+          SOD1820_QA_PASSWORD: ${{ secrets.SOD1820_QA_PASSWORD }}
+        run: node scripts/check-site-2029.mjs --account
