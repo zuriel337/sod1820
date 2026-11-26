@@ -1,5 +1,5 @@
 diff --git a/public-reading-deploy/review-admission.js b/public-reading-deploy/review-admission.js
-index c30725e4f..544111461 100644
+index c30725e4f..ff557c7fa 100644
 --- a/public-reading-deploy/review-admission.js
 +++ b/public-reading-deploy/review-admission.js
 @@ -46,7 +46,11 @@ export const ELS_REGISTERED_REVIEW_BRANCH = "gpt/els-onboarding-access-plan-2026
@@ -7,7 +7,7 @@ index c30725e4f..544111461 100644
  // "עכשיו" threads work. Exact branch only, Preview target only, no alias, never Production; it adds no flag and no domain authority.
  export const HOME_NOW_UNIFIED_PREVIEW_BRANCH = "ccr-7ed7f384-d0u3rk";
 -export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH, HOME_NOW_UNIFIED_PREVIEW_BRANCH]);
-+// ZURIEL, <date of approval>: ONE protected Preview of the edge security-probe package (403 for scanner paths, authenticated reporting, canary), exact branch
++// Decision 337 (26.11.2026), S1 request in docs/reviews/security-edge-package-20261126/README.md section 6 (a Preview is built only after ZURIEL approves that exact request): ONE protected Preview of the edge security-probe package (403 for scanner paths, authenticated reporting, canary), exact branch
 +// below. Same rules: exact name, Preview target only, never Production, no flag of its own. The Preview proves the 403, the headers and that the matcher compiles;
 +// recording needs the Production OIDC token and is proven by the first scheduled canary after a separately approved deployment.
 +export const SECURITY_EDGE_PREVIEW_BRANCH = "ccr-s1-security-edge-20261126";

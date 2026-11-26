@@ -62,7 +62,7 @@
 **המסמך אינו מחיל דבר.** מנגנון ה־Preview המוגן בונה רק ענפים שרשומים בקוד (`public-reading-deploy/review-admission.js`), ו״כל ענף נוסף דורש אישור מתועד משלו״.
 
 - **הענף:** `ccr-s1-security-edge-20261126` (שם מדויק; לא תבנית ולא קידומת). ענף ייעודי שמכיל רק את קבצי החבילה. **דחיפתו ל־origin דורשת הרשאה מפורשת** (ההרשאה הקיימת מכסה רק את ענף הפיתוח של הסשן); בלי דחיפה אין מה לבנות ב־Vercel.
-- **ה־SHA לבנייה:** קומיט ה־patch בלבד, מעל הקומיט שמוצג בבקשה (ה־SHA של הקומיט ה־patch נקבע רק אחרי האישור). ה־Preview נבנה מ־SHA מדויק אחד (`--review-source`).
+- **ה־SHA לבנייה:** קומיט S1 — הקומיט שמעל `818a33418c58…` ומכיל את ה־patch כבר מוחל (המזהה המלא נמסר בבקשת האישור בשיחה; מסמך זה אינו יכול להכיל את ה־SHA של עצמו). ה־Preview נבנה מ־SHA מדויק אחד (`--review-source`).
 - **השינוי הנדרש (patch מצורף: `PREVIEW_GATE_APPROVAL.patch`, ‏`git apply --check` נקי):** הוספת `SECURITY_EDGE_PREVIEW_BRANCH = "ccr-s1-security-edge-20261126"` לרשימת `REVIEW_BRANCHES` ב־`review-admission.js`, ועדכון שתי בדיקות הרשימה המדויקת (`test/public-reading-protected-review.test.mjs`, ‏`scripts/test-public-reading-main-release-contract.mjs`) בלי החלשה: הרשימה נשארת בדיקת שוויון מדויקת. בדיקה: עם ה־patch אותן 4 בדיקות שנכשלות גם בלעדיו בסביבה זו (קבלה סטטית/מתאמי hosting) נכשלות, כל השאר עובר, וחוזה פרסום ה־main (`test-public-reading-main-release-contract`) עובר.
 - **מה זה מתיר:** בנייה מוגנת (Preview בלבד), קבלה שנקשרת לענף, ל־SHA, ל־deployment ול־host, noindex, ללא Production, ללא alias או דומיין.
 - **מה זה אינו מתיר:** מיזוג · פריסה ל־Production · alias/דומיין · שינוי DB/WAF/Edge · כל ענף אחר.
@@ -101,4 +101,4 @@
 | `test/edge-security-probe-20261126.test.mjs` | `65a10c2a0cde9d71b062b644cc19fef13f189ec91d7a5a71c1c3d6fd1849e192` |
 | `test/security-probe-log-20261126.test.mjs` | `396242d5bf0ce3b95caa5a2c589a7e3c45ec951cc338d443543ef2b55d472a35` |
 | `test/security-edge-realpg-20261126.sh` | `f013cb93d4dd67d0fcc543fc954565afb64eaaa9a29eb055788d33de9749c706` |
-| `docs/reviews/security-edge-package-20261126/PREVIEW_GATE_APPROVAL.patch` | `62628c5cad6ded2079f8be77b7f318c131716997b081af262a2d0ec094c88ebb` |
+| `docs/reviews/security-edge-package-20261126/PREVIEW_GATE_APPROVAL.patch` | `d3d0e0e95bb0bb819e72a61c46888380ed7e9b15d697a178551f76a9c21719af` |
