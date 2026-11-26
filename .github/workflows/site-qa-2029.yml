@@ -9,7 +9,7 @@ on:
   # TEMPORARY (remove before merge): proves the runner from this branch.
   push:
     branches: [claude/biblical-cipher-audit-zspg77]
-    paths: [.github/workflows/site-qa-2029.yml, scripts/qa-site-2029.mjs, qa/**, test/helpers/authBrowserFixture.mjs]
+    paths: [.github/workflows/site-qa-2029.yml, scripts/qa-site-2029.mjs, scripts/build-qa-schema.mjs, qa/**, test/helpers/authBrowserFixture.mjs]
   workflow_dispatch:
 
 permissions:
@@ -41,10 +41,11 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Local Supabase (throwaway, Docker)
         run: |
+          node scripts/build-qa-schema.mjs
           npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
           npx --yes supabase@3.4.0 status --workdir qa -o env > "$RUNNER_TEMP/qa.env"
           echo "status variables: $(cut -d= -f1 "$RUNNER_TEMP/qa.env" | tr '\n' ' ')"
-      - name: QA check (login against the local backend)
+      - name: QA check (login and the three publication tiers against the local backend)
         run: |
           set -a; . "$RUNNER_TEMP/qa.env"; set +a
           export QA_SUPABASE_URL="${API_URL:-http://127.0.0.1:54321}"
