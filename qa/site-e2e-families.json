@@ -375,6 +375,23 @@
       "ui-messages Pixel 7: the unread mark on the profile picture counts",
       "ui-messages Pixel 7: the mark disappears and the database shows nothing unread"
      ]
+    },
+    {
+     "id": "notifications.page",
+     "label": "דף ההתראות: רשימה, ״סמן הכול כנקרא״ רק לבעלים, התג יורד ונשאר אחרי רענון (מחשב ופיקסל 7)",
+     "role": "member x2",
+     "results": [
+      "ui-notifications desktop-1440: the mark on the profile picture counts the two replies",
+      "ui-notifications desktop-1440: pressing the picture opens the notifications",
+      "ui-notifications desktop-1440: \"mark all as read\" reads",
+      "ui-notifications desktop-1440: the mark leaves the picture",
+      "ui-notifications desktop-1440: after a reload nothing is unread",
+      "ui-notifications Pixel 7: the mark on the profile picture counts the two replies",
+      "ui-notifications Pixel 7: pressing the picture opens the notifications",
+      "ui-notifications Pixel 7: \"mark all as read\" reads",
+      "ui-notifications Pixel 7: the mark leaves the picture",
+      "ui-notifications Pixel 7: after a reload nothing is unread"
+     ]
     }
    ]
   },
