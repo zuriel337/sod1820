@@ -43,7 +43,7 @@ jobs:
           {
             echo '### בדיקת האתר כאורח'
             echo '```'
-            grep -E '^(PASS|FAIL|BLOCKED_AT_EDGE)' site-check.log
+            grep -E '^(PASS|FAIL|EDGE|BLOCKED_AT_EDGE)' site-check.log
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
           exit $code
