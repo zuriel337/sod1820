@@ -82,7 +82,7 @@ test("Golden Post architecture wireframe exposes the full structural preview wit
   // The adopted tools rail now exposes the existing Heichal destination.
   assert.match(frame, /to: "\/heichal", label: "היכל"/);
   assert.match(frame, /to: "\/2029\/journey", label: "מסע החיים"/);
-  assert.match(frame, /onClick=\{openWorkspace\} aria-label="האזור האישי שלי"/);
+  assert.match(frame, /onClick=\{openPersonal\} aria-label="האזור האישי שלי"/);   // openPersonal falls back to openWorkspace (scripts/test-my-workspace-2029.mjs)
   assert.match(frame, /data-raziel-anchor="center"/);
 });
 
