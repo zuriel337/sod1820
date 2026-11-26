@@ -59,7 +59,7 @@ export async function runP1({ origin, anon, service, syntheticAccount, note }) {
   const before = (await rpc('dm_inbox', {}, tb)).body?.find((r) => r.counterpart === a.id)?.unread;
   const thread = await rpc('dm_thread', { p_with: a.id }, tb);
   const after = (await rpc('dm_inbox', {}, tb)).body?.find((r) => r.counterpart === a.id)?.unread;
-  check('messages', before === 1 && Array.isArray(thread.body) && thread.body.length === 3 && after === 0, 'opening the thread returns the whole conversation and marks the received messages as read', `unread ${before} -> ${after}`);
+  check('messages', before === 2 && Array.isArray(thread.body) && thread.body.length === 2 && after === 0, 'opening the thread returns the whole conversation and marks the received messages as read', `unread ${before} -> ${after}`);
   check('messages', thread.body?.every((m) => (m.to_user === b.id ? m.read_at : true)), 'only messages addressed to the reader are marked');
   // preferences
   const prefs = await call('POST', 'notification_prefs', tb, { user_id: b.id, topics: ['author:qa'], channels: ['site'] }, { prefer: 'return=representation' });

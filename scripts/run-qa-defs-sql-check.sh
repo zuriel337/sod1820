@@ -19,6 +19,8 @@ create schema auth;
 create table auth.users(id uuid primary key, email text);
 create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb,'{}'::jsonb) $$;
+alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
+alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
 grant usage on schema auth to public; grant usage on schema public to anon, authenticated, service_role;
 SQL
 chmod a+r "$D/stubs.sql"
@@ -44,4 +46,6 @@ if { as $B; echo "update public.user_notifications set title='x';"; } | q >/dev/
 { as $B; echo "update public.user_notifications set read_at=now();"; } | q >/dev/null; echo "PASS read_at is updatable by the owner"
 v=$(echo "set role anon; insert into public.page_views(kind,ref) values ('post','r'),('post','r'),('post','r'); select view_count('post','r',7);" | q -At | tail -1)
 [[ "$v" == 3 ]] || { echo "FAIL view counter: $v"; exit 1; }; echo "PASS three anonymous views count 3"
+if echo "set role anon; select dm_inbox();" | q >/dev/null 2>&1; then echo "FAIL anonymous can execute dm_inbox (default privileges not revoked)"; exit 1; fi; echo "PASS anonymous cannot execute the member functions"
+if echo "set role anon; select count(*) from public.page_views;" | q >/dev/null 2>&1; then echo "FAIL anonymous can read page_views"; exit 1; fi; echo "PASS anonymous cannot read the raw views table"
 echo "ALL PASS"
