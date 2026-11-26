@@ -9,6 +9,8 @@ const CANONICAL_STORAGE = 'https://linswmnnkjxvweumprav.storage.supabase.co';
 const READ_RPCS = Object.freeze([...new Set([
   ...inventory.functions.filter(row => row.provolatile !== 'v' && row.proname !== 'lang_links_list').map(row => row.proname),
   'convergence_meter', 'is_number_indexable', 'is_phrase_indexable', 'writer_public_contributions_page_v1',
+  // The two argument-less discovery readers (ZURIEL 26.11.2026); STABLE public readers, listed here until the reviewed inventory is regenerated after they exist.
+  'discovery_center_feed_v1', 'discovery_center_stats_v1',
 ])]);
 const reads = new Set(READ_RPCS);
 const proxyContexts = new WeakMap();
