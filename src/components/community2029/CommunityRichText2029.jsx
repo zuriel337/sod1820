@@ -1,4 +1,5 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
+import "../experience2029/royal2029.css";
 import { DESIGN_V2_PALETTES, use2029Palette } from "../../lib/palette2029.js";
 import { encodeMessageFormatting, parseMessageFormatting, plainMessageText } from "../../lib/community/messageFormatting.js";
 
@@ -119,14 +120,14 @@ export default function CommunityRichText2029({ id, inputRef, value, onChange, o
         if (event.key === "Escape") setEmojiOpen(false);
       }} />
     <div className="sod29-community-format-tools" role="group" aria-label="עיצוב הטקסט" hidden={!expanded} onPointerDown={event => event.preventDefault()} onMouseDown={event => event.preventDefault()}>
-      <button type="button" disabled={disabled} aria-label="הדגשה" title="הדגשה" aria-pressed={active.bold} onClick={() => command("bold")}><strong aria-hidden="true">B</strong></button>
-      <button type="button" disabled={disabled} aria-label="קו תחתון" title="קו תחתון" aria-pressed={active.underline} onClick={() => command("underline")}><u aria-hidden="true">U</u></button>
-      <button type="button" disabled={disabled} aria-label="צבע זהב" title="צבע זהב" className="sod29-community-text-gold" onClick={() => command("foreColor", palette.warmAccent)}><span aria-hidden="true">א</span></button>
-      <button type="button" disabled={disabled} aria-label="צבע כחול" title="צבע כחול" className="sod29-community-text-blue" onClick={() => command("foreColor", palette.accentText)}><span aria-hidden="true">א</span></button>
-      <button type="button" disabled={disabled} aria-label="ניקוי עיצוב" title="ניקוי עיצוב" onClick={() => command("removeFormat")}><span aria-hidden="true">Tx</span></button>
-      <button type="button" disabled={disabled} aria-label="אימוג׳ים" title="אימוג׳ים" aria-expanded={emojiOpen} aria-controls={`${id}-emoji`} onClick={() => setEmojiOpen(open => !open)}><span aria-hidden="true">☺</span></button>
+      <button type="button" className={`r29-btn is-icon ${active.bold ? "is-primary" : "is-quiet"}`} disabled={disabled} aria-label="הדגשה" title="הדגשה" aria-pressed={active.bold} onClick={() => command("bold")}><strong aria-hidden="true">B</strong></button>
+      <button type="button" className={`r29-btn is-icon ${active.underline ? "is-primary" : "is-quiet"}`} disabled={disabled} aria-label="קו תחתון" title="קו תחתון" aria-pressed={active.underline} onClick={() => command("underline")}><u aria-hidden="true">U</u></button>
+      <button type="button" disabled={disabled} aria-label="צבע זהב" title="צבע זהב" className="r29-btn is-icon is-quiet sod29-community-text-gold" onClick={() => command("foreColor", palette.warmAccent)}><span aria-hidden="true">א</span></button>
+      <button type="button" disabled={disabled} aria-label="צבע כחול" title="צבע כחול" className="r29-btn is-icon is-quiet sod29-community-text-blue" onClick={() => command("foreColor", palette.accentText)}><span aria-hidden="true">א</span></button>
+      <button type="button" className="r29-btn is-icon is-quiet" disabled={disabled} aria-label="ניקוי עיצוב" title="ניקוי עיצוב" onClick={() => command("removeFormat")}><span aria-hidden="true">Tx</span></button>
+      <button type="button" className="r29-btn is-icon is-quiet" disabled={disabled} aria-label="אימוג׳ים" title="אימוג׳ים" aria-expanded={emojiOpen} aria-controls={`${id}-emoji`} onClick={() => setEmojiOpen(open => !open)}><span aria-hidden="true">☺</span></button>
     </div>
-    {expanded && emojiOpen ? <div id={`${id}-emoji`} className="sod29-community-emoji-picker" role="group" aria-label="בחירת אימוג׳י" onPointerDown={event => event.preventDefault()} onMouseDown={event => event.preventDefault()} onKeyDown={event => { if (event.key === "Escape") setEmojiOpen(false); }}>{EMOJI.map(emoji => <button key={emoji} type="button" disabled={disabled} aria-label={`הוספת ${emoji}`} onClick={() => { command("insertText", emoji); setEmojiOpen(false); }}>{emoji}</button>)}</div> : null}
+    {expanded && emojiOpen ? <div id={`${id}-emoji`} className="sod29-community-emoji-picker" role="group" aria-label="בחירת אימוג׳י" onPointerDown={event => event.preventDefault()} onMouseDown={event => event.preventDefault()} onKeyDown={event => { if (event.key === "Escape") setEmojiOpen(false); }}>{EMOJI.map(emoji => <button key={emoji} type="button" className="r29-btn is-icon is-quiet" disabled={disabled} aria-label={`הוספת ${emoji}`} onClick={() => { command("insertText", emoji); setEmojiOpen(false); }}>{emoji}</button>)}</div> : null}
     {error ? <span id={`${id}-error`} role="alert" className="sod29-community-status">{error}</span> : null}
   </div>;
 }

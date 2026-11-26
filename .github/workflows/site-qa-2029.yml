@@ -37,6 +37,7 @@ jobs:
           npx playwright install --with-deps chromium
       - name: Local Supabase (throwaway, Docker)
         run: |
+          node scripts/build-qa-prod-definitions.mjs
           node scripts/build-qa-schema.mjs
           npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
           npx --yes supabase@3.4.0 status --workdir qa -o env > "$RUNNER_TEMP/qa.env"
@@ -52,6 +53,7 @@ jobs:
           node scripts/qa-site-2029.mjs 2>&1 | tee qa.log
           code=${PIPESTATUS[0]}
           { echo '### בדיקת האתר בסביבה מבודדת'; echo '```'; grep -E '^(PASS|FAIL)' qa.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          node scripts/site-e2e-report-2029.mjs qa-out/report.json >> "$GITHUB_STEP_SUMMARY" || true
           exit $code
       - name: Stop and discard the local stack
         if: always()
