@@ -27,3 +27,5 @@ __pycache__/
 node_modules
 qa/supabase/migrations/*_qa_els.sql
 qa/supabase/migrations/*_qa_prod_defs.sql
+qa/corpus/
+qa/supabase/functions/

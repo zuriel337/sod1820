@@ -21,10 +21,11 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 create function auth.jwt() returns jsonb language sql stable as $$ select coalesce(nullif(current_setting('request.jwt.claims',true),'')::jsonb,'{}'::jsonb) $$;
 alter default privileges in schema public grant all on tables to anon, authenticated, service_role;
 alter default privileges in schema public grant all on functions to anon, authenticated, service_role;
+create schema extensions; create extension pgcrypto with schema extensions;
 grant usage on schema auth to public; grant usage on schema public to anon, authenticated, service_role;
 SQL
 chmod a+r "$D/stubs.sql"
-run "$BIN/initdb" -D "$D/data" -A trust -U postgres >/dev/null
+run "$BIN/initdb" -D "$D/data" -A trust -U postgres -E UTF8 --locale=C.UTF-8 >/dev/null
 run "$BIN/pg_ctl" -D "$D/data" -o "-h '' -p 55449 -k $D" -l "$D/log" -w start >/dev/null
 run "$BIN/createdb" -h "$D" -p 55449 -U postgres qa_defs
 q() { run "$BIN/psql" -h "$D" -p 55449 -U postgres -d qa_defs -v ON_ERROR_STOP=1 -q "$@"; }
@@ -48,4 +49,10 @@ v=$(echo "set role anon; insert into public.page_views(kind,ref) values ('post',
 [[ "$v" == 3 ]] || { echo "FAIL view counter: $v"; exit 1; }; echo "PASS three anonymous views count 3"
 if echo "set role anon; select dm_inbox();" | q >/dev/null 2>&1; then echo "FAIL anonymous can execute dm_inbox (default privileges not revoked)"; exit 1; fi; echo "PASS anonymous cannot execute the member functions"
 if echo "set role anon; select count(*) from public.page_views;" | q >/dev/null 2>&1; then echo "FAIL anonymous can read page_views"; exit 1; fi; echo "PASS anonymous cannot read the raw views table"
+# the verification path read from production, on the existing Torah corpus (the golden occurrence of the engine tests: torah-kedosha, skip 10065, start 50890)
+node "$ROOT/scripts/build-qa-corpus.mjs" >/dev/null
+cp "$ROOT/qa/corpus/torah.csv" "$D/torah.csv"; chmod a+r "$D/torah.csv"
+q -c "\\copy public.torah_stream(idx,ch) from '$D/torah.csv' csv" >/dev/null
+v=$(echo "select (els_verify_batch_v1('תורהקדשה','torah','0b022e8eef6f9c16','[{\"skip\":10065,\"dir\":1,\"start\":50890},{\"skip\":10065,\"dir\":1,\"start\":50891}]'::jsonb)->'counts'->>'verified');" | q -At | tail -1)
+[[ "$v" == 1 ]] || { echo "FAIL verification of the golden occurrence: $v"; exit 1; }; echo "PASS the existing verification function accepts the golden occurrence and rejects a shifted one on the Torah corpus"
 echo "ALL PASS"
