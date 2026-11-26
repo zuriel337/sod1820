@@ -143,3 +143,59 @@ DO $$ BEGIN
 END $$;
 -- החזרת הקורא האמיתי
 \i ../../../supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql
+
+-- (12) D4: שיוך בקליטה לפי הכלל היחיד (מזהה משתמש בלבד, התורם הפעיל והיחיד); לא נוגע בסטטוס; אורח לא משויך
+\i ../../../supabase/proposed/discovery-center-20261126/D4-trg_rc_resolve_author_contributor.sql
+INSERT INTO contributors (id, slug, display_name, kind, dossier_settings, user_id, trusted) VALUES
+ ('44444444-4444-4444-4444-444444444444', 'solo', 'יחיד', 'person', '{"visibility":"public"}', '55555555-5555-5555-5555-555555555555', true),
+ ('66666666-6666-6666-6666-666666666661', 'dup-a', 'כפול א', 'person', '{"visibility":"public"}', '77777777-7777-7777-7777-777777777777', false),
+ ('66666666-6666-6666-6666-666666666662', 'dup-b', 'כפול ב', 'person', '{"visibility":"public"}', '77777777-7777-7777-7777-777777777777', false);
+INSERT INTO contributors (id, slug, display_name, kind, dossier_settings, user_id, merged_into) VALUES ('88888888-8888-8888-8888-888888888881', 'merged-away', 'ממוזג', 'person', '{}', '99999999-0000-0000-0000-000000000009', '44444444-4444-4444-4444-444444444444');
+DO $$
+DECLARE r record;
+BEGIN
+  INSERT INTO research_contributions (id, author_user_id, body, status) VALUES ('d4000000-0000-0000-0000-000000000001', '55555555-5555-5555-5555-555555555555', 'x', 'pending') RETURNING * INTO r;
+  ASSERT r.author_contributor_id = '44444444-4444-4444-4444-444444444444' AND r.status = 'pending', 'D4: a user with one active contributor is attributed by id; status untouched';
+  INSERT INTO research_contributions (id, author_user_id, body, status) VALUES ('d4000000-0000-0000-0000-000000000002', '77777777-7777-7777-7777-777777777777', 'x', 'pending') RETURNING * INTO r;
+  ASSERT r.author_contributor_id IS NULL, 'D4: two active contributors for one user: no arbitrary pick';
+  INSERT INTO research_contributions (id, author_user_id, body, status) VALUES ('d4000000-0000-0000-0000-000000000003', '99999999-0000-0000-0000-000000000009', 'x', 'pending') RETURNING * INTO r;
+  ASSERT r.author_contributor_id IS NULL, 'D4: a merged contributor is never the target';
+  INSERT INTO research_contributions (id, author_user_id, author_contributor_id, body, status) VALUES ('d4000000-0000-0000-0000-000000000004', '55555555-5555-5555-5555-555555555555', '66666666-6666-6666-6666-666666666661', 'x', 'pending') RETURNING * INTO r;
+  ASSERT r.author_contributor_id = '66666666-6666-6666-6666-666666666661', 'D4: an explicit contributor is never overwritten';
+  INSERT INTO research_contributions (id, author_name, body, status) VALUES ('d4000000-0000-0000-0000-000000000005', 'יחיד', 'x', 'pending') RETURNING * INTO r;
+  ASSERT r.author_contributor_id IS NULL, 'D4: a guest is never attributed by name';
+  EXECUTE 'SET LOCAL ROLE anon';
+  BEGIN PERFORM public.rc_resolve_author_contributor(); ASSERT false, 'the trigger function is not callable'; EXCEPTION WHEN insufficient_privilege THEN NULL; WHEN others THEN NULL; END;
+  EXECUTE 'RESET ROLE';
+  RAISE WARNING 'D4 tests: PASS';
+END $$;
+
+-- (13) D5: מוחלף רק מעל ההגדרה החיה המדויקת; הכלל היחיד; התנהגות זהה בשאר
+\i test/add_contribution_live_definition.sql
+DO $$ BEGIN
+  ASSERT md5(pg_get_functiondef('public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)'::regprocedure)) = '19759e2793b11c1f7ad0e095343ede42', 'the reconstructed live definition has the live md5 (D5 guard will pass)';
+END $$;
+\i ../../../supabase/proposed/discovery-center-20261126/D5-add_contribution_single_attribution_rule.sql
+DO $$
+DECLARE new_id uuid; r record; n integer;
+BEGIN
+  INSERT INTO users (id, display_name, username, role) VALUES ('55555555-5555-5555-5555-555555555555', 'יחיד', 'solo', NULL), ('77777777-7777-7777-7777-777777777777', 'כפול', 'dup', NULL);
+  PERFORM set_config('test.uid', '55555555-5555-5555-5555-555555555555', true);
+  new_id := add_contribution('תגובה', 'beit_midrash', 'טקסט', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  SELECT * INTO r FROM research_contributions WHERE id = new_id;
+  ASSERT r.author_contributor_id = '44444444-4444-4444-4444-444444444444' AND r.status = 'approved' AND r.research_state = 'discussion', 'D5: a signed-in comment: the unique contributor, immediate approval (unchanged)';
+  SELECT count(*) INTO n FROM contribution_events WHERE ref = new_id::text; ASSERT n = 1, 'D5: the contribution event is still written for an approved comment';
+  new_id := add_contribution('חידוש', 'beit_midrash', 'טקסט', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  SELECT * INTO r FROM research_contributions WHERE id = new_id;
+  ASSERT r.status = 'pending' AND r.research_state = 'validated', 'D5: a non-comment from a trusted contributor stays pending/validated (unchanged)';
+  PERFORM set_config('test.uid', '77777777-7777-7777-7777-777777777777', true);
+  new_id := add_contribution('תגובה', 'beit_midrash', 'טקסט', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+  SELECT * INTO r FROM research_contributions WHERE id = new_id;
+  ASSERT r.author_contributor_id IS NULL AND r.status = 'approved', 'D5: ambiguous contributors: no arbitrary pick (one rule), behavior otherwise unchanged';
+  PERFORM set_config('test.uid', '', true);
+  new_id := add_contribution('תגובה', 'beit_midrash', 'אורח', NULL, NULL, NULL, NULL, NULL, 'אורח בדיקה', NULL);
+  SELECT * INTO r FROM research_contributions WHERE id = new_id;
+  ASSERT r.status = 'pending' AND r.author_user_id IS NULL AND r.author_contributor_id IS NULL AND r.author_name = 'אורח בדיקה', 'D5: a guest comment stays pending and unattributed (unchanged)';
+  ASSERT has_function_privilege('anon', 'public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)', 'execute') AND has_function_privilege('authenticated', 'public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text)', 'execute'), 'D5: grants unchanged (anon and authenticated)';
+  RAISE WARNING 'D5 tests: PASS';
+END $$;

@@ -6,7 +6,7 @@ CREATE TABLE gematria_methods (method_key text PRIMARY KEY, db_column text, acti
 INSERT INTO gematria_methods VALUES ('רגיל','ragil',true,true,'רגיל'),('מילוי','miluy',true,true,'מילוי'),('ריבוע','ribua',true,true,'ריבוע (תצוגה)'),('מסתתר','misratar',true,true,'מסתתר'),('גדול','gadol',false,true,'גדול');
 CREATE TABLE contributors (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), slug text, display_name text, kind text, wa_names text[], active boolean DEFAULT true, merged_into uuid, locked boolean, building boolean, dossier_settings jsonb, user_id uuid, trusted boolean);
 CREATE TABLE site_flags (key text PRIMARY KEY, enabled boolean, message text, mode text, updated_at timestamptz);
-CREATE TABLE research_contributions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz DEFAULT now(), parent_id uuid, author_name text, author_user_id uuid, author_contributor_id uuid, title text, body text, status text, deleted_at timestamptz);
+CREATE TABLE research_contributions (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), created_at timestamptz DEFAULT now(), parent_id uuid, author_name text, author_user_id uuid, author_contributor_id uuid, title text, body text, status text, deleted_at timestamptz, intent text, origin text, research_state text, target_type text, target_id text, gematria_claim jsonb, image_url text, last_activity_at timestamptz);
 CREATE TABLE research_objects (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), source_ref text, created_at timestamptz DEFAULT now(), privacy_scope text, status text, meta jsonb, statement text);
 CREATE TABLE channel_updates (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), contributor_id uuid, status text, expires_at timestamptz, created_at timestamptz DEFAULT now(), text text, seo_title text);
 CREATE TABLE els_records (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), status text, visibility text, owner_user_id uuid, title text, description text, created_at timestamptz DEFAULT now());
@@ -14,3 +14,11 @@ CREATE TABLE posts (id serial PRIMARY KEY, date timestamptz, title text, excerpt
 CREATE TABLE contributor_content (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), contributor_id uuid, is_public boolean, is_personal boolean, title text, body text, created_at timestamptz DEFAULT now());
 CREATE FUNCTION rd_is_admin() RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT coalesce(nullif(current_setting('test.admin', true), ''), 'false')::boolean $$;
 CREATE FUNCTION gematria_public_word_eligible(p uuid) RETURNS boolean LANGUAGE sql STABLE AS $$ SELECT EXISTS (SELECT 1 FROM gematria_words WHERE id = p AND is_verified AND is_published) $$;
+
+-- what add_contribution touches besides the tables above
+CREATE SCHEMA auth;
+CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('test.uid', true), '')::uuid $$;
+CREATE TABLE users (id uuid PRIMARY KEY, display_name text, username text, role text);
+CREATE TABLE anon_contrib_log (ip text, created_at timestamptz DEFAULT now());
+CREATE TABLE contribution_events (user_id uuid, kind text, ref text, value numeric, source text, metadata jsonb);
+CREATE FUNCTION contribution_weight(text, boolean, boolean, boolean) RETURNS numeric LANGUAGE sql IMMUTABLE AS $$ SELECT 1::numeric $$;
