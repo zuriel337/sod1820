@@ -13,6 +13,8 @@ import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2
 // server policies; authentication itself starts no model, write or credit action.
 export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "research_pulse_2029",
+  // "עולם הגילויים והתרומות" (ZURIEL 26.11.2026): two argument-less public readers over public material only (profiles gate credit and links on the server).
+  "discovery_center_feed_v1", "discovery_center_stats_v1",
   "gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale",
   "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey",
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",

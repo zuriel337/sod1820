@@ -104,6 +104,39 @@
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/els-publication-tiers.test.mjs",
       "rollout_note": "Before the SQL no recommendation card is shown. IMPORTANT: apply.sql still goes BEFORE the client, because the save panel's 'publish on my page' choice publishes straight to the library on the old database."
+    },
+    {
+      "rpc": "discovery_center_feed_v1",
+      "sql": "supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql",
+      "rollback_sql": "supabase/proposed/discovery-center-20261126/ROLLBACK-D1.sql",
+      "callers": [
+        "src/lib/research/discoveryCenter2029.js"
+      ],
+      "introduced_by": "PR #1568 (עולם הגילויים והתרומות)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/discovery-center-2029.test.mjs"
+    },
+    {
+      "rpc": "discovery_center_stats_v1",
+      "sql": "supabase/proposed/discovery-center-20261126/D1-discovery_center_v1.sql",
+      "rollback_sql": "supabase/proposed/discovery-center-20261126/ROLLBACK-D1.sql",
+      "callers": [
+        "src/lib/research/discoveryCenter2029.js"
+      ],
+      "introduced_by": "PR #1568 (עולם הגילויים והתרומות)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/discovery-center-2029.test.mjs"
+    },
+    {
+      "rpc": "admin_set_home_featured_discovery_v1",
+      "sql": "supabase/proposed/discovery-center-20261126/D3-admin_set_home_featured_discovery_v1.sql",
+      "rollback_sql": "supabase/proposed/discovery-center-20261126/ROLLBACK-D3.sql",
+      "callers": [
+        "src/lib/research/discoveryCenter2029.js"
+      ],
+      "introduced_by": "PR #1568 (עולם הגילויים והתרומות)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/discovery-center-2029.test.mjs"
     }
   ],
   "known_missing_dormant": [
