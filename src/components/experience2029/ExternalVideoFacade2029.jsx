@@ -9,6 +9,9 @@ import { externalVideoEmbedSrc, externalVideoRefusal } from "../../lib/community
 // (youtube-nocookie / player.vimeo) only after a click. When YouTube refuses embedding (player error 100/101/150/153)
 // the card turns into a plain "watch on YouTube" link instead of a broken player. Nothing is downloaded or copied.
 
+// Measurement (video_2029): loaded on the first click only, fire-and-forget, never blocks the player.
+const measure = (eventType, detail) => { import("../../lib/videoMeasurement2029.js").then(m => m.emitVideo2029(eventType, detail)).catch(() => {}); };
+
 const PROVIDERS = {
   youtube: { name: "YouTube", origin: "https://www.youtube-nocookie.com" },
   vimeo: { name: "Vimeo", origin: "https://player.vimeo.com" },
@@ -20,6 +23,8 @@ export default function ExternalVideoFacade2029({ link, title = "", context = ""
   const [state, setState] = useState("idle"); // idle | loading | playing | refused
   const [imageFailed, setImageFailed] = useState(false);
   const [seconds, setSeconds] = useState(0);
+  const secondsRef = useRef(0);
+  secondsRef.current = seconds;
   const src = provider ? externalVideoEmbedSrc(link, typeof window === "undefined" ? "" : window.location.origin) : null;
 
   useEffect(() => {
@@ -32,7 +37,10 @@ export default function ExternalVideoFacade2029({ link, title = "", context = ""
     if (link?.kind !== "youtube" || (state !== "loading" && state !== "playing")) return undefined;
     const onMessage = event => {
       if (event.origin !== provider.origin || event.source !== frame.current?.contentWindow) return;
-      if (externalVideoRefusal(event.data) != null) setState("refused");
+      {
+        const code = externalVideoRefusal(event.data);
+        if (code != null) { setState("refused"); measure("embed_refused", { provider: link.kind, code, waitSeconds: secondsRef.current }); }
+      }
     };
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -41,19 +49,20 @@ export default function ExternalVideoFacade2029({ link, title = "", context = ""
   if (!provider || !src) return null;
   const label = title ? `${title} · ${provider.name}` : `סרטון ${provider.name}`;
   // The way out is the provider's own watch page (an embed address would refuse again), never the raw source address.
-  const watch = <a className="sod29-external-video-out" href={link.watch || link.href} target="_blank" rel="noopener noreferrer">צפייה ב־{provider.name} ↗</a>;
+  const watch = <a className="sod29-external-video-out" href={link.watch || link.href} target="_blank" rel="noopener noreferrer" onClick={() => measure("watch_opened", { provider: link.kind })}>צפייה ב־{provider.name} ↗</a>;
   const cover = <>
     {link.thumbnail && !imageFailed ? <img src={link.thumbnail} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setImageFailed(true)} /> : null}
   </>;
   return <figure className={`sod29-external-video ${className}`.trim()} data-external-video={link.kind} data-external-video-state={state}>
     {state === "refused" ? <div className="sod29-external-video-refused" role="status">
       {cover}<p>בעל הסרטון לא מאפשר לנגן אותו כאן. אפשר לצפות בו ישירות ב־{provider.name}.</p>
-    </div> : state === "idle" ? <button type="button" className="sod29-external-video-cover" onClick={() => { setSeconds(0); setState("loading"); }} aria-label={`הפעלת הנגן · ${label}`}>
+    </div> : state === "idle" ? <button type="button" className="sod29-external-video-cover" onClick={() => { setSeconds(0); setState("loading"); measure("play_requested", { provider: link.kind }); }} aria-label={`הפעלת הנגן · ${label}`}>
       {cover}<span className="sod29-external-video-play" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 4v16l13-8Z" /></svg></span>
     </button> : <div className="sod29-external-video-frame">
       <iframe ref={frame} src={src} title={label} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
         referrerPolicy="strict-origin-when-cross-origin" onLoad={() => {
           setState(current => current === "loading" ? "playing" : current);
+          measure("player_ready", { provider: link.kind, waitSeconds: secondsRef.current });
           // Ask the YouTube player to report its events (onError) to this page; no API script is loaded.
           if (link.kind === "youtube") frame.current?.contentWindow?.postMessage(JSON.stringify({ event: "listening", id: link.id, channel: "widget" }), provider.origin);
         }} />

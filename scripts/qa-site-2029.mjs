@@ -25,13 +25,15 @@ function config() {
   return { origin: api.origin, anon, service };
 }
 
+import { runP1 } from './qa-scenarios-p1.mjs';
+
 async function syntheticAccount({ origin, service }, role = 'member') {
   const email = `qa-${role}-${randomBytes(6).toString('hex')}@qa.invalid`, password = randomBytes(18).toString('base64url');
   const headers = { apikey: service, Authorization: `Bearer ${service}`, 'content-type': 'application/json' };
   const created = await fetch(`${origin}/auth/v1/admin/users`, { method: 'POST', headers, body: JSON.stringify({ email, password, email_confirm: true }) });
   if (!created.ok) throw new Error(`account_create_${created.status}`);
   const { id } = await created.json();
-  const profile = await fetch(`${origin}/rest/v1/users`, { method: 'POST', headers: { ...headers, prefer: 'return=minimal' }, body: JSON.stringify({ id, username: `qa-${id.slice(0, 8)}`, display_name: 'QA', role }) });
+  const profile = await fetch(`${origin}/rest/v1/users`, { method: 'POST', headers: { ...headers, prefer: 'return=minimal' }, body: JSON.stringify({ id, email, username: `qa-${id.slice(0, 8)}`, display_name: 'QA', role: role === 'admin' ? 'admin' : 'user' }) });
   if (!profile.ok) throw new Error(`profile_create_${profile.status}`);
   return { id, email, password };
 }
@@ -137,6 +139,7 @@ try {
       note(false, `${profile}: login flow`, String(error.message).split('\n')[0].slice(0, 160));
     } finally { await context.close(); }
   }
+  try { await runP1({ ...settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'p1: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await tiers(settings, account, browserOpen); } catch (error) { failed = true; note(false, 'tiers: flow', String(error.message).split('\n')[0].slice(0, 160)); }
 } finally { await browser.close(); }
 const reachedLocalBackend = fixture.state.proxied.length > 0 && fixture.state.proxied.every(entry => entry.path.startsWith('/auth/v1/') || entry.path.startsWith('/rest/v1/') || entry.path.startsWith('/functions/v1/') || entry.path.startsWith('/storage/v1/'));

@@ -46,7 +46,10 @@ export const ELS_REGISTERED_REVIEW_BRANCH = "gpt/els-onboarding-access-plan-2026
 // ZURIEL, 25.11.2026 ("תעלה פריביו מוגן", then "פריביו" after the exact-list patch was described): ONE protected Preview of the Home "עדכונים אחרונים" /
 // "עכשיו" threads work. Exact branch only, Preview target only, no alias, never Production; it adds no flag and no domain authority.
 export const HOME_NOW_UNIFIED_PREVIEW_BRANCH = "ccr-7ed7f384-d0u3rk";
-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH, HOME_NOW_UNIFIED_PREVIEW_BRANCH]);
+// ZURIEL, 26.11.2026 ("הצג Preview מוגן ובדיקות דפדפן אמיתיות"): ONE protected Preview of the community network-protection UI. Exact branch only, Preview target
+// only, no alias, never Production; it adds no flag and no domain authority. The SQL it needs is NOT applied, so the staff panel stays hidden on this Preview.
+export const COMMUNITY_NET_PROTECTION_PREVIEW_BRANCH = "ccr-community-net-protection-20261126";
+export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH, HOME_NOW_UNIFIED_PREVIEW_BRANCH, COMMUNITY_NET_PROTECTION_PREVIEW_BRANCH]);
 // Existing Git-branch alias in the same project, verified through Vercel.
 // A stable callback avoids a different Auth allowlist entry for every commit.
 export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
