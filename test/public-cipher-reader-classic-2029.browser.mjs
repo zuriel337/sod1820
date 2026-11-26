@@ -17,7 +17,7 @@ test("a guest can move from a published cipher to its exact Classic record on re
     const filters = url.searchParams;
     if (filters.get("id") === `eq.${row.id}`) return { body: [row] };
     const publicDetail = filters.get("slug") === `eq.${row.slug}`
-      && filters.get("status") === "eq.published" && filters.get("visibility") === "eq.public";
+      && filters.get("and") === "(or(status.eq.published,self_published.eq.true))" && filters.get("visibility") === "eq.public";
     return { body: publicDetail ? [row] : [] };
   } });
   t.after(() => fixture.close());

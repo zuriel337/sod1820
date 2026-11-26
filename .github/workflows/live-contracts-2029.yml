@@ -117,7 +117,7 @@ jobs:
       - name: Beit Midrash strips move only themselves, never the page
         run: node --test test/beit-midrash-rail-no-page-scroll-2029.test.mjs
       - name: Design language, one Royal family (the button family is a ratchet; the other families are a warning scan that reports candidates and never fails on counts) and the Post follow panel
-        run: node --test test/button-family-guard-2029.test.mjs test/design-family-warn-2029.test.mjs test/post-follow-panel-2029.test.mjs test/royal-sheet-2029.test.mjs test/post-connections-page-help-2029.test.mjs test/post-graph-connections-2029.test.mjs test/design-contract-v2-typography.test.mjs
+        run: node --test test/button-family-guard-2029.test.mjs test/design-family-warn-2029.test.mjs test/post-follow-panel-2029.test.mjs test/royal-sheet-2029.test.mjs test/post-connections-page-help-2029.test.mjs test/post-graph-connections-2029.test.mjs test/design-contract-v2-typography.test.mjs test/research-save-storage-faults-2029.test.mjs test/personal-attention-badge-2029.test.mjs
       - name: Production service worker contract (native public images and renditions; private reads and writes stay wrapped) and personal continuity with the installed-app metadata of the same artifact
         run: |
           node scripts/build-public-reading-production.mjs
@@ -189,6 +189,8 @@ jobs:
           test/measurement-page-view-once-2029.test.mjs
           test/measurement-identity-20261115.test.mjs
           test/measurement-hebrew-path-20261118.test.mjs
+          test/story-2029-measurement.test.mjs
+          test/video-2029-measurement.test.mjs
           test/analytics-google-seo-closure-20261118.test.mjs
           test/gsc-sync-behaviour-20261118.test.mjs
           test/analytics-followups-20261118.test.mjs
@@ -313,19 +315,30 @@ jobs:
         run: |
           npm run test:cn-sg-security
           node --test middleware.test.js test/public-reading-middleware-entry.test.mjs test/bot-read-no-side-effect.test.mjs test/bot-read-sink-guard.test.mjs test/edge-country-policy-cache.test.mjs test/edge-big-number-eligibility.test.mjs test/old-journey-410-2029.test.mjs
+<<<<<<< HEAD
       # Decision 337 (26.11.2026): the edge security probe layer and its authenticated reporting path. Offline: no network, no database, no secret.
       - name: Edge security probe layer (403 for scanner paths, OIDC-authenticated report, signed canary, matcher coverage, login and permission paths untouched, SEO, privacy, speed)
         run: node --test test/edge-security-probe-20261126.test.mjs test/security-probe-log-20261126.test.mjs
       # The two SQL proposals of the security package (log_security lockdown and ceiling, security monitor silence) applied and rolled back on an isolated
       # real PostgreSQL of the live major version. Nothing touches a shared database.
       - name: Real PostgreSQL 17 apply/rollback of the security SQL proposals (isolated)
+=======
+      # Community network protection (proposal 26.11.2026, nothing applied): the guest write routes with a keyed network reference, staff blocks, expiry, audit and rollback,
+      # on an isolated real PostgreSQL of the live major version; and the staff API client.
+      - name: Real PostgreSQL 17 apply/rollback of the community network-block proposal (isolated) and its API client
+>>>>>>> origin/main
         run: |
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
           sudo apt-get install -y -qq postgresql-17 >/dev/null
           # The runner image may also ship a newer major (18); the live database is 17.6, so pin 17 explicitly.
           PG_BIN=/usr/lib/postgresql/17/bin
           "$PG_BIN/postgres" --version | grep -q ' 17\.' || { echo "expected PostgreSQL 17, got $("$PG_BIN/postgres" --version)"; exit 1; }
+<<<<<<< HEAD
           PG_BIN="$PG_BIN" bash test/security-edge-realpg-20261126.sh
+=======
+          PG_BIN="$PG_BIN" bash test/community-net-blocks-20261126-realpg.sh
+          node --test src/lib/community/communityNetBlocksApi.test.js src/lib/community/communityGuestApi.test.js test/community-net-blocks-panel-2029.test.mjs
+>>>>>>> origin/main
       # Audit remediation 2026-11-06 (DEF-001, DEF-001b, DEF-002, DEF-007): offline source contracts for the e-mail exposure fix,
       # the slash-free sitemap addresses and the rule that no workflow names a test file that does not exist.
       - name: Audit remediation contracts (no client e-mail resolver, push RPC shape, slash-free sitemap addresses, workflow path references exist)
@@ -420,6 +433,12 @@ jobs:
       - name: Post documents may be kept by the CDN, exactly and only when public and the same for every reader; the edge gate builds a recently changed Post (and every Post while its list is unknown) fresh, never from a kept copy
         run: node --test test/post-document-cdn-cache.test.mjs test/post-document-freshness.test.mjs
 
+      # S-62 (stage 1) and S-63 (ZURIEL 26.11.2026): the admitted-number decision and the sitemap read the SAME complete set (pages with an exact total, never a
+      # partial set, fail closed); a number document reads number_anchors once; the stage 2 CDN class for number and phrase documents stays OFF; the document
+      # is the same bytes for every reader; freshness, hidden content, a set that changes between pages and a failing read are covered.
+      - name: Number and phrase documents and the number sitemap (complete admitted set with an exact total, priority and lastmod kept, one anchor read, stage 2 CDN class off, fresh and hidden content, set changing between pages, failing read fails closed)
+        run: node --test test/admitted-numbers-2029.test.mjs test/number-phrase-document-reads-2029.test.mjs test/sitemap-numbers-complete-2029.test.mjs
+
       - name: Performance contracts (explicit column lists and one union count instead of repeated reads, batched topic findings, gallery paging, post cover priority, footer hidden while only the loading placeholder is shown so it cannot shift, Supabase preconnect; the public-candidate test reads the production build generated earlier in this job)
         run: >
           node --test
@@ -510,6 +529,9 @@ jobs:
         # packages (vite 8.3.0 -> 8.3.8) and the rebuild below was no longer the artifact that ships (the release shell budget caught it).
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          # Refresh the apt index first: a stale runner image index 404s on superseded security packages (libasound2t64) during --with-deps.
+          # Same browser version, same tests; only the package list is refreshed.
+          sudo apt-get update
           npx playwright install --with-deps chromium
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs

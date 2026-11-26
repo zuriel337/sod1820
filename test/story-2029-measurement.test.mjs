@@ -181,6 +181,6 @@ test("request worker: the same join; a later family added in the worker never re
 test("on demand only: the join module and the story entry are imported by no file of the code every page loads", () => {
   const importers = (name) => readdirSync(new URL("../src/", import.meta.url), { recursive: true })
     .filter((f) => /\.(m?js|jsx)$/.test(f) && new RegExp(`(?:from|import)\\s*\\(?\\s*["'][^"']*${name}(?:\\.js)?["']`).test(readFileSync(new URL(`../src/${f}`, import.meta.url), "utf8")));
-  assert.deepEqual(importers("measurementFamilies2029"), ["lib/publicReadingStorySpec2029.js"].filter((f) => f), "only the on-demand family module imports the join");
+  assert.deepEqual(importers("measurementFamilies2029").sort(), ["lib/publicReadingStorySpec2029.js", "lib/publicReadingVideoSpec2029.js"], "only the on-demand family modules (story, video) import the join");
   assert.deepEqual(importers("publicReadingStorySpec2029").filter((f) => f !== "lib/publicReadingStorySpec2029.js"), [], "no page module imports the story entry yet");
 });

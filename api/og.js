@@ -11,6 +11,7 @@ import { loadPublicOrGeulaOccurrence2029, loadPublicOrGeulaCollection2029,
   publicForumChatHref2029, publicHistoricalLecturePage2029 } from "../src/lib/publicContinuityReaders2029.js";
 import { fetchPublicLibrary2029, fetchPublicLibraryItem2029, publicLibraryMetadata2029 } from "../src/lib/research/publicLibraryContinuity2029.js";
 import { normalizeCommunityThreadFocus } from "../src/lib/community/communityThreadFocus.js";
+import { numberIndexable2029 } from "../src/lib/admittedNumbers2029.js";
 import { PUBLIC_HOME_SEO } from "../src/lib/seo.js";
 import { COMMUNITY_CALCULATOR_SEO } from "../src/lib/research/communityCalculatorSeo2029.js";
 import { CALCULATOR_PRO_SEO } from "../src/lib/research/calculatorProSeo2029.js";
@@ -276,6 +277,7 @@ export default async function handler(req, res) {
   let writerProfile = null;
   let convergenceLd = null;
   let documentStatus = 200;
+  let cipherLd = null;   // schema.org for a public cipher (library or the owner's page): set only for a real, public row
   let postLookupFailed = false;
   let post = null;  // נתוני הפוסט (לתגיות article ו-JSON-LD)
   let orgeulaVid = null;   // 🎬 payload משותף ל-VideoObject server-side
@@ -715,6 +717,9 @@ export default async function handler(req, res) {
       });
       const meta = publicLibraryMetadata2029({ kind, item, detail: true });
       documentStatus = item ? 200 : 404;
+      if (kind === 'codes' && item) cipherLd = { '@context': 'https://schema.org', '@type': 'Article', headline: String(item.title).slice(0, 110), name: item.title, description: cleanDesc(meta.description, 300), url: canonical,
+        inLanguage: 'he-IL', mainEntityOfPage: canonical, ...(item.createdAt ? { datePublished: item.createdAt } : {}), ...(meta.image ? { image: [meta.image] } : {}),
+        author: { '@type': 'Person', name: item.author || SITE_NAME }, publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } } };
       title = `${meta.title} · ${SITE_NAME}`; desc = cleanDesc(meta.description, 180);
       robots = meta.noindex ? 'noindex, follow' : 'index, follow';
       image = meta.image || cardUrl({ w: meta.title, sub: kind === 'books' ? 'ספר ומקור' : 'פרסום צופן שמור' });
@@ -1125,8 +1130,13 @@ export default async function handler(req, res) {
       type = 'article';
       // ✦ עוגן-המהות (number_anchors) — אם למספר יש מהות מאומתת, מציגים אותה בתצוגת-השיתוף.
       try {
-        const ar = await fetch(`${SUPABASE_URL}/rest/v1/number_anchors?value=eq.${n}&select=fact,hint&limit=1`, { headers: ogHeaders });
-        const arows = await ar.json();
+        // The document handler shares its one read of this row with the first words (public-reading-deploy/first-words.js), so a number
+        // document reads number_anchors once. Without that hook (every other caller) the read is exactly as before.
+        let arows = typeof req.publicReadingNumberAnchor === 'function' ? await req.publicReadingNumberAnchor(n).catch(() => null) : null;
+        if (!Array.isArray(arows)) {
+          const ar = await fetch(`${SUPABASE_URL}/rest/v1/number_anchors?value=eq.${n}&select=fact,hint&limit=1`, { headers: ogHeaders });
+          arows = await ar.json();
+        }
         const anc = Array.isArray(arows) && arows[0];
         if (anc && anc.fact) {
           title = `✦ ${stripHtml(anc.fact)} · ${SITE_NAME}`;
@@ -1162,7 +1172,7 @@ export default async function handler(req, res) {
     canonical = SITE + '/codes/' + encodeURIComponent(slug);
     let publishedCipherFound = false;
     try {
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&status=eq.published${productionReading ? '&visibility=eq.public' : ''}&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
+      const r = await fetch(`${SUPABASE_URL}/rest/v1/els_records?slug=eq.${encodeURIComponent(slug)}&or=(status.eq.published,self_published.eq.true)&visibility=eq.public&select=title,search_term,skip_distance,scope,image_url,positions&limit=1`, { headers: ogHeaders });
       if (productionReading && !r.ok) throw new Error('cipher-source-unavailable');
       const rows = await r.json();
       if (productionReading && !Array.isArray(rows)) throw new Error('cipher-source-invalid');
@@ -1277,14 +1287,20 @@ export default async function handler(req, res) {
     const beyondAdmittedRange = numeric && Number(address) > 2147483647;
     try {
       if (beyondAdmittedRange) { robots = 'noindex, follow'; throw Object.assign(new Error('number-out-of-admitted-range'), { admittedRangeOnly: true }); }
-      const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${numeric ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
-        method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify(numeric ? { p_value: Number(address) } : { p_phrase: address }),
-        signal: AbortSignal.timeout(5000),
-      });
-      if (!r.ok) throw new Error('indexability-source-unavailable');
-      const indexable = await r.json();
-      if (typeof indexable !== 'boolean') throw new Error('indexability-source-invalid');
+      // The one decision read, unchanged. For a number it is asked once per call; a crawl (several lookups on one instance within minutes) is answered
+      // from the admitted set read from the same owner (sitemap_numbers) in complete pages, never a partial set (src/lib/admittedNumbers2029.js).
+      const perKey = async () => {
+        const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${numeric ? 'is_number_indexable' : 'is_phrase_indexable'}`, {
+          method: 'POST', headers: { ...ogHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify(numeric ? { p_value: Number(address) } : { p_phrase: address }),
+          signal: AbortSignal.timeout(5000),
+        });
+        if (!r.ok) throw new Error('indexability-source-unavailable');
+        const decided = await r.json();
+        if (typeof decided !== 'boolean') throw new Error('indexability-source-invalid');
+        return decided;
+      };
+      const indexable = numeric ? await numberIndexable2029(Number(address), { perKey, supabaseUrl: SUPABASE_URL, headers: ogHeaders }) : await perKey();
       robots = indexable ? 'index, follow' : 'noindex, follow';
       if (!numeric) { title = `${address} · ${SITE_NAME}`; desc = `הביטוי ${address} במקורות הציבוריים של סוד 1820.`; }
     } catch (error) { if (!error?.admittedRangeOnly) documentStatus = 503; robots = 'noindex, follow'; }
@@ -1375,6 +1391,8 @@ export default async function handler(req, res) {
       publisher: { '@type': 'Organization', name: SITE_NAME, logo: { '@type': 'ImageObject', url: SITE + '/logo.png' } },
     };
     jsonLd = `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`;
+  } else if (cipherLd && documentStatus === 200) {
+    jsonLd = `<script type="application/ld+json">${JSON.stringify(cipherLd).replace(/</g, '\\u003c')}</script>`;
   } else if (homeIdentity) {
     jsonLd = homeIdentityLd().map(ld => `<script type="application/ld+json">${JSON.stringify(ld).replace(/</g, '\\u003c')}</script>`).join('');
   }

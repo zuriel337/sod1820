@@ -6,6 +6,7 @@ import { COMMUNITY_UPLOAD_POLICY } from "../src/lib/community/communityUploadPol
 import { publicStorageMedia } from "../src/lib/mediaEgressGuard.js";
 import { readingTelemetryPath, readingWebVitalBody, readingVisitBody, readingEngagementBody, readingActionSpec, readingActionBody, readingMeasurementPath, readingMeasurementBody } from "../src/lib/publicReadingTelemetry2029.js";
 import { readingStorySpec } from "../src/lib/publicReadingStorySpec2029.js";
+import { readingVideoSpec } from "../src/lib/publicReadingVideoSpec2029.js";
 import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2029.js";
 // Deployment transport for the existing public-reading profile. This is not
 // an Auth/RLS policy: canonical public readers and server permissions still own
@@ -13,6 +14,8 @@ import { registerMeasurementFamilies2029 } from "../src/lib/measurementFamilies2
 // server policies; authentication itself starts no model, write or credit action.
 export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "research_pulse_2029",
+  // "עולם הגילויים והתרומות" (ZURIEL 26.11.2026): two argument-less public readers over public material only (profiles gate credit and links on the server).
+  "discovery_center_feed_v1", "discovery_center_stats_v1",
   "gematria_api", "fn_method_value", "fn_method_profile", "gematria_method_trace", "fn_zero_scale",
   "posts_by_number_strict", "fn_number_lookup", "fn_number_dossier", "fn_number_journey",
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",
@@ -114,7 +117,10 @@ function installPublicReadingWorker(policy) {
       // Presence heartbeat and guest-review moderation (ZURIEL, 8.11.2026): each DB function
       // already requires a real signed-in account (grant to authenticated, or self-checked
       // inside); missing from this worker's allowlist, both fell to the admin-only fallback.
-      "community_presence_ping", "community_guest_unreviewed", "community_guest_review"]);
+      "community_presence_ping", "community_guest_unreviewed", "community_guest_review",
+      // Guest-harassment management (ZURIEL 26.11.2026): staff-only RPCs that check community_can_moderate_guests() themselves (moderators who are not admins included).
+      // The two permanent-block RPCs are deliberately NOT here: permanent blocks stay disabled and the transport never admits them.
+      "community_guest_recent_v1", "community_net_blocks_list_v1", "community_guest_hide_v1", "community_guest_block_from_message_v1", "community_net_block_lift_v1"]);
     const upload = url.pathname.startsWith("/storage/v1/object/gallery/community/") && !safeMethods.has(req.method);
     const sso = url.pathname === "/functions/v1/openweb-sso";
     if (url.origin !== authOrigin || !names.has(rpc) && !upload && !sso) return null;
@@ -153,6 +159,13 @@ function installPublicReadingWorker(policy) {
       ? readFetch(req) : denied();
     if (rpc === "community_guest_review") return keys === "p_action,p_id" && uuid(body.p_id)
       && ["approve", "hide"].includes(body.p_action) ? readFetch(req) : denied();
+    if (rpc === "community_guest_recent_v1") return keys === "p_limit" && Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 100 ? readFetch(req) : denied();
+    if (rpc === "community_net_blocks_list_v1") return keys === "p_include_ended,p_limit" && typeof body.p_include_ended === "boolean"
+      && Number.isInteger(body.p_limit) && body.p_limit >= 1 && body.p_limit <= 200 ? readFetch(req) : denied();
+    if (rpc === "community_guest_hide_v1") return keys === "p_message_id,p_reason" && uuid(body.p_message_id) && typeof body.p_reason === "string" && Array.from(body.p_reason.trim()).length >= 10 && Array.from(body.p_reason.trim()).length <= 300 ? readFetch(req) : denied();
+    if (rpc === "community_guest_block_from_message_v1") return keys === "p_duration,p_message_id,p_reason" && uuid(body.p_message_id)
+      && ["h24", "d3", "d7"].includes(body.p_duration) && typeof body.p_reason === "string" && Array.from(body.p_reason.trim()).length >= 10 && Array.from(body.p_reason.trim()).length <= 300 ? readFetch(req) : denied();
+    if (rpc === "community_net_block_lift_v1") return keys === "p_block_id,p_reason" && uuid(body.p_block_id) && typeof body.p_reason === "string" && Array.from(body.p_reason.trim()).length >= 10 && Array.from(body.p_reason.trim()).length <= 300 ? readFetch(req) : denied();
     let publicTarget = null;
     if (rpc === "toggle_contribution_reaction") {
       if (keys !== "p_emoji,p_id,p_visitor" || !uuid(body.p_id) || body.p_visitor !== null && !repeatableCommunityReaction
@@ -493,6 +506,27 @@ function installPublicReadingWorker(policy) {
           if (!uid || req.signal.aborted) return denied();
           return readFetch(req);
         }
+        // Bible code publication tiers (ZURIEL 26.11.2026): a verified member publishes their own cipher on their page and asks for
+        // library review. The database functions own ownership, the replay gate and the private guarantee; the worker admits only the exact bodies.
+        // Library approval itself (moderate_els_matrix) stays administrator-only and is not admitted here.
+        if ((rpc === "self_publish_matrix" || rpc === "request_els_library_review") && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.length > 500) return denied();
+          let body; try { body = JSON.parse(raw); } catch { return denied(); }
+          if (!plainObject(body) || Object.keys(body).sort().join(",") !== "p_id,p_on" || !uuid(body.p_id) || typeof body.p_on !== "boolean") return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
+        if (rpc === "els_my_strong_ciphers" && !url.search) {
+          const raw = await req.clone().text();
+          if (raw.trim() && raw.trim() !== "{}") return denied();
+          const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
+          const uid = await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+          if (!uid || req.signal.aborted) return denied();
+          return readFetch(req);
+        }
         if (rpc === "research_pulse_2029" && !url.search) {
           const body = await jsonBody(req);
           return Object.keys(body).join(",") === "p_hours" && [24,168,720].includes(body.p_hours) ? readFetch(req) : denied();
@@ -609,7 +643,7 @@ function installPublicReadingWorker(policy) {
 
 export function buildPublicReadingWorker(sourceSha, { anonKey = "", gaId = "" } = {}) {
   if (!/^[a-f0-9]{40}$/.test(sourceSha)) throw new Error("exact_source_sha_required");
-  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${registerMeasurementFamilies2029.toString()}\n${readingStorySpec.toString()}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
+  return `${publicStorageMedia.toString()}\n${readingTelemetryPath.toString()}\n${readingWebVitalBody.toString()}\n${readingVisitBody.toString()}\n${readingEngagementBody.toString()}\n${registerMeasurementFamilies2029.toString()}\n${readingStorySpec.toString()}\nregisterMeasurementFamilies2029(readingStorySpec());\n${readingVideoSpec.toString()}\nregisterMeasurementFamilies2029(readingVideoSpec());\n${readingActionSpec.toString()}\n${readingActionBody.toString()}\n${readingMeasurementPath.toString()}\n${readingMeasurementBody.toString()}\n${verifyReadingPrincipal.toString()}\n${verifyReadingAdmin.toString()}\n${readingPersonalResponse.toString()}\n${interceptPublicReadingAdminAuth.toString()}\n${interceptOpeningMail.toString()}\n(${installPublicReadingWorker.toString()})(${JSON.stringify({ id: PUBLIC_READING_POLICY_ID,
     sourceSha, anonKey, gaId: /^G-[A-Z0-9]{5,20}$/.test(gaId) ? gaId : "", reads: PUBLIC_READING_READ_RPCS, getReads: PUBLIC_READING_GET_RPCS, communityFields: COMMUNITY_PUBLIC_FIELDS, communityFeedFields: COMMUNITY_FEED_FIELDS, communityUpload: COMMUNITY_UPLOAD_POLICY })});\n`;
 }
 

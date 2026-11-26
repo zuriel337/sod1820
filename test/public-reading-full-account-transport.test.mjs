@@ -386,6 +386,24 @@ test('reply unread count is an exact own-inbox read; arbitrary filters and forei
  }
 });
 
+test('unread mark count and DM-notification read: the EMITTED worker admits exactly these two shapes, own account only',async()=>{
+ const kinds=encodeURIComponent('in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)');
+ const countPath='/rest/v1/user_notifications?select=id&user_id=eq.'+a+'&read_at=is.null&kind='+kinds;
+ const w=worker({role:'member'});assert.equal((await w.request(countPath,{method:'HEAD'})).status,200);assert.equal(w.calls.length,2);
+ assert.equal(new URL(w.calls[1].url).searchParams.get('kind'),'in.(reply,new_follower,contribution_approved,matrix_approved,chiddush_approved)');
+ for(const url of [countPath.replace('reply%2C','reply%2Cpost_new%2C'),countPath.replace('eq.'+a,'eq.'+b),countPath+'&kind=eq.reply',countPath.replace('read_at=is.null','read_at=not.is.null&or=(user_id.eq.'+b+')')]){
+  const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'HEAD'})).status,403,url);assert.equal(bad.calls.some(c=>c.url===API+url),false);
+ }
+ const sender='36f5cb84-71c3-4977-a2c7-d6413e973443', body={read_at:'2026-11-26T12:00:00.000Z'};
+ const link=encodeURIComponent('eq./me?tab=messages&dm='+sender);
+ const dmPath='/rest/v1/user_notifications?user_id=eq.'+a+'&read_at=is.null&kind=eq.dm&link='+link+'&select=id%2Cread_at';
+ const ok=worker({role:'member'});assert.equal((await ok.request(dmPath,{method:'PATCH',body})).status,200);assert.equal(ok.calls.length,2);
+ for(const url of [dmPath.replace('kind=eq.dm','kind=eq.reply'),dmPath.replace('user_id=eq.'+a,'user_id=eq.'+b),dmPath.replace('&kind=eq.dm',''),dmPath.replace('&link='+link,''),dmPath.replace(link,encodeURIComponent('like./me?tab=messages&dm=*')),dmPath+'&link='+link]){
+  const bad=worker({role:'member'});assert.equal((await bad.request(url,{method:'PATCH',body})).status,403,url);assert.equal(bad.calls.some(c=>c.url===API+url),false);
+ }
+ const extra=worker({role:'member'});assert.equal((await extra.request(dmPath,{method:'PATCH',body:{...body,title:'x'}})).status,403);
+});
+
 test('guest community publishing: only the exact anonymous request is forwarded, with the public key',async()=>{
  const KEY='anon-public-key-synthetic';
  const path='/rest/v1/rpc/add_guest_community_message';
@@ -480,6 +498,28 @@ test('community_guest_review admits only the exact approve/hide body, from a ver
  assert.equal((await guest.request(path,{jwt:'',body:{p_id:a,p_action:'hide'}})).status,403);
 });
 
+test('guest-harassment management RPCs: exact bodies from a verified signed-in NON-admin account (a moderator); never anonymous; permanent-block RPCs are never admitted',async()=>{
+ const base='/rest/v1/rpc/';
+ const reason='הטרדה חוזרת של אורח';
+ const good=[['community_guest_recent_v1',{p_limit:30}],['community_net_blocks_list_v1',{p_include_ended:true,p_limit:30}],['community_guest_hide_v1',{p_message_id:a,p_reason:reason}],
+  ['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'d3',p_reason:reason}],['community_net_block_lift_v1',{p_block_id:a,p_reason:reason}]];
+ for(const [name,body] of good){
+  const moderator=worker({role:'user'});
+  assert.equal((await moderator.request(base+name,{body})).status,200,name);
+  const guest=worker();
+  assert.equal((await guest.request(base+name,{jwt:'',body})).status,403,name+' anonymous');
+ }
+ const bad=[['community_guest_recent_v1',{p_limit:0}],['community_guest_recent_v1',{p_limit:30,extra:1}],['community_net_blocks_list_v1',{p_include_ended:'yes',p_limit:30}],
+  ['community_guest_hide_v1',{p_message_id:'x',p_reason:reason}],['community_guest_hide_v1',{p_message_id:a,p_reason:'קצר'}],['community_guest_hide_v1',{p_message_id:a,p_reason:'א'.repeat(301)}],
+  ['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'permanent',p_reason:reason}],['community_guest_block_from_message_v1',{p_message_id:a,p_duration:'d3',p_reason:reason,p_hide:true}],
+  ['community_net_block_lift_v1',{p_block_id:'x',p_reason:reason}],
+  ['community_net_block_request_permanent_v1',{p_block_id:a,p_reason:reason}],['community_net_block_approve_permanent_v1',{p_block_id:a,p_reason:reason}]];
+ for(const [name,body] of bad){
+  const w=worker({role:'user'});
+  assert.equal((await w.request(base+name,{body})).status,403,name+' '+JSON.stringify(body));
+ }
+});
+
 test('community link preview: only the exact public GET is forwarded, without session or key',async()=>{
  const base='/functions/v1/link-preview?url=';
  const good=base+encodeURIComponent('https://example.org/article?id=1');
@@ -569,8 +609,16 @@ test('Bible code save: a verified member saves to their own library with the exa
   const w=worker({authError:true});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:name.startsWith('rename')?owned:{p_id:update.p_id}})).status,403,name);
   assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
  }
- // moderation and publication stay administrator-only
- for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix','self_publish_matrix']){
+ // page publication and the library request: a verified member, exact body only; forged identity or extra fields never reach the server
+ for(const name of ['self_publish_matrix','request_els_library_review']){
+  const ok=worker({role:'user',anonKey:'anon-key'});assert.equal((await ok.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_on:true}})).status,200,name);
+  for(const body of [{p_id:update.p_id},{p_id:update.p_id,p_on:'yes'},{p_id:'nope',p_on:true},{p_id:update.p_id,p_on:true,p_status:'published'}]){
+   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body})).status,403,name);assert.ok(!w.calls.some(c=>c.url.includes(name)),name);
+  }
+  const f=worker({authError:true});assert.equal((await f.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_on:true}})).status,403,name);assert.ok(!f.calls.some(c=>c.url.includes(name)),name);
+ }
+ // moderation stays administrator-only
+ for(const name of ['moderate_els_matrix','admin_els_to_dossier','merge_els_variant','delete_els_matrix']){
   const w=worker({role:'user'});assert.equal((await w.request('/rest/v1/rpc/'+name,{body:{p_id:update.p_id,p_status:'published'}})).status,403,name);
  }
 });

@@ -1,0 +1,60 @@
+name: Site QA (isolated login)
+
+# "בדוק את האתר" with a login and, next, writes (ZURIEL 26.11.2026). Everything runs inside this job and is destroyed with it:
+# a throwaway local Supabase (Docker, GoTrue + PostgREST only), the built production artifact served at the production URLs by the existing
+# fixture server, Chromium mapping the Supabase host to the local stack and every other host to nothing, and a synthetic account created
+# here with a random password. No secret, no GitHub environment, no production key or row. Manual only.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site-qa
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    if: github.repository == 'zuriel337/sod1820'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - name: Dependencies and the production artifact (the build the CI already uses)
+        run: |
+          npm ci --no-audit --no-fund
+          node scripts/build-public-reading-production.mjs
+      - name: Browser tooling (1.64.1, the version the ELS browser gates use)
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.64.1
+          npx playwright install --with-deps chromium
+      - name: Local Supabase (throwaway, Docker)
+        run: |
+          node scripts/build-qa-prod-definitions.mjs
+          node scripts/build-qa-schema.mjs
+          npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
+          npx --yes supabase@3.4.0 status --workdir qa -o env > "$RUNNER_TEMP/qa.env"
+          echo "status variables: $(cut -d= -f1 "$RUNNER_TEMP/qa.env" | tr '\n' ' ')"
+      - name: QA check (login and the three publication tiers against the local backend)
+        run: |
+          set -a; . "$RUNNER_TEMP/qa.env"; set +a
+          export QA_SUPABASE_URL="${API_URL:-http://127.0.0.1:54321}"
+          export QA_ANON_KEY="${ANON_KEY:-${PUBLISHABLE_KEY:-}}"
+          export QA_SERVICE_ROLE_KEY="${SERVICE_ROLE_KEY:-${SECRET_KEY:-}}"
+          echo "::add-mask::$QA_ANON_KEY"; echo "::add-mask::$QA_SERVICE_ROLE_KEY"
+          set +e
+          node scripts/qa-site-2029.mjs 2>&1 | tee qa.log
+          code=${PIPESTATUS[0]}
+          { echo '### בדיקת האתר בסביבה מבודדת'; echo '```'; grep -E '^(PASS|FAIL)' qa.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          node scripts/site-e2e-report-2029.mjs qa-out/report.json >> "$GITHUB_STEP_SUMMARY" || true
+          exit $code
+      - name: Stop and discard the local stack
+        if: always()
+        run: npx --yes supabase@3.4.0 stop --workdir qa --no-backup

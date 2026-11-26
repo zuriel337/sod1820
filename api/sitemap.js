@@ -26,6 +26,7 @@ const HEADERS = { apikey: ANON, Authorization: 'Bearer ' + ANON };
 
 // Thumbnail Validity Gate — resolver משותף אחד (זהה ל-src/lib/seo.js): thumbnail=תמונה בלבד, לעולם לא mp4.
 import { resolveThumb } from '../src/lib/thumbResolve.js';
+import { readAdmittedNumberRows2029 } from '../src/lib/admittedNumbers2029.js';
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -377,17 +378,16 @@ export default async function handler(req, res) {
   // כולל lastmod (אות re-crawl לתבנית ה-story-top) + priority לפי עושר. ספרה בודדת מפנה ל-/sulamot → ≥10.
   if (!contentOnly) {
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/sitemap_numbers`, {
-      method: 'POST', headers: { ...HEADERS, 'Content-Type': 'application/json' }, body: '{}',
-    });
-    if (!r.ok) throw new Error("number-source-unavailable");
-    if (r.ok) {
-      const rows = await r.json();
-      if (!Array.isArray(rows)) throw new Error("number-source-invalid");
-      for (const row of (Array.isArray(rows) ? rows : [])) {
-        const n = Number(row.value);
-        if (Number.isFinite(n) && n >= 10)
-          urls.push({ loc: '/number/' + n, lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: row.priority || '0.6' });
+    // S-63: PostgREST answers at most 1,000 rows per request, and the admitted numbers are 1,273, so one call listed only the first 1,000 (10-1066) and left out
+    // every admitted number above them. The same reader that decides a number document (src/lib/admittedNumbers2029.js) takes the set in complete pages with an
+    // exact total, keeps each row's priority and lastmod, lists a number once, and fails closed (as this block always did) when the set cannot be proven complete.
+    const rows = await readAdmittedNumberRows2029({ supabaseUrl: SUPABASE_URL, headers: HEADERS, attempts: 2 });
+    const listedNumbers = new Set();
+    for (const row of rows) {
+      const n = Number(row.value);
+      if (Number.isFinite(n) && n >= 10 && !listedNumbers.has(n)) {
+        listedNumbers.add(n);
+        urls.push({ loc: '/number/' + n, lastmod: row.lastmod || undefined, changefreq: 'monthly', priority: row.priority || '0.6' });
       }
     }
   } catch (e) { if (foundation) foundationSourceFailed = true; }
@@ -456,10 +456,10 @@ export default async function handler(req, res) {
     }
   } catch { if (productionReading) foundationSourceFailed = true; }
 
-  // ── צפנים מאושרים → /codes/:slug (els_records published) ──
+  // ── צפנים ציבוריים → /codes/:slug: הספרייה המרכזית (מאושר) וצופן שבעליו מציג בדף שלו (self_published); פרטי לעולם לא ──
   try {
     if (foundation && !productionReading) throw new Error("outside-public-foundation");
-    const codes = await fetchAll('els_records?select=slug,created_at&status=eq.published' + (productionReading ? '&visibility=eq.public' : ''));
+    const codes = await fetchAll('els_records?select=slug,created_at&or=(status.eq.published,self_published.eq.true)&visibility=eq.public');
     for (const c of codes) {
       if (!c.slug) continue;
       const lastmod = (c.created_at || '').slice(0, 10) || undefined;

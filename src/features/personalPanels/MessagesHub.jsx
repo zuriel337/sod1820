@@ -2,6 +2,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import { genAvatar } from "../../lib/avatar.js";
+import { markDmNotificationsRead, PERSONAL_ATTENTION_REFRESH_EVENT } from "../../lib/notifications.js";
 import { dmInbox, dmThread, dmSend, repliesToMe, myContributions } from "../../lib/commandCenter.js";
 import { personalMessagesReturnHref, writerPersonalHref } from "../../lib/userCenter/writerPersonal2029.js";
 import { bilingualDateLabel } from "../../lib/relativeTime2029.js";
@@ -225,8 +226,10 @@ function InboxPanel({ T, initialDm = null, resolveWriterHref }) {
     catch { if (version === threadVersion.current && actor === scope.current) { setReadError("לא ניתן לטעון את השיחה כרגע."); setMsgs([]); } return; }
     if (version !== threadVersion.current || actor !== scope.current) return;
     setReadError(""); setMsgs(Array.isArray(m) ? m : []);
+    // The thread was really opened and read: its saved DM notification is read with it (exact link, own rows), then the badge on the profile picture refreshes.
+    if (user?.id) markDmNotificationsRead(conv.counterpart, { userId: user.id }).catch(() => {}).finally(() => window.dispatchEvent(new Event(PERSONAL_ATTENTION_REFRESH_EVENT)));
     loadList(); // רענון מונה לא-נקראו אחרי שסומן כנקרא
-  }, [loadList, resolveWriterHref]);
+  }, [loadList, resolveWriterHref, user?.id]);
   // 🔗 deep-link מהתראת-DM (?dm=<uid>) — פותחים ישר את השיחה עם השולח (פעם אחת, כשהרשימה מוכנה).
   useEffect(() => {
     if (!initialDm || autoDone || !Array.isArray(list)) return;

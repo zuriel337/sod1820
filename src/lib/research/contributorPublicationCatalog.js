@@ -88,8 +88,8 @@ export async function fetchContributorPublicationCatalog(identity, { client, att
         const base = client.from("els_records")
           .select("id,slug,title,search_term,created_at,image_url,author_name,owner_user_id,status,visibility,self_published,source");
         const scoped = includeDossierSubmissions && canonical.user_id
-          ? base.or(`and(status.eq.published,visibility.eq.public,or(${filters.join(",")})),and(owner_user_id.eq.${quoted(canonical.user_id)},source.eq.community,status.eq.pending,visibility.eq.private,self_published.eq.true)`)
-          : base.or(filters.join(",")).eq("status", "published").eq("visibility", "public");
+          ? base.or(`and(or(status.eq.published,self_published.eq.true),visibility.eq.public,or(${filters.join(",")})),and(owner_user_id.eq.${quoted(canonical.user_id)},source.eq.community,status.eq.pending,visibility.eq.private,self_published.eq.true)`)
+          : base.or(`and(or(status.eq.published,self_published.eq.true),visibility.eq.public,or(${filters.join(",")}))`);
         return scoped.order("created_at", { ascending: false }).order("id", { ascending: false }).range(offset, offset + size - 1);
       }, previewLimit, signal);
       return { ...result, rows: result.rows.filter((row) => names.includes(row.author_name?.trim())

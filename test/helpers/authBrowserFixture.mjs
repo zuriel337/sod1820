@@ -55,7 +55,8 @@ function sendStorage(req, res, file, log) {
 // It returns null to serve the real file. Every /assets/ request is logged in state.assets either way.
 // `documentFor` (optional): a test's own document for an address (for example the first-document article built by the real server function),
 // given the generated template; it returns null to serve the template as it is.
-export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null, staticAsset = null, documentFor = null } = {}) {
+export async function startFixture({ authOptions, deploymentCsp = false, port: wantedPort = Number(process.env.FIXTURE_PORT || 0), supabase = null, asset = null, staticAsset = null, documentFor = null, supabaseProxy = null } = {}) {
+  if (supabaseProxy && !['127.0.0.1', 'localhost', '[::1]'].includes(new URL(supabaseProxy.origin).hostname)) throw new Error('qa_backend_must_be_local');
   const dir = mkdtempSync(join(tmpdir(), 'auth-fixture-'));
   execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '2', '-subj', '/CN=sod1820.co.il',
     '-addext', `subjectAltName=DNS:sod1820.co.il,DNS:www.sod1820.co.il,DNS:${SUPABASE_HOST}`, '-keyout', join(dir, 'k.pem'), '-out', join(dir, 'c.pem')], { stdio: 'ignore' });
@@ -63,7 +64,7 @@ export async function startFixture({ authOptions, deploymentCsp = false, port: w
   const goodWorker = readFileSync(resolve(dist, 'sw.js'), 'utf8');
   const csp = JSON.parse(readFileSync(resolve(root, 'public-reading-deploy/vercel.json'), 'utf8')).headers.flatMap(rule => rule.headers).find(header => header.key === 'Content-Security-Policy').value;
   const auth = createAuthServer(authOptions);
-  const state = { worker: 'good', documents: 0, workerFetches: 0, consoleLog: [], storage: [], functions: [], assets: [] };
+  const state = { proxied: [], worker: 'good', documents: 0, workerFetches: 0, consoleLog: [], storage: [], functions: [], assets: [] };
   // A stale worker: still installs and activates, but answers the page handshake with another policy and denies Auth.
   const staleWorker = `self.addEventListener('install',()=>self.skipWaiting());self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
 self.addEventListener('message',e=>{if(e.data?.type==='public-reading-policy'&&e.ports?.[0])e.ports[0].postMessage({policy:'public-reading-OLD',sourceSha:'0'.repeat(40)});});
@@ -81,6 +82,21 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
         // The real meta-capi function answers CORS with Allow-Headers: content-type only; a request carrying apikey/Authorization fails the preflight.
         if (url.pathname === '/functions/v1/meta-capi') { cors['access-control-allow-origin'] = '*'; cors['access-control-allow-headers'] = 'content-type'; cors['access-control-allow-methods'] = 'POST, OPTIONS'; }
         if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
+        // QA mode (ZURIEL 26.11.2026): the Supabase host name answers from a LOCAL Supabase stack, never from production. The page, the real
+        // service worker and the real client still run unmodified against the production URLs; only the DNS mapping decides where they land.
+        if (supabaseProxy) {
+          const headers = {};
+          for (const [key, value] of Object.entries(req.headers)) if (!['host', 'connection', 'content-length', 'accept-encoding'].includes(key)) headers[key] = value;
+          const incoming = headers.apikey;
+          headers.apikey = supabaseProxy.anon;   // the production anon key means nothing to the local stack
+          if (incoming && headers.authorization === `Bearer ${incoming}`) headers.authorization = `Bearer ${supabaseProxy.anon}`;
+          const upstream = await fetch(supabaseProxy.origin + req.url, { method: req.method, headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : body, redirect: 'manual' });
+          const out = {};
+          upstream.headers.forEach((value, key) => { if (!['content-encoding', 'transfer-encoding', 'content-length', 'connection', 'access-control-allow-origin'].includes(key)) out[key] = value; });
+          state.proxied.push({ method: req.method, path: url.pathname, status: upstream.status });
+          res.writeHead(upstream.status, { ...out, ...cors, 'cache-control': 'no-store' });
+          return res.end(Buffer.from(await upstream.arrayBuffer()));
+        }
         // A provider round trip: the person "signs in" at Google/Facebook and Auth redirects back with a PKCE code bound to the request's challenge.
         if (url.pathname === '/auth/v1/authorize' && req.method === 'GET') {
           const provider = url.searchParams.get('provider') || 'google', back = new URL(url.searchParams.get('redirect_to') || 'https://sod1820.co.il/auth/callback');
