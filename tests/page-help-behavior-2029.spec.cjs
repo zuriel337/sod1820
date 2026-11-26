@@ -53,7 +53,7 @@ async function assertPageHelp(page, { width }) {
   }
   // The button keeps its place across an open and a close (measured just before, after the page settled from its theme/fonts: the test is about the explanation, not about late layout).
   await page.waitForTimeout(400);
-  const settled = await button.boundingBox();
+  const settled = await button.boundingBox(), scrollBefore = await page.evaluate(() => window.scrollY);
   // While OPEN the panel is whole on screen: no edge is cut, on any width (the live bug: it was cut on the left on a phone).
   await button.click();
   await expect(close).toBeVisible({ timeout: 20_000 });
@@ -66,7 +66,9 @@ async function assertPageHelp(page, { width }) {
   // The explanation never pushes the page: no horizontal overflow, the button keeps its place.
   const after = await button.boundingBox();
   expect(Math.abs(after.x - settled.x)).toBeLessThanOrEqual(1);
-  expect(Math.abs(after.y - settled.y)).toBeLessThanOrEqual(1);
+  // Layout, not scrolling: the button's place in the DOCUMENT (the page may scroll when the explanation takes focus; that is reported, not hidden).
+  const scrollAfter = await page.evaluate(() => window.scrollY);
+  expect(Math.abs((after.y + scrollAfter) - (settled.y + scrollBefore))).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
   expect(width).toBeGreaterThan(0);
 }
