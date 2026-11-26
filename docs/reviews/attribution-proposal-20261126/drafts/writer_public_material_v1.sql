@@ -1,0 +1,6 @@
+-- טיוטה בלבד: writer_public_material_v1(p_contributor_id uuid, p_limit int, p_offset int).   *** לא הוחלה. דורשת אישור נפרד. ***
+-- מרחיבה את writer_public_contributions_page_v1 לכל סוגי החומר הציבורי של כותב אחד, אותו כלל שיוך, בלי כפילויות.
+-- סוגים: contribution | research | gematria | update | cipher | post. dedupe_key = סוג + מזהה המקור הקנוני (פריט נספר פעם אחת).
+-- קריאה בלבד, STABLE, SECURITY DEFINER, search_path=public. פרטיות: רק status approved/published, privacy_scope='public',
+-- gematria_public_word_eligible(id), ללא person_only, ללא טלפון/מייל/וואטסאפ גולמי. כותב נעול/בבנייה/לא-ציבורי אינו מוחזר (כמו בפונקציה הקיימת).
+-- (גוף הפונקציה יוגש לאישור בנפרד עם בדיקות ספירה מול מפת הכיסוי.)
