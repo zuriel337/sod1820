@@ -5150,6 +5150,15 @@
         "previous": {
           "note": "previous revision above"
         }
+      },
+      {
+        "at": "2026-11-26T16:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 26.11: draft PR for stage 1, S-63 fix first, Stage 3 proposal only)",
+        "what": "S-62 stage 1 + S-63 fix in draft PR #1564 (head 63a7ec0, base main 9bf41e6): paged admitted-numbers reader with proven total, number sitemap lists all 1,273, 22 new tests wired into live-contracts-2029; stage 2 CDN stays OFF. Stage 3 proposed only (supabase/proposed/20261126120000_gematria_word_floor_initplan_*): safe InitPlan hoist, proven equivalent on local PG16 (15 checks) but saves no buffers; the real cost needs a blocklist oracle or a stored flag column - decision for ZURIEL. Nothing merged, deployed or applied.",
+        "previous": {
+          "note": "previous revision above"
+        }
       }
     ]
   },
