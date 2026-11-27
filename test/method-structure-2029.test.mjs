@@ -133,6 +133,8 @@ test("duplicates are gone: one stage, one equation, one list of steps", () => {
   assert.ok(!/TraceBreakdown2029/.test(explanation), "the generic breakdown is retired");
   assert.match(explanation, /import\("\.\/SpatialMethodStage2029\.jsx"\)/);
   const stage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
+  assert.match(read("src/components/beitMidrash2029/BeitMidrashMethods.jsx"), /<MethodTraceExplanation2029 showStage=\{false\}/, "the Beit Midrash draws the stage once (it already renders it beside the explanation)");
+  assert.match(explanation, /showStage \? <Suspense/);
   assert.ok(!/TriangleWordStage|buildTriangleWordRows/.test(stage));
   assert.match(stage, /function CompositeStage/);
   for (const file of ["src/components/research/WorldSourceConnections.jsx", "src/components/research/WorldSourceStory.jsx"]) assert.ok(!/CompositeTrace|COMPOSITE' \? <p/.test(read(file)), `${file}: the composite is drawn by the stage`);

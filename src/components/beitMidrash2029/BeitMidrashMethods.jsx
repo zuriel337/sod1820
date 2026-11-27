@@ -174,7 +174,7 @@ function MethodLesson({ method, methods, blocks, sampleExpression, traceState, o
           contextRequired={method.executionKind === "context_activated" || method.registry?.execution_kind === "context_activated"}
           depth="S2"
         />
-        <MethodTraceExplanation2029 method={method} methods={methods} expression={sampleExpression} trace={trace} />
+        <MethodTraceExplanation2029 showStage={false} method={method} methods={methods} expression={sampleExpression} trace={trace} />
       </div> : null}
     </section>
 

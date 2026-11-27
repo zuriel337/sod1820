@@ -41,7 +41,8 @@ export function TraceFamilyStage2029({ model, depth = "S2" }) {
   </section>;
 }
 
-export default function MethodTraceExplanation2029({ method, methods = [], expression, trace, loading = false }) {
+// showStage: the Number page draws the calculation in its own tab, so the explanation draws it here; a surface that already shows the stage next to the explanation (the Beit Midrash) passes false, so a method is never drawn twice.
+export default function MethodTraceExplanation2029({ method, methods = [], expression, trace, loading = false, showStage = true }) {
   const labels = new Map(methods.map((item) => [item.methodKey, canonicalMethodPublicLabel({ method_key: item.methodKey, display_label: item.displayLabel })]));
   const definition = methodMechanicalDefinition({}, method, labels);
   const contextual = method.executionKind === "context_activated";
@@ -55,7 +56,7 @@ export default function MethodTraceExplanation2029({ method, methods = [], expre
         <li>{model.instruction || "פתחו את פירוט החישוב כדי לראות את תרומת האותיות לפי כללי השיטה."}</li>
         <li>{model.state === "ready" ? <>התוצאה בביטוי הזה: <strong>{model.result}</strong>. אפשר לחזור ללשונית חישוב ולבחור צעד בהמחשה.</> : loading ? "צעדי החישוב נטענים…" : "פירוט מאומת אינו זמין כרגע. אפשר לבחור שוב את השיטה ולנסות מחדש."}</li>
       </ol>
-      <Suspense fallback={null}><SpatialMethodStage2029 expression={expression} methodKey={method.methodKey} trace={trace} expectedValue={method.computedValue ?? null} depth="S2" loading={loading} /></Suspense>
+      {showStage ? <Suspense fallback={null}><SpatialMethodStage2029 expression={expression} methodKey={method.methodKey} trace={trace} expectedValue={method.computedValue ?? null} depth="S2" loading={loading} /></Suspense> : null}
     </section>}
     {definition.structure ? <section><h3>מבנה השיטה</h3><p>{definition.structure}</p></section> : null}
     {definition.dependencies.length ? <section><h3>קשר לשיטות אחרות</h3><ul>{definition.dependencies.map((item) => <li key={item}>{item}</li>)}</ul></section> : null}
