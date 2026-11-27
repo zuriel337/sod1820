@@ -99,6 +99,10 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       });
       await step('after a reload the saved cipher is listed for the owner and opens again', async () => {
         await page.goto('https://sod1820.co.il/code', { waitUntil: 'domcontentloaded', timeout: 45000 });
+        // on a phone the folder starts closed by design (max-width 600px): open it the way a person does
+        const toggle = page.locator('.els29-recent-toggle').first();
+        await toggle.waitFor({ timeout: 90000 });
+        if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
         await page.getByText(title, { exact: false }).first().waitFor({ timeout: 90000 });
         await page.getByText(title, { exact: false }).first().click();
         await page.getByRole('button', { name: 'פעולות לציר הנבחר' }).first().waitFor({ timeout: 120000 });
