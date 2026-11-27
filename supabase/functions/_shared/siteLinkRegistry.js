@@ -47,14 +47,15 @@ export const SITE_LINKS = Object.freeze([
   // ── לגלות ──
   entry({ id: "posts", label: "פוסטים", href: "/post", defaultState: "public", aliases: ["פוסטים", "הפוסטים", "מאמרים", "הכתבות"], footer: { group: "discover", order: 1 } }),
   entry({ id: "dimension-five", label: "מימד חמש", href: "/category/מימד-חמש", defaultState: "public", aliases: ["מימד חמש", "מימד 5", "המימד החמישי"], footer: { group: "discover", order: 2 } }),
-  entry({ id: "or-geula", label: "אור הגאולה", href: "/community/chat", defaultState: "public", aliases: ["אור הגאולה", "צאט", "צ׳אט", "צ'אט", "הצאט", "הצ׳אט", "הצ'אט", "צ׳אט הקהילה", "הצ׳אט הקהילתי", "שיחת הקהילה"], legacyHrefs: ["/community/chat", "/chat", "/דף-צאט-ראשי"], footer: { group: "discover", order: 3 } }),
-  entry({ id: "electricity", label: "סוד החשמל", href: "/category/סוד-החשמל", defaultState: "public", aliases: ["סוד החשמל"], footer: { group: "discover", order: 4 } }),
+  entry({ id: "or-geula", label: "אור הגאולה", href: "/or-geula", defaultState: "public", aliases: ["אור הגאולה", "אור-הגאולה"], legacyHrefs: ["/or-geula", "/אור-הגאולה"], footer: { group: "discover", order: 3 } }),
+  entry({ id: "community-chat", label: "צ'אט הקהילה", href: "/community/chat", defaultState: "public", aliases: ["צאט", "צ׳אט", "צ'אט", "הצאט", "הצ׳אט", "הצ'אט", "צ׳אט הקהילה", "הצ׳אט הקהילתי", "שיחת הקהילה"], legacyHrefs: ["/community/chat", "/chat", "/דף-צאט-ראשי"], footer: { group: "discover", order: 4 } }),
+  entry({ id: "electricity", label: "סוד החשמל", href: "/category/סוד-החשמל", defaultState: "public", aliases: ["סוד החשמל"], footer: { group: "discover", order: 5 } }),
   entry({ id: "archive", label: "ארכיון", href: "/archive", defaultState: "public", aliases: ["ארכיון", "הארכיון"],
-    footer: { group: "discover", order: 5 } }),
+    footer: { group: "discover", order: 6 } }),
   // ── לחקור ──
   entry({ id: "heichal", label: "היכל", href: "/heichal?mode=workspace", defaultState: "closed", aliases: ["היכל", "ההיכל", "חדר המחקר"], legacyHrefs: ["/heichal", "/היכל"],
     closed: { message: "סביבת העבודה בהיכל טרם נבנתה. אפשר לקרוא את הממצאים שפורסמו.", alt: "findings" }, footer: { group: "research", order: 1 } }),
-  entry({ id: "findings", label: "ממצאים שפורסמו", href: "/findings", defaultState: "public", aliases: ["ממצאים שפורסמו", "הממצאים שפורסמו"], footer: { group: "discover", order: 6 } }),
+  entry({ id: "findings", label: "ממצאים שפורסמו", href: "/findings", defaultState: "public", aliases: ["ממצאים שפורסמו", "הממצאים שפורסמו"], footer: { group: "discover", order: 7 } }),
   // raziel:false — owner decision: "/world" opens from Raziel only through the existing explicit "open the world" grammar,
   // never from a "where is" question, so the site-link answers do not index this entry.
   entry({ id: "world", label: "העולם", href: "/world", defaultState: "public", raziel: false, aliases: ["עולם", "העולם"], footer: { group: "research", order: 2 } }),
