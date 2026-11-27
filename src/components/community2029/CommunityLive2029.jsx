@@ -913,7 +913,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   };
   // "השב" opens THE one composer (one draft, one state) in the slot directly under the answered message; with no slot on screen it stays at its place.
   const placeComposer = (node) => {
-    const slot = replyTo?.id && typeof document !== "undefined" ? document.querySelector(`[data-reply-slot="${CSS.escape(replyTo.id)}"]`) : null;
+    const slot = replyTo?.id && typeof document !== "undefined" ? [...document.querySelectorAll("[data-reply-slot]")].find((el) => el.dataset.replySlot === replyTo.id) : null;
     return slot ? createPortal(node, slot) : node;
   };
   const startReply = (row) => {
