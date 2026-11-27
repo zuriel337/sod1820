@@ -31,8 +31,7 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
   for (const [profile, options] of [['desktop-1440', { viewport: { width: 1440, height: 900 } }], ['Pixel 7', devices['Pixel 7']]]) {
     const label = `ui-cipher ${profile}`;
     const member = await syntheticAccount(), t = await token(member);
-    // DIAGNOSTIC: the service worker is blocked for this scenario to learn whether it holds the engine iframe
-    const { context, page } = await newSignedIn({ ...options, serviceWorkers: process.env.QA_SW === 'allow' ? 'allow' : 'block' }, member);
+    const { context, page } = await newSignedIn(options, member);
     const trace = [];
     page.on('response', (r) => { if (r.status() >= 400) trace.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
@@ -52,13 +51,15 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       if (!frame) return 'no engine frame';
       return JSON.stringify(await frame.evaluate(() => ({ ready: document.readyState, text: (document.body?.innerText || '').slice(0, 120), scripts: document.scripts.length, search: !!document.querySelector('#q, input'), out: (document.querySelector('#out')?.innerText || '').slice(0, 80) })).catch((e) => String(e.message).slice(0, 60)));
     };
+    const engineResponses = [];
+    page.on('response', async (r) => { if (r.url().includes('/tzofen.html')) { const body = await r.body().then((b) => b.length).catch((e) => 'bodyfail:' + String(e.message).slice(0, 30)); engineResponses.push(`${r.status()} ${r.headers()['content-type'] || ''} ${r.frame()?.parentFrame() ? 'sub' : 'main'} fromSW=${r.fromServiceWorker()} body=${body}`); } });
     const logs = [];
     page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) logs.push(`${m.type()}: ${m.text().slice(0, 110)}`); });
     page.on('requestfailed', (r) => logs.push(`reqfailed ${r.failure()?.errorText || ''} ${r.url().slice(0, 90)}`));
     page.on('framenavigated', (f) => { if (f !== page.mainFrame()) logs.push(`frame ${f.url().slice(0, 80)}`); });
     const notes = async () => (await page.locator('[role=alert], [role=status], .els29-native-notice').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).map((n) => (n.textContent || '').trim().slice(0, 90)))).join(' / ');
     const dump = async () => (await page.getByRole('button').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).slice(0, 40).map((n) => (n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 24)))).join(' | ');
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | edge: ${edgeCalls.slice(-6).join(', ') || 'no call'} | pending: ${[...pending.values()].filter((u) => !/\/rest\/v1\/|googleapis|favicon/.test(u)).slice(-5).map((u) => u.slice(0, 80)).join(' ; ') || 'none'} | engine: ${await engineFrame().catch(() => '')} | msgs: ${await page.evaluate(() => { const m = window.__msgs || []; const c = {}; m.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.entries(c).slice(-12).map(([k, v]) => k + 'x' + v).join(','); }).catch(() => '')} | console: ${logs.filter((l) => !/404|Failed to load resource/.test(l)).slice(-5).join(' ; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 1500)); return false; } };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | edge: ${edgeCalls.slice(-6).join(', ') || 'no call'} | pending: ${[...pending.values()].filter((u) => !/\/rest\/v1\/|googleapis|favicon/.test(u)).slice(-5).map((u) => u.slice(0, 80)).join(' ; ') || 'none'} | engineResp: ${engineResponses.slice(-3).join(' ; ') || 'none'} | frames: ${page.frames().map((f) => (f.url() || '').slice(0, 50) + (f.isDetached() ? '(det)' : '')).join(' , ')} | engine: ${await engineFrame().catch(() => '')} | msgs: ${await page.evaluate(() => { const m = window.__msgs || []; const c = {}; m.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.entries(c).slice(-12).map(([k, v]) => k + 'x' + v).join(','); }).catch(() => '')} | console: ${logs.filter((l) => !/404|Failed to load resource/.test(l)).slice(-5).join(' ; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 1500)); return false; } };
     const title = `QA צופן ${profile}`;
     try {
       if (!await step('the matrix page opens with the existing engine ready', async () => {
