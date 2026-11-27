@@ -912,10 +912,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     setParams((current) => { const next = new URLSearchParams(current); next.set("member", selectedAuthorId); next.delete("memberCard"); return next; });
   };
   // "השב" opens THE one composer (one draft, one state) in the slot directly under the answered message; with no slot on screen it stays at its place.
-  const placeComposer = (node) => {
-    const slot = replyTo?.id && typeof document !== "undefined" ? document.querySelector(`[data-reply-slot="${CSS.escape(replyTo.id)}"]`) : null;
-    return slot ? createPortal(node, slot) : node;
-  };
+  // The slot is looked up after the DOM exists (never while rendering: a static render has no document to ask), and again whenever the page re-renders, so a re-mounted message never leaves the composer in a detached node.
+  const [replySlot, setReplySlot] = useState(null);
+  useLayoutEffect(() => {
+    const next = replyTo?.id ? [...document.querySelectorAll("[data-reply-slot]")].find((el) => el.dataset.replySlot === replyTo.id) || null : null;
+    setReplySlot((current) => (current === next ? current : next));
+  });
+  const placeComposer = (node) => (replySlot && replySlot.isConnected ? createPortal(node, replySlot) : node);
   const startReply = (row) => {
     if (actionsLocked) return;
     if (row.quote) {
