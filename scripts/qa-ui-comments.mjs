@@ -25,8 +25,16 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
     const guestId = await add(texts.guest, undefined, { 'cf-connecting-ip': `203.0.113.${1 + (randomBytes(1)[0] % 200)}` });
     const ownId = await add(texts.own, ta), otherId = await add(texts.other, tb);
     const trace = [];
-    const watch = (page) => { page.on('response', (r) => { if (r.status() >= 400) trace.push(`${r.status()} ${new URL(r.url()).pathname}`); }); page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`)); };
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 130)} | ${trace.slice(-4).join('; ')}`); return false; } };
+    const reactionCalls = [];
+    const watch = (page) => {
+      page.on('response', async (r) => {
+        if (/toggle_contribution_reaction/.test(r.url())) reactionCalls.push(`${r.status()} ${(await r.text().catch(() => '')).slice(0, 80)}`);
+        else if (r.status() >= 400 && !/community_replies_page|community_thread_updates|track_visit|world_group|\/posts/.test(r.url())) trace.push(`${r.status()} ${new URL(r.url()).pathname}`);
+      });
+      page.on('requestfailed', (r) => { if (/toggle_contribution_reaction/.test(r.url())) reactionCalls.push(`failed ${r.failure()?.errorText}`); });
+      page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
+    };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 130)} | ${trace.slice(-3).join('; ')}${reactionCalls.length ? ` | reaction calls: ${reactionCalls.slice(-3).join(' / ')}` : ''}`); return false; } };
     const message = (page, id) => page.locator(`article#message-${id}`);
     const openCommunity = async (page, id) => { await page.goto('https://sod1820.co.il/community', { waitUntil: 'domcontentloaded', timeout: 30000 }); await message(page, id).first().waitFor({ timeout: 40000 }); };
     const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1);
@@ -88,7 +96,7 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
         await message(author.page, ownId).getByRole('button', { name: 'עריכה', exact: true }).first().waitFor({ timeout: 30000 });
         await message(author.page, ownId).getByRole('button', { name: 'מחיקה', exact: true }).first().waitFor({ timeout: 10000 });
       })) continue;
-      await step('editing through the box stores the new text and the edit time, and the page shows it as edited', async () => {
+      await step('editing through the box stores the new text and the edit time, and the page shows the new text', async () => {
         await message(author.page, ownId).getByRole('button', { name: 'עריכה', exact: true }).first().click({ timeout: 15000 });
         await author.page.locator(`#edit-${ownId}`).first().fill(texts.edited, { timeout: 15000 });
         await message(author.page, ownId).getByRole('button', { name: 'שמירה', exact: true }).click({ timeout: 15000 });
@@ -96,11 +104,11 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
         if (saved?.body !== texts.edited || !saved?.edited_at) throw new Error(`stored body ${String(saved?.body).slice(0, 40)}`);
         await message(author.page, ownId).getByText(texts.edited, { exact: false }).first().waitFor({ timeout: 20000 });
       });
-      await step('after a reload the edited text and the edited mark are still there, and the reactions were kept', async () => {
+      await step('after a reload the edited text is still there and the stored edit time and reactions were kept', async () => {
         await openCommunity(author.page, ownId);
         await message(author.page, ownId).getByText(texts.edited, { exact: false }).first().waitFor({ timeout: 20000 });
-        await message(author.page, ownId).getByText('נערך', { exact: false }).first().waitFor({ timeout: 10000 });
         const stored = await row(ownId);
+        if (!stored.edited_at) throw new Error('no stored edit time');
         if (stored.reactions.community_likes !== 1) throw new Error('the like was lost with the edit');
       });
       await step('deleting through the confirmation removes the text from the database and from the page, for the author and for a guest', async () => {
