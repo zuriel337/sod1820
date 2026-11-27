@@ -3065,3 +3065,21 @@ grant execute on function public.toggle_contribution_reaction(p_id uuid, p_emoji
 revoke all on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) from public;
 grant execute on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) to anon;
 grant execute on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) to authenticated;
+-- @@ function public.pin_contribution(p_id uuid, p_pin boolean)
+CREATE OR REPLACE FUNCTION public.pin_contribution(p_id uuid, p_pin boolean DEFAULT true)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if not exists (select 1 from public.users u where u.id=auth.uid() and u.role='admin') then
+    raise exception 'not authorized'; end if;
+  update public.research_contributions
+    set pinned_at = case when p_pin then now() else null end, updated_at = now()
+    where id = p_id;
+end $function$
+;
+-- @@ fngrant public.pin_contribution(p_id uuid, p_pin boolean)
+revoke all on function public.pin_contribution(p_id uuid, p_pin boolean) from public;
+grant execute on function public.pin_contribution(p_id uuid, p_pin boolean) to authenticated;
