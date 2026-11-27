@@ -654,3 +654,59 @@ test('emitted worker: already-public storage media (one shared rule) loads nativ
  assert.equal(probe(S+'/object/public/media/a.mp4',{method:'POST'}),true);
  assert.equal(calls.length>0,true);
 });
+
+// ZURIEL 27.11.2026 (post 5144): the Post comment tool sends target_type "post". The transport admitted only home/community, so the worker refused the request before it
+// left the browser. It now admits ONE exact shape for a verified PUBLIC post; nothing else widens.
+const postBody = Object.freeze({...communityBody,p_target_type:'post',p_target_id:'5144'});
+const ANON='anon-publishable-synthetic';
+const postsFetch=(rows)=>req=>req.url.startsWith(API+'/rest/v1/posts?')?json(rows):json({ok:true});
+test('a signed-in member comments on a verified public post through the existing RPC',async()=>{
+ const w=worker({role:'user',fetchAction:postsFetch([{id:5144}])});
+ const r=await w.request('/rest/v1/rpc/add_contribution',{body:postBody});
+ assert.equal(r.status,200);
+ const lookup=w.calls.find(req=>req.url.startsWith(API+'/rest/v1/posts?'));
+ assert.ok(lookup,'the post is looked up before the write');
+ assert.match(decodeURIComponent(lookup.url),/id=eq\.5144&or=\(tags\.is\.null,tags\.not\.ov\.\{טיוטה,פורום\}\)/,'public-post boundary, exact id');
+ const write=w.calls.find(req=>req.url.endsWith('/add_contribution'));
+ assert.equal(await write.clone().text(),JSON.stringify(postBody));
+ assert.equal(write.headers.get('authorization'),'Bearer '+token());
+});
+test('a post that is not public, missing or ambiguous takes no comment, and nothing is written',async()=>{
+ for(const rows of [[],[{id:5144},{id:5144}],[{id:7}]]){
+  const w=worker({role:'user',fetchAction:postsFetch(rows)});
+  assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body:postBody})).status,403);
+  assert.ok(!w.calls.some(r=>r.url.endsWith('/add_contribution')));
+ }
+ const w=worker({role:'user',fetchAction:req=>req.url.startsWith(API+'/rest/v1/posts?')?json({},500):json({ok:true})});
+ assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body:postBody})).status,503);
+ assert.ok(!w.calls.some(r=>r.url.endsWith('/add_contribution')));
+});
+test('a post comment of any other shape stays refused (target id, origin, intent, extra fields, size, parent)',async()=>{
+ for(const body of [{...postBody,p_target_id:'05144'},{...postBody,p_target_id:'5144/../x'},{...postBody,p_target_id:5144},{...postBody,p_target_id:'12345678901'},
+   {...postBody,p_target_type:'topic'},{...postBody,p_origin:'broadcast'},{...postBody,p_intent:'שאלה'},{...postBody,p_title:'t'},{...postBody,p_image_url:'https://x.invalid/a.png'},
+   {...postBody,p_body:'x'.repeat(6001)},{...postBody,p_body:'  '},{...postBody,author_user_id:b},{...postBody,p_parent_id:'not-a-uuid'}]){
+  const w=worker({role:'user',fetchAction:postsFetch([{id:5144}])});
+  assert.equal((await w.request('/rest/v1/rpc/add_contribution',{body})).status,403,JSON.stringify(body).slice(0,80));
+  assert.ok(!w.calls.some(r=>r.url.endsWith('/add_contribution')));
+ }
+});
+test('a guest comment on a verified public post is forwarded with the publishable key only (the server keeps it pending); a guest never replies or sends a session',async()=>{
+ const w=worker({role:'user',anonKey:ANON,fetchAction:postsFetch([{id:5144}])});
+ const r=await w.request('/rest/v1/rpc/add_contribution',{body:postBody,jwt:ANON,headers:{apikey:ANON}});
+ assert.equal(r.status,200);
+ const write=w.calls.find(req=>req.url.endsWith('/add_contribution'));
+ assert.equal(write.headers.get('authorization'),'Bearer '+ANON);
+ assert.equal(write.headers.get('apikey'),ANON);
+ assert.ok(!w.calls.some(req=>req.url===API+'/auth/v1/user'),'no account is probed for a guest');
+ for(const body of [{...postBody,p_parent_id:'33333333-3333-4333-8333-333333333333'},{...communityBody}]){
+  const g=worker({role:'user',anonKey:ANON,fetchAction:postsFetch([{id:5144}])});
+  assert.equal((await g.request('/rest/v1/rpc/add_contribution',{body,jwt:ANON,headers:{apikey:ANON}})).status,403);
+  assert.ok(!g.calls.some(req=>req.url.endsWith('/add_contribution')));
+ }
+ // without a configured publishable key a guest is not admitted at all; a forged anon-role token is not the publishable key
+ for(const config of [{role:'user'},{role:'user',anonKey:ANON}]){
+  const g=worker({...config,fetchAction:postsFetch([{id:5144}])});
+  assert.equal((await g.request('/rest/v1/rpc/add_contribution',{body:postBody,jwt:token(a,'anon')})).status,403);
+  assert.ok(!g.calls.some(req=>req.url.endsWith('/add_contribution')));
+ }
+});

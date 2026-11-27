@@ -1729,7 +1729,7 @@ html[data-theme-2029="parchment"] .sod29-reading-source [data-legacy-low~="parch
 
 /* The Hall's calm for every Post (ZURIEL 25.11.2026): one hero for all (medallion, title, date, chips, details, one action row); the "how it works" mark in the Hall's quiet style. */
 .sod29-reading-post .sod29-post-actions-slot{min-block-size:44px;grid-column:1 / -1;margin-block-start:6px}
-.sod29-reading-post .sod29-post-actions-slot .post-reading-actions{margin:0}
+.sod29-reading-post .sod29-post-actions-slot .post-reading-actions{margin:0;inline-size:100%;min-inline-size:0}
 .sod29-reading-post .sod29-post-actions-slot .r29-btn{background:none;border:0;box-shadow:none;font-size:var(--s29-type-micro,14px)}
 .sod29-post-tags{display:flex;flex-wrap:wrap;gap:6px 10px;margin:6px 0}
 .sod29-post-tags a{font-size:13px;color:var(--s29-accent-text,var(--s29-accent));text-decoration:none}

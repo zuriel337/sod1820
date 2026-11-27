@@ -17,11 +17,18 @@ export default function PostCommentComposer2029({ postId, onDone, onCancel }) {
     if (sending.current || !body || body.length > POST_COMMENT_MAX) return;
     sending.current = true; setBusy(true); setError("");
     try {
-      const id = await addContribution({ intent: "תגובה", origin: POST_COMMENT_ORIGIN, body, targetType: "post", targetId: postId,
-        authorName: user ? null : name.trim().slice(0, 60) || null });
+      // A request that never answers must end in a visible failure, not an endless "שולח…" (the text stays in the box).
+      const id = await Promise.race([
+        addContribution({ intent: "תגובה", origin: POST_COMMENT_ORIGIN, body, targetType: "post", targetId: postId, authorName: user ? null : name.trim().slice(0, 60) || null }),
+        new Promise((_, reject) => setTimeout(() => reject(new Error("client_timeout")), 30000)),
+      ]);
       onDone({ id, text: body, guest: !user, author: user ? null : name.trim() });
     } catch (e) {
-      setError(/rate_limited/.test(String(e?.message)) ? "נשלחו כבר כמה תגובות בשעה האחרונה. אפשר לנסות שוב מאוחר יותר." : "לא הצלחנו לשלוח את התגובה. הטקסט נשמר כאן; אפשר לנסות שוב.");
+      const reason = String(e?.message || e?.error || e?.code || "");
+      setError(/rate_limited/.test(reason) ? "נשלחו כבר כמה תגובות בשעה האחרונה. אפשר לנסות שוב מאוחר יותר."
+        : /client_timeout/.test(reason) ? "השרת לא ענה בזמן. הטקסט נשמר כאן; אפשר לנסות שוב."
+        : /public_reading_operation_denied|public_post_unavailable|403|503/.test(reason) ? "לא ניתן להוסיף תגובה לפוסט הזה כרגע. הטקסט נשמר כאן; אפשר לנסות שוב מאוחר יותר."
+        : "לא הצלחנו לשלוח את התגובה. הטקסט נשמר כאן; אפשר לנסות שוב.");
     } finally { sending.current = false; setBusy(false); }
   };
   return <form className="sod29-post-comment-form r29" onSubmit={send} aria-label="כתיבת תגובה" aria-busy={busy || undefined}>
