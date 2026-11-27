@@ -86,9 +86,11 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       let record;
       await step('the saved row exists for its owner, private, verified, with the real coordinates', async () => {
         const deadline = Date.now() + 30000;
-        do { record = (await (await fetch(`${origin}/rest/v1/els_records?select=id,title,term,status,visibility,self_published,start_index,skip&order=created_at.desc&limit=5`, { headers: headers(t) })).json()).find((r) => r.title === title); if (record) break; await new Promise((r) => setTimeout(r, 1000)); } while (Date.now() < deadline);
+        do { record = (await (await fetch(`${origin}/rest/v1/els_records?select=id,title,search_term,status,visibility,self_published,start_index,skip_distance,direction,scope&order=created_at.desc&limit=5`, { headers: headers(t) })).json()).find((r) => r.title === title); if (record) break; await new Promise((r) => setTimeout(r, 1000)); } while (Date.now() < deadline);
         if (!record) throw new Error('no saved row');
         if (record.visibility !== 'private' || record.status !== 'draft') throw new Error(`tier ${record.status}/${record.visibility}`);
+        // the coordinates are the engine's verified occurrence of the searched word in the existing corpus
+        if (record.start_index !== 50890 || record.skip_distance !== 10065 || record.direction !== 'fwd' || record.scope !== 'torah') throw new Error(`coordinates ${record.start_index}/${record.skip_distance}/${record.direction}/${record.scope}`);
       });
       await step('a stranger cannot read it', async () => {
         const other = await syntheticAccount(), ot = await token(other);
