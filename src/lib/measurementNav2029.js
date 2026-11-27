@@ -10,7 +10,7 @@ const CAP = 120;            // events of this module per page load, so a script 
 let sent = 0;
 const seenItems = new Set();
 
-export function resetNavMeasureForTest() { sent = 0; seenItems.clear(); installed = false; }
+export function resetNavMeasureForTest() { sent = 0; seenItems.clear(); installed = false; shownPanel = null; }
 
 // The first path segment, as a token: where the person was when it happened. Never the address itself.
 export function surfaceToken(pathname = globalThis.location?.pathname || "/") {
@@ -27,6 +27,16 @@ function send(event, props) {
 
 export function panelOpen(kind) { const panel = token(kind); return panel ? send("panel_open", { panel, from_surface: surfaceToken() }) : false; }
 export function panelClose(kind) { const panel = token(kind); return panel ? send("panel_close", { panel, from_surface: surfaceToken() }) : false; }
+// One call per change of the open panel (the frame loads this module only when a panel opens): closes the previous one, opens the next.
+let shownPanel = null;
+export function panelKind(kind) {
+  const next = token(kind);
+  if (next === shownPanel) return false;
+  const previous = shownPanel;
+  shownPanel = next;
+  if (previous) panelClose(previous);
+  return next ? panelOpen(next) : false;
+}
 export function searchSubmit(section, outcome) { const s = token(section); return s ? send("search_submit", { section: s, outcome: token(outcome) || undefined }) : false; }
 export function shareBarOpen(section) { const s = token(section); return s ? send("share_bar_open", { section: s }) : false; }
 export function mediaPlay(provider) { const p = token(provider); return p ? send("media_play", { provider: p, from_surface: surfaceToken() }) : false; }
@@ -57,6 +67,7 @@ const played = new WeakSet();
 export function installNavMeasure2029(doc = globalThis.document) {
   if (installed || !doc?.addEventListener) return false;
   installed = true;
+  globalThis.sodPanelNav = panelKind; // the frame calls this on every change of the open panel (it carries no import of this module)
   doc.addEventListener("click", event => {
     const el = event.target?.closest?.('a[href^="/number/"], a[href^="/2029/number/"], [data-share-entry="bar"], [data-experience-surface="beit-midrash"] :is(button, a)');
     if (!el) return;

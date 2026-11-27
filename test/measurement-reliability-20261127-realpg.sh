@@ -74,11 +74,26 @@ F "$DIR/fixtures/fn_ti_clean_classification.live-20261127.sql"
 
 # ---------- 03: floors by visitor ----------
 F "$DIR/03-floors-by-visitor.sql"
+check "$(Q -c "select md5(pg_get_functiondef('$PULSE'::regprocedure))")" d05ca539f72ea6ee280b42a230fabede '03 on the exact live producer gives d05ca539… (the pin that the open-activity file accepts after step 6)'
 D=$(Q -c "select pg_get_functiondef('$PULSE'::regprocedure)")
 check "$(printf '%s' "$D" | grep -c 'count(distinct session_id)' || true)" 0 '03: no list counts distinct sessions any more'
 check "$(printf '%s' "$D" | grep -o 'count(distinct coalesce(sod_id,session_id))' | wc -l | tr -d ' ')" 15 '03: all 15 floor counts use distinct visitors (sod_id, session as fallback)'
 check "$(printf '%s' "$D" | grep -c "ti_activity_pulse2029:v3:")" 1 '03: the cache key moved to v3'
 check "$(printf '%s' "$D" | grep -c "'threshold',jsonb_build_object('events',10,'sessions',5,'floor_unit','distinct_visitor')")" 1 '03: the thresholds stay 10 and 5 and name their unit'
+# the visitor / session distinction when the visitor id is missing (live, 30 days: 1 session of 11,899 had no sod_id): the expression 03 installs
+Q <<'SQL'
+create table public.vis_probe(item int, session_id text, sod_id text);
+insert into public.vis_probe select 1, 'one_visitor_s'||g, 'V1' from generate_series(1,18) g;                 -- ONE visitor, 18 sessions
+insert into public.vis_probe select 2, 'five_visitors_s'||g, 'W'||g from generate_series(1,5) g;              -- five visitors
+insert into public.vis_probe select 3, 'no_visitor_s'||g, null from generate_series(1,5) g;                  -- visitor id missing: the session is the fallback
+insert into public.vis_probe values (4,'mix_a','M1'),(4,'mix_b',null);                                       -- the same browser once with, once without the id
+SQL
+check "$(Q -c "select count(distinct session_id) from public.vis_probe where item=1")" 18 'probe: 18 sessions'
+check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=1")" 1 'one visitor with 18 sessions is ONE visitor (it no longer passes the floor of 5 alone)'
+check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=2")" 5 'five visitors are five'
+check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=3")" 5 'a missing visitor id falls back to the session id (never to null, never to one shared bucket)'
+check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=4")" 2 'known limit: a browser seen with and without its id counts twice (live: 1 session in 30 days)'
+Q -c "drop table public.vis_probe"
 F "$DIR/03-floors-by-visitor.sql"; pass=$((pass+1)); echo 'PASS 03 second apply is a no-op'
 F "$DIR/03-floors-by-visitor.rollback.sql"
 check "$(Q -c "select md5(pg_get_functiondef('$PULSE'::regprocedure))")" 83b931888f51de9429367006c6608e9d '03 rollback restores the exact live producer'

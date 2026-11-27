@@ -67,6 +67,7 @@ SQL
 STUB_MD5=$(Q -c "select md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure))")
 sed "s/83b931888f51de9429367006c6608e9d/$STUB_MD5/" "$DIR/PROPOSAL.sql" > "$TMP/proposal.local.sql"
 check "$(grep -c 83b931888f51de9429367006c6608e9d "$DIR/PROPOSAL.sql")" 1 'the committed file pins the live md5 once'
+check "$(grep -c d05ca539f72ea6ee280b42a230fabede "$DIR/PROPOSAL.sql")" 1 'the committed file also accepts the producer as step 6 (03-floors-by-visitor) leaves it, so either order applies'
 "$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -f "$TMP/proposal.local.sql" >/dev/null
 check "$(Q -c "select to_regprocedure('research_open_activity_2029(text)') is not null")" t 'PROPOSAL.sql commits under real psql'
 check "$(Q -c "select has_function_privilege('anon','fn_ti_open_activity2029(text)','execute')")" f 'producer is server-only'
@@ -96,6 +97,13 @@ check "$(Q -c "select expires_at > now() + interval '1 hour' from public.analyti
 Q -c "select research_open_activity_2029('day')" >/dev/null
 check "$(Q -c "select hit_count from public.analytics_cache where producer='fn_ti_open_activity2029'")" 1 'second call is a cache hit'
 check "$(Q -c "select research_open_activity_2029('nonsense')::jsonb->>'window'")" week 'unknown window falls back to week'
+# differencing: windows are complete Jerusalem days, so a visit TODAY changes nothing that is published, even with the cache cleared (no minute-by-minute feed), and the payload carries no time of day
+Q -c "insert into public.events(ts,session_id,surface,event_type,is_bot,props) values (now(),'h1','page','view',false,'{\"_measurement_verified\":2,\"measurement\":{\"page_path\":\"/number/30\"}}'); delete from public.analytics_cache"
+J2=$(Q -c "select research_open_activity_2029('day')")
+check "$(Q -c "select ('$J'::jsonb->'families') = ('$J2'::jsonb->'families')")" t 'a visit today does not change the published day list (cache cleared): no snapshot-to-snapshot differencing inside a day'
+check "$(Q -c "select count(*) from jsonb_each_text('$J2'::jsonb) k where k.key in ('from','to') and k.value ~ '^[0-9]{4}-[0-9]{2}-[0-9]{2}\$'")" 2 'the window is published as whole dates, not times'
+check "$(Q -c "select ('$J2'::jsonb->'floors') ? 'window_visitors'")" t 'the floors are published by name, the counts of visitors never'
+check "$(Q -c "select ('$J2'::jsonb)::text ~ '\"(sessions|visitors|last_at|latest_event)\"'")" f 'no per-item visitor or session count and no time of last activity anywhere in the payload'
 # window gate: fewer than 25 human sessions -> no list at all
 Q -c "delete from public.events where session_id ~ '^h(1[0-9]|2[0-9]|30)\$'; delete from public.analytics_cache"
 check "$(Q -c "select research_open_activity_2029('day')::jsonb->>'state'")" insufficient 'a window below 25 human sessions draws no list'
@@ -107,4 +115,11 @@ pass=$((pass+1)); echo 'PASS a second apply is refused'
 check "$(Q -c "select count(*) from pg_proc where proname in ('fn_ti_open_activity2029','research_open_activity_2029')")" 0 'rollback removes both functions'
 check "$(Q -c "select count(*) from public.analytics_cache where producer='fn_ti_open_activity2029'")" 0 'rollback removes the cache rows'
 check "$(Q -c "select count(*) from pg_proc where proname='fn_ti_activity_pulse2029'")" 1 'the existing producer is untouched'
+# the producer pin: accepted as the live definition OR as step 6 leaves it; any other definition is refused
+sed "s/d05ca539f72ea6ee280b42a230fabede/$STUB_MD5/" "$DIR/PROPOSAL.sql" > "$TMP/proposal.after03.sql"
+"$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -v ON_ERROR_STOP=1 -f "$TMP/proposal.after03.sql" >/dev/null
+check "$(Q -c "select to_regprocedure('research_open_activity_2029(text)') is not null")" t 'the post-step-6 pin applies (order 6 then 7)'
+"$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -v ON_ERROR_STOP=1 -f "$DIR/ROLLBACK.sql" >/dev/null
+if "$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -v ON_ERROR_STOP=1 -f "$DIR/PROPOSAL.sql" >/dev/null 2>&1; then echo 'FAIL a producer with neither pin was not refused'; exit 1; fi
+pass=$((pass+1)); echo 'PASS a producer matching neither pin is refused'
 echo "ALL PASS ($pass)"

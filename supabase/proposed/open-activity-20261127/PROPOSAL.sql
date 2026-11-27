@@ -2,11 +2,13 @@
 -- SHA and file hash (CLAUDE.md 0.4), and the contract amendment in README.md is a separate approval.
 -- Adds ONE read-side producer (sibling of fn_ti_activity_pulse2029, same events pipeline, same classifier, same analytics_cache) and its
 -- public wrapper (same pattern as research_pulse_2029). No new collection, no table, no change to any existing function or grant.
--- Revert: ROLLBACK.sql. The live fn_ti_activity_pulse2029 md5 is pinned below so the apply refuses on drift.
+-- Revert: ROLLBACK.sql. The fn_ti_activity_pulse2029 md5 (live, or live after step 6) is pinned below so the apply refuses on drift.
 \set ON_ERROR_STOP on
 begin;
 do $pre$ begin
-  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) <> '83b931888f51de9429367006c6608e9d' then
+  -- The producer is a sibling this file does not change; it must be the live definition read on 27.11.2026 (83b93188…) or that definition after step 6
+  -- (03-floors-by-visitor.sql, whose result is d05ca539…: the same six replacements, computed read-only against the live definition). Either order applies.
+  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) not in ('83b931888f51de9429367006c6608e9d','d05ca539f72ea6ee280b42a230fabede') then
     raise exception 'preimage drift: fn_ti_activity_pulse2029';
   end if;
   if to_regprocedure('public.fn_ti_clean_classification(date,date)') is null

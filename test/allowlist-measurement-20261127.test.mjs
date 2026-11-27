@@ -36,7 +36,9 @@ test("the emitters are lazy, capped and carry no expression or identity", async 
   assert.match(nav, /const CAP = 120/);
   for (const text of [nav, calc]) assert.doesNotMatch(text, /expression:\s*[a-z]|session_id|sod_id|person_id|setInterval/);
   assert.match(readFileSync(new URL("../src/lib/visits.js", import.meta.url), "utf8"), /import\("\.\/measurementNav2029\.js"\)/);
-  assert.match(readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8"), /import\("\.\.\/\.\.\/lib\/measurementNav2029\.js"\)\.then\(m => m\.panelOpen\(kind\)/);
+  { const frame = readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8");
+    assert.match(frame, /globalThis\.sodPanelNav\?\.\(transient\?\.kind\)/, "the frame reports the open panel through the hook the lazy module installs");
+    assert.doesNotMatch(frame, /measurementNav2029/, "the frame does not import the module: every page would pay for it"); }
 });
 
 test("nav helpers: tokens only, capped, a cipher id becomes a 12-character token once per session", async () => {
@@ -50,6 +52,11 @@ test("nav helpers: tokens only, capped, a cipher id becomes a 12-character token
   assert.equal(mod.surfaceToken("/עברית"), "other");
   assert.equal(mod.itemView("cipher", "not-an-id"), false);
   assert.equal(mod.panelOpen("Bad Token!"), false);
+  // the frame calls panelKind once per change of the open panel: the same kind twice is one event, a bad token is none, closing returns nothing to send
+  mod.panelKind("search");
+  assert.equal(mod.panelKind("search"), false, "the same open panel is not counted twice");
+  assert.equal(mod.panelKind("Bad Token!"), false);
+  assert.equal(mod.panelKind(null), false);
   delete globalThis.sessionStorage;
 });
 
@@ -62,5 +69,5 @@ test("the delegated listeners: number links, share-bar entry, study-house contro
   assert.equal(mod.installNumberLinkMeasure2029, mod.installNavMeasure2029, "the earlier name stays valid");
   assert.ok(readingNavSpec().nav_2029.events.includes("study_action"));
   assert.match(readFileSync(new URL("../src/components/Lightbox.jsx", import.meta.url), "utf8"), /m\.galleryOpen\(\)/);
-  assert.match(readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8"), /m\.panelClose\(transient\?\.kind\)/);
+  assert.match(readFileSync(new URL("../src/lib/measurementNav2029.js", import.meta.url), "utf8"), /globalThis\.sodPanelNav = panelKind/);
 });

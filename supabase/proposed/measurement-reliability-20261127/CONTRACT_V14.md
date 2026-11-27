@@ -1,5 +1,7 @@
 # traffic_intelligence_law: תוספת מוצעת לגרסה 14 (27.11.2026). לא מוחלת.
 
+OWNER-ROUTING: EXTEND_EXISTING traffic_intelligence_law
+
 **מצב: טקסט מוצע.** ההחלה היא `04-contract-v14.sql` (retire v13 והכנסת v14 בטרנזקציה אחת, באותו דפוס שבו הוכנסה v13), ודורשת אישור נפרד של ZURIEL להחלת החוזה ולקומיט המדויק. התוספת היא `EXTEND_EXISTING`: אינה משנה סעיף קיים אלא מוסיפה.
 
 הנוסח (אנגלית, כבשאר החוק):

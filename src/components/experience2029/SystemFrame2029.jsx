@@ -1027,7 +1027,6 @@ function SystemFrame2029Body({
   }, [context?.returnTo, navigate, research, surface]);
 
   const closeTransient = useCallback(() => {
-    import("../../lib/measurementNav2029.js").then(m => m.panelClose(transient?.kind), () => {});
     if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
     // A report opened from "האזור האישי שלי" returns to it when it closes (ZURIEL 11.11), the same panel, not the page behind it.
     setTransient(transient?.kind === TRANSIENT.ISSUE && transient.payload?.returnToWorkspace === true ? { kind: TRANSIENT.WORKSPACE, payload: null } : null);
@@ -1051,7 +1050,6 @@ function SystemFrame2029Body({
     }
     setTransient({ kind, payload });
     setNavOpen(false);
-    import("../../lib/measurementNav2029.js").then(m => m.panelOpen(kind), () => {});
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
   // ZURIEL 15.11: restore the existing guest invitation (22s or 450px scroll).
@@ -1439,6 +1437,8 @@ function SystemFrame2029Body({
     }));
     go(finding.href === "/world" ? "/world?focus=context" : finding.href, { preserve: false, state: { sodResearchIntent: "continue" } });
   };
+  // S4: the open panel is reported to the nav measurement once it is loaded (visits.js loads it after the first page is measured); no import here, so the frame does not grow.
+  useEffect(() => { globalThis.sodPanelNav?.(transient?.kind); }, [transient?.kind]);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };

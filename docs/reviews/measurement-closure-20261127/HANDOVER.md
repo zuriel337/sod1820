@@ -20,7 +20,7 @@
 | 3 | ingest_event: משפחות nav / item / calc_outcome | `measurement-allowlist-20261127/PROPOSAL.sql` | `3c3211185c928f37…` | `ROLLBACK.sql` `b2df676a40ef20e6…` |
 | 5 | מסווג: הוכחת פעילות (cutover) | `measurement-reliability-20261127/02-classifier-activity-proof.sql` | `980a744486bdbe81…` | `02-classifier-activity-proof.rollback.sql` `0f28bc3b69f0214d…` |
 | 6 | מפיק /stats: רצפה לפי מבקרים | `measurement-reliability-20261127/03-floors-by-visitor.sql` | `b93789ccfc78b519…` | `03-floors-by-visitor.rollback.sql` `502f3f2ce3b016df…` |
-| 7 | מדור פעילות מצטברת | `open-activity-20261127/PROPOSAL.sql` | `67f6db0cbf3032eb…` | `ROLLBACK.sql` `f20d747b5f09a571…` |
+| 7 | מדור פעילות מצטברת | `open-activity-20261127/PROPOSAL.sql` | `6d4f9432485403dd…` | `ROLLBACK.sql` `f20d747b5f09a571…` |
 | 8 | פעולות מהטבלאות + צפוי ואינו מגיע (מנהלים) | `measurement-domain-actions-20261127/PROPOSAL.sql` | `de108343673152ae…` | `ROLLBACK.sql` `fa288049c75d54ef…` |
 | 9 | גלאי אמינות: ספירת דיווחי תקלה (משולב ב־#1528) | `measurement-reliability-20261127/06-reliability-watch-support-reports.sql` | `c5f9c025821f9a79…` | `06-reliability-watch-support-reports.rollback.sql` `927c60decfcdfd57…` |
 | 10 | העתקת טקסט דיווחי תקלה היסטוריים | `measurement-reliability-20261127/05-scrub-issue-report-text.sql` | `ac000aefeac7d2ee…` | אין ביטול אוטומטי: ראו הערה |
@@ -85,3 +85,7 @@
 * הוצאת `tracking_stopped` מתוצאות ה־ELS בקורא (כלל קריאה).
 * התראה אוטומטית על "צפוי ואינו מגיע" (כעת רק תצוגה למנהל).
 * `05` דורש החלטת שימור; שלב 9 תלוי בבעלים של #1528.
+
+## בדיקות פרטיות וזהות (נוסף 27.11.2026, PR #1589)
+
+ראו [PRIVACY-AND-IDENTITY-CHECKS.md](PRIVACY-AND-IDENTITY-CHECKS.md): טביעת המפיק בקובץ open-activity אחרי שלב 03 (תוקן; שני הסדרים מוחלים), מזהה מבקר מול סשן כשהמזהה חסר, השוואת חלונות זמן (המדור החדש ברמת יום שלם; ב־`/stats` החי נמצאה רזולוציית דקה: המלצה נפרדת), וארבעה תיקוני CI. שני סיכונים להחלטה: "פתיחה פעם אחת" ביום שלם, ו־opens גבוה בשכבת "נפתח" שמראה פחות מ־5 מבקרים (הצעה: תקרה 9).
