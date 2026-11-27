@@ -138,9 +138,25 @@ test('explicit single-item deletion preserves other buckets and other items',asy
   f.runtime.commit([op('item_upsert',{bucket:'pinned',entity:item('a')}),op('item_delete',{bucket:'library',entity_type:'number',entity_ref:'a'})]);await f.runtime.flush();
   assert.deepEqual(f.server.snapshot('A').saved.map(e=>e.id),['b']);assert.equal(f.server.snapshot('A').pinned.length,1);f.runtime.stop();
 });
-test('storage failure prevents sending a request without a recoverable journal',async()=>{
-  const f=await ready(setup());f.storage.fail=true;add(f.runtime,'x');await f.runtime.flush();assert.equal(f.server.calls.length,0);assert.equal(f.runtime.getSnapshot().syncStatus,'local_error');
-  f.storage.fail=false;await f.runtime.retry();assert.equal(f.server.snapshot('A').saved.length,1);f.runtime.stop();
+test('storage failure does not stop the account write: the SAME request is sent from memory, and only the receipt confirms (CLOUD FIRST stage 2)',async()=>{
+  const f=await ready(setup());f.storage.fail=true;add(f.runtime,'x');
+  assert.equal(f.runtime.getSnapshot().memoryOnly,true,'only this tab holds the work');assert.equal(f.runtime.getSnapshot().cloudConfirmed,false);assert.equal(f.runtime.getSnapshot().syncStatus,'pending');
+  await f.runtime.flush();
+  assert.equal(f.server.calls.length,1);assert.equal(f.server.snapshot('A').saved.length,1);
+  assert.equal(f.runtime.getSnapshot().cloudConfirmed,true);assert.equal(f.runtime.getSnapshot().memoryOnly,false);assert.equal(f.runtime.getSnapshot().storageIssue,'quota');
+  f.storage.fail=false;await f.runtime.retry();assert.equal(f.server.snapshot('A').saved.length,1,'not applied twice');assert.equal(f.runtime.getSnapshot().storageIssue,null);f.runtime.stop();
+});
+test('storage failure plus a lost acknowledgement: the batch stays in memory, the retry replays the same batch id, the server applies it once',async()=>{
+  const f=await ready(setup());f.storage.fail=true;f.server.loseAck=true;add(f.runtime,'x');await f.runtime.flush();
+  assert.equal(f.runtime.getSnapshot().syncStatus,'error');assert.equal(f.runtime.getSnapshot().cloudConfirmed,false);assert.equal(f.runtime.getSnapshot().syncPending,1,'nothing dropped');assert.equal(f.runtime.getSnapshot().memoryOnly,true);
+  await f.runtime.retry();
+  assert.equal(f.server.calls.length,2);assert.equal(f.server.calls[1].batchId,f.server.calls[0].batchId);assert.equal(f.server.snapshot('A').saved.length,1);assert.equal(f.server.snapshot('A').revision,1);
+  assert.equal(f.runtime.getSnapshot().cloudConfirmed,true);f.runtime.stop();
+});
+test('without an account to write to, a storage failure is still a local_error (nothing was saved anywhere)',async()=>{
+  const storage=new Storage(),f=setup({uid:null,storage});f.runtime.start?.();await tick();storage.fail=true;
+  const ok=f.runtime.commit([op('item_upsert',{bucket:'library',entity:item('g')})]);
+  assert.equal(ok,false);assert.equal(f.runtime.getSnapshot().syncStatus,'local_error');f.runtime.stop();
 });
 test('unscoped legacy data is preserved but never imported or attributed',async()=>{
   const storage=new Storage();const raw=JSON.stringify({saved:[item('unknown-owner')]});storage.setItem('sod_research_v1',raw);
