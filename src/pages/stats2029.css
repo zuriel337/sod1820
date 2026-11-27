@@ -30,3 +30,10 @@
 .stats29-trend{font-style:normal;font-weight:700;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
 .stats29-trend.is-down{color:var(--s29-muted,#b6a995)}
 .stats29-tile span .stats29-trend{margin-inline-start:4px;font-size:13px}
+/* Cumulative open activity (27.11.2026): chips are as wide as their text and wrap in one dense row (Dense Row Law). */
+.stats29-open-family h3 b{font-size:18px;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
+.stats29-open-chips{align-items:flex-start}
+.stats29-open-chips li{display:inline-flex;max-width:100%}
+.stats29-open-chips a{flex-direction:row;gap:8px;align-items:center;min-height:44px;min-width:0;max-width:100%}
+.stats29-open-chips a b{font-size:15px;line-height:20px;overflow-wrap:anywhere}
+.stats29-more{font:inherit;min-height:44px;padding:0 16px;margin-top:10px;border:1px solid var(--s29-line,#574327);border-radius:10px;background:transparent;color:inherit;cursor:pointer}

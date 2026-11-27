@@ -8,6 +8,7 @@ import { PULSE_WINDOWS, readAdaptivePulse, readResearchPulse, pulseUsable, pulse
 import { fetchHomeSystemPulse2029 } from "../lib/research/home2029Projection.js";
 import { behaviourTrends, halfWeekTrends, addedTrends, weeklyTrend, trendText, trendArrow } from "../lib/weeklyTrend2029.js";
 import { useDiscoveryCenter, DiscoveryTotals, DiscoveryFeatured, DiscoveryLatest, DiscoveryContributions, DiscoveryWriters } from "../components/experience2029/DiscoveryCenter2029.jsx";
+import OpenActivity2029 from "../components/experience2029/OpenActivity2029.jsx";
 import "./stats2029.css";
 
 // /stats (ZURIEL 21.11.2026): the public statistics page. One reader (research_pulse_2029, TI) plus the existing
@@ -104,6 +105,7 @@ export default function Stats2029Page() {
           {d.content?.length ? <><h3>הפוסטים שנקראים הכי הרבה</h3><ol className="stats29-list">{d.content.map(x => <li key={x.href}><Link to={x.href}>{x.title}</Link><small>{pulseCount(x.events)} קריאות</small></li>)}</ol></> : null}
           {d.phrases?.length ? <><h3>ביטויים מאושרים שנבחרו</h3><ol className="stats29-chips">{d.phrases.map(x => <li key={x.phrase}><span><b>{x.phrase}</b><small>{x.value} · {pulseCount(x.events)} בחירות</small></span></li>)}</ol></> : null}
         </section> : null}
+        <OpenActivity2029 />
         {sections.length ? <section className="stats29-block" aria-labelledby="stats29-sections">
           <h2 id="stats29-sections">פעילות לפי מדורים</h2>
           <ol className="stats29-bars">{sections.map(x => <li key={x.section}><span>{SECTIONS[x.section]}</span><i style={{ width: Math.max(4, Math.round(x.views / sections[0].views * 100)) + "%" }} /><small>{pulseCount(x.views)}</small></li>)}</ol>
