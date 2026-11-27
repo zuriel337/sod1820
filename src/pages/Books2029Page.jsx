@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import { useResearch } from "../lib/research/ResearchProvider.jsx";
+import { usePersonalSave2029 } from "../lib/research/usePersonalSave2029.js";
 import {
   fetchBookEntities,
   fetchBookEntityBySlug,
@@ -98,19 +99,22 @@ function previewBookForManifest(manifest) {
   };
 }
 
-function SaveBookItemAction({ item, research }) {
+function SaveBookItemAction({ item }) {
   const actionsLocked = publicReadingActionsLocked(useAuth().isAdmin);
   const palette = use2029Palette();
-  const [failed, setFailed] = useState(false);
-  const saved = Boolean(item?.id && research.saved?.some(entry => entry.id === item.id));
+  // The ONE save indicator: "נשמר" only on the server's receipt; a failure names its cause and the same button retries.
+  const save = usePersonalSave2029(item, { locked: actionsLocked });
+  const state = save.phase === "confirmed" ? "success" : save.phase === "failed" ? "error" : "idle";
   return <>
-    <button type="button" className="sod29-action" data-action="save"
+    <button type="button" className="sod29-action" data-action="save" data-save-phase={save.phase}
       style={{ "--action-success": palette.successText, "--action-danger": palette.dangerText }}
-      data-state={failed ? "error" : saved ? "success" : "idle"} aria-pressed={saved && !failed} disabled={actionsLocked || !item}
-      onClick={() => { if (actionsLocked) return; try { setFailed(!research.saveItem?.(item)); } catch { setFailed(true); } }}>
-      <NavigationIcon2029 name={failed ? "issue" : saved ? "check" : "save"} />{failed ? "נסה לשמור שוב" : saved ? "נשמר" : "שמור"}
+      data-state={state} aria-pressed={save.phase === "confirmed"} disabled={actionsLocked || !item || save.busy}
+      onClick={save.save}>
+      <NavigationIcon2029 name={save.phase === "failed" ? "issue" : save.phase === "confirmed" ? "check" : "save"} />{save.phase === "failed" ? "נסה לשמור שוב" : save.phase === "confirmed" ? "נשמר" : save.busy ? "שומר…" : "שמור"}
     </button>
-    <span className="sod-action-announcement" role="status">{failed ? "השמירה לא הושלמה. נסה שוב." : saved ? "הפריט שמור בספרייה" : ""}</span>
+    {save.reclaim > 0 ? <button type="button" className="sod29-action" data-save-action="reclaim" onClick={save.reclaimAndRetry}>פינוי ושמירה</button> : null}
+    {save.fix ? <button type="button" className="sod29-action" data-save-action="resolve" onClick={save.resolveAndRetry}>סנכרון מחדש ושמירה</button> : null}
+    <span className="sod-action-announcement" role="status">{save.notice || (save.phase === "confirmed" ? "הפריט שמור בספרייה" : "")}</span>
   </>;
 }
 
@@ -124,7 +128,7 @@ function ResearchFindingRow({ entry, book, research }) {
       <strong>{shortText(row.statement || entry.representation?.title || row.kind || "ממצא מחקר", 260)}</strong>
       <small>{[entry.statusLabel, entry.verificationLabel, locus].filter(Boolean).join(" · ")}</small>
     </div>
-    <div className="sod29-actions"><SaveBookItemAction item={item} research={research} /></div>
+    <div className="sod29-actions"><SaveBookItemAction item={item} /></div>
   </div>;
 }
 
@@ -234,7 +238,7 @@ function BookDetail({ slug, previewOnly = false }) {
           <div className="sod29-kicker">ספר · מקור · מחקר</div>
           <h2>{book.label}</h2>
           <p className="sod29-muted">מתחילים מהעיקר: מה כבר מופה, מה נמצא במחקר, מאיזה מקור זה מגיע ומה עדיין דורש המשך בדיקה. שכבות העדות נשמרות בנפרד מאחורי התצוגה האנושית.</p>
-          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} research={research} /><button type="button" className="sod29-action" data-action="research" disabled={actionsLocked} onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
+          <div className="sod29-actions">{readerManifest ? <a className="sod29-action" href="#book-reader29-source"><span aria-hidden="true">▤</span> קרא את ה־PDF</a> : null}<SaveBookItemAction key={book.id} item={bookToWorkspaceItem(book)} /><button type="button" className="sod29-action" data-action="research" disabled={actionsLocked} onClick={addBook}><NavigationIcon2029 name="add" /> הוסף למחקר</button><button className="sod29-action" onClick={() => shell.openRaziel()} disabled={shell.razielLocked}>{shell.razielLocked ? "✦ רזיאל · נעול" : "✦ שאל את רזיאל"}</button></div>
         </div>
       </div>
     </section>
