@@ -6,7 +6,7 @@ const S = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/public/";
 
 test("a canonical video has its captions beside it, Hebrew first", () => {
   const got = videoCaptionCandidates2029({ mediaHref: `${S}media/sod1820/2029/video/2026/11/e28bfb09-0465-5c9e-b272-3f0d2dafbe35/original.mp4` });
-  assert.deepEqual(got.map(c => c.lang), ["he", "ar"]);
+  assert.deepEqual(got.map(c => c.lang), ["he", "ar", "en"]);
   assert.equal(got[0].src, `${S}media/sod1820/2029/video/2026/11/e28bfb09-0465-5c9e-b272-3f0d2dafbe35/captions/he.vtt`);
   assert.equal(got[0].label, "עברית");
 });

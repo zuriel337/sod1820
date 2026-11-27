@@ -13,6 +13,7 @@ const MEDIA_BASE = "https://linswmnnkjxvweumprav.supabase.co/storage/v1/object/p
 export const VIDEO_CAPTION_LANGS_2029 = Object.freeze([
   Object.freeze({ lang: "he", label: "עברית" }),
   Object.freeze({ lang: "ar", label: "العربية" }),
+  Object.freeze({ lang: "en", label: "English" }),
 ]);
 const CANONICAL_VIDEO = /^\/storage\/v1\/object\/public\/media\/(sod1820\/2029\/video\/\d{4}\/\d{2}\/[A-Za-z0-9_-]+)\/original\.mp4$/;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
