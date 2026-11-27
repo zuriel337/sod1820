@@ -155,7 +155,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   // It registers only while such work exists, and goes the moment the server's receipt arrives.
   useEffect(() => {
     if (!state.memoryOnly) return undefined;
-    const warn = (event) => { event.preventDefault(); event.returnValue = ""; };
+    const warn = (event) => event.preventDefault();
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [state.memoryOnly]);

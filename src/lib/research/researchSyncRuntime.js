@@ -314,7 +314,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
     // The batch is accepted when it is durable on the device OR queued for the account (it is then sent from memory). Only a commit with nowhere to go reports false.
-    const ok = persist() || Boolean(userId && cloudEnabled && !localPassiveOnly); notify();
+    const ok = persist() || !!(userId && cloudEnabled && !localPassiveOnly); notify();
     if (safe.some(op => op.kind === 'context_set')) onContext(state.context);
     if (ok) schedule();
     return ok;
