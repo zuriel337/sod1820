@@ -193,6 +193,14 @@ export async function runP3({ origin, anon, service, syntheticAccount, note }) {
   const adminRemove = await rpc('remove_contribution', { p_id: c2 }, tadm);
   check('comments', adminRemove.status < 300 && (await one(c2)) === null && (await one(c2, tadm))?.body === null, 'the administrator can delete another member\'s community comment', `status=${adminRemove.status}`);
 
+  // what the page asks before it shows the edit and delete buttons
+  const actionsFor = async (token) => (await rpc('community_message_actions_v1', { p_ids: [likeRoot, c1] }, token)).body ?? [];
+  const [forAuthor, forStranger, forAdmin, forGuest] = [await actionsFor(tb), await actionsFor(ta), await actionsFor(tadm), await rpc('community_message_actions_v1', { p_ids: [likeRoot] })];
+  const of = (rows, id) => rows.find((r) => r.id === id);
+  check('comments', of(forAuthor, likeRoot)?.can_edit === true && of(forAuthor, likeRoot)?.can_delete === true && of(forAuthor, likeRoot)?.reason === 'allowed', 'the page asks the server what the author may do: edit and delete are allowed on their own comment', JSON.stringify(of(forAuthor, likeRoot)));
+  check('comments', of(forStranger, likeRoot)?.can_edit === false && of(forStranger, likeRoot)?.can_delete === false && of(forStranger, likeRoot)?.reason === 'not_owner', 'a stranger is told the comment is not theirs (no edit, no delete)', JSON.stringify(of(forStranger, likeRoot)));
+  check('comments', of(forAdmin, likeRoot)?.can_edit === false && of(forAdmin, likeRoot)?.can_delete === true && of(forAdmin, likeRoot)?.reason === 'allowed' && refused(forGuest), 'the administrator may delete but not edit another member\'s comment, and a guest cannot ask', `${JSON.stringify(of(forAdmin, likeRoot))} guest=${forGuest.status}`);
+
   // ── Follow ──
   const prefsOf = async (token) => (await call('GET', 'notification_prefs?select=topics,user_id', token)).body ?? [];
   const f1 = await rpc('watch_toggle', { p_topic: 'number:1820', p_source: 'qa', p_on: true }, ta);

@@ -3083,3 +3083,44 @@ end $function$
 -- @@ fngrant public.pin_contribution(p_id uuid, p_pin boolean)
 revoke all on function public.pin_contribution(p_id uuid, p_pin boolean) from public;
 grant execute on function public.pin_contribution(p_id uuid, p_pin boolean) to authenticated;
+-- @@ function public.community_message_actions_v1(p_ids uuid[])
+CREATE OR REPLACE FUNCTION public.community_message_actions_v1(p_ids uuid[])
+ RETURNS TABLE(id uuid, can_edit boolean, can_delete boolean, reason text)
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+begin
+  if auth.uid() is null then raise exception 'auth required' using errcode='42501'; end if;
+  if coalesce(cardinality(p_ids),0) > 100 then
+    raise exception 'at most 100 messages per page' using errcode='22023';
+  end if;
+  return query
+    with requested as (select distinct requested_id from unnest(p_ids) requested_id),
+    scoped as materialized (
+      select r.*, public._community_message_owned_by_caller_v1(r) as owned,
+             public.rd_is_admin() as administrator
+      from public.research_contributions r join requested q on q.requested_id=r.id
+      where r.origin in ('openweb','community_2029')
+    ), decisions as (
+      select s.id, s.owned, s.administrator,
+             s.graph_node_id is not null or s.projected_insight_id is not null as protected_source,
+             s.deleted_at is null and s.thread_hidden_at is null as available,
+             s.status
+      from scoped s
+      where s.owned or s.administrator
+         or (s.status='approved' and s.deleted_at is null and s.thread_hidden_at is null)
+    )
+    select d.id,
+      coalesce(d.owned and d.available and not d.protected_source and d.status='approved',false),
+      coalesce((d.owned or d.administrator) and d.available and not d.protected_source and d.status in ('approved','pending'),false),
+      case when not (d.owned or d.administrator) then 'not_owner'
+           when d.protected_source then 'source_requires_review'
+           when not d.available or d.status is null or d.status not in ('approved','pending') then 'message_unavailable'
+           else 'allowed' end
+    from decisions d;
+end $function$
+;
+-- @@ fngrant public.community_message_actions_v1(p_ids uuid[])
+revoke all on function public.community_message_actions_v1(p_ids uuid[]) from public;
+grant execute on function public.community_message_actions_v1(p_ids uuid[]) to authenticated;

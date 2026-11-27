@@ -208,7 +208,8 @@
     "community_reply_counts",
     "approve_contribution",
     "add_guest_community_message",
-    "community_thread_updates"
+    "community_thread_updates",
+    "community_message_actions_v1"
    ],
    "tables": [
     "research_contributions",
@@ -304,6 +305,44 @@
      "results": [
       "comments: the administrator cannot rewrite"
      ]
+    },
+    {
+     "id": "comments.ui.guest",
+     "label": "עמוד הקהילה: אורח רואה תגובה מאושרת ולא רואה תגובה שלא נסקרה (דפדפן אמיתי)",
+     "role": "guest",
+     "results": [
+      "ui-comments desktop-1440: a guest sees the approved comments",
+      "ui-comments Pixel 7: a guest sees the approved comments",
+      "ui-comments desktop-1440: the unreviewed guest comment is nowhere",
+      "ui-comments Pixel 7: the unreviewed guest comment is nowhere"
+     ]
+    },
+    {
+     "id": "comments.ui.edit-delete",
+     "label": "עריכה ומחיקה דרך הכפתורים: הכותב כן, חבר אחר לא; נשמר אחרי רענון (דפדפן אמיתי)",
+     "role": "member x2",
+     "results": [
+      "ui-comments desktop-1440: the author sees edit and delete",
+      "ui-comments Pixel 7: the author sees edit and delete",
+      "ui-comments desktop-1440: another member is offered neither",
+      "ui-comments Pixel 7: another member is offered neither",
+      "ui-comments desktop-1440: editing through the box",
+      "ui-comments Pixel 7: editing through the box",
+      "ui-comments desktop-1440: after a reload the edited text",
+      "ui-comments Pixel 7: after a reload the edited text",
+      "ui-comments desktop-1440: deleting through the confirmation",
+      "ui-comments Pixel 7: deleting through the confirmation"
+     ]
+    },
+    {
+     "id": "comments.actions",
+     "label": "מה העמוד שואל מהשרת לפני שמציג עריכה ומחיקה (כותב, זר, מנהל, אורח)",
+     "role": "member x2+admin+guest",
+     "results": [
+      "comments: the page asks the server what the author may do",
+      "comments: a stranger is told the comment is not theirs",
+      "comments: the administrator may delete but not edit another"
+     ]
     }
    ]
   },
@@ -374,6 +413,19 @@
      "role": "guest",
      "results": [
       "likes: observation for the owner"
+     ]
+    },
+    {
+     "id": "likes.ui",
+     "label": "לייק ודיסלייק בלחיצה: נשמר, מוצג במונה ושורד רענון (דפדפן אמיתי)",
+     "role": "member",
+     "results": [
+      "ui-comments desktop-1440: member B opens the Community page",
+      "ui-comments Pixel 7: member B opens the Community page",
+      "ui-comments desktop-1440: pressing like stores one like",
+      "ui-comments Pixel 7: pressing like stores one like",
+      "ui-comments desktop-1440: after a reload the like and dislike counts",
+      "ui-comments Pixel 7: after a reload the like and dislike counts"
      ]
     }
    ]

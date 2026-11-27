@@ -29,6 +29,7 @@ import { runP1 } from './qa-scenarios-p1.mjs';
 import { runP3 } from './qa-scenarios-p3.mjs';
 import { runMessagesUi } from './qa-ui-messages.mjs';
 import { runNotificationsUi } from './qa-ui-notifications.mjs';
+import { runCommentsUi } from './qa-ui-comments.mjs';
 import { runElsVerify, runCipherUi } from './qa-ui-cipher.mjs';
 
 async function syntheticAccount({ origin, service }, role = 'member') {
@@ -164,6 +165,7 @@ try {
   try { await runP3({ ...settings, syntheticAccount: (role) => syntheticAccount(settings, role), note }); } catch (error) { failed = true; note(false, 'p3: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runMessagesUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-messages: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runNotificationsUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-notifications: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runCommentsUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-comments: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runElsVerify({ settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'els-verify: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runCipherUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-cipher: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await tiers(settings, account, browserOpen); } catch (error) { failed = true; note(false, 'tiers: flow', String(error.message).split('\n')[0].slice(0, 160)); }
