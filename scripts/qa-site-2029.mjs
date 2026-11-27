@@ -29,6 +29,7 @@ import { runP1 } from './qa-scenarios-p1.mjs';
 import { runMessagesUi } from './qa-ui-messages.mjs';
 import { runNotificationsUi } from './qa-ui-notifications.mjs';
 import { runElsVerify, runCipherUi } from './qa-ui-cipher.mjs';
+import { runAuthUi } from './qa-ui-auth.mjs';
 
 async function syntheticAccount({ origin, service }, role = 'member') {
   const email = `qa-${role}-${randomBytes(6).toString('hex')}@qa.invalid`, password = randomBytes(18).toString('base64url');
@@ -164,6 +165,7 @@ try {
   try { await runNotificationsUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-notifications: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runElsVerify({ settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'els-verify: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runCipherUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-cipher: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runAuthUi({ settings, browser, devices, newSignedIn, syntheticAccount: (role) => syntheticAccount(settings, role), note }); } catch (error) { failed = true; note(false, 'ui-auth: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await tiers(settings, account, browserOpen); } catch (error) { failed = true; note(false, 'tiers: flow', String(error.message).split('\n')[0].slice(0, 160)); }
 } finally { await browser.close(); }
 const reachedLocalBackend = fixture.state.proxied.length > 0 && fixture.state.proxied.every(entry => entry.path.startsWith('/auth/v1/') || entry.path.startsWith('/rest/v1/') || entry.path.startsWith('/functions/v1/') || entry.path.startsWith('/storage/v1/'));

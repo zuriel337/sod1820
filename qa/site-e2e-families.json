@@ -38,9 +38,20 @@
     },
     {
      "id": "auth.admin.login",
-     "label": "התחברות מנהל סינתטי בדפדפן",
-     "role": "admin",
-     "results": []
+     "label": "מסוף הניהול: מנהל נשאר, חבר ואורח מוסטים, התנהגות אחרי רענון, והמסד קובע את התפקיד (מחשב ופיקסל 7)",
+     "role": "admin+member+guest",
+     "results": [
+      "ui-auth desktop-1440: the database decides the role",
+      "ui-auth desktop-1440: a guest who opens the admin console",
+      "ui-auth desktop-1440: a signed-in member who opens the admin console",
+      "ui-auth desktop-1440: the administrator stays on the admin console",
+      "ui-auth desktop-1440: after a reload the administrator is still on the console",
+      "ui-auth Pixel 7: the database decides the role",
+      "ui-auth Pixel 7: a guest who opens the admin console",
+      "ui-auth Pixel 7: a signed-in member who opens the admin console",
+      "ui-auth Pixel 7: the administrator stays on the admin console",
+      "ui-auth Pixel 7: after a reload the administrator is still on the console"
+     ]
     },
     {
      "id": "auth.logout",
@@ -490,9 +501,16 @@
     },
     {
      "id": "admin.console",
-     "label": "מסוף הניהול נפתח למנהל בלבד",
+     "label": "מסוף הניהול נפתח למנהל בלבד (מחשב ופיקסל 7)",
      "role": "admin+member",
-     "results": []
+     "results": [
+      "ui-auth desktop-1440: a guest who opens the admin console",
+      "ui-auth desktop-1440: a signed-in member who opens the admin console",
+      "ui-auth desktop-1440: the administrator stays on the admin console",
+      "ui-auth Pixel 7: a guest who opens the admin console",
+      "ui-auth Pixel 7: a signed-in member who opens the admin console",
+      "ui-auth Pixel 7: the administrator stays on the admin console"
+     ]
     },
     {
      "id": "admin.moderation-queue",

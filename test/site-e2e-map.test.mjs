@@ -18,13 +18,13 @@ test('the generated site action map is current', () => {
 });
 
 test('scenario ids are unique and every result prefix is printed by the QA runner', () => {
-  const runner = ['scripts/qa-site-2029.mjs', 'scripts/qa-scenarios-p1.mjs', 'scripts/qa-ui-messages.mjs', 'scripts/qa-ui-notifications.mjs', 'scripts/qa-ui-cipher.mjs'].map(read).join('\n');
+  const runner = ['scripts/qa-site-2029.mjs', 'scripts/qa-scenarios-p1.mjs', 'scripts/qa-ui-messages.mjs', 'scripts/qa-ui-notifications.mjs', 'scripts/qa-ui-cipher.mjs', 'scripts/qa-ui-auth.mjs'].map(read).join('\n');
   const ids = families.flatMap((f) => f.scenarios.map((s) => s.id));
   assert.equal(new Set(ids).size, ids.length);
   for (const sc of families.flatMap((f) => f.scenarios))
     for (const prefix of sc.results) {
       // the runner builds some names from a template such as `${profile}: login ...`: compare the part after the template
-      const tail = prefix.replace(/^(ui-cipher (desktop-1440|Pixel 7)|els-verify|ui-notifications (desktop-1440|Pixel 7)|ui-messages (desktop-1440|Pixel 7)|desktop-1440|Pixel 7|tiers|isolation|messages|notifications|counters): /, '');
+      const tail = prefix.replace(/^(ui-auth (desktop-1440|Pixel 7)|ui-cipher (desktop-1440|Pixel 7)|els-verify|ui-notifications (desktop-1440|Pixel 7)|ui-messages (desktop-1440|Pixel 7)|desktop-1440|Pixel 7|tiers|isolation|messages|notifications|counters): /, '');
       assert.ok(runner.includes(tail), `${sc.id}: the runner never prints "${tail}"`);
     }
 });
