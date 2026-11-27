@@ -131,8 +131,12 @@ function installPublicReadingWorker(policy) {
       && ((parsed.p_visitor === "community-repeatable-like" && parsed.p_emoji === "👍")
         || (parsed.p_visitor === "community-repeatable-dislike" && parsed.p_emoji === "👎")) && uuid(parsed.p_id);
     const token = /^Bearer ([A-Za-z0-9_.-]+)$/i.exec(req.headers.get("Authorization") || "")?.[1];
-    const uid = repeatableCommunityReaction ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
-    if ((!repeatableCommunityReaction && !uid) || req.signal.aborted) return denied();
+    // A comment on a public Post (ZURIEL 27.11.2026, post 5144): the Post comment tool sends target_type "post". A signed-in member is verified like every Community
+    // write; a guest (no session, or only the publishable key) is admitted for this ONE shape and is forwarded with the publishable key: the server keeps it pending for
+    // admin approval and enforces its own limits. A guest never replies under another message here (parent must be null).
+    const postGuest = rpc === "add_contribution" && parsed?.p_target_type === "post" && Boolean(policy.anonKey) && (!token || token === policy.anonKey);
+    const uid = repeatableCommunityReaction || postGuest ? null : await verifyReadingPrincipal({ token, apiKey: req.headers.get("apikey") || policy.anonKey, signal: req.signal });
+    if ((!repeatableCommunityReaction && !postGuest && !uid) || req.signal.aborted) return denied();
     if (upload) {
       const path = /^\/storage\/v1\/object\/gallery\/community\/([0-9a-f-]{36})\/([0-9a-f-]{36})\.([a-z0-9]+)$/i.exec(url.pathname);
       if (!path || path[1] !== uid || !uuid(path[2]) || req.headers.get("x-upsert") !== "false"
@@ -175,12 +179,24 @@ function installPublicReadingWorker(policy) {
     } else {
       if (keys !== "p_author_name,p_body,p_gematria_claim,p_image_url,p_intent,p_origin,p_parent_id,p_target_id,p_target_type,p_title"
         || body.p_origin !== "community_2029" || body.p_intent !== "תגובה"
-        || body.p_target_type !== "home" || body.p_target_id !== "community"
+        || !(body.p_target_type === "home" && body.p_target_id === "community"
+          || body.p_target_type === "post" && typeof body.p_target_id === "string" && /^[1-9]\d{0,9}$/.test(body.p_target_id))
+        || postGuest && body.p_parent_id !== null
         || body.p_title !== null || body.p_gematria_claim !== null || body.p_image_url !== null
         || !(body.p_parent_id === null || uuid(body.p_parent_id))
         || typeof body.p_body !== "string" || !body.p_body.trim() || Array.from(body.p_body).length > 6000
         || !(body.p_author_name === null || typeof body.p_author_name === "string" && body.p_author_name.length <= 200)) return denied();
       publicTarget = body.p_parent_id;
+      if (body.p_target_type === "post") {
+        // Only a verified PUBLIC post takes a comment: the same public-post boundary the readers use (not a draft, not the forum). Read with the publishable key.
+        const key = policy.anonKey || req.headers.get("apikey") || "";
+        const boundary = "(tags.is.null,tags.not.ov.{טיוטה,פורום})";
+        const found = await fetch(authOrigin + "/rest/v1/posts?select=id&id=eq." + body.p_target_id + "&or=" + encodeURIComponent(boundary) + "&limit=2", {
+          method: "GET", headers: { apikey: key, Authorization: "Bearer " + key }, cache: "no-store", credentials: "omit", redirect: "error", signal: req.signal });
+        if (!found.ok) return new Response(JSON.stringify({ error: "public_post_unavailable" }), { status: 503 });
+        const rows = await found.json();
+        if (!Array.isArray(rows) || rows.length !== 1 || String(rows[0]?.id) !== body.p_target_id) return denied();
+      }
     }
     if (publicTarget) {
       const context = await fetch(authOrigin + "/rest/v1/rpc/community_message_context?select=" + encodeURIComponent(policy.communityFields), {
@@ -192,7 +208,7 @@ function installPublicReadingWorker(policy) {
       if (!Array.isArray(chain) || !chain.some(row => row.id === publicTarget)) return denied();
     }
     if (req.signal.aborted) return denied();
-    if (repeatableCommunityReaction) {
+    if (repeatableCommunityReaction || postGuest) {
       const key = policy.anonKey || req.headers.get("apikey") || "";
       return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
     }

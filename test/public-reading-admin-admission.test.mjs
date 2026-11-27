@@ -163,10 +163,15 @@ test('Heichal public view rejects direct action handlers before model, telemetry
  await elements.find(n=>n.type==='form').props.onSubmit({preventDefault(){}});assert.deepEqual(empty.calls,[]);
 });
 
+// The Book save is the ONE personal-save hook (usePersonalSave2029). Its own lock-before-write behavior is proven against the real runtime in test/personal-save-indicator-2029.test.mjs;
+// here the page must hand it the policy lock exactly, and the stub honors that lock the way the hook does (no write when locked).
+const saveHookStub=(seen,writes)=>({usePersonalSave2029:(item,options)=>{seen.push(options);return {phase:'idle',busy:false,notice:'',reclaim:0,fix:false,save:()=>{if(!options?.locked)writes.push(item);}};}});
 test('Book save stays disabled for public/member, including direct handler invocation',async()=>{
- const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction');
- let saved=0;const nodes=treeElements(h.render({item:{id:'book'},research:{saveItem:()=>saved++}}));
- const button=nodes.find(n=>n.type==='button');assert.equal(button.props.disabled,true);button.props.onClick();assert.equal(saved,0);
+ const seen=[],writes=[];
+ const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction',saveHookStub(seen,writes));
+ const nodes=treeElements(h.render({item:{id:'book'}}));
+ const button=nodes.find(n=>n.type==='button');assert.equal(button.props.disabled,true);button.props.onClick();assert.equal(writes.length,0);
+ assert.equal(seen.at(-1).locked,true);
 });
 
 test('ELS public view is the Classic mode only; the administrator keeps every mode',async()=>{
@@ -193,9 +198,11 @@ test('ELS page keeps the level decided for an account while that same account is
 
 test('admin Book save uses the existing explicit operation and ELS operational surface',async()=>{
  const auth={useAuth:()=>({isAdmin:true,user:{id:'verified-admin'}})};
- const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction',auth);
- let saved=0;const button=treeElements(h.render({item:{id:'book'},research:{saveItem:()=>++saved}})).find(n=>n.type==='button');
- assert.equal(button.props.disabled,false);assert.equal(saved,0);button.props.onClick();assert.equal(saved,1);
+ const seen=[],writes=[];
+ const h=await screenHarness('src/pages/Books2029Page.jsx','SaveBookItemAction',{...auth,...saveHookStub(seen,writes)});
+ const button=treeElements(h.render({item:{id:'book'}})).find(n=>n.type==='button');
+ assert.equal(button.props.disabled,false);assert.equal(writes.length,0);button.props.onClick();assert.equal(writes.length,1);
+ assert.equal(seen.at(-1).locked,false);
  const els=await screenHarness('src/pages/Els2029Page.jsx','Els2029Page',auth);
  assert.equal(els.render({}).type.name,'OperationalEls2029Page');assert.deepEqual(els.calls,[]);
 });
