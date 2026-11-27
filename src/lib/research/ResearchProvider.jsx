@@ -151,6 +151,14 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
     window.addEventListener("pagehide", release);
     return () => window.removeEventListener("pagehide", release);
   }, [runtime, disabled, actionsLocked]);
+  // A save that exists only in this tab's memory (the device copy failed: full or denied store) has not reached the account yet: closing the tab now would lose it, so the browser asks first.
+  // It registers only while such work exists, and goes the moment the server's receipt arrives.
+  useEffect(() => {
+    if (!state.memoryOnly) return undefined;
+    const warn = (event) => { event.preventDefault(); event.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [state.memoryOnly]);
   useEffect(() => {
     if (PUBLIC_READING_RELEASE || actionsLocked) return undefined;
     const reconnect = () => { void runtime.retry(); };
@@ -176,7 +184,9 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
   const actions = useMemo(() => {
     const now = () => runtime.getSnapshot();
     const op = makeResearchOp;
-    const history = (entity) => op("history_add", { entity: { ...entity, t: Date.now() } });
+    // History is written only when something asked for it explicitly (logHistory: an opened source, an observed ELS result). Saving an item or adding it to the research
+    // is NOT a request for history: those used to append an automatic personal history_add (CLOUD FIRST stage 2, ZURIEL 27.11.2026: no unneeded personal history).
+    // Existing history is still read, shown and kept as it was; nothing deletes it.
     const commitAction = (ops) => access.current.allowed && runtime.commit(ops);
     const admitPersonalAction = () => {
       if (!personalAllowed.current) return false;
@@ -217,7 +227,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       addToResearch(entity) {
         if (!workspace.current) return false;
         if (!entity?.id || !entity?.type) return false;
-        const ok = commitAction([op("item_upsert", { bucket: "cart", entity }), history(entity)]);
+        const ok = commitAction([op("item_upsert", { bucket: "cart", entity })]);
         if (ok) { emit(EVENTS.RESEARCH_ADD, entity); if (!PUBLIC_READING_RELEASE) signalAiBehavior("research"); }
         return ok;
       },
@@ -229,7 +239,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
       },
       saveItem(entity) {
         if (!entity?.id || !entity?.type || !admitPersonalAction()) return false;
-        const ok = commitAction([op("item_upsert", { bucket: "library", entity }), history(entity)]);
+        const ok = commitAction([op("item_upsert", { bucket: "library", entity })]);
         if (ok) { const expectedPath = globalThis.location?.pathname; void import("../siteActivity2029.js").then(m=>m.recordSiteActivity("save", { expectedUserId: userId, expectedPath })).catch(()=>{}); emit(EVENTS.ITEM_SAVE, entity); }
         return ok;
       },
@@ -242,7 +252,7 @@ function PrincipalResearchProvider({ children, userId, disabled, personalLocked,
         return ok;
       },
       isPinned: (id) => now().pinned.some((e) => e.id === id),
-      logHistory: (entity) => (workspace.current && entity?.id ? commitAction([history(entity)]) : false),
+      logHistory: (entity) => (workspace.current && entity?.id ? commitAction([op("history_add", { entity: { ...entity, t: Date.now() } })]) : false),
       clearHistory: () => commitAction([op("history_clear")]),
       addCollection(name, meta = {}) {
         const id = `c${crypto.randomUUID()}`;

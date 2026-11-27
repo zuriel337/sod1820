@@ -2,7 +2,8 @@
 // the fixture's in-memory Auth + a research RPC that is compare-and-set like production). Nothing leaves the machine and nothing is written to production.
 // For each screen (320, 390, 1440, Pixel 7) it proves:
 //   1. server ack before success  - while the server has not answered the button says "saving" and never "saved"; only the receipt confirms; save -> reload -> reopen restores the saved item and the server keeps ONE copy;
-//   2. full browser store         - the failure names the cause, "פינוי ושמירה" frees only abandoned reading journals, the save then reaches the server;
+//   2. full browser store         - CLOUD FIRST stage 2: a full store no longer stops the save; it reaches the account from memory, is confirmed only by the server's receipt, writes no automatic history,
+//                                   and survives reload/reopen; with the server down it waits in memory (page warns before closing), "פינוי ושמירה" frees only abandoned reading journals, then it is confirmed;
 //   3. retry after a failure      - a failed request leaves the item on the device, the same button retries, and only then is it confirmed;
 //   4. conflict (409)             - the person is offered ONE explicit re-apply that confirms against the server, and nothing is deleted;
 //   and, in every failure state, that the button, the extra buttons and the status stay INSIDE the screen and are not clipped by the post header (RTL).
@@ -53,6 +54,8 @@ function researchServer() {
 
 // A browser store that can be made full for real: setItem throws QuotaExceededError when the total would pass window.__limit.
 const quotaScript = () => {
+  // The limit survives a reload (it lives in sessionStorage), so "full store -> reload -> reopen" is real.
+  try { const kept = sessionStorage.getItem("__sod_test_limit"); if (kept) window.__limit = Number(kept); } catch { /* optional */ }
   const original = Storage.prototype.setItem;
   Storage.prototype.setItem = function (key, value) {
     if (this === window.localStorage && typeof window.__limit === "number") {
@@ -62,6 +65,21 @@ const quotaScript = () => {
     return original.call(this, key, value);
   };
 };
+
+// Fills the browser store for real: abandoned reading journals (no owner, passive history only) beside the account state, and a journal that holds a real save which must survive.
+const fillStore = (page, key, principal, room = 700) => page.evaluate(({ key, principal, room }) => {
+  const passive = i => ({ batch_id: `b${i}`, ops: [{ kind: "history_add", op_id: `o${i}`, entity: { id: `post:${i}`, type: "post", title: "t", ref: `s${i}`, link: "/p", metadata: {}, t: i } }] });
+  for (let i = 0; i < 14; i += 1) localStorage.setItem(`${key}:pending:old${i}`, JSON.stringify({ principal, revision: 3, queue: [passive(i), passive(i + 100)], inflight: null }));
+  localStorage.setItem(`${key}:pending:precious`, JSON.stringify({ principal, revision: 3, inflight: null, queue: [{ batch_id: "keep", ops: [{ kind: "item_upsert", op_id: "k1", bucket: "library", entity: { id: "number:7", type: "number", title: "7", ref: "7", link: "/number/7", metadata: {}, addedAt: 1 } }] }] }));
+  let used = 0; for (let i = 0; i < localStorage.length; i += 1) { const k = localStorage.key(i); used += k.length + localStorage.getItem(k).length; }
+  window.__limit = used + room;   // the browser store is now full: the account state record no longer fits
+  sessionStorage.setItem("__sod_test_limit", String(window.__limit));
+  return used;
+}, { key, principal, room });
+const fxOrigin = page => new URL(page.url()).origin;
+const journalsLeft = (page, key) => page.evaluate(key => Object.keys(localStorage).filter(k => k.startsWith(key + ":pending:")), key);
+// A real beforeunload event: the page asks the browser to confirm only while a save exists solely in memory.
+const unloadWarns = page => page.evaluate(() => { const e = new Event("beforeunload", { cancelable: true }); window.dispatchEvent(e); return e.defaultPrevented; });
 
 async function withPost(profile, run) {
   const srv = researchServer();
@@ -143,32 +161,67 @@ for (const [name, profile] of PROFILES) {
     });
   });
 
-  test(`[${name}] full browser store: named cause, "פינוי ושמירה" frees only reading journals, then the save reaches the server`, { timeout: 150000 }, async () => {
+  test(`[${name}] full browser store: the save still reaches the account, is confirmed only by the receipt, writes no automatic history, nothing on the device is touched, and it survives reload/reopen`, { timeout: 150000 }, async () => {
     await withPost(profile, async ({ page, srv, user, key, errors }) => {
       const principal = `user:${user.id}`;
-      // abandoned reading journals (no owner, passive history only) beside the real account state, and a journal that holds a real save which must survive
-      const seeded = await page.evaluate(({ key, principal }) => {
-        const passive = i => ({ batch_id: `b${i}`, ops: [{ kind: "history_add", op_id: `o${i}`, entity: { id: `post:${i}`, type: "post", title: "t", ref: `s${i}`, link: "/p", metadata: {}, t: i } }] });
-        for (let i = 0; i < 14; i += 1) localStorage.setItem(`${key}:pending:old${i}`, JSON.stringify({ principal, revision: 3, queue: [passive(i), passive(i + 100)], inflight: null }));
-        localStorage.setItem(`${key}:pending:precious`, JSON.stringify({ principal, revision: 3, inflight: null, queue: [{ batch_id: "keep", ops: [{ kind: "item_upsert", op_id: "k1", bucket: "library", entity: { id: "number:7", type: "number", title: "7", ref: "7", link: "/number/7", metadata: {}, addedAt: 1 } }] }] }));
-        let used = 0; for (let i = 0; i < localStorage.length; i += 1) { const k = localStorage.key(i); used += k.length + localStorage.getItem(k).length; }
-        window.__limit = used + 700;   // the browser store is now full: the account state record no longer fits
-        return used;
-      }, { key, principal });
-      assert.ok(seeded > 0);
+      assert.ok(await fillStore(page, key, principal, 80) > 0);
+      const before = await journalsLeft(page, key);
+      let release; srv.hold = new Promise(done => { release = done; });
+      await root(page).locator("[data-save-action=save]").click();
+      for (let i = 0; i < 10 && srv.applies.length === 0; i += 1) await sleep(300);
+      assert.equal(srv.applies.length, 1, "the request left although the browser store is full");
+      // the server has NOT answered: still "saving", never "saved", and the page warns before it is closed (the item exists only in this tab)
+      assert.equal(await phaseOf(page), "saving");
+      assert.doesNotMatch(await saveLabel(page), /✓|ברשימת השמורים/);
+      assert.equal(await unloadWarns(page), true, "closing the tab now would lose the save: the browser is asked to confirm");
+      release(); srv.hold = null;
+      await phaseIs(page, "confirmed");
+      assert.equal(srv.posts().length, 1, "the account holds the item");
+      assert.equal(srv.state.history.length, 0, "saving wrote no automatic personal history");
+      assert.match(await status(page), /נשמר באזור האישי בחשבון/);
+      assert.equal(await unloadWarns(page), false, "nothing left that only memory holds: no warning");
+      assert.deepEqual(await journalsLeft(page, key), before, "no journal of the device was dropped or added: the existing research is untouched");
+      await assertInsideAndUnclipped(page, "full store confirmed");
+      // reload -> reopen with the store STILL full (not even the account state record fits on the device): the account restores the item, and a second click is idempotent
+      assert.equal(await page.evaluate(() => typeof window.__limit), "number");
+      await page.reload(); await page.waitForSelector(".post-action-bar [data-personal-save]", { timeout: 30000 });
+      assert.equal(await page.evaluate(() => typeof window.__limit), "number", "the browser store is still full after the reload");
+      await page.goto(fxOrigin(page) + "/2029/me/research");
+      await page.waitForFunction(() => Number(document.querySelector("[data-research-state-source] [data-count-for=saved] b")?.textContent) === 1, null, { timeout: 30000 });
+      assert.equal(srv.posts().length, 1, "the account holds exactly one copy, and the personal area reads it from the account");
+      await page.goto(fxOrigin(page) + PATH); await page.waitForSelector(".post-action-bar [data-personal-save]", { timeout: 30000 });
+      await root(page).locator("[data-save-action=save]").click();
+      await phaseIs(page, "confirmed");
+      assert.equal(srv.posts().length, 1, "no duplicate on the server");
+      assert.ok((await journalsLeft(page, key)).includes(`${key}:pending:precious`), "a journal holding an explicit save is never cleared");
+      await assertInsideAndUnclipped(page, "full store reopened");
+      assert.deepEqual(errors, []);
+    });
+  });
+
+  test(`[${name}] full browser store and the server does not answer: waits in memory as failed (never saved), "פינוי ושמירה" frees only reading journals, then it is confirmed`, { timeout: 150000 }, async () => {
+    await withPost(profile, async ({ page, srv, user, key, errors }) => {
+      const principal = `user:${user.id}`;
+      await fillStore(page, key, principal);
+      srv.failNext = 1;
       await root(page).locator("[data-save-action=save]").click();
       await root(page).locator("[data-save-action=reclaim]").waitFor({ timeout: 15000 });
       assert.equal(await phaseOf(page), "failed");
-      assert.match(await status(page), /האחסון המקומי של הדפדפן מלא/, "the real cause is named");
-      assert.equal(srv.applies.length, 0, "nothing was sent without a durable journal");
+      assert.doesNotMatch(await saveLabel(page), /✓/);
+      const text = await status(page);
+      assert.match(text, /השרת לא אישר את השמירה/);
+      assert.match(text, /זיכרון הלשונית/, "tells where the item waits");
+      assert.doesNotMatch(text, /לא נשלחה לחשבון/, "it WAS sent; the server did not answer");
       assert.equal(srv.posts().length, 0);
-      await assertInsideAndUnclipped(page, "full store failure");
+      assert.equal(await unloadWarns(page), true, "still only in this tab's memory");
+      await assertInsideAndUnclipped(page, "full store, server down");
       await root(page).locator("[data-save-action=reclaim]").click();
       await phaseIs(page, "confirmed");
-      assert.equal(srv.posts().length, 1, "after the reclaim the save reached the server");
-      const left = await page.evaluate(key => Object.keys(localStorage).filter(k => k.startsWith(key + ":pending:")), key);
+      assert.equal(srv.posts().length, 1, "after the retry the account holds the item, once");
+      const left = await journalsLeft(page, key);
       assert.ok(left.includes(`${key}:pending:precious`), "a journal holding an explicit save is never cleared");
       assert.equal(left.filter(k => /:pending:old\d+$/.test(k)).length, 0, "only the abandoned reading journals were freed");
+      assert.equal(await unloadWarns(page), false);
       assert.deepEqual(errors, []);
     });
   });

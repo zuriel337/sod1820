@@ -45,12 +45,16 @@ test('navigation context survives in memory while sessionStorage is blocked', as
   assert.equal(runtime.commit([makeResearchOp('context_set', { context })]), true);
   assert.equal(runtime.getSnapshot().context?.subject?.id, '2521');
 });
-test('durable storage failure is still fail-closed: nothing is sent', async () => {
+test('durable storage failure no longer stops the account write (CLOUD FIRST stage 2): sent from memory, confirmed only by the receipt, cause still named', async () => {
   const storage = new Store();
   const { runtime, server } = make({ storage }); await tick();
   storage.mode = 'blocked';
-  assert.equal(save(runtime), false);
-  await tick(); await tick();
-  assert.equal(server.items.length, 0);
-  assert.equal(runtime.getSnapshot().syncStatus, 'local_error');
+  assert.equal(save(runtime), true);
+  assert.equal(runtime.getSnapshot().cloudConfirmed, false, 'queued is not a receipt');
+  assert.equal(runtime.getSnapshot().memoryOnly, true);
+  await tick(); await tick(); await tick();
+  assert.equal(server.items.length, 1);
+  assert.equal(runtime.getSnapshot().syncStatus, 'synced');
+  assert.equal(runtime.getSnapshot().cloudConfirmed, true);
+  assert.equal(runtime.getSnapshot().storageIssue, 'unavailable');
 });

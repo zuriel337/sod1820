@@ -42,7 +42,7 @@ export function usePersonalSave2029(entity, { locked } = {}) {
   // Only a CHANGE of the runtime's state settles an attempt (the promises settle the rest), so a failure status left over from before the click cannot end it early.
   useEffect(() => {
     if (ui.attempt !== "saving") return;
-    if (saved && isCloudConfirmed({ syncStatus: research.syncStatus, syncPending: research.syncPending })) { inFlight.current = false; setUi({ attempt: "idle", notice: "נשמר באזור האישי בחשבון ✓", reclaim: 0, fix: false }); }
+    if (saved && isCloudConfirmed({ syncStatus: research.syncStatus, syncPending: research.syncPending })) { inFlight.current = false; setUi({ attempt: "idle", notice: "נשמר באזור האישי בחשבון ✓" + (research.storageIssue ? " (אחסון המכשיר מלא או חסום, ולכן הפריט נשמר בחשבון בלבד)" : ""), reclaim: 0, fix: false }); }
     else if (SYNC_FAILURE_STATUSES.includes(research.syncStatus)) fail();
   }, [saved, research.syncStatus, research.syncPending]);
   useEffect(() => { inFlight.current = false; setUi({ attempt: "idle", notice: "", reclaim: 0, fix: false }); }, [auth.user?.id, entity?.id]);

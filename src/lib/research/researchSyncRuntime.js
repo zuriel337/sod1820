@@ -9,6 +9,8 @@ import { HEARTBEAT_MS, LEASE_TTL_MS, REAP_GRACE_MS, planPersist, planReap } from
 import { compactPassiveQueue } from './researchQueueCompaction.js';
 // Why the durable local journal could not be used. It is exposed so the person is told the real cause, never a guess.
 const isQuota = e => e?.name === 'QuotaExceededError' || e?.name === 'NS_ERROR_DOM_QUOTA_REACHED' || e?.code === 22 || e?.code === 1014 || /quota/i.test(String(e?.message || ''));
+// A full or a denied store (the two causes that must never stop the account from being written).
+const storageCause = e => isQuota(e) ? 'quota' : e?.name === 'SecurityError' ? 'blocked' : null;
 import { isCloudConfirmed } from './personalSaveDecision.js';
 
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -77,11 +79,17 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       }
     }
   } catch { storageFault = true; storageIssue ??= 'unavailable'; journal = { revision: null, queue: [], inflight: null }; cached = {}; activeContext = null; legacyContextKeyToRetire = null; }
+  // CLOUD FIRST (stage 2): a store the browser denies outright ('blocked') holds nothing that could be lost or overwritten, so it must not stop the account from being written:
+  // the work stays in memory and goes to the server. Unreadable DATA ('corrupt_state', 'invalid_journal', ...) still fails closed: it is kept untouched for recovery.
+  if (storageFault && storageIssue === 'blocked') storageFault = false;
   let state = { ...normalizeResearchState(cached.state || cached), context: activeContext };
   let mode = cached.mode === 'discovery' ? 'discovery' : 'reader';
   let revision = journal.revision ?? (Number.isSafeInteger(cached.revision) ? cached.revision : null);
   let queue = clone(journal.queue), inflight = journal.inflight ? clone(journal.inflight) : null;
   let active = false, generation = 0, cloudReady = false, timer = null, operation = null, resolving = false;
+  // `localFailed`: the last attempt to write the device failed (full, denied). `stateHeld`: the stored state of this principal could not be copied aside before the account's
+  // snapshot replaced it, so that stored record is left exactly as it is (never overwritten) until a later load can preserve it.
+  let localFailed = false, stateHeld = false;
   // A reading deployment may admit private reads without replaying a journal on login.
   // Only an explicit edit/retry authorizes its existing queue; route context/history do not.
   let writeIntent = resumePendingOnStart;
@@ -94,6 +102,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     snapshot = Object.freeze({ ...state, mode, syncStatus: status, syncPending: queue.length, cloudConfirmed: isCloudConfirmed({ syncStatus: status, syncPending: queue.length }),
       syncRevision: revision, syncAwaitingAction: Boolean(userId && cloudEnabled && queue.length && !writeIntent),
       storageIssue,
+      // Work that exists only in this tab's memory (the device copy failed): the page warns before it is closed.
+      memoryOnly: localFailed && queue.length > 0,   // (an in-flight batch is always queue[0])
       legacyRecoveryAvailable, recoveryJournals: listRecoveryJournals() });
     for (const fn of listeners) fn();
   };
@@ -145,7 +155,7 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         if (ownedRecord()) { storage.removeItem(journalKey); best(() => session.removeItem(pointerKey)); }
         journalKey = null;
       }
-      storage.setItem(key, JSON.stringify({ state, mode, revision }));
+      if (!stateHeld) storage.setItem(key, JSON.stringify({ state, mode, revision }));
       best(() => state.context == null ? session.removeItem(contextKey) : session.setItem(contextKey, JSON.stringify(state.context)));
       // Retire the legacy unscoped key only once its content is durably persisted under the
       // principal-scoped key, so a mid-write failure leaves the recoverable original in place.
@@ -153,13 +163,20 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         best(() => session.removeItem(legacyContextKeyToRetire));
         legacyContextKeyToRetire = null;
       }
-      if (storageIssue === 'quota' || storageIssue === 'blocked' || storageIssue === 'unavailable') storageIssue = null;
+      // While the stored state is held (not written), the device copy is NOT healthy: the cause stays named.
+      if (!stateHeld) {
+        if (storageIssue === 'quota' || storageIssue === 'blocked' || storageIssue === 'unavailable') storageIssue = null;
+        localFailed = false;
+      }
       return true;
     } catch (e) {
       // A full browser store: first free only what is provably redundant (the existing lossless reap), then try once more. Nothing unsynced is touched.
       if (!reclaimed && isQuota(e)) { reapRedundant(); return persist(true); }
-      storageIssue = isQuota(e) ? 'quota' : e?.name === 'SecurityError' ? 'blocked' : 'unavailable';
-      status = 'local_error'; return false;
+      storageIssue = storageCause(e) || 'unavailable';
+      localFailed = true;
+      // With an account to write to the device copy is only a cache of the intent: the status stays as it is and the batch is still sent from memory.
+      if (!(userId && cloudEnabled)) status = 'local_error';   // with an account (signed in, allowed) the failed device copy only means "kept in memory", never "not sent"
+      return false;
     }
   }
   // Lease upkeep: only the owner touches `owner.at`; `released` is set when the page goes away so a reload can continue the journal in place.
@@ -224,7 +241,13 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
         const hydratedContext = state.context ?? (hasQueuedContextIntent ? null : cloudContext);
         // Local items the account has not confirmed are set aside (never dropped, never auto-synced) before the replacement.
         if (state.saved.length || state.cart.length || state.pinned.length || state.collections.length || state.journeys.length || state.history.length) {
-          (await lazyLocalOnly()).preserve({ ...localOnlyContext(), local: state, after: applyResearchOps(cloud, queue.flatMap(b => b.ops)) });
+          try { (await lazyLocalOnly()).preserve({ ...localOnlyContext(), local: state, after: applyResearchOps(cloud, queue.flatMap(b => b.ops)) }); stateHeld = false; }
+          catch (e) {
+            // A full or denied store cannot take the copy-aside. The stored record already holds those items, so it is simply never overwritten (stateHeld) and the account is still
+            // read and written; any other failure (an unreadable record) stays fail-closed.
+            if (!storageCause(e)) throw e;
+            stateHeld = true; localFailed = true; storageIssue = storageCause(e);
+          }
           if (!active || generation !== epoch) return;
         }
         state = { ...applyResearchOps(cloud, queue.flatMap(b => b.ops)), context: state.context ?? hydratedContext };
@@ -242,12 +265,13 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (status === 'conflict' || revision == null) return;
     clearTimeout(timer);
     const epoch = generation;
-    // Commit the exact immutable request to local storage BEFORE sending it.
+    // Commit the exact immutable request to local storage BEFORE sending it, when the device allows. The device copy is a durability bonus, never a gate (CLOUD FIRST stage 2):
+    // when it fails the same immutable request is sent from memory (same batch id and revision, so a repeat is idempotent), and the save is confirmed only by the server's receipt.
     touched = true;
     if (!inflight) inflight = { ...clone(queue[0]), expected_revision: revision };
     const sent = clone(inflight);
     status = 'syncing';
-    if (!persist()) { notify(); return; }
+    persist();
     notify();
     const run = (async () => {
       try {
@@ -289,7 +313,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       if (!passiveOnly) writeIntent = true;
       if (!['error', 'conflict', 'local_error'].includes(status)) status = 'pending';
     }
-    const ok = persist(); notify();
+    // The batch is accepted when it is durable on the device OR queued for the account (it is then sent from memory). Only a commit with nowhere to go reports false.
+    const ok = persist() || Boolean(userId && cloudEnabled && !localPassiveOnly); notify();
     if (safe.some(op => op.kind === 'context_set')) onContext(state.context);
     if (ok) schedule();
     return ok;
@@ -300,9 +325,10 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
     if (operation) await operation;
     if (!active || !cloudEnabled || generation !== epoch) return false;
     writeIntent = true; touched = true;
-    if (!persist()) { notify(); return false; }
+    persist();
     if (!cloudReady) await hydrate();
-    else { status = 'pending'; await flush(); }
+    else { status = queue.length ? 'pending' : 'synced'; await flush(); }
+    notify();   // the device copy may have been written (or failed) again just now: the snapshot must say so
     return status !== 'error' && status !== 'conflict' && status !== 'local_error';
   }
   async function resolveConflict({ confirm = false, action } = {}) {
@@ -314,7 +340,10 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       const cloud = assertCloudSnapshot(await readCloud(userId));
       if (!active || epoch !== generation) return false;
       // Preserve the disputed batch in its old journal for explicit recovery/provenance.
-      storage.setItem(`${journalKey || `${key}:pending:${selfId}`}:conflict:${idFactory()}`, JSON.stringify({ principal, revision, queue, inflight }));
+      // When the device cannot hold the copy (full or denied store) a re-apply still goes ahead: it re-sends the very same operations to the account, so nothing is lost (only the
+      // provenance copy is not kept). Dropping the queue (keep_remote) is never done without the copy.
+      try { storage.setItem(`${journalKey || `${key}:pending:${selfId}`}:conflict:${idFactory()}`, JSON.stringify({ principal, revision, queue, inflight })); }
+      catch (e) { if (action !== 'reapply' || !storageCause(e)) throw e; }
       if (action === 'keep_remote') queue = [];
       else queue = queue.map(b => ({ ...b, batch_id: idFactory() }));
       inflight = null; revision = cloud.revision;
@@ -340,7 +369,8 @@ export function createResearchSyncRuntime({ userId = null, storage, session, rea
       writeIntent = true; touched = true;
       queue = clone(record.queue); inflight = record.inflight ? clone(record.inflight) : null;
       revision = record.revision; cloudReady = false;
-      if (!persist()) { notify(); return false; }
+      // The source journal stays on the device until the server has confirmed its batches (cleanRecoveredCopy), so a failing device copy does not stop the upload.
+      persist();
       await hydrate();
       return cloudReady;
     } catch (e) { markError(e); return false; }

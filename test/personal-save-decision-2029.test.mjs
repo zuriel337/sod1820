@@ -51,7 +51,7 @@ test('blocked sessionStorage no longer strands the item: it syncs and is confirm
   assert.equal(server.items.length, 1);
   assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'confirm');
 });
-test('blocked durable storage keeps the item queued (fail-closed) and retry works once storage recovers', async () => {
+test('blocked durable storage no longer stops the save (CLOUD FIRST stage 2): it is sent from memory, confirmed only by the receipt, and a later retry never duplicates it', async () => {
   const storage = new Store();
   const server = { rev: 0, items: [] };
   const runtime = createResearchSyncRuntime({ userId: 'U', storage, session: new Store(), delay: 1, resumePendingOnStart: false, cloudEnabled: true,
@@ -60,11 +60,14 @@ test('blocked durable storage keeps the item queued (fail-closed) and retry work
       return { ok: true, batch_id: batchId, applied_revision: server.rev, snapshot: { ...emptyResearchState(), saved: server.items, revision: server.rev } }; } });
   runtime.start(); await tick();
   storage.fail = true;
-  assert.equal(upsert(runtime), false);
-  assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'retry');
+  assert.equal(upsert(runtime), true);
+  assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'retry', 'queued but not yet a receipt');
+  await tick(); await tick(); await tick();
+  assert.equal(server.items.length, 1);
+  assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'confirm');
   storage.fail = false;
   assert.equal(await runtime.retry(), true); await tick(); await tick();
-  assert.equal(server.items.length, 1);
+  assert.equal(server.items.length, 1, 'not duplicated');
   assert.equal(decideSaveClick({ saved: true, ...pick(runtime) }), 'confirm');
 });
 function pick(r) { const s = r.getSnapshot(); return { syncStatus: s.syncStatus, syncPending: s.syncPending }; }

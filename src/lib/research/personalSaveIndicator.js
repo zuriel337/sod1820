@@ -26,13 +26,20 @@ export function conflictReapplySafe(pending) {
 // everything else is the existing saveFailureNotice (full store with its reclaim, blocked, corrupt, ...).
 export function indicatorFailureNotice({ syncStatus, storageIssue = null, reclaimablePassiveJournals = 0, syncPending = 0, conflictReapplyOffered = false } = {}) {
   const base = { syncStatus, storageIssue, reclaimablePassiveJournals, syncPending };
-  if (storageIssue) return saveFailureNotice(base);
+  // CLOUD FIRST (stage 2): a failed device store no longer stops the send. When the account was reachable (the server was asked and did not confirm, or answered with a conflict) the notice
+  // says where the item waits: in this tab's memory only. Without an account to write to, or with an unreadable local record, the existing "not sent" text is still the truth.
+  const memory = ['quota', 'blocked', 'unavailable'].includes(storageIssue);
+  if (storageIssue && !(memory && ['error', 'conflict'].includes(syncStatus))) return saveFailureNotice(base);
   const code = ` (קוד: ${syncStatus})`;
+  const held = memory ? 'הפריט ממתין בזיכרון הלשונית הזו בלבד, כי אחסון המכשיר מלא או חסום, ולכן אל תסגרו אותה לפני האישור. לא נמחק דבר.' : 'הפריט נשמר במכשיר ולא נמחק דבר.';
   if (syncStatus === 'conflict') {
     return conflictReapplyOffered
-      ? { action: 'resolve', text: `השרת מחזיק גרסה חדשה יותר של המחקר מזו שבמכשיר (עדכון ממכשיר או מלשונית אחרת), ולכן השמירה עוד לא אושרה. הפריט נשמר במכשיר ולא נמחק דבר. אפשר לצרף אותו לגרסה העדכנית (עותק של הגרסה השנויה במחלוקת נשמר).${code}` }
-      : { action: null, text: `השרת מחזיק גרסה חדשה יותר של המחקר מזו שבמכשיר, ובתור ממתינה גם פעולת מחיקה, ולכן היא לא תוחל אוטומטית. הפריט נשמר במכשיר ולא נמחק דבר.${code}` };
+      ? { action: 'resolve', text: `השרת מחזיק גרסה חדשה יותר של המחקר מזו שבמכשיר (עדכון ממכשיר או מלשונית אחרת), ולכן השמירה עוד לא אושרה. ${held} אפשר לצרף אותו לגרסה העדכנית (עותק של הגרסה השנויה במחלוקת נשמר).${code}` }
+      : { action: null, text: `השרת מחזיק גרסה חדשה יותר של המחקר מזו שבמכשיר, ובתור ממתינה גם פעולת מחיקה, ולכן היא לא תוחל אוטומטית. ${held}${code}` };
   }
-  if (syncStatus === 'error') return { action: null, text: `השרת לא אישר את השמירה (אין חיבור, או שהשרת לא ענה). הפריט נשמר במכשיר ולא נמחק; אפשר ללחוץ שוב כדי לנסות.${code}` };
+  if (syncStatus === 'error') {
+    const reclaim = storageIssue === 'quota' && reclaimablePassiveJournals > 0;
+    return { action: reclaim ? 'reclaim' : null, text: `השרת לא אישר את השמירה (אין חיבור, או שהשרת לא ענה). ${memory ? held.replace(' לא נמחק דבר.', '') : 'הפריט נשמר במכשיר ולא נמחק;'} אפשר ללחוץ שוב כדי לנסות.${reclaim ? ` אפשר גם לפנות ${reclaimablePassiveJournals} יומני צפייה ישנים (לא נוגע בפריטים ששמרת).` : ''}${code}` };
+  }
   return saveFailureNotice(base);
 }

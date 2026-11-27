@@ -114,10 +114,12 @@ test("post 5144: full store -> the existing reclaim -> retry -> the server holds
   storage.limit = [...storage.map].reduce((n, [a, b]) => n + a.length + b.length, 0) + 1900;   // the new state record does not fit
   const f = make(srv, { storage, session }); await tick();
   assert.equal(f.runtime.getSnapshot().saved.some(x => x.id === post.id), true, "the earlier attempt is still on the device");
+  // CLOUD FIRST (stage 2): the full store no longer stops the send. The same immutable request goes from memory and meets the account's newer revision (409) straight away.
   assert.equal(await f.runtime.retry(), false);
   assert.equal(f.runtime.getSnapshot().storageIssue, "quota", "the real cause is named");
+  assert.equal(srv.calls.length, 1, "the full store did not stop the request");
+  assert.equal(f.runtime.getSnapshot().syncStatus, "conflict");
   assert.equal(phase(f.runtime, "failed"), "failed");
-  assert.equal(srv.calls.length, 0, "fail closed: nothing is sent without a durable journal");
   const dry = await f.runtime.localOnly("reclaim");
   assert.equal(dry.count, 12, "only abandoned passive journals are offered");
   assert.equal(storage.getItem(`${K}:pending:old0`) !== null, true, "the dry run clears nothing");
