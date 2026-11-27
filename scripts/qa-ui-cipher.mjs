@@ -31,7 +31,8 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
   for (const [profile, options] of [['desktop-1440', { viewport: { width: 1440, height: 900 } }], ['Pixel 7', devices['Pixel 7']]]) {
     const label = `ui-cipher ${profile}`;
     const member = await syntheticAccount(), t = await token(member);
-    const { context, page } = await newSignedIn(options, member);
+    // DIAGNOSTIC: the service worker is blocked for this scenario to learn whether it holds the engine iframe
+    const { context, page } = await newSignedIn({ ...options, serviceWorkers: process.env.QA_SW === 'allow' ? 'allow' : 'block' }, member);
     const trace = [];
     page.on('response', (r) => { if (r.status() >= 400) trace.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
