@@ -13,7 +13,7 @@ import { createAuthServer } from './authContractHarness.mjs';
 const root = fileURLToPath(new URL('../..', import.meta.url));
 export const dist = resolve(root, 'public-reading-deploy/dist');
 const SUPABASE_HOST = 'linswmnnkjxvweumprav.supabase.co';
-const TYPES = { '.js': 'application/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.avif': 'image/avif', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
+const TYPES = { '.html': 'text/html; charset=utf-8', '.txt': 'text/plain; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.ttf': 'font/ttf', '.avif': 'image/avif', '.webp': 'image/webp', '.png': 'image/png', '.json': 'application/json', '.svg': 'image/svg+xml', '.webmanifest': 'application/manifest+json' };
 
 // Storage media for the transport regression (public-media-transport-2029.browser.mjs): real files from the repository and a
 // generated PCM tone, answered with HTTP Range/206 exactly like Storage, under public, rendition and signed paths. Every storage
@@ -121,7 +121,9 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
         return send(url.pathname.startsWith('/rest/v1/') ? 200 : 404, 'application/json', url.pathname.startsWith('/rest/v1/') ? '[]' : '{}', cors);
       }
       if (url.pathname === '/sw.js') { state.workerFetches++; return send(200, 'application/javascript', state.worker === 'good' ? goodWorker : staleWorker, { 'service-worker-allowed': '/' }); }
-      if (/^\/(assets|fonts|brand|backgrounds|cards|cipher-cards)\//.test(url.pathname) || url.pathname === '/site.webmanifest' || url.pathname === '/favicon.ico') {
+      if (/^\/(assets|fonts|brand|backgrounds|cards|cipher-cards)\//.test(url.pathname) || url.pathname === '/site.webmanifest' || url.pathname === '/favicon.ico'
+        // the ELS engine page (loaded in an iframe, as production serves it) and its lazy dictionary are static files of the artifact, not documents of the app
+        || url.pathname === '/tzofen.html' || url.pathname === '/els-dynamic-lexicon-v1.gz64.txt') {
         const file = resolve(dist, '.' + url.pathname);
         if (!file.startsWith(dist + '/')) return send(400, 'text/plain', 'bad');
         const customStatic = staticAsset ? await staticAsset({ url, path: url.pathname }) : null;

@@ -26,6 +26,9 @@ function config() {
 }
 
 import { runP1 } from './qa-scenarios-p1.mjs';
+import { runMessagesUi } from './qa-ui-messages.mjs';
+import { runNotificationsUi } from './qa-ui-notifications.mjs';
+import { runElsVerify, runCipherUi } from './qa-ui-cipher.mjs';
 
 async function syntheticAccount({ origin, service }, role = 'member') {
   const email = `qa-${role}-${randomBytes(6).toString('hex')}@qa.invalid`, password = randomBytes(18).toString('base64url');
@@ -54,10 +57,15 @@ async function tiers({ origin, anon, service }, owner, browserOpen) {
 
   const admin = await syntheticAccount({ origin, service }, 'admin'), stranger = await syntheticAccount({ origin, service });
   const [member, adminToken, strangerToken] = [await login(owner), await login(admin), await login(stranger)];
-  const save = (title, token, isPublic) => rpc('save_els_matrix', { p_term: 'שלום', p_scope: 'torah', p_skip: 7, p_direction: 'fwd', p_positions: { findings: [{ t: 'שלום' }] }, p_title: title, p_note: 'QA synthetic', p_public: isPublic, p_start_index: 100 + title.length }, token);
+  // Real occurrences of the existing corpus (the engine's own goldens): publishing goes through the real truth gate read from production, which replays the coordinates.
+  const GOLDENS = [{ term: 'תורהקדשה', skip: 10065, dir: 'fwd', start: 50890 }, { term: 'אליהו', skip: 1820, dir: 'fwd', start: 27914 }, { term: 'אליהו', skip: 1820, dir: 'back', start: 37550 }];
+  let goldenIndex = 0;
+  const save = (title, token, isPublic) => { const g = GOLDENS[goldenIndex++ % GOLDENS.length]; return rpc('save_els_matrix', { p_term: g.term, p_scope: 'torah', p_skip: g.skip, p_direction: g.dir, p_positions: { findings: [{ t: g.term }] }, p_title: title, p_note: 'QA synthetic', p_public: isPublic, p_start_index: g.start }, token); };
   const library = async () => (await rows('els_records?select=id&status=eq.published&visibility=eq.public')).length;
   const baseline = await library();
 
+  const invented = await rpc('save_els_matrix', { p_term: 'תורהקדשה', p_scope: 'torah', p_skip: 10065, p_direction: 'fwd', p_positions: { findings: [] }, p_title: 'QA מומצא', p_note: 'QA synthetic', p_public: true, p_start_index: 50891 }, member);
+  check(invented.status >= 400 && /els_publish_gate/.test(JSON.stringify(invented.body)), 'publishing an invented coordinate is refused by the real truth gate', `status=${invented.status}`);
   // 1. private: the owner reads it, nobody else does
   const saved = await save('QA פרטי', member, false);
   const id = saved.body;
@@ -106,6 +114,18 @@ const { chromium, devices } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch({ args: fixture.chromiumArgs, env: fixture.browserEnv });
 let failed = false;
 
+// One signed-in browser context for a synthetic account, through the real login form (the same steps the login scenario proves).
+const newSignedIn = async (options, who) => {
+  const context = await browser.newContext({ ...options, locale: 'he-IL' });
+  const page = await context.newPage();
+  await page.goto('https://sod1820.co.il/login?returnTo=%2Flogin', { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await page.getByRole('button', { name: 'כניסה עם סיסמה', exact: true }).click({ timeout: 25000 });
+  await page.getByRole('textbox', { name: 'כתובת מייל' }).fill(who.email, { timeout: 15000 });
+  await page.getByLabel('סיסמה', { exact: true }).fill(who.password, { timeout: 15000 });
+  await page.getByRole('button', { name: /כניסה לחשבון/ }).click({ timeout: 15000 });
+  await page.waitForFunction(({ key, id }) => JSON.parse(localStorage.getItem(key) || 'null')?.user?.id === id, { key: `sb-${PRODUCTION_REF}-auth-token`, id: who.id }, { timeout: 25000 });
+  return { context, page };
+};
 const browserOpen = async (slug, title, shouldShow) => {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'he-IL' });
   try {
@@ -140,6 +160,10 @@ try {
     } finally { await context.close(); }
   }
   try { await runP1({ ...settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'p1: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runMessagesUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-messages: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runNotificationsUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-notifications: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runElsVerify({ settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'els-verify: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runCipherUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-cipher: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await tiers(settings, account, browserOpen); } catch (error) { failed = true; note(false, 'tiers: flow', String(error.message).split('\n')[0].slice(0, 160)); }
 } finally { await browser.close(); }
 const reachedLocalBackend = fixture.state.proxied.length > 0 && fixture.state.proxied.every(entry => entry.path.startsWith('/auth/v1/') || entry.path.startsWith('/rest/v1/') || entry.path.startsWith('/functions/v1/') || entry.path.startsWith('/storage/v1/'));

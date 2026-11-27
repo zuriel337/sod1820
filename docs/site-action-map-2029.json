@@ -131,7 +131,6 @@
     "מה זה? — חדש כאן? מה עושים בפוסט הזה?",
     "מלח",
     "מלך ישראל",
-    "מעבר להודעה",
     "מעקב ייפתח בהמשך",
     "מעקבים והתראות אינם פעילים בגרסת הקריאה",
     "ניסיון נוסף",
@@ -269,13 +268,13 @@
     "test/doc37-mixed-page-readiness.test.mjs",
     "test/doc37-series-layout-stability.browser.mjs",
     "test/doc37-series-layout-stability.test.mjs",
+    "test/edge-security-probe-20261126.test.mjs",
     "test/footer-2029.test.mjs",
     "test/group-sources-now-2029.test.mjs",
     "test/home-live-updates-2029.test.mjs",
     "test/measurement-hebrew-path-20261118.test.mjs",
     "test/measurement-page-view-once-2029.test.mjs",
-    "test/measurement-visit-once-2029.browser.mjs",
-    "test/post-document-freshness.test.mjs"
+    "test/measurement-visit-once-2029.browser.mjs"
    ]
   },
   {
@@ -392,6 +391,7 @@
     "test/home-context-code-admission-2029.test.mjs",
     "test/index-review-20261118.test.mjs",
     "test/number-address-canonical-2029.test.mjs",
+    "test/number-phrase-document-reads-2029.test.mjs",
     "test/old-journey-410-2029.test.mjs",
     "test/public-canonical-parity-repair.test.mjs",
     "test/public-launch-seo-gates.test.mjs",
@@ -722,10 +722,10 @@
     "test/community-calculator-runtime-2029.test.mjs",
     "test/community-single-emblem-2029.browser.mjs",
     "test/content-first-2029.test.mjs",
+    "test/edge-security-probe-20261126.test.mjs",
     "test/finding-share-preview-2029.test.mjs",
     "test/first-words-2029.test.mjs",
-    "test/footer-2029.test.mjs",
-    "test/home-pinned-lead-early-2029.test.mjs"
+    "test/footer-2029.test.mjs"
    ]
   },
   {
@@ -874,7 +874,6 @@
     "העתק קישור",
     "חזרה לשיחה",
     "לכל השיחות",
-    "מעבר להודעה",
     "ניסיון נוסף",
     "ניקוי הסינון",
     "ניקוי עיצוב",
@@ -1024,6 +1023,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1065,6 +1065,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1104,6 +1105,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1143,6 +1145,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1185,6 +1188,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1223,6 +1227,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1265,6 +1270,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1303,6 +1309,7 @@
     "community_feed_page_v2",
     "community_reply_counts",
     "community_thread_updates",
+    "ingest_event",
     "notification_prefs_guest_get_v1"
    ],
    "writes": [
@@ -1920,6 +1927,7 @@
     "תלת־ממד"
    ],
    "tests": [
+    "test/edge-security-probe-20261126.test.mjs",
     "test/now-pulse-line-2029.test.mjs",
     "test/public-menu-sections-2029.test.mjs",
     "test/weekly-trend-2029.test.mjs"
@@ -2937,7 +2945,6 @@
     "העתק קישור",
     "הפעל התראות",
     "חזרה לשיחה",
-    "מעבר להודעה",
     "מעקב ייפתח בהמשך",
     "מעקבים והתראות אינם פעילים בגרסת הקריאה",
     "ניסיון נוסף",
@@ -2965,12 +2972,12 @@
     "test/community-first-upload-lazy-storage-2029.browser.mjs",
     "test/community-single-emblem-2029.browser.mjs",
     "test/community1187-loading.browser.cjs",
+    "test/edge-security-probe-20261126.test.mjs",
     "test/first-words-2029.test.mjs",
     "test/footer-2029.test.mjs",
     "test/gilui-yomi-now-discussion-2029.test.mjs",
     "test/home-atmosphere-preload-2029.test.mjs",
-    "test/home-pinned-lead-early-2029.test.mjs",
-    "test/home-preview-binding-hosted-2029.browser.mjs"
+    "test/home-pinned-lead-early-2029.test.mjs"
    ]
   },
   {
@@ -3564,6 +3571,7 @@
    "tests": [
     "test/community-calculator-continuity-2029.test.mjs",
     "test/dock-more-2029.test.mjs",
+    "test/edge-security-probe-20261126.test.mjs",
     "test/els-2029-classic-faithful-port.test.mjs",
     "test/els-2029-matrix-profile-switch.test.mjs",
     "test/els-2029-raziel-consumer.test.mjs",
@@ -3572,8 +3580,7 @@
     "test/els-2029-visual-representation.test.mjs",
     "test/els-action-telemetry-sql.test.mjs",
     "test/els-background-research.browser.test.mjs",
-    "test/els-capability-register.test.mjs",
-    "test/els-guided-discovery.test.mjs"
+    "test/els-capability-register.test.mjs"
    ]
   },
   {
@@ -4128,7 +4135,6 @@
     "הפעל התראות",
     "הפעלת התראות בדפדפן",
     "חזרה לשיחה",
-    "מעבר להודעה",
     "מעקב ייפתח בהמשך",
     "מעקבים והתראות אינם פעילים בגרסת הקריאה",
     "ניסיון נוסף",
@@ -4526,6 +4532,7 @@
     "🔔 או קבלו התראות מיידיות בדפדפן"
    ],
    "tests": [
+    "test/admitted-numbers-2029.test.mjs",
     "test/ahavat-count-spatial-source-2029.browser.test.mjs",
     "test/ahavat-letter-spatial-acceptance-2029.browser.test.mjs",
     "test/ahavat-torah-book-completion-native-2029.browser.test.mjs",
@@ -4536,8 +4543,7 @@
     "test/books-wide-dual-experience-2029.browser.test.mjs",
     "test/central-els-hint-media-world-2029.browser.test.mjs",
     "test/ci-workflow-references-exist.test.mjs",
-    "test/els-background-research.browser.test.mjs",
-    "test/els-home-card-2029.browser.mjs"
+    "test/els-background-research.browser.test.mjs"
    ]
   }
  ],
@@ -5511,6 +5517,14 @@
     "/category/:slug",
     "/community",
     "/community/calculator",
+    "/community/researchers",
+    "/members",
+    "/community/comments",
+    "/forum",
+    "/forum/:id",
+    "/or-geula",
+    "/or-geula/video/:id",
+    "/contact",
     "/codes",
     "/codes/:slug",
     "/2029/home-preview",
@@ -5754,10 +5768,10 @@
     "test/gallery-source-findings-one-tree-2029.browser.mjs",
     "test/home-preview-binding-hosted-2029.browser.mjs",
     "test/number-parallel-projection-2029.test.mjs",
+    "test/number-phrase-document-reads-2029.test.mjs",
     "test/number-projection-shared-reads-2029.test.mjs",
     "test/reality-river-integrated-preview.browser.mjs",
-    "test/unified-2029-hosted-readonly.browser.mjs",
-    "tests/g4-public-core-release.spec.cjs"
+    "test/unified-2029-hosted-readonly.browser.mjs"
    ]
   },
   "record_referral": {
@@ -5997,10 +6011,10 @@
     "test/home-loading-preview-continuity-2029.test.mjs",
     "test/number-fullpage-transitions-2029.browser.cjs",
     "test/number-loading-mobile-2029.browser.cjs",
+    "test/number-phrase-document-reads-2029.test.mjs",
     "test/number-progressive-material-2029.browser.cjs",
     "test/public-canonical-parity-repair.test.mjs",
-    "test/public-reading-production-artifact.test.mjs",
-    "test/public-world-loading-2029.browser.cjs"
+    "test/public-reading-production-artifact.test.mjs"
    ]
   },
   "is_phrase_indexable": {
@@ -6013,10 +6027,10 @@
     "test/home-loading-preview-continuity-2029.test.mjs",
     "test/number-fullpage-transitions-2029.browser.cjs",
     "test/number-loading-mobile-2029.browser.cjs",
+    "test/number-phrase-document-reads-2029.test.mjs",
     "test/number-progressive-material-2029.browser.cjs",
     "test/public-canonical-parity-repair.test.mjs",
-    "test/public-reading-production-artifact.test.mjs",
-    "test/public-url-continuity-2029.test.mjs"
+    "test/public-reading-production-artifact.test.mjs"
    ]
   },
   "lang_links_list": {
@@ -6542,7 +6556,7 @@
    "routesWithAnyTest": 2,
    "rpcs": 49,
    "tableWrites": 31,
-   "buttonLabels": 70
+   "buttonLabels": 69
   },
   "posts": {
    "routes": 9,
@@ -6570,7 +6584,7 @@
    "routesWithAnyTest": 9,
    "rpcs": 46,
    "tableWrites": 31,
-   "buttonLabels": 118
+   "buttonLabels": 115
   },
   "services": {
    "routes": 5,

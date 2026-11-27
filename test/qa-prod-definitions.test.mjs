@@ -23,11 +23,11 @@ test('no data and no secret in the definitions', () => {
   assert.ok(!/@gmail\.com|@(?!x\.test)[a-z0-9-]+\.(co\.il|com)\b.*(insert|values)/i.test(text), 'no personal address');
 });
 
-test('scope: tables and functions of the first families only, triggers whose function is outside the scope are excluded by the generator', () => {
+test('scope: tables and functions of the extracted families only (messages, notifications, counters and the ELS verification path), triggers whose function is outside the scope are excluded by the generator', () => {
   const fns = objects.filter((o) => o.kind === 'function').map((o) => /^public\.(\w+)\(/.exec(o.name)[1]).sort();
-  assert.deepEqual(fns, ['dm_inbox', 'dm_send', 'dm_thread', 'notify_on_dm', 'push_subscription_delete_v1', 'push_subscription_upsert_v1', 'view_count']);
+  assert.deepEqual(fns, ['ai_quota_check',  'dm_inbox',  'dm_send',  'dm_thread',  'edge_rate_limit_check',  'els_publish_truth_gate_v1',  'els_slugify',  'els_stream_letters_v1',  'els_stream_relation_v1',  'els_verify_batch_core_v1',  'els_verify_batch_v1',  'els_verify_occurrence_v1',  'fn_capability_execution_gate_v1',  'fn_els_corpus_id',  'fn_els_term_norm',  'fn_user_entitlement',  'notify_on_dm',  'op_trace_begin_v1',  'op_trace_finish_v1',  'op_trace_record_span_v1',  'push_subscription_delete_v1',  'push_subscription_upsert_v1',  'view_count']);
   const tables = objects.filter((o) => o.kind === 'table').map((o) => o.name).sort();
-  assert.deepEqual(tables, ['public.direct_messages', 'public.notification_prefs', 'public.page_views', 'public.push_subscriptions', 'public.user_activity', 'public.user_notifications', 'public.users']);
+  assert.deepEqual(tables, ['private.edge_rate_limit_buckets',  'public.ai_usage',  'public.direct_messages',  'public.els_records',  'public.notification_prefs',  'public.op_trace_roots',  'public.op_trace_spans',  'public.page_views',  'public.profiles',  'public.push_subscriptions',  'public.site_flags',  'public.tanakh_stream',  'public.torah_stream',  'public.user_activity',  'public.user_notifications',  'public.users']);
 });
 
 test('the parity query uses the same extraction text, and the generator output is reproducible', () => {

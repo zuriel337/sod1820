@@ -111,22 +111,53 @@
     },
     {
      "id": "ciphers.save.ui",
-     "label": "שמירה דרך ממשק המטריצה והמנוע",
+     "label": "שמירת צופן אמיתי דרך המטריצה (חיפוש, אימות בפונקציית ה־Edge האמיתית, שמירה) במחשב ובפיקסל 7",
      "role": "member",
-     "results": [],
-     "blocker": "the engine verifies every occurrence through a server RPC that the isolated stack does not have"
+     "results": [
+      "ui-cipher desktop-1440: the matrix page opens",
+      "ui-cipher desktop-1440: searching a word verifies",
+      "ui-cipher desktop-1440: the saved cipher is created",
+      "ui-cipher desktop-1440: the saved row exists",
+      "ui-cipher desktop-1440: a stranger cannot read it",
+      "ui-cipher Pixel 7: the matrix page opens",
+      "ui-cipher Pixel 7: searching a word verifies",
+      "ui-cipher Pixel 7: the saved cipher is created",
+      "ui-cipher Pixel 7: the saved row exists",
+      "ui-cipher Pixel 7: a stranger cannot read it"
+     ]
     },
     {
      "id": "ciphers.reopen.ui",
-     "label": "פתיחה מחדש מהספרייה האישית אחרי רענון",
+     "label": "פתיחה מחדש של הצופן השמור אחרי רענון (מחשב ופיקסל 7)",
      "role": "member",
-     "results": []
+     "results": [
+      "ui-cipher desktop-1440: after a reload the saved cipher is listed",
+      "ui-cipher Pixel 7: after a reload the saved cipher is listed"
+     ]
     },
     {
      "id": "ciphers.share",
      "label": "שיתוף קישור צופן",
      "role": "member+guest",
      "results": []
+    },
+    {
+     "id": "ciphers.verify.edge",
+     "label": "פונקציית האימות הקיימת (Edge + SQL) על הקורפוס הקיים",
+     "role": "member",
+     "results": [
+      "els-verify: the real edge function accepts",
+      "els-verify: a wrong corpus identity",
+      "els-verify: a single occurrence replays"
+     ]
+    },
+    {
+     "id": "ciphers.truth-gate",
+     "label": "שער האמת האמיתי: פרסום עם קואורדינטה מומצאת נדחה",
+     "role": "member",
+     "results": [
+      "tiers: publishing an invented coordinate is refused"
+     ]
     }
    ]
   },
@@ -289,10 +320,22 @@
     },
     {
      "id": "messages.ui",
-     "label": "שליחה וקריאה דרך ממשק האזור האישי",
+     "label": "לחיצות בממשק: סימון על תמונת הפרופיל, פתיחת שיחה, תשובה ורענון (מחשב ופיקסל 7)",
      "role": "member x2",
-     "results": [],
-     "blocker": "UI flow not written yet: the personal-area route needs more of the production schema"
+     "results": [
+      "ui-messages desktop-1440: the unread mark on the profile picture counts",
+      "ui-messages desktop-1440: pressing the picture opens the messages",
+      "ui-messages desktop-1440: the conversation shows the sender",
+      "ui-messages desktop-1440: opening the conversation shows both messages",
+      "ui-messages desktop-1440: a reply is sent through the box",
+      "ui-messages desktop-1440: after a reload the conversation",
+      "ui-messages Pixel 7: the unread mark on the profile picture counts",
+      "ui-messages Pixel 7: pressing the picture opens the messages",
+      "ui-messages Pixel 7: the conversation shows the sender",
+      "ui-messages Pixel 7: opening the conversation shows both messages",
+      "ui-messages Pixel 7: a reply is sent through the box",
+      "ui-messages Pixel 7: after a reload the conversation"
+     ]
     }
    ]
   },
@@ -355,10 +398,31 @@
     },
     {
      "id": "notifications.ui",
-     "label": "תג ההתראות וסימון קריאה בממשק",
+     "label": "תג ההתראות על התמונה יורד אחרי קריאה, וההתראה השמורה נקראת (מחשב ופיקסל 7)",
      "role": "member",
-     "results": [],
-     "blocker": "UI flow not written yet"
+     "results": [
+      "ui-messages desktop-1440: the unread mark on the profile picture counts",
+      "ui-messages desktop-1440: the mark disappears and the database shows nothing unread",
+      "ui-messages Pixel 7: the unread mark on the profile picture counts",
+      "ui-messages Pixel 7: the mark disappears and the database shows nothing unread"
+     ]
+    },
+    {
+     "id": "notifications.page",
+     "label": "דף ההתראות: רשימה, ״סמן הכול כנקרא״ רק לבעלים, התג יורד ונשאר אחרי רענון (מחשב ופיקסל 7)",
+     "role": "member x2",
+     "results": [
+      "ui-notifications desktop-1440: the mark on the profile picture counts the two replies",
+      "ui-notifications desktop-1440: pressing the picture opens the notifications",
+      "ui-notifications desktop-1440: \"mark all as read\" reads",
+      "ui-notifications desktop-1440: the mark leaves the picture",
+      "ui-notifications desktop-1440: after a reload nothing is unread",
+      "ui-notifications Pixel 7: the mark on the profile picture counts the two replies",
+      "ui-notifications Pixel 7: pressing the picture opens the notifications",
+      "ui-notifications Pixel 7: \"mark all as read\" reads",
+      "ui-notifications Pixel 7: the mark leaves the picture",
+      "ui-notifications Pixel 7: after a reload nothing is unread"
+     ]
     }
    ]
   },

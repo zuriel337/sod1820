@@ -35,13 +35,23 @@ jobs:
         run: |
           npm install --no-save --no-audit --no-fund playwright@1.64.1
           npx playwright install --with-deps chromium
-      - name: Local Supabase (throwaway, Docker)
+      - name: Local Supabase (throwaway, Docker) with the existing ELS verification function
         run: |
           node scripts/build-qa-prod-definitions.mjs
           node scripts/build-qa-schema.mjs
-          npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,edge-runtime,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
+          node scripts/build-qa-corpus.mjs
+          # The real Edge Function the site calls to verify every occurrence is served by the local edge runtime, from the repository's own file (a copy made at job time, not committed).
+          mkdir -p qa/supabase/functions/els-search-bridge
+          cp supabase/functions/els-search-bridge/index.ts qa/supabase/functions/els-search-bridge/index.ts
+          npx --yes supabase@3.4.0 start --workdir qa -x studio,imgproxy,logflare,vector,realtime,storage-api,mailpit,postgres-meta,supavisor
           npx --yes supabase@3.4.0 status --workdir qa -o env > "$RUNNER_TEMP/qa.env"
           echo "status variables: $(cut -d= -f1 "$RUNNER_TEMP/qa.env" | tr '\n' ' ')"
+          set -a; . "$RUNNER_TEMP/qa.env"; set +a
+          # the existing Torah corpus (public text) into the QA database
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -q -c "\\copy public.torah_stream(idx,ch) from 'qa/corpus/torah.csv' csv"
+          psql "$DB_URL" -At -c "select count(*) from public.torah_stream" | sed 's/^/torah_stream rows: /'
+          # QA configuration (not user data): the availability flag the edge function names is present and open, as on a live site
+          psql "$DB_URL" -v ON_ERROR_STOP=1 -q -c "insert into public.site_flags(key, enabled, message, mode) values ('lock_els', false, null, 'all') on conflict (key) do nothing"
       - name: QA check (login and the three publication tiers against the local backend)
         run: |
           set -a; . "$RUNNER_TEMP/qa.env"; set +a
