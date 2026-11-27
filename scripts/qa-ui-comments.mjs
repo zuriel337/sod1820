@@ -79,7 +79,9 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
       });
       await step('pressing like stores one like, pressing dislike stores one dislike, and the buttons show the counts', async () => {
         await likeButton().first().click({ timeout: 15000 });
-        const replay = await rpc('toggle_contribution_reaction', { p_id: ownId, p_emoji: '👍', p_visitor: 'community-repeatable-like' }, tb);
+        // a different, throwaway comment: the replay must never change the counters this step asserts on
+        const probe = await add(`בדיקת חיווט ${profile} ${tag}`, ta);
+        const replay = await rpc('toggle_contribution_reaction', { p_id: probe, p_emoji: '👍', p_visitor: 'community-repeatable-like' }, tb);
         reactionCalls.push(`replay with the member token from outside the page: ${replay.status} ${JSON.stringify(replay.body).slice(0, 70)}`);
         const liked = await until(() => row(ownId), (r) => r?.reactions?.community_likes === 1);
         if (liked?.reactions?.community_likes !== 1) throw new Error(`stored likes ${liked?.reactions?.community_likes}`);
