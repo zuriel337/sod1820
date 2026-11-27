@@ -123,4 +123,43 @@ check "$(Q -c "select count(*) from public.events where surface='issue_report'")
 check "$(Q -c "select count(*) from public.feedback where context='issue_report_migrated' and detail in ('טקסט ראשון','טקסט שני')")" 2 '05: every message is in the support store first'
 F "$DIR/05-scrub-issue-report-text.sql"; pass=$((pass+1)); echo 'PASS 05: a second run is a no-op'
 check "$(Q -c "select count(*) from public.feedback where context='issue_report_migrated'")" 2 '05: nothing is copied twice'
+# ---------- 06: reliability watch counts support reports, never reads their text (stub with the live tail and anchor) ----------
+Q <<'SQL'
+create table public.work_log(session_date date, topic text, what_we_did text, status text, open_threads text, created_at timestamptz default now());
+create function public.notify_admin(text) returns void language sql as 'select 1';
+create function public.fn_reliability_watch() returns void language plpgsql as $function$
+declare
+  r record;
+  v_fp text;
+begin
+  begin
+    for r in
+      select 1 from public.events
+      where ts > now() - interval '60 minutes'
+        and not coalesce(is_bot, false)
+        and (surface = 'runtime_error' or event_type = 'issue_report')
+    loop
+      null;
+    end loop;
+  exception when others then null;
+  end;
+end;
+$function$;
+SQL
+FW='public.fn_reliability_watch()'
+W0=$(Q -c "select md5(pg_get_functiondef('$FW'::regprocedure))")
+sed "s/db5e1827ba3128023f992456778aacbe/$W0/g" "$DIR/06-reliability-watch-support-reports.sql" > "$TMP/06.sql"
+sed "s/db5e1827ba3128023f992456778aacbe/$W0/g" "$DIR/06-reliability-watch-support-reports.rollback.sql" > "$TMP/06.rb.sql"
+check "$(grep -c db5e1827ba3128023f992456778aacbe "$DIR/06-reliability-watch-support-reports.sql")" 2 '06: the committed file pins the live md5'
+F "$TMP/06.sql"
+check "$(Q -c "select position('(c) support reports' in pg_get_functiondef('$FW'::regprocedure))>0")" t '06 applies under real psql'
+Q -c "insert into public.feedback(context,verdict,detail,created_at) values ('issue_report','reported','סיסמה סודית 12345',now()),('issue_report','reported','עוד טקסט פרטי',now())"
+Q -c "select public.fn_reliability_watch()" >/dev/null
+check "$(Q -c "select count(*) from public.work_log where topic like '%דיווחי תקלה חוזרים%'")" 1 '06: two reports in an hour raise one alert'
+check "$(Q -c "select count(*) from public.work_log where what_we_did like '%סיסמה%' or what_we_did like '%טקסט פרטי%'")" 0 '06: the alert counts reports and never carries their text'
+Q -c "select public.fn_reliability_watch()" >/dev/null
+check "$(Q -c "select count(*) from public.work_log where topic like '%דיווחי תקלה חוזרים%'")" 1 '06: the alert is deduplicated for 6 hours'
+F "$TMP/06.sql"; pass=$((pass+1)); echo 'PASS 06: a second apply is a no-op'
+F "$TMP/06.rb.sql"
+check "$(Q -c "select md5(pg_get_functiondef('$FW'::regprocedure))")" "$W0" '06 rollback restores the exact text'
 echo "ALL PASS ($pass)"

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getGaInsights, getVercelInsights, getSearchConsole } from "../../lib/visits.js";
 import SiteActivity2029 from "./SiteActivity2029.jsx";
+import DomainActions2029 from "./DomainActions2029.jsx";
 import { get2029Analytics } from "../../lib/analytics2029.js";
 import { SPEED_MIN_SAMPLES, speedAttention, speedBuildLabel, speedFixState, speedMetricRows, speedReadTimes } from "../../lib/speedCentre2029.js";
 import { current_state_20261117 as consolidationNow } from "../../../docs/reviews/unified-performance-consolidation-20261031.json";
@@ -94,6 +95,7 @@ function OperationalMetricsBody({ principal, refreshToken, providersOpen }) {
 
   return <>
     <SiteActivity2029 data={rum.data?.site_activity} unavailable={rum.error || rum.loading} />
+    <DomainActions2029 />
     <section className="sod29-section" data-experience-capability="speed-centre" aria-label="מהירות וביצועים">
       <div className="sod29-section-head">
         <div><div className="sod29-kicker">SPEED · מרכז הבקרה</div><h2>מהירות וביצועים</h2>
