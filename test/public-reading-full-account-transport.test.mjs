@@ -654,3 +654,39 @@ test('emitted worker: already-public storage media (one shared rule) loads nativ
  assert.equal(probe(S+'/object/public/media/a.mp4',{method:'POST'}),true);
  assert.equal(calls.length>0,true);
 });
+
+// ZURIEL 27.11.2026: the private search wall (21.11.2026) was blind for visitors because the worker did not admit log_search_2029 (it fell to the admin-only path).
+const SEARCH_ANON='anon-publishable-synthetic';
+const searchBody=Object.freeze({p_term:'גאולה',p_value:45,p_source:'gematria'});
+test('a visitor search reaches log_search_2029 with the public key only, no session and no identity',async()=>{
+ for(const jwt of [SEARCH_ANON,token()]){
+  const w=worker({role:'user',anonKey:SEARCH_ANON});
+  const r=await w.request('/rest/v1/rpc/log_search_2029',{body:searchBody,jwt,headers:{apikey:SEARCH_ANON}});
+  assert.equal(r.status,200);
+  const write=w.calls.find(req=>req.url.endsWith('/log_search_2029'));
+  assert.ok(write,'the write is forwarded');
+  assert.equal(write.headers.get('authorization'),'Bearer '+SEARCH_ANON,'a member session is never forwarded');
+  assert.equal(await write.clone().text(),JSON.stringify(searchBody));
+  assert.ok(!w.calls.some(req=>req.url===API+'/auth/v1/user'),'no account is probed');
+ }
+ for(const body of [{...searchBody,p_value:null},{...searchBody,p_source:'els',p_value:null},{p_term:'  מלך   ישראל ',p_value:null,p_source:'site'}]){
+  const w=worker({role:'user',anonKey:SEARCH_ANON});
+  assert.equal((await w.request('/rest/v1/rpc/log_search_2029',{body,jwt:SEARCH_ANON,headers:{apikey:SEARCH_ANON}})).status,200);
+ }
+});
+test('log_search_2029 admits only the exact shape and never extra fields, other sources, oversized text or a query string',async()=>{
+ for(const body of [{...searchBody,p_source:'home'},{...searchBody,p_source:undefined},{...searchBody,extra:1},{p_term:'א',p_source:'gematria'},{...searchBody,p_term:''},{...searchBody,p_term:'!!!'},
+   {...searchBody,p_term:'א'.repeat(121)},{...searchBody,p_value:-1},{...searchBody,p_value:10000000},{...searchBody,p_value:1.5},{...searchBody,p_value:'45'},{...searchBody,p_term:45}]){
+  const w=worker({role:'user',anonKey:SEARCH_ANON});
+  assert.equal((await w.request('/rest/v1/rpc/log_search_2029',{body,jwt:SEARCH_ANON,headers:{apikey:SEARCH_ANON}})).status,403,JSON.stringify(body).slice(0,70));
+  assert.ok(!w.calls.some(req=>req.url.endsWith('/log_search_2029')));
+ }
+ const w=worker({role:'user',anonKey:SEARCH_ANON});
+ assert.equal((await w.request('/rest/v1/rpc/log_search_2029?select=*',{body:searchBody,jwt:SEARCH_ANON,headers:{apikey:SEARCH_ANON}})).status,403);
+ const none=worker({role:'user'});
+ assert.equal((await none.request('/rest/v1/rpc/log_search_2029',{body:searchBody,jwt:SEARCH_ANON})).status,403,'without a configured public key nothing is forwarded');
+ // the reader stays admin-only: a visitor can not read the wall
+ const reader=worker({role:'user',anonKey:SEARCH_ANON});
+ assert.equal((await reader.request('/rest/v1/rpc/admin_search_wall_2029',{body:{p_limit:50,p_source:null,p_query:null,p_before:null},jwt:SEARCH_ANON,headers:{apikey:SEARCH_ANON}})).status,403);
+ assert.ok(!reader.calls.some(req=>req.url.endsWith('/admin_search_wall_2029')));
+});

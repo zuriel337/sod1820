@@ -596,6 +596,19 @@ function installPublicReadingWorker(policy) {
         // Guest community publishing: no account is involved, the server enforces the
         // limits (kill switch, per-address rate, text only). Only the exact anonymous
         // request shape is forwarded, always with the public key; any session token is refused.
+        // Private search wall writer (ZURIEL 21.11.2026: what visitors type is kept, shown to admins only, no identity). The database function and the client writer
+        // exist; without this branch a visitor's call fell to the admin-only fallback below, so only an administrator's own searches ever reached the wall.
+        // Only the exact shape is forwarded, always with the public key (a member's session token is dropped: nothing identifies the writer).
+        if (rpc === "log_search_2029" && !url.search) {
+          const key = policy.anonKey || "";
+          if (!key) return denied();
+          const body = await jsonBody(req);
+          const term = typeof body.p_term === "string" ? body.p_term.replace(/\s+/g, " ").trim() : "";
+          if (Object.keys(body).sort().join(",") !== "p_source,p_term,p_value" || !["gematria", "els", "site"].includes(body.p_source)
+            || !term || Array.from(term).length > 120 || !/[א-תA-Za-z0-9]/.test(term)
+            || !(body.p_value === null || Number.isSafeInteger(body.p_value) && body.p_value >= 0 && body.p_value <= 9999999)) return denied();
+          return readFetch(new Request(req, { headers: { apikey: key, Authorization: "Bearer " + key, "Content-Type": "application/json" } }));
+        }
         if (rpc === "add_guest_community_message" && !url.search) {
           const key = policy.anonKey || "";
           if (!key) return denied();
