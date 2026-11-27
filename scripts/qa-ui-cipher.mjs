@@ -42,13 +42,22 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       window.__msgs = [];
       window.addEventListener('message', (e) => { const d = e.data; if (d && typeof d === 'object' && d.type) window.__msgs.push(`${d.type}${d.status ? ':' + d.status : ''}${d.phase ? '/' + d.phase : ''}${d.found != null ? '#' + d.found : ''}${d.op ? ' ' + d.op : ''}`.slice(0, 60)); if (window.__msgs.length > 400) window.__msgs.shift(); });
     });
+    // requests that started and never finished: the one that holds the engine boot, if any
+    const pending = new Map();
+    page.on('request', (r) => pending.set(r, r.url()));
+    for (const event of ['requestfinished', 'requestfailed']) page.on(event, (r) => pending.delete(r));
+    const engineFrame = async () => {
+      const frame = page.frames().find((f) => f.url().includes('/tzofen.html'));
+      if (!frame) return 'no engine frame';
+      return JSON.stringify(await frame.evaluate(() => ({ ready: document.readyState, text: (document.body?.innerText || '').slice(0, 120), scripts: document.scripts.length, search: !!document.querySelector('#q, input'), out: (document.querySelector('#out')?.innerText || '').slice(0, 80) })).catch((e) => String(e.message).slice(0, 60)));
+    };
     const logs = [];
     page.on('console', (m) => { if (['error', 'warning'].includes(m.type())) logs.push(`${m.type()}: ${m.text().slice(0, 110)}`); });
     page.on('requestfailed', (r) => logs.push(`reqfailed ${r.failure()?.errorText || ''} ${r.url().slice(0, 90)}`));
     page.on('framenavigated', (f) => { if (f !== page.mainFrame()) logs.push(`frame ${f.url().slice(0, 80)}`); });
     const notes = async () => (await page.locator('[role=alert], [role=status], .els29-native-notice').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).map((n) => (n.textContent || '').trim().slice(0, 90)))).join(' / ');
     const dump = async () => (await page.getByRole('button').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).slice(0, 40).map((n) => (n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 24)))).join(' | ');
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | edge: ${edgeCalls.slice(-6).join(', ') || 'no call'} | msgs: ${await page.evaluate(() => { const m = window.__msgs || []; const c = {}; m.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.entries(c).slice(-12).map(([k, v]) => k + 'x' + v).join(','); }).catch(() => '')} | console: ${logs.filter((l) => !/404|Failed to load resource/.test(l)).slice(-5).join(' ; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 1500)); return false; } };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | edge: ${edgeCalls.slice(-6).join(', ') || 'no call'} | pending: ${[...pending.values()].filter((u) => !/\/rest\/v1\/|googleapis|favicon/.test(u)).slice(-5).map((u) => u.slice(0, 80)).join(' ; ') || 'none'} | engine: ${await engineFrame().catch(() => '')} | msgs: ${await page.evaluate(() => { const m = window.__msgs || []; const c = {}; m.forEach((x) => { c[x] = (c[x] || 0) + 1; }); return Object.entries(c).slice(-12).map(([k, v]) => k + 'x' + v).join(','); }).catch(() => '')} | console: ${logs.filter((l) => !/404|Failed to load resource/.test(l)).slice(-5).join(' ; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 1500)); return false; } };
     const title = `QA צופן ${profile}`;
     try {
       if (!await step('the matrix page opens with the existing engine ready', async () => {
