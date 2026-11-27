@@ -34,7 +34,7 @@ SQL
 for f in analytics_cache_producer_version_v1.fixture.sql analytics_cache_get_v1.fixture.sql; do { cat "$FIX/$f"; echo ';'; } | Q; done
 # --- fixture data: complete Jerusalem days; D1 = yesterday ---
 Q <<'SQL'
-insert into public.posts values (1,'public-post-with-a-very-long-slug-that-the-path-cuts','כותרת ציבורית','{"תג א"}','{"קטגוריה א"}'),(2,'draft-post','טיוטה','{"טיוטה"}','{}'),(3,'popular-post','פוסט פופולרי','{}','{}');
+insert into public.posts values (1,'public-post-with-a-very-long-slug-that-the-path-cuts','כותרת ציבורית','{"תג א"}','{"קטגוריה א"}'),(4,'one-visitor-post','פוסט של מבקר אחד','{}','{}'),(2,'draft-post','טיוטה','{"טיוטה"}','{}'),(3,'popular-post','פוסט פופולרי','{}','{}');
 insert into public.video_media_assets_v1 values ('0123456789abcdef0123456789abcdef',true);
 insert into public.crawl_daily values ((now() at time zone 'Asia/Jerusalem')::date-1,'Googlebot','/number',false,500),((now() at time zone 'Asia/Jerusalem')::date-1,'Googlebot','/number',true,9999);
 create or replace function pg_temp.cv(sess text, kind text, item text, n int default 1) returns void language sql as $$
@@ -49,6 +49,7 @@ create or replace function pg_temp.ev(sess text, path text, n int default 1) ret
 -- 30 human sessions on the home page (the window gate), single opens of admitted numbers, one popular post (10 opens / 5 sessions)
 select pg_temp.ev('h'||g,'/',1) from generate_series(1,30) g;
 select pg_temp.ev('h1','/number/10'),pg_temp.ev('h2','/number/20'),pg_temp.ev('h3','/number/20'),pg_temp.ev('h4','/number/99999'),pg_temp.ev('h5','/number/77');
+insert into public.events(ts,session_id,sod_id,surface,event_type,is_bot,props) select (((now() at time zone 'Asia/Jerusalem')::date-1)::timestamp + interval '12 hours') at time zone 'Asia/Jerusalem' + (g||' minutes')::interval, 'h'||(30+(g%5)), 'one-visitor', 'content','view', false, '{"_measurement_verified":2,"kind":"post","item_id":"4"}'::jsonb from generate_series(1,10) g;
 select pg_temp.cv('h1','post','1'),pg_temp.cv('h6','post','2'),pg_temp.cv('h7','post','<script>x'),pg_temp.cv('h8','post','999'),pg_temp.cv('h9','other','1');
 select pg_temp.cv('h'||g,'post','3',2) from generate_series(10,14) g;
 -- a post page view in the measured path must NOT create a post item (posts come from content/view)
@@ -74,7 +75,8 @@ check "$(j "#>>'{families,number,items}'")" 2 'numbers: only admitted public num
 check "$(j "#>>'{families,number,opens}'")" 3 'numbers: opens are counted per open'
 check "$(Q -c "select count(*) from jsonb_array_elements(('$J'::jsonb)#>'{families,number,list}') x where x->>'tier'='seen'")" 2 'single and double opens are listed (tier seen), not hidden by the popularity floor'
 check "$(Q -c "select count(*) from jsonb_array_elements(('$J'::jsonb)#>'{families,number,list}') x where (x->>'n')::int=60")" 0 'today is never in a settled window'
-check "$(j "#>>'{families,post,items}'")" 2 'posts: from content/view by exact id; public posts only (draft, crafted id, unknown id, other kind and a requested address are not listed)'
+check "$(j "#>>'{families,post,items}'")" 3 'posts: from content/view by exact id; public posts only (draft, crafted id, unknown id, other kind and a requested address are not listed)'
+check "$(Q -c "select count(*) from jsonb_array_elements(('$J'::jsonb)#>'{families,post,list}') x where x->>'title'='פוסט של מבקר אחד' and x->>'tier'='seen'")" 1 'VISITORS, NOT SESSIONS: one visitor with 5 sessions and 10 opens does not make a post popular'
 check "$(Q -c "select (('$J'::jsonb)#>'{families,post,list,0}')->>'tier'")" popular 'a post above the 10 events / 5 sessions floor is tier popular and first'
 check "$(Q -c "select count(*) from jsonb_array_elements(('$J'::jsonb)#>'{families,post,list}') x where x->>'title' in ('טיוטה') or x->>'href' like '%script%'")" 0 'no draft title and no crafted text on the public payload'
 check "$(j "#>>'{families,topic,items}'")" 2 'topics: a tag and a category that exist on public posts; an invented tag is not listed'

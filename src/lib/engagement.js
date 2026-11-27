@@ -3,7 +3,10 @@
 // בלי RPC חדש, בלי endpoint חדש. אושר ע"י צוריאל (ENGAGEMENT_TIME_V1_IMPLEMENTATION, 25.8.2026),
 // על בסיס אודיט read-only קודם (work_log actor=CLAUDE task=ENGAGEMENT_TIME_V1_READONLY_FOUNDATION_AUDIT).
 //
-// חוזה סמנטי (engagement_version=1, idle_threshold_ms=20000):
+// גרסה 2 (ZURIEL, 27.11.2026): אין זיכוי אוטומטי. בגרסה 1 lastActivityAt אותחל ל"עכשיו", ולכן 20 השניות הראשונות של כל דף גלוי נספרו
+// כ-engaged_ms גם בלי פעילות; גרסה 2 מתחילה לצבור engaged_ms רק אחרי פעילות אמיתית ראשונה (scroll/pointer/מקלדת/touch). הגרסה נשלחת
+// בכל אירוע, ושורות עבר (גרסה 1) אינן משוכתבות: המסווג מבחין ביניהן.
+// חוזה סמנטי (engagement_version=2, idle_threshold_ms=20000):
 //   visible_ms — רק זמן שבו document.visibilityState==='visible'. רקע לא נספר.
 //   engaged_ms — תת-קבוצה של visible_ms: רק כשהמשתמש היה פעיל (scroll/pointer/מקלדת/touch)
 //                בתוך IDLE_THRESHOLD_MS האחרונות. tab-open ≠ engaged, scroll ≠ engagement.
@@ -31,7 +34,7 @@ import { supabase, SUPABASE_URL, SUPABASE_ANON } from "./supabase.js";
 import { getSodId, appContext, sessionId } from "./identity.js";
 import { isBot } from "./events.js";
 
-export const ENGAGEMENT_VERSION = 1;
+export const ENGAGEMENT_VERSION = 2;
 export const IDLE_THRESHOLD_MS = 20000;
 const TICK_MS = 1000;
 const SCROLL_THROTTLE_MS = 200;
@@ -41,7 +44,8 @@ const RPC_URL = `${SUPABASE_URL}/rest/v1/rpc/ingest_event?apikey=${SUPABASE_ANON
 // לא נוגעת ב-document/window/navigator — כל הזמן מוזרק דרך now().
 export function createEngagementState({ now = Date.now, idleThresholdMs = IDLE_THRESHOLD_MS } = {}) {
   let visibleMs = 0, engagedMs = 0, maxScrollPct = 0;
-  let lastActivityAt = now();
+  // גרסה 2: אין פעילות עד שנרשמה פעילות אמיתית ראשונה (null), ולכן אין זיכוי של חלון ה-idle הראשון.
+  let lastActivityAt = null;
   let visible = true;
   let flushed = false;
   return {
@@ -54,7 +58,7 @@ export function createEngagementState({ now = Date.now, idleThresholdMs = IDLE_T
     tick(deltaMs = TICK_MS) {
       if (flushed || !visible) return;
       visibleMs += deltaMs;
-      if (now() - lastActivityAt < idleThresholdMs) engagedMs += deltaMs;
+      if (lastActivityAt !== null && now() - lastActivityAt < idleThresholdMs) engagedMs += deltaMs;
     },
     snapshot() {
       return {

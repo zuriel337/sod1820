@@ -111,4 +111,16 @@ check "$("$PG_BIN/psql" -h "$TMP" -p 54396 -U postgres -d postgres -qtAX -c "sel
 F "$TMP/01.sql"; pass=$((pass+1)); echo 'PASS 01 second apply is a no-op'
 F "$TMP/01.rb.sql"
 check "$(Q -c "select md5(pg_get_functiondef('$IE'::regprocedure))")" "$S0" '01 rollback restores the exact text'
+# ---------- 05: scrub of historical issue-report text (copy first, then remove; no event row deleted) ----------
+Q <<'SQL'
+create table public.feedback(id uuid default gen_random_uuid(), context text, verdict text, query text, target text, detail text, visitor_id text, meta jsonb, created_at timestamptz default now());
+alter table public.events add column event_id uuid default gen_random_uuid();
+insert into public.events(session_id,event_type,surface,props) values ('r1','issue_report','issue_report','{"surface":"post","message":"טקסט ראשון","path":"/post"}'),('r2','issue_report','issue_report','{"surface":"number","message":"טקסט שני"}');
+SQL
+F "$DIR/05-scrub-issue-report-text.sql"
+check "$(Q -c "select count(*) from public.events where surface='issue_report' and props ? 'message'")" 0 '05: no free text is left in the analytics events'
+check "$(Q -c "select count(*) from public.events where surface='issue_report'")" 2 '05: no event row is deleted'
+check "$(Q -c "select count(*) from public.feedback where context='issue_report_migrated' and detail in ('טקסט ראשון','טקסט שני')")" 2 '05: every message is in the support store first'
+F "$DIR/05-scrub-issue-report-text.sql"; pass=$((pass+1)); echo 'PASS 05: a second run is a no-op'
+check "$(Q -c "select count(*) from public.feedback where context='issue_report_migrated'")" 2 '05: nothing is copied twice'
 echo "ALL PASS ($pass)"

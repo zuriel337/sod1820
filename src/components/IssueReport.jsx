@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { persistExplicitIssueReport } from "../lib/events.js";
-import { track } from "../lib/tracking.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { copyLink } from "../lib/share.js";
@@ -8,7 +7,7 @@ import { contactSourceHref } from "./experience2029/contactSource2029.js";
 import { newInteractionId } from "../lib/research/interactionCorrelation.js";
 
 // IssueReport — the single canonical "something is wrong here" primitive (canonical_ui_components_law).
-// It only EMITS event_type=issue_report through the existing telemetry seam (track → visitor_events +
+// 27.11.2026: the report goes to the support store (record_feedback), never to analytics. Older note: it emitted event_type=issue_report through the telemetry seam (track → visitor_events +
 // events dual-write). It owns no store, no route and never writes system_suggestions: the Reliability
 // detector consumes the event. No attachments in this slice.
 
@@ -77,9 +76,8 @@ export function buildIssueReportPayload(context, text) {
 
 export function emitIssueReport(context, text) {
   const payload = buildIssueReportPayload(context, text);
-  if (PUBLIC_READING_RELEASE) return persistExplicitIssueReport(payload);
-  track(ISSUE_REPORT_SECTION, context?.surface ?? null, ISSUE_REPORT_EVENT, payload);
-  return payload;
+  // Both builds: the support store, never the analytics pipeline (the text a person typed is not a measurement).
+  return persistExplicitIssueReport(payload);
 }
 
 export default function IssueReport({

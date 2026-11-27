@@ -72,8 +72,7 @@ test("B. background tab — hidden time is excluded from visible_ms", () => {
 test("C. idle reading — engaged_ms bounded well below visible_ms with no interaction after load", () => {
   const clock = makeClock();
   const s = createEngagementState({ now: clock.now, idleThresholdMs: IDLE_THRESHOLD_MS });
-  // creation itself counts as the one activity pulse (matches tracker's onVisibilityChange/creation
-  // semantics); then 60s pass with zero further activity.
+  // engagement_version 2 (27.11.2026): creation is NOT an activity pulse; 60s pass with zero activity.
   for (let i = 0; i < 60; i++) { clock.advance(1000); s.tick(); }
   const snap = s.snapshot();
   assert.equal(snap.visible_ms, 60000);
@@ -263,4 +262,30 @@ test("startPageEngagement singleton: starting a new page flushes the previous ac
   assert.equal(recorder.calls.length, 1, "previous page-instance must be flushed exactly once");
   assert.equal(recorder.calls[0].payload.p_path, "/singleton-1");
   assert.equal(recorder.calls[0].reason, "route_change");
+});
+
+// ── engagement_version 2 (ZURIEL, 27.11.2026): no automatic credit; engaged_ms needs a real activity signal first ──
+test("V2-A. a visible page nobody touches earns no engaged_ms at all (no automatic first-20-second credit)", () => {
+  const clock = makeClock();
+  const s = createEngagementState({ now: clock.now, idleThresholdMs: IDLE_THRESHOLD_MS });
+  for (let i = 0; i < 30; i++) { clock.advance(1000); s.tick(); }
+  const snap = s.snapshot();
+  assert.equal(snap.visible_ms, 30000);
+  assert.equal(snap.engaged_ms, 0, "a person who did nothing is not engaged");
+});
+
+test("V2-B. engaged_ms starts counting only after the first real activity, and only within the idle window", () => {
+  const clock = makeClock();
+  const s = createEngagementState({ now: clock.now, idleThresholdMs: IDLE_THRESHOLD_MS });
+  for (let i = 0; i < 10; i++) { clock.advance(1000); s.tick(); }   // untouched: nothing
+  s.recordActivity();
+  for (let i = 0; i < 10; i++) { clock.advance(1000); s.tick(); }   // 10 s inside the window after the first activity
+  for (let i = 0; i < 20; i++) { clock.advance(1000); s.tick(); }   // the window closes after 20 s without activity
+  const snap = s.snapshot();
+  assert.equal(snap.visible_ms, 40000);
+  assert.ok(snap.engaged_ms >= 10000 && snap.engaged_ms <= IDLE_THRESHOLD_MS, `engaged_ms ${snap.engaged_ms}`);
+});
+
+test("V2-C. the engagement payload declares version 2", () => {
+  assert.equal(ENGAGEMENT_VERSION, 2);
 });

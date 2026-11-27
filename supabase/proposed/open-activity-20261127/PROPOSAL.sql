@@ -31,7 +31,7 @@ declare
   to_d date := (now() at time zone 'Asia/Jerusalem')::date;
   from_d date := ((now() at time zone 'Asia/Jerusalem')::date) - (case w when 'day' then 1 when 'week' then 7 else 30 end);
   k text := 'ti_open_activity2029:v1:' || w || ':' || ((now() at time zone 'Asia/Jerusalem')::date)::text;
-  min_sessions constant integer := 25;  -- the whole window must hold this many distinct human sessions before any item list is drawn
+  min_sessions constant integer := 25;  -- the whole window must hold this many distinct human VISITORS (sod_id; session id as fallback) before any item list is drawn
   per_family constant integer := 150;   -- list cap per family; the rest is a count (the page offers "show more" inside this cap)
   payload jsonb; stamp timestamptz; nestloop text;
 begin
@@ -48,17 +48,17 @@ begin
     ), seen as materialized (
       -- Two existing, closed event families: page/view (the measured route) and content/view (kind + the public numeric item id).
       -- Posts come from content/view (the exact public post id): the measured page path is the REQUESTED address and 50 of 92 post addresses opened in 30 days match no current slug.
-      select ev.session_id,c.clean_classification as cls,ev.surface,ev.props->'measurement'->>'page_path' as pth,
+      select ev.session_id,coalesce(ev.sod_id,ev.session_id) as vid,c.clean_classification as cls,ev.surface,ev.props->'measurement'->>'page_path' as pth,
         case when ev.surface='content' and ev.props->>'kind'='post' and ev.props->>'item_id' ~ '^[0-9]{1,12}$' then ev.props->>'item_id' end as pid
       from public.events ev join clean c using(session_id)
       where ev.ts >= (from_d::timestamp at time zone 'Asia/Jerusalem') and ev.ts < (to_d::timestamp at time zone 'Asia/Jerusalem')
         and not ev.is_bot and ev.props->'_measurement_verified'='2'::jsonb
         and ev.surface in ('page','content') and ev.event_type='view' and c.clean_classification in ('human','unknown')
     ), gate as (
-      select count(distinct session_id) as sessions from seen where cls='human' and surface='page'
+      select count(distinct vid) as sessions from seen where cls='human' and surface='page'
     ), keyed as (
       -- The item text comes from the address and is NEVER shown: it must match a canonical public row below (a crafted URL cannot put its own words on the public page).
-      select session_id,cls,
+      select session_id,vid,cls,
         case when pid is not null then 'post'
              when surface='page' and pth ~ '^/number/[0-9]{1,5}$' then 'number'
              when surface='page' and pth ~ '^/(tag|category)/[^/]{1,120}$' then 'topic'
@@ -70,7 +70,7 @@ begin
              when pth ~ '^/video/' then substr(pth,8) end as item
       from seen
     ), cand as (
-      select fam,item,cls,count(*) as opens,count(distinct session_id) as sessions from keyed where fam is not null group by 1,2,3
+      select fam,item,cls,count(*) as opens,count(distinct vid) as sessions from keyed where fam is not null group by 1,2,3
     ), adm as materialized (
       select value from public.sitemap_numbers()
     ), okc as (
@@ -94,7 +94,7 @@ begin
     select jsonb_build_object(
       'version',1,'window',w,'from',from_d,'to',to_d - 1,'timezone','Asia/Jerusalem','source','events',
       'state',case when (select sessions from gate) >= min_sessions then 'measured' else 'insufficient' end,
-      -- No session count and no per-item session count or time is ever published; only item opens.
+      -- No visitor or session count and no per-item time is ever published; only item opens. The floors count VISITORS, never sessions (S1, 27.11.2026).
       'families',case when (select sessions from gate) >= min_sessions then
         coalesce((select jsonb_object_agg(f.fam,jsonb_build_object('items',f.items,'opens',f.opens,'list',f.list)) from fams f),'{}'::jsonb) else '{}'::jsonb end,
       -- Sessions the classifier could not call human: totals only, never a list (unknown is shown as unknown, never added to people).
@@ -105,7 +105,7 @@ begin
         'served',(select coalesce(sum(hits),0) from public.crawl_daily where day>=from_d and day<to_d and not blocked),
         'by_bot',coalesce((select jsonb_agg(jsonb_build_object('bot',b.bot,'hits',b.hits) order by b.hits desc) from (
           select bot,sum(hits)::bigint as hits from public.crawl_daily where day>=from_d and day<to_d and not blocked and bot<>'other' group by bot order by 2 desc limit 10) b),'[]'::jsonb)),
-      'floors',jsonb_build_object('popular_events',10,'popular_sessions',5,'window_sessions',min_sessions,'list_cap',per_family),
+      'floors',jsonb_build_object('popular_events',10,'popular_visitors',5,'window_visitors',min_sessions,'unit','distinct_visitor','list_cap',per_family),
       'not_measured_by_item','["cipher","topic_card"]'::jsonb
     ) into payload;
     perform set_config('enable_nestloop',nestloop,true);

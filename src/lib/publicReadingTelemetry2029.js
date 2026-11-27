@@ -62,7 +62,7 @@ export function readingEngagementBody(body) {
   const p = body.p_props;
   if (!p || typeof p !== "object" || Array.isArray(p)
     || Object.keys(p).sort().join(",") !== "engaged_ms,engagement_version,flush_reason,idle_threshold_ms,max_scroll_pct,visible_ms"
-    || p.engagement_version !== 1 || !["route_change", "pagehide"].includes(p.flush_reason)) return false;
+    || ![1, 2].includes(p.engagement_version) || !["route_change", "pagehide"].includes(p.flush_reason)) return false;
   const bounded = (value, max) => Number.isSafeInteger(value) && value >= 0 && value <= max;
   return bounded(p.visible_ms, 86400000) && bounded(p.engaged_ms, 86400000) && p.engaged_ms <= p.visible_ms
     && bounded(p.max_scroll_pct, 100) && Number.isSafeInteger(p.idle_threshold_ms) && p.idle_threshold_ms >= 1000 && p.idle_threshold_ms <= 600000;
