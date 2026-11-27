@@ -111,7 +111,7 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
         // Edge-function calls that really reach the Supabase origin (the worker's denials never get here); answered as before (404).
         if (url.pathname.startsWith('/functions/v1/')) state.functions.push({ method: req.method, path: url.pathname, search: url.search, apikey: req.headers.apikey || null, authorization: req.headers.authorization || null, cookie: req.headers.cookie || null, body: body.toString('utf8') });
         const custom = supabase ? await supabase({ url, method: req.method, headers: req.headers, body }) : null;
-        if (custom) return send(custom.status ?? 200, custom.type ?? 'application/json', typeof custom.body === 'string' ? custom.body : JSON.stringify(custom.body ?? null), cors);
+        if (custom) return send(custom.status ?? 200, custom.type ?? 'application/json', typeof custom.body === 'string' ? custom.body : JSON.stringify(custom.body ?? null), { ...cors, ...(custom.headers || {}) });
         const storage = /^\/storage\/v1\/(?:object\/(?:public|sign)|render\/image\/public)\/(?:media|gallery)\/fixture\/([a-z0-9.]+)$/.exec(url.pathname);
         if (storage && req.method === 'GET' && fixtureStorageFile(storage[1])) {
           const log = { path: url.pathname, search: url.search, range: req.headers.range || null };
