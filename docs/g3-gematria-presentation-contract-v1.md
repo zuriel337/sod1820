@@ -722,6 +722,8 @@ with no parallel ranking or UI truth system.
 
 ## 12. Method structure display — one canonical stage for every consumer (ZURIEL, 27.11.2026)
 
+> CHANGE-RECORD: 27.11.2026 · Human Gate ZURIEL (approved the unification and its anchoring in the existing contracts).
+
 This section extends D9 / S2 and the Method Trace; it adds no engine, no store and no parallel renderer. It binds every present and future consumer (Home, Posts and their editor, the Number page and its drawer, the Calculator, the World, the Beit Midrash, the future Heichal).
 
 1. **One entry.** A gematria calculation is shown by `SpatialMethodStage2029` and nothing else. A consumer never draws its own list of steps, ledger, triangle, equation or composite from a trace. `UnitGematria2029` (displays `full` and `letters`), the Number page, the Calculator, the World and the Beit Midrash all reach it.
