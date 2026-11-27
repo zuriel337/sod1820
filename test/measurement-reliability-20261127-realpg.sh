@@ -74,7 +74,7 @@ F "$DIR/fixtures/fn_ti_clean_classification.live-20261127.sql"
 
 # ---------- 03: floors by visitor ----------
 F "$DIR/03-floors-by-visitor.sql"
-check "$(Q -c "select md5(pg_get_functiondef('$PULSE'::regprocedure))")" d05ca539f72ea6ee280b42a230fabede '03 on the exact live producer gives d05ca539… (the pin that the open-activity file accepts after step 6)'
+check "$(Q -c "select md5(pg_get_functiondef('$PULSE'::regprocedure))")" d5b76caa12eeb8751f8562b3cedfba84 '03 on the exact live producer gives d5b76caa… (the pin that the open-activity file accepts after step 6)'
 D=$(Q -c "select pg_get_functiondef('$PULSE'::regprocedure)")
 check "$(printf '%s' "$D" | grep -c 'count(distinct session_id)' || true)" 0 '03: no list counts distinct sessions any more'
 check "$(printf '%s' "$D" | grep -o 'count(distinct coalesce(sod_id,session_id))' | wc -l | tr -d ' ')" 15 '03: all 15 floor counts use distinct visitors (sod_id, session as fallback)'
@@ -94,6 +94,12 @@ check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vi
 check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=3")" 5 'a missing visitor id falls back to the session id (never to null, never to one shared bucket)'
 check "$(Q -c "select count(distinct coalesce(sod_id,session_id)) from public.vis_probe where item=4")" 2 'known limit: a browser seen with and without its id counts twice (live: 1 session in 30 days)'
 Q -c "drop table public.vis_probe"
+# ZURIEL 27.11.2026: a number a person typed or computed is never listed; the answer carries a fixed mask and a cumulative count only
+check "$(printf '%s' "$D" | grep -c "jsonb_build_object('n',c.n,'events',c.events)")" 0 '03: computed values are no longer cached'
+check "$(printf '%s' "$D" | grep -c "jsonb_to_recordset(payload->'computed_refs')")" 0 '03: computed values are no longer returned'
+check "$(printf '%s' "$D" | grep -c "'computed_refs','\[\]'::jsonb,")" 1 "03: the cached 'computed_refs' is empty"
+check "$(printf '%s' "$D" | grep -c "'computed',jsonb_build_object('mask','\*\*\*\*\*','events'")" 1 "03: 'computed' is a fixed mask plus the cumulative count"
+check "$(printf '%s' "$D" | grep -c "'numbers',coalesce(")" "$(grep -c "'numbers',coalesce(" "$DIR/fixtures/fn_ti_activity_pulse2029.live-20261127.sql")" "03: opening a public number page ('numbers') is untouched (same lines as the live definition)"
 F "$DIR/03-floors-by-visitor.sql"; pass=$((pass+1)); echo 'PASS 03 second apply is a no-op'
 F "$DIR/03-floors-by-visitor.rollback.sql"
 check "$(Q -c "select md5(pg_get_functiondef('$PULSE'::regprocedure))")" 83b931888f51de9429367006c6608e9d '03 rollback restores the exact live producer'

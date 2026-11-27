@@ -15,12 +15,12 @@
 
 | # | פעולה | קובץ | sha256 | ביטול (sha256) |
 |---|---|---|---|---|
-| 1 | חוק v14 | `measurement-reliability-20261127/04-contract-v14.sql` | `725d4d4e85f75082…` | `04-contract-v14.rollback.sql` `d93b2cb37ab9945f…` |
+| 1 | חוק v14 | `measurement-reliability-20261127/04-contract-v14.sql` | `85278ea6db99ab58…` | `04-contract-v14.rollback.sql` `d93b2cb37ab9945f…` |
 | 2 | ingest_event: engagement 1 ו־2 | `measurement-reliability-20261127/01-ingest-event-engagement-v2.sql` | `744b4293ebe28bd8…` | `01-ingest-event-engagement-v2.rollback.sql` `7113de0b8642c6d8…` |
 | 3 | ingest_event: משפחות nav / item / calc_outcome | `measurement-allowlist-20261127/PROPOSAL.sql` | `3c3211185c928f37…` | `ROLLBACK.sql` `b2df676a40ef20e6…` |
 | 5 | מסווג: הוכחת פעילות (cutover) | `measurement-reliability-20261127/02-classifier-activity-proof.sql` | `980a744486bdbe81…` | `02-classifier-activity-proof.rollback.sql` `0f28bc3b69f0214d…` |
-| 6 | מפיק /stats: רצפה לפי מבקרים | `measurement-reliability-20261127/03-floors-by-visitor.sql` | `b93789ccfc78b519…` | `03-floors-by-visitor.rollback.sql` `502f3f2ce3b016df…` |
-| 7 | מדור פעילות מצטברת | `open-activity-20261127/PROPOSAL.sql` | `6d4f9432485403dd…` | `ROLLBACK.sql` `f20d747b5f09a571…` |
+| 6 | מפיק /stats: רצפה לפי מבקרים | `measurement-reliability-20261127/03-floors-by-visitor.sql` | `ae744097a7933eca…` | `03-floors-by-visitor.rollback.sql` `7e8a2d8d3f63d751…` |
+| 7 | מדור פעילות מצטברת | `open-activity-20261127/PROPOSAL.sql` | `94df63410379e966…` | `ROLLBACK.sql` `f20d747b5f09a571…` |
 | 8 | פעולות מהטבלאות + צפוי ואינו מגיע (מנהלים) | `measurement-domain-actions-20261127/PROPOSAL.sql` | `de108343673152ae…` | `ROLLBACK.sql` `fa288049c75d54ef…` |
 | 9 | גלאי אמינות: ספירת דיווחי תקלה (משולב ב־#1528) | `measurement-reliability-20261127/06-reliability-watch-support-reports.sql` | `c5f9c025821f9a79…` | `06-reliability-watch-support-reports.rollback.sql` `927c60decfcdfd57…` |
 | 10 | העתקת טקסט דיווחי תקלה היסטוריים | `measurement-reliability-20261127/05-scrub-issue-report-text.sql` | `ac000aefeac7d2ee…` | אין ביטול אוטומטי: ראו הערה |

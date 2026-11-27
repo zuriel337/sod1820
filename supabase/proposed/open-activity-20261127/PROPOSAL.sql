@@ -7,8 +7,8 @@
 begin;
 do $pre$ begin
   -- The producer is a sibling this file does not change; it must be the live definition read on 27.11.2026 (83b93188…) or that definition after step 6
-  -- (03-floors-by-visitor.sql, whose result is d05ca539…: the same six replacements, computed read-only against the live definition). Either order applies.
-  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) not in ('83b931888f51de9429367006c6608e9d','d05ca539f72ea6ee280b42a230fabede') then
+  -- (03-floors-by-visitor.sql, whose result is d5b76caa…: the same six replacements, computed read-only against the live definition). Either order applies.
+  if md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure)) not in ('83b931888f51de9429367006c6608e9d','d5b76caa12eeb8751f8562b3cedfba84') then
     raise exception 'preimage drift: fn_ti_activity_pulse2029';
   end if;
   if to_regprocedure('public.fn_ti_clean_classification(date,date)') is null

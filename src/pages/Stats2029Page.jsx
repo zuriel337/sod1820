@@ -66,6 +66,8 @@ export default function Stats2029Page() {
 
   const r = state.result, d = r?.data;
   const human = d?.totals?.human || {}, unknown = d?.totals?.unknown || {};
+  // A number a person typed or computed is never listed: the server sends only a total behind a fixed mask (an older server answer, a list, is ignored).
+  const computedTotal = d?.computed && !Array.isArray(d.computed) && Number.isSafeInteger(d.computed.events) ? d.computed.events : 0;
   const crawlers = d?.crawlers;
   const added = d?.added || {};
   const sections = (d?.sections || []).filter(x => SECTIONS[x.section]);
@@ -98,10 +100,10 @@ export default function Stats2029Page() {
             <small>{pulseCount(t.recent)} {t.basis === "halves" ? "בחצי השבוע האחרון" : "השבוע"} · {pulseCount(t.earlier)} {t.basis === "halves" ? "בחצי השבוע שלפניו" : "בשבוע ממוצע קודם"}</small>
           </li>)}</ul>
         </section> : null}
-        {(d.numbers?.length || d.content?.length || d.computed?.length || d.phrases?.length) ? <section className="stats29-block" aria-labelledby="stats29-hot">
+        {(d.numbers?.length || d.content?.length || computedTotal > 0 || d.phrases?.length) ? <section className="stats29-block" aria-labelledby="stats29-hot">
           <h2 id="stats29-hot">חם עכשיו</h2>
           {d.numbers?.length ? <><h3>המספרים שנפתחים הכי הרבה</h3><ol className="stats29-chips">{d.numbers.slice(0, 12).map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.events)} פתיחות</small></Link></li>)}</ol></> : null}
-          {d.computed?.length ? <><h3>הערכים שמחושבים הכי הרבה</h3><ol className="stats29-chips">{d.computed.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.events)} חישובים</small></Link></li>)}</ol></> : null}
+          {computedTotal > 0 ? <><h3>חישובים אישיים</h3><ol className="stats29-chips"><li><span><b dir="ltr">*****</b><small>{pulseCount(computedTotal)} חישובים · הערכים אינם מוצגים</small></span></li></ol></> : null}
           {d.content?.length ? <><h3>הפוסטים שנקראים הכי הרבה</h3><ol className="stats29-list">{d.content.map(x => <li key={x.href}><Link to={x.href}>{x.title}</Link><small>{pulseCount(x.events)} קריאות</small></li>)}</ol></> : null}
           {d.phrases?.length ? <><h3>ביטויים מאושרים שנבחרו</h3><ol className="stats29-chips">{d.phrases.map(x => <li key={x.phrase}><span><b>{x.phrase}</b><small>{x.value} · {pulseCount(x.events)} בחירות</small></span></li>)}</ol></> : null}
         </section> : null}

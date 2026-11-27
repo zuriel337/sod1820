@@ -117,7 +117,7 @@ export function readingActionSpec() {
   // before the built-in families below so they can never replace one of those either.
   return { ...globalThis.sodSpecs,
     activity_2029: { events: ["typing", "search", "compute", "select", "save", "share", "view"],
-      fields: { operation_id: T, method: T, number: I, word_id: T, section: T } },
+      fields: { operation_id: T, method: T, word_id: T, section: T } },
     calculator_2029: { events: ["calculator_view", "result_selected", "first_compute", "new_compute_from_share", "raziel_opened", "method_opened",
       "share_created", "classic_tile_opened", "words_bar_pick", "equals_preview_phrase_opened", "shared_result_opened", "ai_analysis_requested"],
       fields: { surface: T, method: T, entry: T, kind: T, channel: T, reason: T, from_share: B, has_discovery: B, count: I, expression_length: I } },

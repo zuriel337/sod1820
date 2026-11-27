@@ -32,7 +32,7 @@ export default function OpenActivity2029() {
   useEffect(() => {
     let live = true;
     setState({ loading: true });
-    readOpenActivity(win).then(d => live && setState({ model: openActivityModel(d), state: d?.state }), () => live && setState({ unavailable: true }));
+    readOpenActivity(win).then(d => live && setState(d ? { model: openActivityModel(d), state: d.state } : { unavailable: true }), () => live && setState({ unavailable: true })); // null = the reader is not applied yet
     return () => { live = false; };
   }, [win]);
   // Reader not applied yet, or failed: the section is not drawn at all (no zero, no empty frame).

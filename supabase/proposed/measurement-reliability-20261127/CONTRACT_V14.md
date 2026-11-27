@@ -34,7 +34,8 @@ of public pages, numbers, posts and ciphers, and the use of the research tools. 
 query, or a search result that could reveal it) is shown only in aggregate, with the content replaced by a fixed mask: the same number of asterisks for every item,
 whatever its length or content. The system records WHICH action was performed and WHETHER it succeeded (MEASURED ACTION TRIAD), never what was typed. No identity,
 personal expression or search result that could reveal either is published, listed, ranked, or recoverable by comparing windows or snapshots. Personal search text is
-not stored in analytics. This clause adds no mechanism: it limits what the existing readers may show.
+not stored in analytics. A number a person typed, or received as the result of a personal calculation, is shown only as the fixed mask with a cumulative count, never as a value. Opening a PUBLIC number page is a different thing: it is shown with the number itself, under the existing floors, admission and privacy protections. The research and calculation capabilities are kept in full; analytics does not collect the content of a search.
+This clause adds no mechanism: it limits what the existing readers may show.
 
 SUPPORT TEXT IS NOT ANALYTICS. What a person types in a report, message or search is never written into events. Issue reports are stored in the authorized support
 store (administrator-read); analytics may count that a report exists, never what it says.

@@ -40,7 +40,7 @@ test("the contract amendment text in the markdown is the text embedded in the SQ
   assert.ok(read("04-contract-v14.sql").includes(text), "04-contract-v14.sql embeds the exact amendment");
   for (const rule of ["MEASUREMENT IDENTITY LAYERS", "INTENSITY IS NOT EVIDENCE OF AUTOMATION", "ENGAGEMENT VERSION 2", "FLOOR UNIT", "OPEN ACTIVITY TIER", "PUBLIC BY DEFAULT, PERSONAL SEARCH MASKED", "SUPPORT TEXT IS NOT ANALYTICS", "MEASURED ACTION TRIAD", "REACTIONS POLICY UNCHANGED", "PRESERVED FUTURE CAPABILITIES"]) assert.ok(text.includes(rule), rule);
   // ZURIEL 27.11.2026: public by default; a personal search is shown only in aggregate with a fixed mask; the system knows the action and its success, never the text
-  for (const phrase of ["open to the public by default", "the same number of asterisks for every item", "WHICH action was performed and WHETHER it succeeded", "never what was typed",
+  for (const phrase of ["open to the public by default", "the same number of asterisks for every item", "WHICH action was performed and WHETHER it succeeded", "never what was typed", "received as the result of a personal calculation", "Opening a PUBLIC number page is a different thing", "kept in full",
     "recoverable by comparing windows or snapshots", "Personal search text is\nnot stored in analytics", "adds no mechanism"]) assert.ok(text.includes(phrase), phrase);
   assert.ok(read("04-contract-v14.sql").includes("e7ad8ffbe9e4a612f53fa1d8c3799693"), "pins the active v13 description");
 });
@@ -49,4 +49,24 @@ test("the client emits engagement version 2 and sends issue reports to the suppo
   const eng = readFileSync(new URL("../src/lib/engagement.js", import.meta.url), "utf8");
   assert.match(eng, /ENGAGEMENT_VERSION = 2/);
   assert.match(eng, /lastActivityAt = null/);
+});
+
+test("a number a person typed or computed is never collected nor listed: fixed mask and a cumulative count only (ZURIEL 27.11.2026)", async () => {
+  const root = new URL("../", import.meta.url);
+  const rd = p => readFileSync(new URL(p, root), "utf8");
+  const emitter = rd("src/lib/siteActivity2029.js");
+  assert.doesNotMatch(emitter.replace(/^\s*\/\/.*$/gm, ""), /props\.number|\bvalue\b/, "the emitter has no value and sets no number");
+  const { readingActionProps } = await import("../src/lib/publicReadingTelemetry2029.js");
+  const kept = readingActionProps("activity_2029", "compute", { operation_id: "abc", method: "ragil", number: 5787, section: "calculator" });
+  assert.equal("number" in kept, false, "the public build drops a number even if a caller passes one");
+  assert.equal(kept.section, "calculator");
+  const apply = rd("supabase/proposed/measurement-reliability-20261127/03-floors-by-visitor.sql");
+  assert.match(apply, /'computed_refs','\[\]'::jsonb,/);
+  assert.match(apply, /'computed',jsonb_build_object\('mask','\*\*\*\*\*','events'/);
+  const page = rd("src/pages/Stats2029Page.jsx");
+  assert.match(page, /\*\*\*\*\*/);
+  assert.match(page, /!Array\.isArray\(d\.computed\)/, "an older server answer (a list of values) is ignored");
+  assert.doesNotMatch(page, /d\.computed\.map|d\.computed\?\.length/, "no value of a personal calculation is ever drawn");
+  // opening a PUBLIC number page keeps showing the number itself
+  assert.match(page, /d\.numbers\.slice\(0, 12\)\.map\(x => <li key=\{x\.n\}><Link to=\{"\/number\/" \+ x\.n\}><b>\{x\.n\.toLocaleString/);
 });

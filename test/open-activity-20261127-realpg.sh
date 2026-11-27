@@ -67,7 +67,7 @@ SQL
 STUB_MD5=$(Q -c "select md5(pg_get_functiondef('public.fn_ti_activity_pulse2029(integer)'::regprocedure))")
 sed "s/83b931888f51de9429367006c6608e9d/$STUB_MD5/" "$DIR/PROPOSAL.sql" > "$TMP/proposal.local.sql"
 check "$(grep -c 83b931888f51de9429367006c6608e9d "$DIR/PROPOSAL.sql")" 1 'the committed file pins the live md5 once'
-check "$(grep -c d05ca539f72ea6ee280b42a230fabede "$DIR/PROPOSAL.sql")" 1 'the committed file also accepts the producer as step 6 (03-floors-by-visitor) leaves it, so either order applies'
+check "$(grep -c d5b76caa12eeb8751f8562b3cedfba84 "$DIR/PROPOSAL.sql")" 1 'the committed file also accepts the producer as step 6 (03-floors-by-visitor) leaves it, so either order applies'
 "$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -f "$TMP/proposal.local.sql" >/dev/null
 check "$(Q -c "select to_regprocedure('research_open_activity_2029(text)') is not null")" t 'PROPOSAL.sql commits under real psql'
 check "$(Q -c "select has_function_privilege('anon','fn_ti_open_activity2029(text)','execute')")" f 'producer is server-only'
@@ -116,7 +116,7 @@ check "$(Q -c "select count(*) from pg_proc where proname in ('fn_ti_open_activi
 check "$(Q -c "select count(*) from public.analytics_cache where producer='fn_ti_open_activity2029'")" 0 'rollback removes the cache rows'
 check "$(Q -c "select count(*) from pg_proc where proname='fn_ti_activity_pulse2029'")" 1 'the existing producer is untouched'
 # the producer pin: accepted as the live definition OR as step 6 leaves it; any other definition is refused
-sed "s/d05ca539f72ea6ee280b42a230fabede/$STUB_MD5/" "$DIR/PROPOSAL.sql" > "$TMP/proposal.after03.sql"
+sed "s/d5b76caa12eeb8751f8562b3cedfba84/$STUB_MD5/" "$DIR/PROPOSAL.sql" > "$TMP/proposal.after03.sql"
 "$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -v ON_ERROR_STOP=1 -f "$TMP/proposal.after03.sql" >/dev/null
 check "$(Q -c "select to_regprocedure('research_open_activity_2029(text)') is not null")" t 'the post-step-6 pin applies (order 6 then 7)'
 "$PG_BIN/psql" -h "$TMP" -p 54392 -U postgres -d review -qX -v ON_ERROR_STOP=1 -f "$DIR/ROLLBACK.sql" >/dev/null

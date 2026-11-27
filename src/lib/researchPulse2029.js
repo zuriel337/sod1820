@@ -23,7 +23,8 @@ export function pulseUsable(d) {
 
 export function pulseRich(d) {
   if (!pulseUsable(d)) return false;
-  return Boolean(d.numbers?.length || d.content?.length || d.computed?.length || d.phrases?.length);
+  // d.computed is only a masked total (never a list of values), so it does not make a window "rich"
+  return Boolean(d.numbers?.length || d.content?.length || d.phrases?.length);
 }
 
 // First window with real lists; otherwise the widest usable one (its totals/crawlers/added are still real).
