@@ -1,0 +1,1360 @@
+{
+ "source": "gematria_method_trace (live engine, read-only), phrase תפרצי בתשפז, 27.11.2026",
+ "traces": {
+  "ריבוע": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "word": "תפרצי",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ת",
+       "base_value": 400,
+       "prefix_subtotal": 400
+      },
+      {
+       "index": 2,
+       "token": "פ",
+       "base_value": 80,
+       "prefix_subtotal": 480
+      },
+      {
+       "index": 3,
+       "token": "ר",
+       "base_value": 200,
+       "prefix_subtotal": 680
+      },
+      {
+       "index": 4,
+       "token": "צ",
+       "base_value": 90,
+       "prefix_subtotal": 770
+      },
+      {
+       "index": 5,
+       "token": "י",
+       "base_value": 10,
+       "prefix_subtotal": 780
+      }
+     ],
+     "word_subtotal": 3110
+    },
+    {
+     "word": "בתשפז",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ב",
+       "base_value": 2,
+       "prefix_subtotal": 2
+      },
+      {
+       "index": 2,
+       "token": "ת",
+       "base_value": 400,
+       "prefix_subtotal": 402
+      },
+      {
+       "index": 3,
+       "token": "ש",
+       "base_value": 300,
+       "prefix_subtotal": 702
+      },
+      {
+       "index": 4,
+       "token": "פ",
+       "base_value": 80,
+       "prefix_subtotal": 782
+      },
+      {
+       "index": 5,
+       "token": "ז",
+       "base_value": 7,
+       "prefix_subtotal": 789
+      }
+     ],
+     "word_subtotal": 2677
+    }
+   ],
+   "result": 5787,
+   "semantics": {
+    "per_word_reset": true,
+    "order_sensitive": true,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": false
+   },
+   "method_key": "ריבוע",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ribua",
+    "method_version": 1
+   },
+   "trace_kind": "CUMULATIVE_PREFIX",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 5787,
+    "canonical_value": 5787
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "cumulative_prefix_sum"
+  },
+  "ריבוע גדול": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "word": "תפרצי",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ת",
+       "base_value": 400,
+       "prefix_subtotal": 400
+      },
+      {
+       "index": 2,
+       "token": "פ",
+       "base_value": 80,
+       "prefix_subtotal": 480
+      },
+      {
+       "index": 3,
+       "token": "ר",
+       "base_value": 200,
+       "prefix_subtotal": 680
+      },
+      {
+       "index": 4,
+       "token": "צ",
+       "base_value": 90,
+       "prefix_subtotal": 770
+      },
+      {
+       "index": 5,
+       "token": "י",
+       "base_value": 10,
+       "prefix_subtotal": 780
+      }
+     ],
+     "word_subtotal": 3110
+    },
+    {
+     "word": "בתשפז",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ב",
+       "base_value": 2,
+       "prefix_subtotal": 2
+      },
+      {
+       "index": 2,
+       "token": "ת",
+       "base_value": 400,
+       "prefix_subtotal": 402
+      },
+      {
+       "index": 3,
+       "token": "ש",
+       "base_value": 300,
+       "prefix_subtotal": 702
+      },
+      {
+       "index": 4,
+       "token": "פ",
+       "base_value": 80,
+       "prefix_subtotal": 782
+      },
+      {
+       "index": 5,
+       "token": "ז",
+       "base_value": 7,
+       "prefix_subtotal": 789
+      }
+     ],
+     "word_subtotal": 2677
+    }
+   ],
+   "result": 5787,
+   "semantics": {
+    "per_word_reset": true,
+    "order_sensitive": true,
+    "final_letter_sensitive": true,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": false
+   },
+   "method_key": "ריבוע גדול",
+   "provenance": {
+    "engine": "gematria",
+    "function": "ribua_gadol_calc",
+    "method_version": 1
+   },
+   "trace_kind": "CUMULATIVE_PREFIX",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 5787,
+    "canonical_value": 5787
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "cumulative_prefix_sum"
+  },
+  "משולש מילה": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "index": 1,
+     "token": "ת",
+     "base_value": 400,
+     "prefix_subtotal": 400,
+     "original_position": 1
+    },
+    {
+     "index": 2,
+     "token": "פ",
+     "base_value": 80,
+     "prefix_subtotal": 480,
+     "original_position": 2
+    },
+    {
+     "index": 3,
+     "token": "ר",
+     "base_value": 200,
+     "prefix_subtotal": 680,
+     "original_position": 3
+    },
+    {
+     "index": 4,
+     "token": "צ",
+     "base_value": 90,
+     "prefix_subtotal": 770,
+     "original_position": 4
+    },
+    {
+     "index": 5,
+     "token": "י",
+     "base_value": 10,
+     "prefix_subtotal": 780,
+     "original_position": 5
+    },
+    {
+     "index": 6,
+     "token": "ב",
+     "base_value": 2,
+     "prefix_subtotal": 782,
+     "original_position": 6
+    },
+    {
+     "index": 7,
+     "token": "ת",
+     "base_value": 400,
+     "prefix_subtotal": 1182,
+     "original_position": 7
+    },
+    {
+     "index": 8,
+     "token": "ש",
+     "base_value": 300,
+     "prefix_subtotal": 1482,
+     "original_position": 8
+    },
+    {
+     "index": 9,
+     "token": "פ",
+     "base_value": 80,
+     "prefix_subtotal": 1562,
+     "original_position": 9
+    },
+    {
+     "index": 10,
+     "token": "ז",
+     "base_value": 7,
+     "prefix_subtotal": 1569,
+     "original_position": 10
+    }
+   ],
+   "result": 9687,
+   "semantics": {
+    "per_word_reset": false,
+    "order_sensitive": true,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": true
+   },
+   "method_key": "משולש מילה",
+   "provenance": {
+    "engine": "gematria",
+    "function": "triangle_word_calc",
+    "method_version": 1
+   },
+   "trace_kind": "CUMULATIVE_PREFIX",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 9687,
+    "canonical_value": 9687
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "cumulative_prefix_sum"
+  },
+  "משולש הפוך": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "index": 1,
+     "token": "ז",
+     "base_value": 7,
+     "prefix_subtotal": 7,
+     "original_position": 10
+    },
+    {
+     "index": 2,
+     "token": "פ",
+     "base_value": 80,
+     "prefix_subtotal": 87,
+     "original_position": 9
+    },
+    {
+     "index": 3,
+     "token": "ש",
+     "base_value": 300,
+     "prefix_subtotal": 387,
+     "original_position": 8
+    },
+    {
+     "index": 4,
+     "token": "ת",
+     "base_value": 400,
+     "prefix_subtotal": 787,
+     "original_position": 7
+    },
+    {
+     "index": 5,
+     "token": "ב",
+     "base_value": 2,
+     "prefix_subtotal": 789,
+     "original_position": 6
+    },
+    {
+     "index": 6,
+     "token": "י",
+     "base_value": 10,
+     "prefix_subtotal": 799,
+     "original_position": 5
+    },
+    {
+     "index": 7,
+     "token": "צ",
+     "base_value": 90,
+     "prefix_subtotal": 889,
+     "original_position": 4
+    },
+    {
+     "index": 8,
+     "token": "ר",
+     "base_value": 200,
+     "prefix_subtotal": 1089,
+     "original_position": 3
+    },
+    {
+     "index": 9,
+     "token": "פ",
+     "base_value": 80,
+     "prefix_subtotal": 1169,
+     "original_position": 2
+    },
+    {
+     "index": 10,
+     "token": "ת",
+     "base_value": 400,
+     "prefix_subtotal": 1569,
+     "original_position": 1
+    }
+   ],
+   "result": 7572,
+   "semantics": {
+    "per_word_reset": false,
+    "order_sensitive": true,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": true
+   },
+   "method_key": "משולש הפוך",
+   "provenance": {
+    "engine": "gematria",
+    "function": "triangle_reverse_calc",
+    "method_version": 1
+   },
+   "trace_kind": "CUMULATIVE_PREFIX",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 7572,
+    "canonical_value": 7572
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "position_weighted_sum"
+  },
+  "משולש מדרגות": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "word": "תפרצי",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ת",
+       "position": 1,
+       "base_value": 400,
+       "contribution": 400
+      },
+      {
+       "index": 2,
+       "token": "פ",
+       "position": 2,
+       "base_value": 80,
+       "contribution": 160
+      },
+      {
+       "index": 3,
+       "token": "ר",
+       "position": 3,
+       "base_value": 200,
+       "contribution": 600
+      },
+      {
+       "index": 4,
+       "token": "צ",
+       "position": 4,
+       "base_value": 90,
+       "contribution": 360
+      },
+      {
+       "index": 5,
+       "token": "י",
+       "position": 5,
+       "base_value": 10,
+       "contribution": 50
+      }
+     ],
+     "word_subtotal": 1570
+    },
+    {
+     "word": "בתשפז",
+     "steps": [
+      {
+       "index": 1,
+       "token": "ב",
+       "position": 1,
+       "base_value": 2,
+       "contribution": 2
+      },
+      {
+       "index": 2,
+       "token": "ת",
+       "position": 2,
+       "base_value": 400,
+       "contribution": 800
+      },
+      {
+       "index": 3,
+       "token": "ש",
+       "position": 3,
+       "base_value": 300,
+       "contribution": 900
+      },
+      {
+       "index": 4,
+       "token": "פ",
+       "position": 4,
+       "base_value": 80,
+       "contribution": 320
+      },
+      {
+       "index": 5,
+       "token": "ז",
+       "position": 5,
+       "base_value": 7,
+       "contribution": 35
+      }
+     ],
+     "word_subtotal": 2057
+    }
+   ],
+   "result": 3627,
+   "semantics": {
+    "per_word_reset": true,
+    "order_sensitive": true,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": false
+   },
+   "method_key": "משולש מדרגות",
+   "provenance": {
+    "engine": "gematria",
+    "function": "stair_triangle_calc",
+    "method_version": 1
+   },
+   "trace_kind": "POSITION_WEIGHTED",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 3627,
+    "canonical_value": 3627
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "position_weighted_sum"
+  },
+  "מסתתר": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "word": "תפרצי",
+     "pairs": [
+      {
+       "difference": 320,
+       "left_value": 400,
+       "right_value": 80
+      },
+      {
+       "difference": 120,
+       "left_value": 80,
+       "right_value": 200
+      },
+      {
+       "difference": 110,
+       "left_value": 200,
+       "right_value": 90
+      },
+      {
+       "difference": 80,
+       "left_value": 90,
+       "right_value": 10
+      }
+     ],
+     "letter_values": [
+      400,
+      80,
+      200,
+      90,
+      10
+     ],
+     "word_subtotal": 630
+    },
+    {
+     "word": "בתשפז",
+     "pairs": [
+      {
+       "difference": 398,
+       "left_value": 2,
+       "right_value": 400
+      },
+      {
+       "difference": 100,
+       "left_value": 400,
+       "right_value": 300
+      },
+      {
+       "difference": 220,
+       "left_value": 300,
+       "right_value": 80
+      },
+      {
+       "difference": 73,
+       "left_value": 80,
+       "right_value": 7
+      }
+     ],
+     "letter_values": [
+      2,
+      400,
+      300,
+      80,
+      7
+     ],
+     "word_subtotal": 791
+    }
+   ],
+   "result": 1421,
+   "semantics": {
+    "per_word_reset": true,
+    "order_sensitive": true,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": true,
+    "full_phrase_continuation": false
+   },
+   "method_key": "מסתתר",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_misratar",
+    "method_version": 1
+   },
+   "trace_kind": "ADJACENT_DIFFERENCE",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 1421,
+    "canonical_value": 1421
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "adjacent_difference"
+  },
+  "אטבח": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ת",
+     "position": 1,
+     "transform": "substituted",
+     "base_value": 40,
+     "contribution": 40,
+     "running_subtotal": 40,
+     "transformed_token": "ם"
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "פ",
+     "position": 2,
+     "transform": "substituted",
+     "base_value": 20,
+     "contribution": 20,
+     "running_subtotal": 60,
+     "transformed_token": "כ"
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ר",
+     "position": 3,
+     "transform": "substituted",
+     "base_value": 80,
+     "contribution": 80,
+     "running_subtotal": 140,
+     "transformed_token": "ף"
+    },
+    {
+     "index": 4,
+     "scope": "letter",
+     "token": "צ",
+     "position": 4,
+     "transform": "substituted",
+     "base_value": 10,
+     "contribution": 10,
+     "running_subtotal": 150,
+     "transformed_token": "י"
+    },
+    {
+     "index": 5,
+     "scope": "letter",
+     "token": "י",
+     "position": 5,
+     "transform": "substituted",
+     "base_value": 90,
+     "contribution": 90,
+     "running_subtotal": 240,
+     "transformed_token": "צ"
+    },
+    {
+     "index": 6,
+     "scope": "letter",
+     "token": " ",
+     "position": 6,
+     "transform": "substituted",
+     "base_value": 0,
+     "contribution": 0,
+     "running_subtotal": 240,
+     "transformed_token": " "
+    },
+    {
+     "index": 7,
+     "scope": "letter",
+     "token": "ב",
+     "position": 7,
+     "transform": "substituted",
+     "base_value": 8,
+     "contribution": 8,
+     "running_subtotal": 248,
+     "transformed_token": "ח"
+    },
+    {
+     "index": 8,
+     "scope": "letter",
+     "token": "ת",
+     "position": 8,
+     "transform": "substituted",
+     "base_value": 40,
+     "contribution": 40,
+     "running_subtotal": 288,
+     "transformed_token": "ם"
+    },
+    {
+     "index": 9,
+     "scope": "letter",
+     "token": "ש",
+     "position": 9,
+     "transform": "substituted",
+     "base_value": 50,
+     "contribution": 50,
+     "running_subtotal": 338,
+     "transformed_token": "ן"
+    },
+    {
+     "index": 10,
+     "scope": "letter",
+     "token": "פ",
+     "position": 10,
+     "transform": "substituted",
+     "base_value": 20,
+     "contribution": 20,
+     "running_subtotal": 358,
+     "transformed_token": "כ"
+    },
+    {
+     "index": 11,
+     "scope": "letter",
+     "token": "ז",
+     "position": 11,
+     "transform": "substituted",
+     "base_value": 3,
+     "contribution": 3,
+     "running_subtotal": 361,
+     "transformed_token": "ג"
+    }
+   ],
+   "result": 361,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": true,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "אטבח",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_atbach",
+    "method_version": 1
+   },
+   "trace_kind": "SUBSTITUTION_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 361,
+    "canonical_value": 361
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive_substitution"
+  },
+  "רגיל": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ת",
+     "position": 1,
+     "transform": "identity",
+     "base_value": 400,
+     "contribution": 400,
+     "running_subtotal": 400
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "פ",
+     "position": 2,
+     "transform": "identity",
+     "base_value": 80,
+     "contribution": 80,
+     "running_subtotal": 480
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ר",
+     "position": 3,
+     "transform": "identity",
+     "base_value": 200,
+     "contribution": 200,
+     "running_subtotal": 680
+    },
+    {
+     "index": 4,
+     "scope": "letter",
+     "token": "צ",
+     "position": 4,
+     "transform": "identity",
+     "base_value": 90,
+     "contribution": 90,
+     "running_subtotal": 770
+    },
+    {
+     "index": 5,
+     "scope": "letter",
+     "token": "י",
+     "position": 5,
+     "transform": "identity",
+     "base_value": 10,
+     "contribution": 10,
+     "running_subtotal": 780
+    },
+    {
+     "index": 6,
+     "scope": "letter",
+     "token": " ",
+     "position": 6,
+     "transform": "identity",
+     "base_value": 0,
+     "contribution": 0,
+     "running_subtotal": 780
+    },
+    {
+     "index": 7,
+     "scope": "letter",
+     "token": "ב",
+     "position": 7,
+     "transform": "identity",
+     "base_value": 2,
+     "contribution": 2,
+     "running_subtotal": 782
+    },
+    {
+     "index": 8,
+     "scope": "letter",
+     "token": "ת",
+     "position": 8,
+     "transform": "identity",
+     "base_value": 400,
+     "contribution": 400,
+     "running_subtotal": 1182
+    },
+    {
+     "index": 9,
+     "scope": "letter",
+     "token": "ש",
+     "position": 9,
+     "transform": "identity",
+     "base_value": 300,
+     "contribution": 300,
+     "running_subtotal": 1482
+    },
+    {
+     "index": 10,
+     "scope": "letter",
+     "token": "פ",
+     "position": 10,
+     "transform": "identity",
+     "base_value": 80,
+     "contribution": 80,
+     "running_subtotal": 1562
+    },
+    {
+     "index": 11,
+     "scope": "letter",
+     "token": "ז",
+     "position": 11,
+     "transform": "identity",
+     "base_value": 7,
+     "contribution": 7,
+     "running_subtotal": 1569
+    }
+   ],
+   "result": 1569,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "רגיל",
+   "provenance": {
+    "engine": "gematria",
+    "function": "fn_ragil",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 1569,
+    "canonical_value": 1569
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "base_additive"
+  },
+  "הכפלה": {
+   "input": "תפרצי בתשפז",
+   "steps": [
+    {
+     "index": 1,
+     "scope": "letter",
+     "token": "ת",
+     "position": 1,
+     "transform": "square",
+     "base_value": 400,
+     "contribution": 160000,
+     "running_subtotal": 160000
+    },
+    {
+     "index": 2,
+     "scope": "letter",
+     "token": "פ",
+     "position": 2,
+     "transform": "square",
+     "base_value": 80,
+     "contribution": 6400,
+     "running_subtotal": 166400
+    },
+    {
+     "index": 3,
+     "scope": "letter",
+     "token": "ר",
+     "position": 3,
+     "transform": "square",
+     "base_value": 200,
+     "contribution": 40000,
+     "running_subtotal": 206400
+    },
+    {
+     "index": 4,
+     "scope": "letter",
+     "token": "צ",
+     "position": 4,
+     "transform": "square",
+     "base_value": 90,
+     "contribution": 8100,
+     "running_subtotal": 214500
+    },
+    {
+     "index": 5,
+     "scope": "letter",
+     "token": "י",
+     "position": 5,
+     "transform": "square",
+     "base_value": 10,
+     "contribution": 100,
+     "running_subtotal": 214600
+    },
+    {
+     "index": 6,
+     "scope": "letter",
+     "token": " ",
+     "position": 6,
+     "transform": "square",
+     "base_value": 0,
+     "contribution": 0,
+     "running_subtotal": 214600
+    },
+    {
+     "index": 7,
+     "scope": "letter",
+     "token": "ב",
+     "position": 7,
+     "transform": "square",
+     "base_value": 2,
+     "contribution": 4,
+     "running_subtotal": 214604
+    },
+    {
+     "index": 8,
+     "scope": "letter",
+     "token": "ת",
+     "position": 8,
+     "transform": "square",
+     "base_value": 400,
+     "contribution": 160000,
+     "running_subtotal": 374604
+    },
+    {
+     "index": 9,
+     "scope": "letter",
+     "token": "ש",
+     "position": 9,
+     "transform": "square",
+     "base_value": 300,
+     "contribution": 90000,
+     "running_subtotal": 464604
+    },
+    {
+     "index": 10,
+     "scope": "letter",
+     "token": "פ",
+     "position": 10,
+     "transform": "square",
+     "base_value": 80,
+     "contribution": 6400,
+     "running_subtotal": 471004
+    },
+    {
+     "index": 11,
+     "scope": "letter",
+     "token": "ז",
+     "position": 11,
+     "transform": "square",
+     "base_value": 7,
+     "contribution": 49,
+     "running_subtotal": 471053
+    }
+   ],
+   "result": 471053,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": null,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "הכפלה",
+   "provenance": {
+    "engine": "gematria",
+    "function": "hakpala_calc",
+    "method_version": 1
+   },
+   "trace_kind": "LETTER_LEDGER",
+   "dependencies": null,
+   "verification": {
+    "parity": true,
+    "trace_value": 471053,
+    "canonical_value": 471053
+   },
+   "execution_kind": "sql_function",
+   "method_version": 1,
+   "mathematical_family": "letter_square_sum"
+  },
+  "מילוי בלבד": {
+   "input": "תפרצי בתשפז",
+   "steps": {
+    "operator": "diff",
+    "components": [
+     {
+      "component_trace": {
+       "input": "תפרצי בתשפז",
+       "steps": [
+        {
+         "index": 1,
+         "scope": "letter",
+         "token": "ת",
+         "position": 1,
+         "transform": "identity",
+         "base_value": 416,
+         "contribution": 416,
+         "running_subtotal": 416
+        },
+        {
+         "index": 2,
+         "scope": "letter",
+         "token": "פ",
+         "position": 2,
+         "transform": "identity",
+         "base_value": 81,
+         "contribution": 81,
+         "running_subtotal": 497
+        },
+        {
+         "index": 3,
+         "scope": "letter",
+         "token": "ר",
+         "position": 3,
+         "transform": "identity",
+         "base_value": 510,
+         "contribution": 510,
+         "running_subtotal": 1007
+        },
+        {
+         "index": 4,
+         "scope": "letter",
+         "token": "צ",
+         "position": 4,
+         "transform": "identity",
+         "base_value": 104,
+         "contribution": 104,
+         "running_subtotal": 1111
+        },
+        {
+         "index": 5,
+         "scope": "letter",
+         "token": "י",
+         "position": 5,
+         "transform": "identity",
+         "base_value": 20,
+         "contribution": 20,
+         "running_subtotal": 1131
+        },
+        {
+         "index": 6,
+         "scope": "letter",
+         "token": " ",
+         "position": 6,
+         "transform": "identity",
+         "base_value": 0,
+         "contribution": 0,
+         "running_subtotal": 1131
+        },
+        {
+         "index": 7,
+         "scope": "letter",
+         "token": "ב",
+         "position": 7,
+         "transform": "identity",
+         "base_value": 412,
+         "contribution": 412,
+         "running_subtotal": 1543
+        },
+        {
+         "index": 8,
+         "scope": "letter",
+         "token": "ת",
+         "position": 8,
+         "transform": "identity",
+         "base_value": 416,
+         "contribution": 416,
+         "running_subtotal": 1959
+        },
+        {
+         "index": 9,
+         "scope": "letter",
+         "token": "ש",
+         "position": 9,
+         "transform": "identity",
+         "base_value": 360,
+         "contribution": 360,
+         "running_subtotal": 2319
+        },
+        {
+         "index": 10,
+         "scope": "letter",
+         "token": "פ",
+         "position": 10,
+         "transform": "identity",
+         "base_value": 81,
+         "contribution": 81,
+         "running_subtotal": 2400
+        },
+        {
+         "index": 11,
+         "scope": "letter",
+         "token": "ז",
+         "position": 11,
+         "transform": "identity",
+         "base_value": 67,
+         "contribution": 67,
+         "running_subtotal": 2467
+        }
+       ],
+       "result": 2467,
+       "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+       },
+       "method_key": "מילוי",
+       "provenance": {
+        "engine": "gematria",
+        "function": "fn_miluy",
+        "method_version": 1
+       },
+       "trace_kind": "LETTER_LEDGER",
+       "dependencies": null,
+       "verification": {
+        "parity": true,
+        "trace_value": 2467,
+        "canonical_value": 2467
+       },
+       "execution_kind": "sql_function",
+       "method_version": 1,
+       "mathematical_family": "base_additive"
+      },
+      "component_value": 2467,
+      "component_method": "מילוי"
+     },
+     {
+      "component_trace": {
+       "input": "תפרצי בתשפז",
+       "steps": [
+        {
+         "index": 1,
+         "scope": "letter",
+         "token": "ת",
+         "position": 1,
+         "transform": "identity",
+         "base_value": 400,
+         "contribution": 400,
+         "running_subtotal": 400
+        },
+        {
+         "index": 2,
+         "scope": "letter",
+         "token": "פ",
+         "position": 2,
+         "transform": "identity",
+         "base_value": 80,
+         "contribution": 80,
+         "running_subtotal": 480
+        },
+        {
+         "index": 3,
+         "scope": "letter",
+         "token": "ר",
+         "position": 3,
+         "transform": "identity",
+         "base_value": 200,
+         "contribution": 200,
+         "running_subtotal": 680
+        },
+        {
+         "index": 4,
+         "scope": "letter",
+         "token": "צ",
+         "position": 4,
+         "transform": "identity",
+         "base_value": 90,
+         "contribution": 90,
+         "running_subtotal": 770
+        },
+        {
+         "index": 5,
+         "scope": "letter",
+         "token": "י",
+         "position": 5,
+         "transform": "identity",
+         "base_value": 10,
+         "contribution": 10,
+         "running_subtotal": 780
+        },
+        {
+         "index": 6,
+         "scope": "letter",
+         "token": " ",
+         "position": 6,
+         "transform": "identity",
+         "base_value": 0,
+         "contribution": 0,
+         "running_subtotal": 780
+        },
+        {
+         "index": 7,
+         "scope": "letter",
+         "token": "ב",
+         "position": 7,
+         "transform": "identity",
+         "base_value": 2,
+         "contribution": 2,
+         "running_subtotal": 782
+        },
+        {
+         "index": 8,
+         "scope": "letter",
+         "token": "ת",
+         "position": 8,
+         "transform": "identity",
+         "base_value": 400,
+         "contribution": 400,
+         "running_subtotal": 1182
+        },
+        {
+         "index": 9,
+         "scope": "letter",
+         "token": "ש",
+         "position": 9,
+         "transform": "identity",
+         "base_value": 300,
+         "contribution": 300,
+         "running_subtotal": 1482
+        },
+        {
+         "index": 10,
+         "scope": "letter",
+         "token": "פ",
+         "position": 10,
+         "transform": "identity",
+         "base_value": 80,
+         "contribution": 80,
+         "running_subtotal": 1562
+        },
+        {
+         "index": 11,
+         "scope": "letter",
+         "token": "ז",
+         "position": 11,
+         "transform": "identity",
+         "base_value": 7,
+         "contribution": 7,
+         "running_subtotal": 1569
+        }
+       ],
+       "result": 1569,
+       "semantics": {
+        "per_word_reset": null,
+        "order_sensitive": false,
+        "final_letter_sensitive": false,
+        "word_boundary_sensitive": false,
+        "full_phrase_continuation": null
+       },
+       "method_key": "רגיל",
+       "provenance": {
+        "engine": "gematria",
+        "function": "fn_ragil",
+        "method_version": 1
+       },
+       "trace_kind": "LETTER_LEDGER",
+       "dependencies": null,
+       "verification": {
+        "parity": true,
+        "trace_value": 1569,
+        "canonical_value": 1569
+       },
+       "execution_kind": "sql_function",
+       "method_version": 1,
+       "mathematical_family": "base_additive"
+      },
+      "component_value": 1569,
+      "component_method": "רגיל"
+     }
+    ]
+   },
+   "result": 898,
+   "semantics": {
+    "per_word_reset": null,
+    "order_sensitive": false,
+    "final_letter_sensitive": false,
+    "word_boundary_sensitive": false,
+    "full_phrase_continuation": null
+   },
+   "method_key": "מילוי בלבד",
+   "provenance": {
+    "engine": "gematria",
+    "function": null,
+    "method_version": 2
+   },
+   "trace_kind": "COMPOSITE",
+   "dependencies": [
+    "מילוי",
+    "רגיל"
+   ],
+   "verification": {
+    "parity": true,
+    "trace_value": 898,
+    "canonical_value": 898
+   },
+   "execution_kind": "composite_engine",
+   "method_version": 2,
+   "mathematical_family": "composite_diff"
+  }
+ }
+}

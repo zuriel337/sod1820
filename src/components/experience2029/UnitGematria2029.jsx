@@ -14,7 +14,6 @@ import { HINT_STATES } from "../../lib/research/postSourceHintCheck2029.js";
 import { GX_DISPLAYS } from "../../lib/research/postUnitBody2029.js";
 import GematriaShowcase2029 from "./GematriaShowcase2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
-import { TraceFamilyStage2029 } from "../gematria2029/MethodTraceExplanation2029.jsx";
 import { use2029Shell } from "./Sod2029Shell.jsx";
 
 const byLabel = (by) => (by === "editorial" || !by ? "בנוסח העריכה" : `בדברי ${(ATTRIBUTION_GROUPS.find((g) => g.identity === by) || {}).label?.replace(/^דברי\s+/, "") || by}`);
@@ -38,7 +37,7 @@ export function GematriaView2029({ state, phrase, display = "letters", stated = 
   const heavy = state.model.components?.length;
   return <div className="sod29-ugx-trace">
     {display === "full"
-      ? (heavy ? <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" /> : <TraceFamilyStage2029 model={state.model} depth="S2" />)
+      ? <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" />
       : (heavy ? <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" /> : <GematriaShowcase2029 model={state.model} expression={phrase} />)}
     <GapNote state={state} stated={stated} />
     <p className="sod29-pu-trace-links"><button type="button" onClick={open}>פתח בדף המספר</button></p>

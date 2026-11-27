@@ -445,7 +445,6 @@ export default function SpatialMethodStage2029({
   if (methodKey === "רגיל") return <RegularStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "מסתתר") return <MistaterStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "קדמי") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
-  if (methodKey === "משולש מילה") return <TriangleWordStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
 
   const model = projectGematriaTrace(normalized, { expression, methodKey, expectedValue });
   return <TraceFamilyStage2029 key={`${expression}:${methodKey}`} model={model} depth={depth} />;

@@ -1,0 +1,117 @@
+// The mathematical structure of a gematria method, drawn from the canonical engine trace ONLY (ZURIEL 27.11.2026, one display for every consumer).
+// It renders a model projected by projectGematriaTrace (which fails closed on any trace the engine did not verify); it never calculates a step of a method.
+// The only arithmetic printed is the plain re-addition of the engine's own numbers, shown ONLY when it equals the engine's own total (the same rule as GematriaShowcase2029).
+//   CUMULATIVE_PREFIX   a prefix triangle: one per word when the engine resets at each word (ריבוע), one for the whole phrase when it continues (משולש מילה), read from the end in the reverse triangle
+//   POSITION_WEIGHTED   letter value × position = contribution, per word
+//   ADJACENT_DIFFERENCE the chain of letter values with the difference of every adjacent pair, per word
+//   LETTER_LEDGER / SUBSTITUTION_LEDGER   the running ledger (a squared value or a substituted letter shown as the engine gave it)
+import React from "react";
+import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
+
+const num = (v) => v != null && v !== "" && Number.isFinite(Number(v));
+const sum = (values) => values.reduce((a, v) => a + Number(v), 0);
+const fmt = (n) => Number(n).toLocaleString("en-US");
+
+/** "a + b + c = total", only when the engine's own numbers really add up to the engine's own total. */
+function SumLine({ values, total, label = null, quiet = false }) {
+  if (!num(total)) return null;
+  const adds = values.length > 1 && values.every(num) && sum(values) === Number(total);
+  return <p className={`sod29-ms-sum${quiet ? " is-quiet" : ""}`} dir="ltr" tabIndex={adds && values.length > 5 ? 0 : undefined}>
+    {label ? <small dir="rtl">{label}</small> : null}
+    {adds ? values.map((v, i) => <React.Fragment key={i}>{i ? <span className="sod29-ms-op">+</span> : null}<span>{fmt(v)}</span></React.Fragment>) : null}
+    {adds ? <span className="sod29-ms-op">=</span> : null}
+    <b>{fmt(total)}</b>
+  </p>;
+}
+
+function Word({ group, children, total = group.subtotal, values = null }) {
+  return <section className="sod29-ms-word" aria-label={`המילה ${group.label}`}>
+    <h4>{group.label}</h4>
+    {children}
+    {values ? <SumLine values={values} total={total} label="סכום המילה" /> : null}
+  </section>;
+}
+
+function PrefixTriangle({ group, max }) {
+  // the engine's source positions tell the direction: the letter added at each step is the last one of the prefix, or the first one when the triangle is read from the end
+  const reversed = group.rows.length > 1 && Number(group.rows[0].position) > Number(group.rows.at(-1).position);
+  return <ol className="sod29-ms-triangle">
+    {group.rows.map((row, i) => {
+      const added = row.source?.base_value;
+      const prefix = [...row.prefix];
+      return <li key={row.id} style={{ "--ms-fill": max > 0 ? Math.max(4, Math.round((row.value / max) * 100)) : 0 }}>
+        <span className="sod29-ms-prefix" dir="rtl" aria-label={`קידומת ${row.prefix}`}>
+          {prefix.map((ch, k) => (k === (reversed ? 0 : prefix.length - 1)) ? <em key={k}><HebrewGlyph2029 text={ch} /></em> : <HebrewGlyph2029 key={k} text={ch} />)}
+        </span>
+        <span className="sod29-ms-added" dir="ltr">{num(added) ? `+${fmt(added)}` : ""}</span>
+        <b className="sod29-ms-value" dir="ltr">{fmt(row.value)}</b>
+        <i className="sod29-ms-bar" aria-hidden="true" />
+      </li>;
+    })}
+  </ol>;
+}
+
+function CumulativePrefix({ model }) {
+  const resets = model.semantics?.per_word_reset === true;
+  const all = model.groups.flatMap((g) => g.rows.map((r) => r.value));
+  const max = Math.max(...all);
+  const words = model.groups.map((group) => ({ group, values: group.rows.map((r) => r.value) }));
+  return <div className="sod29-ms" data-ms="prefix-triangle" data-ms-scope={resets ? "per-word" : "phrase"}>
+    {words.map(({ group, values }) => <Word key={group.id} group={group} values={values} total={resets ? group.subtotal : model.result}>
+      <PrefixTriangle group={group} max={resets ? Math.max(...values) : max} />
+    </Word>)}
+    {resets && model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
+    {!resets || model.groups.length === 1 ? null : null}
+  </div>;
+}
+
+function PositionWeighted({ model }) {
+  return <div className="sod29-ms" data-ms="position-weighted">
+    {model.groups.map((group) => <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
+      <ol className="sod29-ms-rows">{group.rows.map((row) => <li key={row.id}>
+        <span className="sod29-ms-letter"><HebrewGlyph2029 text={row.token} /></span>
+        <span dir="ltr">{fmt(row.baseValue)} × {row.position}</span><b dir="ltr">= {fmt(row.value)}</b></li>)}</ol>
+    </Word>)}
+    {model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
+  </div>;
+}
+
+function AdjacentDifference({ model }) {
+  return <div className="sod29-ms" data-ms="adjacent-difference">
+    {model.groups.map((group) => <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
+      <ol className="sod29-ms-rows">{group.rows.map((row) => <li key={row.id}>
+        <span className="sod29-ms-letter" dir="rtl">{row.token}</span>
+        <span dir="ltr">{num(row.left) ? `${fmt(row.left)} − ${fmt(row.right)}` : ""}</span><b dir="ltr">= {fmt(row.value)}</b></li>)}</ol>
+    </Word>)}
+    {model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
+  </div>;
+}
+
+function Ledger({ model }) {
+  // The engine gives a running subtotal for every letter and no total per word, so none is calculated here: the rows end at the engine's own result.
+  return <div className="sod29-ms" data-ms={model.kind === "SUBSTITUTION_LEDGER" ? "substitution-ledger" : "letter-ledger"}>
+    {model.groups.map((group) => <Word key={group.id} group={group}>
+      <ol className="sod29-ms-rows">{group.rows.map((row) => {
+        const squared = row.source?.transform === "square" && num(row.source.base_value) && Number(row.source.base_value) ** 2 === Number(row.value);
+        return <li key={row.id}>
+          <span className="sod29-ms-letter"><HebrewGlyph2029 text={row.token} />{row.transformed && row.transformed !== row.token ? <> ← <HebrewGlyph2029 text={row.transformed} /></> : null}</span>
+          <span dir="ltr">{squared ? `${fmt(row.source.base_value)}²` : ""}</span><b dir="ltr">{squared ? "= " : ""}{fmt(row.value)}</b>
+          <small dir="ltr">Σ {fmt(row.subtotal)}</small></li>;
+      })}</ol>
+    </Word>)}
+  </div>;
+}
+
+/** Whether this model has a structure view (so a caller can keep its own step list only as the secondary reading). */
+export const drawsStructure = (model) => Boolean(model && model.state === "ready" && !model.components?.length && model.groups?.length
+  && ["CUMULATIVE_PREFIX", "POSITION_WEIGHTED", "ADJACENT_DIFFERENCE", "LETTER_LEDGER", "SUBSTITUTION_LEDGER"].includes(model.kind));
+
+/** The structure view for a verified, ready model; null for a kind (or a composite) it does not draw, so the caller keeps its own display. */
+export default function MethodStructure2029({ model }) {
+  if (!model || model.state !== "ready" || model.components?.length || !model.groups?.length) return null;
+  if (model.kind === "CUMULATIVE_PREFIX") return <CumulativePrefix model={model} />;
+  if (model.kind === "POSITION_WEIGHTED") return <PositionWeighted model={model} />;
+  if (model.kind === "ADJACENT_DIFFERENCE") return <AdjacentDifference model={model} />;
+  if (model.kind === "LETTER_LEDGER" || model.kind === "SUBSTITUTION_LEDGER") return <Ledger model={model} />;
+  return null;
+}

@@ -3,6 +3,7 @@ import { methodMechanicalDefinition } from "../../lib/research/beitMidrashMethod
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { projectGematriaTrace } from "../../lib/research/gematriaTracePresentation.js";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
+import MethodStructure2029, { drawsStructure } from "./MethodStructure2029.jsx";
 
 export function TraceBreakdown2029({ model }) {
   if (model.state !== "ready") return null;
@@ -25,13 +26,7 @@ export function TraceFamilyStage2029({ model, depth = "S2" }) {
   const [selected, setSelected] = useState(0);
   const rows = model.groups.flatMap((group) => group.rows.map((row) => ({ ...row, word: group.label })));
   const focus = rows[Math.min(selected, rows.length - 1)];
-  return <section className="sod29-spatial-method-stage is-trace-family" dir="rtl" data-experience-capability="spatial-method-stage"
-    data-method-key={model.methodKey} data-depth={depth} data-method-visual={model.kind} data-state="ready">
-    <div className="sod29-spatial-method-stage__head">
-      <div><span>{model.methodLabel}</span><strong>{model.expression}</strong><small>{model.instruction}</small></div>
-      <div className="sod29-spatial-method-stage__result"><small>תוצאה</small><b>{model.result}</b></div>
-    </div>
-    {model.components.length ? <TraceBreakdown2029 model={model} /> : <>
+  const stepwise = <>
       <div className="sod29-method-step-list" aria-label="בחירת צעד בחישוב">
         {rows.map((row, index) => <button key={row.id} type="button" aria-pressed={selected === index}
           onClick={() => setSelected(index)} className={selected === index ? "is-focus" : ""}>
@@ -47,6 +42,16 @@ export function TraceFamilyStage2029({ model, depth = "S2" }) {
           <span>{selected + 1} / {rows.length}</span>
           <button type="button" disabled={selected >= rows.length - 1} onClick={() => setSelected((i) => i + 1)}>הצעד הבא</button></div>
       </div> : null}
+  </>;
+  return <section className="sod29-spatial-method-stage is-trace-family" dir="rtl" data-experience-capability="spatial-method-stage"
+    data-method-key={model.methodKey} data-depth={depth} data-method-visual={model.kind} data-state="ready">
+    <div className="sod29-spatial-method-stage__head">
+      <div><span>{model.methodLabel}</span><strong>{model.expression}</strong><small>{model.instruction}</small></div>
+      <div className="sod29-spatial-method-stage__result"><small>תוצאה</small><b>{model.result}</b></div>
+    </div>
+    {model.components.length ? <TraceBreakdown2029 model={model} /> : <>
+      <MethodStructure2029 model={model} />
+      {drawsStructure(model) ? <details className="sod29-method-stepwise"><summary>צעד אחר צעד</summary>{stepwise}</details> : stepwise}
     </>}
   </section>;
 }
