@@ -56,6 +56,12 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
         if (!(await message(guestPage, ownId).innerText()).includes(texts.own)) throw new Error('the text of the comment is not on the page');
         if (!(await noSideScroll(guestPage))) throw new Error('horizontal scroll');
       });
+      await step('a guest presses like on a comment and the stored like counter reads 1 (the page sends repeatable likes without an account, through the edge address)', async () => {
+        await message(guestPage, otherId).getByRole('button', { name: 'הוסף לייק' }).first().click({ timeout: 15000 });
+        const stored = await until(() => row(otherId), (r) => r?.reactions?.community_likes === 1);
+        if (stored?.reactions?.community_likes !== 1) throw new Error(`stored likes ${stored?.reactions?.community_likes}`);
+        await message(guestPage, otherId).getByRole('button', { name: 'הוסף לייק' }).filter({ hasText: '1' }).first().waitFor({ timeout: 20000 });
+      });
       await step('the unreviewed guest comment is nowhere on the page for a guest', async () => {
         if ((await guestPage.content()).includes(texts.guest)) throw new Error('unreviewed text is visible');
         if (await guestPage.locator(`article#message-${guestId}`).count()) throw new Error('the unreviewed comment has a place on the page');
@@ -79,10 +85,6 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
       });
       await step('pressing like stores one like, pressing dislike stores one dislike, and the buttons show the counts', async () => {
         await likeButton().first().click({ timeout: 15000 });
-        // a different, throwaway comment: the replay must never change the counters this step asserts on
-        const probe = await add(`בדיקת חיווט ${profile} ${tag}`, ta);
-        const replay = await rpc('toggle_contribution_reaction', { p_id: probe, p_emoji: '👍', p_visitor: 'community-repeatable-like' }, tb);
-        reactionCalls.push(`replay with the member token from outside the page: ${replay.status} ${JSON.stringify(replay.body).slice(0, 70)}`);
         const liked = await until(() => row(ownId), (r) => r?.reactions?.community_likes === 1);
         if (liked?.reactions?.community_likes !== 1) throw new Error(`stored likes ${liked?.reactions?.community_likes}`);
         await dislikeButton().first().click({ timeout: 15000 });

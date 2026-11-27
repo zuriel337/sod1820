@@ -89,6 +89,9 @@ self.addEventListener('fetch',e=>{const u=new URL(e.request.url);if(u.pathname.s
           for (const [key, value] of Object.entries(req.headers)) if (!['host', 'connection', 'content-length', 'accept-encoding'].includes(key)) headers[key] = value;
           const incoming = headers.apikey;
           headers.apikey = supabaseProxy.anon;   // the production anon key means nothing to the local stack
+          // The edge (Cloudflare) sets the visitor's address on every request in production; the local stack has no such edge. A QA run that exercises the guest
+          // network protection says which address the "edge" reports, and it is set here, server side, exactly as the edge does (a browser cannot send it).
+          if (supabaseProxy.clientIp) headers['cf-connecting-ip'] = supabaseProxy.clientIp; else delete headers['cf-connecting-ip'];
           if (incoming && headers.authorization === `Bearer ${incoming}`) headers.authorization = `Bearer ${supabaseProxy.anon}`;
           const upstream = await fetch(supabaseProxy.origin + req.url, { method: req.method, headers, body: ['GET', 'HEAD'].includes(req.method) ? undefined : body, redirect: 'manual' });
           const out = {};

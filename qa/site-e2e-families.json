@@ -420,6 +420,8 @@
      "label": "לייק ודיסלייק בלחיצה: נשמר, מוצג במונה ושורד רענון (דפדפן אמיתי)",
      "role": "member",
      "results": [
+      "ui-comments desktop-1440: a guest presses like",
+      "ui-comments Pixel 7: a guest presses like",
       "ui-comments desktop-1440: member B opens the Community page",
       "ui-comments Pixel 7: member B opens the Community page",
       "ui-comments desktop-1440: pressing like stores one like",

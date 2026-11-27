@@ -111,7 +111,7 @@ const settings = config();
 mkdirSync(out, { recursive: true });
 const account = await syntheticAccount(settings);
 note(true, 'synthetic account created in the local backend', 'random password, member role, never printed');
-const fixture = await startFixture({ supabaseProxy: { origin: settings.origin, anon: settings.anon }, deploymentCsp: true });
+const fixture = await startFixture({ supabaseProxy: { origin: settings.origin, anon: settings.anon, clientIp: '198.51.100.77' }, deploymentCsp: true });
 const { chromium, devices } = createRequire(import.meta.url)('playwright');
 const browser = await chromium.launch({ args: fixture.chromiumArgs, env: fixture.browserEnv });
 let failed = false;
