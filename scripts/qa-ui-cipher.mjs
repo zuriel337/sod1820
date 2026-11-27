@@ -35,9 +35,12 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
     const trace = [];
     page.on('response', (r) => { if (r.status() >= 400) trace.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
+    const fn = [];
+    page.on('response', (r) => { if (r.url().includes('/functions/v1/')) fn.push(`${r.status()} ${r.request().method()}`); });
+    page.on('requestfailed', (r) => { if (r.url().includes('/functions/v1/') || r.url().includes('/rest/v1/els_records')) fn.push(`FAILED ${r.request ? '' : ''}${r.failure()?.errorText || ''} ${new URL(r.url()).pathname}`); });
     const notes = async () => (await page.locator('[role=alert], [role=status], .els29-native-notice').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).map((n) => (n.textContent || '').trim().slice(0, 90)))).join(' / ');
     const dump = async () => (await page.getByRole('button').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).slice(0, 40).map((n) => (n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 24)))).join(' | ');
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 900)); return false; } };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | edge: ${fn.slice(-6).join(', ') || 'no call'} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 900)); return false; } };
     const title = `QA צופן ${profile}`;
     try {
       if (!await step('the matrix page opens with the existing engine ready', async () => {

@@ -1501,3 +1501,77 @@ grant execute on function public.fn_capability_execution_gate_v1(p_capability te
 -- @@ fngrant public.fn_user_entitlement(p_user_ref text, p_visitor text)
 revoke all on function public.fn_user_entitlement(p_user_ref text, p_visitor text) from public;
 grant execute on function public.fn_user_entitlement(p_user_ref text, p_visitor text) to service_role;
+-- @@ table public.els_records
+create table public.els_records (
+  id uuid not null default gen_random_uuid(),
+  title text not null,
+  search_term text,
+  torah_book text,
+  torah_section text,
+  skip_distance integer,
+  image_url text,
+  description text,
+  primary_number integer,
+  anchor_numbers integer[],
+  importance integer default 3,
+  visibility text default 'public'::text,
+  status text default 'draft'::text,
+  created_at timestamp with time zone default now(),
+  owner_user_id uuid,
+  author_name text,
+  visitor_id text,
+  positions jsonb,
+  source text default 'admin'::text,
+  scope text default 'torah'::text,
+  direction text,
+  slug text,
+  self_published boolean not null default false,
+  home_hidden boolean not null default false,
+  corpus_id text,
+  term_norm text,
+  start_index integer,
+  engine_detail jsonb,
+  constraint els_records_pkey PRIMARY KEY (id),
+  constraint els_records_private_not_self_published_chk CHECK (((visibility <> 'private'::text) OR (COALESCE(self_published, false) = false))) NOT VALID,
+  constraint els_records_status_check CHECK ((status = ANY (ARRAY['draft'::text, 'pending'::text, 'published'::text, 'hidden'::text, 'archived'::text]))),
+  constraint els_records_visibility_check CHECK ((visibility = ANY (ARRAY['public'::text, 'member'::text, 'premium'::text, 'admin'::text, 'private'::text])))
+);
+-- @@ fk public.els_records.els_records_owner_user_id_fkey
+alter table public.els_records add constraint els_records_owner_user_id_fkey FOREIGN KEY (owner_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+-- @@ index public.els_records.els_anchor_numbers_idx
+CREATE INDEX els_anchor_numbers_idx ON public.els_records USING gin (anchor_numbers);
+-- @@ index public.els_records.els_primary_number_idx
+CREATE INDEX els_primary_number_idx ON public.els_records USING btree (primary_number);
+-- @@ index public.els_records.els_records_slug_uidx
+CREATE UNIQUE INDEX els_records_slug_uidx ON public.els_records USING btree (slug) WHERE (slug IS NOT NULL);
+-- @@ rls public.els_records
+alter table public.els_records enable row level security;
+-- @@ policy public.els_records.admin_all_els
+create policy admin_all_els on public.els_records as PERMISSIVE for ALL to authenticated using ((EXISTS ( SELECT 1
+   FROM users u
+  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))) with check ((EXISTS ( SELECT 1
+   FROM users u
+  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text)))));
+-- @@ policy public.els_records.els_owner_read
+create policy els_owner_read on public.els_records as PERMISSIVE for SELECT to authenticated using ((owner_user_id = auth.uid()));
+-- @@ policy public.els_records.public_read_published_els
+create policy public_read_published_els on public.els_records as PERMISSIVE for SELECT to public using (((status = 'published'::text) AND (visibility = 'public'::text)));
+-- @@ policy public.els_records.public_read_self_published_els
+create policy public_read_self_published_els on public.els_records as PERMISSIVE for SELECT to public using (((self_published = true) AND (visibility = 'public'::text)));
+-- @@ trigger public.els_records.trg_cipher_notify
+CREATE TRIGGER trg_cipher_notify AFTER INSERT OR UPDATE OF status ON public.els_records FOR EACH ROW EXECUTE FUNCTION notify_on_cipher_publish();
+-- @@ trigger public.els_records.trg_els_fill_numbers
+CREATE TRIGGER trg_els_fill_numbers BEFORE INSERT OR UPDATE ON public.els_records FOR EACH ROW EXECUTE FUNCTION els_fill_numbers();
+-- @@ trigger public.els_records.trg_els_published_to_ticker
+CREATE TRIGGER trg_els_published_to_ticker AFTER INSERT OR UPDATE OF status ON public.els_records FOR EACH ROW EXECUTE FUNCTION els_published_to_ticker();
+-- @@ tablegrant public.els_records
+grant DELETE on public.els_records to service_role;
+grant INSERT on public.els_records to service_role;
+grant REFERENCES on public.els_records to service_role;
+grant SELECT on public.els_records to service_role;
+grant TRIGGER on public.els_records to service_role;
+grant TRUNCATE on public.els_records to service_role;
+grant UPDATE on public.els_records to service_role;
+-- @@ colgrant public.els_records
+grant select (id, title, search_term, torah_book, torah_section, skip_distance, image_url, description, primary_number, anchor_numbers, importance, visibility, status, created_at, owner_user_id, author_name, positions, source, scope, direction, slug, self_published, home_hidden, corpus_id, term_norm, start_index, engine_detail) on public.els_records to anon;
+grant select (id, title, search_term, torah_book, torah_section, skip_distance, image_url, description, primary_number, anchor_numbers, importance, visibility, status, created_at, owner_user_id, author_name, positions, source, scope, direction, slug, self_published, home_hidden, corpus_id, term_norm, start_index, engine_detail) on public.els_records to authenticated;
