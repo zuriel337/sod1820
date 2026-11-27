@@ -54,6 +54,9 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       if (!await step('the matrix page opens with the existing engine ready', async () => {
         await page.goto('https://sod1820.co.il/code', { waitUntil: 'domcontentloaded', timeout: 45000 });
         await page.locator('.els29-native-search').first().waitFor({ timeout: 90000 });
+        // the box is there before the engine is: wait until the page says the matrix and the engine are open (the live indicator of the Operation Visibility Law is gone)
+        await page.locator('[data-els-operation-meter]').first().waitFor({ state: 'detached', timeout: 120000 }).catch(() => {});
+        await page.waitForTimeout(3000);
       })) continue;
       if (!await step('searching a word verifies an occurrence through the real edge function and opens the matrix', async () => {
         const field = page.locator('form.els29-native-basic-form input[placeholder="למשל: משיח"]:visible').first();
