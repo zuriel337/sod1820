@@ -1,0 +1,1403 @@
+{
+  "version": 1,
+  "as_of": "2026-11-27",
+  "window": "30 ימים עד 27.11 (events לא בוטים)",
+  "vocabulary": {
+    "measured": "נפלט, ב־allow-list, מגיע",
+    "not_sent": "נפלט בקוד ונזרק בבנייה הציבורית",
+    "not_emitted": "אין פולט",
+    "n_a": "לא רלוונטי",
+    "other_channel": "GA4/Meta או טבלת תחום בלבד"
+  },
+  "rows": [
+    {
+      "id": "N01",
+      "domain": "גלישה",
+      "action": "צפייה בדף",
+      "stages": {
+        "view": {
+          "event": "page/view",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 22390,
+      "counted": "traffic_daily, TI",
+      "admin": "כן (פעילות לפי מדורים)",
+      "stats": "כן",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "N02",
+      "domain": "גלישה",
+      "action": "מעורבות בדף (engagement)",
+      "stages": {
+        "view": {
+          "event": "page/engagement",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 16834,
+      "counted": "מסווג: dwell≥15s",
+      "admin": "עקיף",
+      "stats": "עקיף (סיווג)",
+      "gap_stage": "S1",
+      "note": "20 השניות הראשונות נספרות בלי פעילות; 103 סשנים אנושיים בלי הוכחת פעילות (30 ימים)"
+    },
+    {
+      "id": "N03",
+      "domain": "גלישה",
+      "action": "מקור הגעה",
+      "stages": {
+        "view": {
+          "event": "arrival/source",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 13271,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "חלקי",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "N04",
+      "domain": "גלישה",
+      "action": "מהירות בפועל (RUM)",
+      "stages": {
+        "view": {
+          "event": "performance/web_vital",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 12053,
+      "counted": "speed centre",
+      "admin": "כן (מרכז מהירות)",
+      "stats": "לא",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "N05",
+      "domain": "מספרים",
+      "action": "מעבר ממספר למספר בקישור",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": "הנחיתה נמדדת כצפייה; הלחיצה לא"
+    },
+    {
+      "id": "N06",
+      "domain": "חלוניות",
+      "action": "פתיחה וסגירה של מגירה/חלונית/לשונית",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": ""
+    },
+    {
+      "id": "N07",
+      "domain": "חיפוש",
+      "action": "חיפוש באתר",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "activity_2029/search",
+          "status": "measured"
+        },
+        "start": {
+          "event": "activity_2029/typing",
+          "status": "measured"
+        },
+        "success": {
+          "event": "activity_2029/select",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 9,
+      "counted": "TI",
+      "admin": "כן (פעולות)",
+      "stats": "חלקי",
+      "gap_stage": "S5",
+      "note": "אין אירוע 'אין תוצאות'"
+    },
+    {
+      "id": "N08",
+      "domain": "חיפוש",
+      "action": "חיפוש בדף מספר",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "activity_2029/search",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 105,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "כן (חיפושים)",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "N09",
+      "domain": "חיפוש",
+      "action": "חיפוש בפוסטים, קהילה, ספרים, גלריה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": ""
+    },
+    {
+      "id": "C01",
+      "domain": "תוכן",
+      "action": "פתיחת פוסט",
+      "stages": {
+        "view": {
+          "event": "content/view",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 2559,
+      "counted": "TI (מזהה מדויק)",
+      "admin": "כן",
+      "stats": "כן (רצפה 10/5)",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "C02",
+      "domain": "תוכן",
+      "action": "קריאת פוסט (גלילה, סיום)",
+      "stages": {
+        "view": {
+          "event": "page/engagement",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 16834,
+      "counted": "engagement בלבד",
+      "admin": "עקיף",
+      "stats": "לא",
+      "gap_stage": "S5",
+      "note": ""
+    },
+    {
+      "id": "C03",
+      "domain": "תוכן",
+      "action": "לחיצה על מספר בגוף פוסט",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "entry_2029/post_number_open",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 4,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "C04",
+      "domain": "תוכן",
+      "action": "לחיצה על מקור/כותב/בדיקת מנוע בפוסט",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "entry_2029/post_source_open",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S6",
+      "note": "מוגדר ונפלט; אפס הגעות ב־30 ימים"
+    },
+    {
+      "id": "C05",
+      "domain": "תוכן",
+      "action": "גלריה (פתיחה, הבא, הקודם)",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": ""
+    },
+    {
+      "id": "C06",
+      "domain": "תוכן",
+      "action": "בית מדרש",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": ""
+    },
+    {
+      "id": "C07",
+      "domain": "תוכן",
+      "action": "פתיחת דף צופן או נושא",
+      "stages": {
+        "view": {
+          "event": "page/view",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S4",
+      "note": "הנתיב נרשם כתבנית /codes/:item ו־/topic/:item, בלי זהות הפריט"
+    },
+    {
+      "id": "K01",
+      "domain": "מחשבון",
+      "action": "פתיחת מחשבון",
+      "stages": {
+        "view": {
+          "event": "calculator_2029/calculator_view",
+          "status": "measured"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 433,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "כן",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "K02",
+      "domain": "מחשבון",
+      "action": "חישוב (הקלדה → תוצאה)",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": "activity_2029/typing",
+          "status": "measured"
+        },
+        "success": {
+          "event": "activity_2029/compute",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 1086,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "כן (חישובים)",
+      "gap_stage": "S5",
+      "note": "כישלון או חישוב ריק אינם נשלחים"
+    },
+    {
+      "id": "K03",
+      "domain": "מחשבון",
+      "action": "חישוב ראשון (first_compute)",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "calculator_2029/first_compute",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S5",
+      "note": "מוגדר ומורשה, אך נפלט רק בדף המחשבון הקלאסי; כמעט כל החישוב בשורת calculator_advanced שאין בה first_compute; אפס הגעות מאז 12.10"
+    },
+    {
+      "id": "K04",
+      "domain": "מחשבון",
+      "action": "בחירת תוצאה / פתיחת שיטה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "calculator_2029/method_opened",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "calculator_2029/result_selected",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 3690,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "K05",
+      "domain": "מחשבון",
+      "action": "שיתוף תוצאה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "calculator_2029/share_created",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S6",
+      "note": "אפס הגעות ב־30 ימים; ייתכן שלא נעשה שימוש"
+    },
+    {
+      "id": "K06",
+      "domain": "מחשבון",
+      "action": "ניתוח AI",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "calculator_2029/ai_analysis_requested",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 1,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S5",
+      "note": ""
+    },
+    {
+      "id": "K07",
+      "domain": "מחשבון",
+      "action": "תצוגת 'שווה ל' (הצגה, הצג הכול)",
+      "stages": {
+        "view": {
+          "event": "calculator_2029/equals_preview_shown",
+          "status": "not_sent"
+        },
+        "click": {
+          "event": "calculator_2029/equals_preview_all_opened",
+          "status": "not_sent"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S5",
+      "note": "נפלטים בקוד ואינם ב־allow-list: נזרקים בבנייה הציבורית"
+    },
+    {
+      "id": "K08",
+      "domain": "מחשבון",
+      "action": "מחשבון הקהילה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": "activity_2029/typing",
+          "status": "measured"
+        },
+        "success": {
+          "event": "activity_2029/compute",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 124,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "כן",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "E01",
+      "domain": "צופן",
+      "action": "חיפוש צופן: התחלה, סיום, ביטול",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "els/ui_action",
+          "status": "measured"
+        },
+        "start": {
+          "event": "els/operation_started",
+          "status": "measured"
+        },
+        "success": {
+          "event": "els/operation_finished",
+          "status": "measured"
+        },
+        "failure": {
+          "event": "els/operation_finished",
+          "status": "measured"
+        }
+      },
+      "arrives_live_30d": 303,
+      "counted": "TI, outcome",
+      "admin": "כן",
+      "stats": "כן (חיפושי צופן)",
+      "gap_stage": "S5",
+      "note": "הצלחה/כישלון באותו אירוע, לפי outcome: completed 171, empty 78, partial 11, failed 9, cancelled 1, tracking_stopped 13 (אינו תוצאת משתמש)"
+    },
+    {
+      "id": "E02",
+      "domain": "צופן",
+      "action": "שמירת צופן",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": "els/operation_started",
+          "status": "measured"
+        },
+        "success": {
+          "event": "els/operation_finished",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 303,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "V01",
+      "domain": "וידאו",
+      "action": "נגן חיצוני: לחיצה, מוכן, סירוב",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "video_2029/play_requested",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "video_2029/player_ready",
+          "status": "measured"
+        },
+        "failure": {
+          "event": "video_2029/embed_refused",
+          "status": "measured"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "TI (נפרס 27.11)",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S2",
+      "note": "player_ready הוא טעינת iframe ולא הוכחת ניגון; סירוב נמדד רק ביוטיוב"
+    },
+    {
+      "id": "V02",
+      "domain": "וידאו",
+      "action": "נגן native או iframe גלוי (יותר מ־12 רכיבים)",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S4",
+      "note": ""
+    },
+    {
+      "id": "S01",
+      "domain": "שמירה",
+      "action": "שמירת פריט למחקר",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "activity_2029/save",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 8,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S2",
+      "note": "כישלון, הסרה, נעיצה וניקוי אינם נמדדים; app_health/save_failed קיים בשרת ואין לו פולט"
+    },
+    {
+      "id": "S02",
+      "domain": "מעקב",
+      "action": "עוקב / עדכונים / התראות",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "other_channel"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "other_channel"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "GA4+Meta בלבד; טבלאות: subscribers 31, subscribe_events 18 (30 ימים)",
+      "admin": "לא",
+      "stats": "לא",
+      "gap_stage": "S3",
+      "note": ""
+    },
+    {
+      "id": "S03",
+      "domain": "הרשמה",
+      "action": "הרשמה וכניסה (קוד, סיסמה, OAuth)",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "other_channel"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "auth.users: 33 נוצרו, 35 נכנסו (30 ימים); GA4 'subscribe' בעת שליחת קוד",
+      "admin": "לא",
+      "stats": "לא",
+      "gap_stage": "S3",
+      "note": "app_health/auth_failed קיים בשרת ואין לו פולט"
+    },
+    {
+      "id": "S04",
+      "domain": "תגובות",
+      "action": "הודעה בקהילה / תגובה בפוסט",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "טבלה: 180 הודעות, 41 תרומות (30 ימים)",
+      "admin": "חלקי (מרכז גילויים)",
+      "stats": "חלקי (נוסף לאתר)",
+      "gap_stage": "S3",
+      "note": ""
+    },
+    {
+      "id": "S05",
+      "domain": "לייקים",
+      "action": "לייק, דיסלייק, תגובת רגש",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "not_emitted"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "עמודת reactions: 110 מתוך 183 הודעות",
+      "admin": "לא",
+      "stats": "לא",
+      "gap_stage": "S3",
+      "note": ""
+    },
+    {
+      "id": "S06",
+      "domain": "שיתוף",
+      "action": "שיתוף: לחיצה והשלמה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "share/share",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "share/share",
+          "status": "measured"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 36,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S4",
+      "note": "פתיחת סרגל שיתוף לא נמדדת; ערוץ חיצוני: התוצאה בלתי נראית; אין כישלון"
+    },
+    {
+      "id": "S07",
+      "domain": "תמיכה",
+      "action": "דיווח תקלה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": "issue_report/issue_report",
+          "status": "not_sent"
+        },
+        "failure": {
+          "event": null,
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 7,
+      "counted": "ingest_event ישיר",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": "S1",
+      "note": "עוקף את ה־allow-list ושומר טקסט חופשי: חריגת פרטיות"
+    },
+    {
+      "id": "S08",
+      "domain": "בריאות",
+      "action": "שגיאות ריצה וכשלי טעינה",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": "app_health/runtime_error",
+          "status": "not_emitted"
+        }
+      },
+      "arrives_live_30d": 0,
+      "counted": "runtime_error ישן: 243 (עד 4.11)",
+      "admin": "לא",
+      "stats": "לא",
+      "gap_stage": "S2",
+      "note": "family app_health הוחל בשרת ב־27.11; אין פולט בקוד: עיוורון"
+    },
+    {
+      "id": "S09",
+      "domain": "קהילה",
+      "action": "הצטרפות לקבוצת וואטסאפ",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "join/click",
+          "status": "measured"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": 14,
+      "counted": "TI",
+      "admin": "כן",
+      "stats": "לא",
+      "gap_stage": null,
+      "note": ""
+    },
+    {
+      "id": "S10",
+      "domain": "סיפורים",
+      "action": "צפייה בסיפורים (or-geula, story)",
+      "stages": {
+        "view": {
+          "event": "story_2029/impression",
+          "status": "not_sent"
+        },
+        "click": {
+          "event": null,
+          "status": "n_a"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S6",
+      "note": "story_2029 ב־allow-list; אין פולט; רכיב StoryViewer חסר בקוד"
+    },
+    {
+      "id": "S11",
+      "domain": "מסע",
+      "action": "מסע מחקר 2029",
+      "stages": {
+        "view": {
+          "event": null,
+          "status": "n_a"
+        },
+        "click": {
+          "event": "journey_2029/start",
+          "status": "not_sent"
+        },
+        "start": {
+          "event": null,
+          "status": "n_a"
+        },
+        "success": {
+          "event": null,
+          "status": "n_a"
+        },
+        "failure": {
+          "event": null,
+          "status": "n_a"
+        }
+      },
+      "arrives_live_30d": null,
+      "counted": "",
+      "admin": "",
+      "stats": "",
+      "gap_stage": "S6",
+      "note": "כל הפולטים מוגבלים ל־!PUBLIC_READING_RELEASE"
+    }
+  ],
+  "known_not_sent": [
+    "calculator_2029/equals_preview_all_opened",
+    "calculator_2029/equals_preview_shown",
+    "post/open",
+    "posts/open",
+    "gematria/compute",
+    "community/submit",
+    "journey_person/initial_research",
+    "campaign_landing/tiktok_open",
+    "campaign_landing/whatsapp_click",
+    "campaign_landing/calculator_verify",
+    "campaign_landing/signup",
+    "campaign_landing/video_unlock",
+    "campaign_landing/whatsapp_join"
+  ],
+  "plan": [
+    {
+      "id": "S0",
+      "title": "תיעוד, מפה ובדיקה קבועה (ענף זה)",
+      "changes": "קבצי תיעוד ובדיקה בלבד",
+      "needs": [
+        "מיזוג"
+      ],
+      "db": false,
+      "contract": false,
+      "speed": "אין השפעה"
+    },
+    {
+      "id": "S1",
+      "title": "אמינות סיווג ופרטיות המדידה",
+      "changes": "רצפה לפי מבקרים ולא לפי סשנים; הוכחת פעילות לראיית dwell; הסרת טקסט חופשי מדיווח תקלה; פאנל חריגים לקריאה בלבד",
+      "needs": [
+        "תוספת לחוק traffic_intelligence_law",
+        "SQL",
+        "קוד engagement.js (החלטת סמנטיקה)"
+      ],
+      "db": true,
+      "contract": true,
+      "speed": "אין (צד שרת וצד הדפדפן ללא ייבוא חדש)"
+    },
+    {
+      "id": "S2",
+      "title": "סגירת כשלים וחיווי בלי SQL: משפחות שכבר חיות בשרת",
+      "changes": "פולטים ל־app_health (שמירה, כניסה, טעינה, שגיאת ריצה); אימות video_2029 בשימוש אמיתי",
+      "needs": [
+        "מיזוג",
+        "פריסה"
+      ],
+      "db": false,
+      "contract": false,
+      "speed": "טעינה עצלה בלבד; אין ייבוא סטטי חדש במעטפת"
+    },
+    {
+      "id": "S3",
+      "title": "פעולות שהאמת שלהן בטבלאות תחום: הרשמה, כניסה, הודעות, לייקים, מעקב",
+      "changes": "ספירות מצרפיות בקורא TI הקיים מתוך הטבלאות, בלי אירוע חדש לכל פעולה",
+      "needs": [
+        "SQL",
+        "אישור חוק"
+      ],
+      "db": true,
+      "contract": true,
+      "speed": "אין (מטמון קיים)"
+    },
+    {
+      "id": "S4",
+      "title": "לחיצות ופתיחות שחסרות: מספר למספר, חלוניות, חיפושים, גלריה, בית מדרש, וידאו native, שיתוף",
+      "changes": "אירועים סגורים חדשים ב־allow-list (token/int בלבד) והפעלה ב־approach או ב־interaction",
+      "needs": [
+        "SQL לרשימת ההיתרים",
+        "קוד",
+        "מיזוג",
+        "פריסה"
+      ],
+      "db": true,
+      "contract": false,
+      "speed": "אסור ייבוא סטטי במעטפת; קוד מאחורי lazy"
+    },
+    {
+      "id": "S5",
+      "title": "משפחות ההפעלה: מחשבון וצופן",
+      "changes": "first_compute בשורת calculator_advanced; כישלון וחישוב ריק; תוצאת ניתוח AI; equals_preview ל־allow-list; הוצאת tracking_stopped מתוצאות",
+      "needs": [
+        "SQL (שתי משפחות)",
+        "קוד"
+      ],
+      "db": true,
+      "contract": false,
+      "speed": "אין"
+    },
+    {
+      "id": "S6",
+      "title": "משפחות מתות: story_2029, journey_2029, אירועי post_* ללא הגעות",
+      "changes": "החלטה: להפעיל או להסיר מה־allow-list ומהקוד",
+      "needs": [
+        "החלטת ZURIEL"
+      ],
+      "db": false,
+      "contract": false,
+      "speed": "הסרה מקטינה"
+    }
+  ]
+}
