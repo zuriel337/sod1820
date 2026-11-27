@@ -1,5 +1,6 @@
 import { isVerifiedMethodTrace, projectGematriaTrace, traceNumber } from "../../lib/research/gematriaTracePresentation.js";
 import { TraceFamilyStage2029 } from "./MethodTraceExplanation2029.jsx";
+import { EquationLine } from "./MethodStructure2029.jsx";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
 import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
@@ -117,26 +118,6 @@ function buildMistaterScene(expression, trace) {
   } catch {
     return null;
   }
-}
-
-function buildTriangleWordRows(trace) {
-  const rows = [];
-  let prefix = "";
-  for (const [index, step] of (Array.isArray(trace?.steps) ? trace.steps : []).entries()) {
-    const token = String(step?.token || "");
-    const value = Number(step?.prefix_subtotal);
-    if (!token || !Number.isFinite(value)) return null;
-    prefix += token;
-    rows.push({
-      id: `triangle-word:${index}:${token}`,
-      token,
-      prefix,
-      value,
-      position: Number.isFinite(Number(step?.original_position)) ? Number(step.original_position) : index + 1,
-      step,
-    });
-  }
-  return rows.length ? rows : null;
 }
 
 function MethodStageHead({ methodKey, expression, result, subtitle }) {
@@ -390,18 +371,21 @@ function KadmiStage({ expression, trace, depth, onRazielAction, onOpenHeichal })
   </section>;
 }
 
-function TriangleWordStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {
-  const rows = useMemo(() => buildTriangleWordRows(trace), [trace]);
-  if (!rows) return null;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="משולש מילה" data-depth={depth} data-method-visual="cumulative-prefix-formation">
-    <MethodStageHead methodKey="משולש מילה" expression={expression} result={trace.result} subtitle="התהוות מצטברת של קידומות" />
-    <div className="sod29-spatial-method-stage__prefix" role="list">
-      {rows.map((row, index) => <span className="sod29-spatial-method-stage__prefix-row" role="listitem" key={row.id} style={{ "--sms-prefix-step": index + 1 }}>
-        <b>{row.prefix}</b><strong>{row.value}</strong>
-      </span>)}
+/** A composite method: each component in the canonical stage of its own method, then the engine's own equation (the operands and the result are engine numbers). */
+function CompositeStage({ expression, trace, model, depth, onRazielAction, onOpenHeichal }) {
+  const parts = trace.steps?.components || [];
+  return <section className="sod29-spatial-method-stage is-composite" dir="rtl" data-experience-capability="spatial-method-stage"
+    data-method-key={trace.method_key} data-depth={depth} data-method-visual="COMPOSITE" data-state="ready" data-composite-trace data-discovery-composite>
+    <div className="sod29-spatial-method-stage__head">
+      <div><span>{model.methodLabel}</span><strong>{expression}</strong><small>{model.instruction}</small></div>
+      <div className="sod29-spatial-method-stage__result"><small>תוצאה</small><b>{model.result}</b></div>
     </div>
-    <p className="sod29-spatial-method-stage__boundary">בכל שורה נוספת אות לקידומת. מחברים את ערכי כל הקידומות לתוצאה הסופית.</p>
-    <GenericActions methodKey="משולש מילה" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
+    {model.components.map((component, index) => <section className="sod29-ms-component" key={component.id} aria-label={`${component.label}: ${component.value}`}>
+      <h4>{component.label} <b dir="ltr">{component.value}</b></h4>
+      <SpatialMethodStage2029 expression={expression} methodKey={component.methodKey} trace={parts[index]?.component_trace}
+        expectedValue={component.value} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
+    </section>)}
+    <EquationLine values={model.components.map((c) => c.value)} operator={model.operator} total={model.result} />
   </section>;
 }
 
@@ -447,6 +431,7 @@ export default function SpatialMethodStage2029({
   if (methodKey === "קדמי") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
 
   const model = projectGematriaTrace(normalized, { expression, methodKey, expectedValue });
+  if (model.state === "ready" && model.components?.length) return <CompositeStage expression={expression} trace={normalized} model={model} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   return <TraceFamilyStage2029 key={`${expression}:${methodKey}`} model={model} depth={depth} />;
 }
 
@@ -456,5 +441,4 @@ export const spatialMethodStageInternals = {
   buildMiluiRows,
   buildLedgerRows,
   buildMistaterScene,
-  buildTriangleWordRows,
 };

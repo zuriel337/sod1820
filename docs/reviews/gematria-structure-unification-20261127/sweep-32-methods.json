@@ -1,0 +1,590 @@
+{
+ "desktop": {
+  "rows": [
+   {
+    "m": "רגיל",
+    "ugx": "ready",
+    "kind": "visible-letter-body",
+    "ms": null,
+    "result": "1569",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "2467",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מסתתר",
+    "ugx": "ready",
+    "kind": "adjacent-letter-tension",
+    "ms": null,
+    "result": "1421",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "קדמי",
+    "ugx": "ready",
+    "kind": "letter-potential-triangle",
+    "ms": null,
+    "result": "6271",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "ריבוע",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "5787",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "גדול",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1569",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "סידורי",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "156",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אתבש",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "434",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אלבם",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "508",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אטבח",
+    "ugx": "ready",
+    "kind": "SUBSTITUTION_LEDGER",
+    "ms": "substitution-ledger",
+    "result": "361",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אותיות אחרי",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1013",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אותיות לפני",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1136",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי בלבד",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "898",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "הכפלה",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "471053",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש גדול",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "6271",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מסתתר גדול",
+    "ugx": "ready",
+    "kind": "ADJACENT_DIFFERENCE",
+    "ms": "adjacent-difference",
+    "result": "1421",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי דמילוי",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "4751",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי דמילוי גדול",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "9441",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "הכפלה גדולה",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "471053",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "ריבוע גדול",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "5787",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מילה",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "9687",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש הפוך",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "7572",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מדרגות",
+    "ugx": "ready",
+    "kind": "POSITION_WEIGHTED",
+    "ms": "position-weighted",
+    "result": "3627",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי גדול",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "3767",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+מילוי",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "4036",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+מסתתר",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "2990",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+משולש",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "7840",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מילה+משולש הפוך",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": "prefix-triangle",
+    "result": "17259",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "איק בכר",
+    "ugx": "ready",
+    "kind": "SUBSTITUTION_LEDGER",
+    "ms": "substitution-ledger",
+    "result": "453",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אות רבתי",
+    "ugx": "unavailable",
+    "kind": "none",
+    "ms": null,
+    "result": null,
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מיקום האות",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "156",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי בלבד גדול",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "2198",
+    "ctx": false,
+    "over": []
+   }
+  ],
+  "docOverflow": false,
+  "errs": []
+ },
+ "mobile": {
+  "rows": [
+   {
+    "m": "רגיל",
+    "ugx": "ready",
+    "kind": "visible-letter-body",
+    "ms": null,
+    "result": "1569",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "2467",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מסתתר",
+    "ugx": "ready",
+    "kind": "adjacent-letter-tension",
+    "ms": null,
+    "result": "1421",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "קדמי",
+    "ugx": "ready",
+    "kind": "letter-potential-triangle",
+    "ms": null,
+    "result": "6271",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "ריבוע",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "5787",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "גדול",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1569",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "סידורי",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "156",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אתבש",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "434",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אלבם",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "508",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אטבח",
+    "ugx": "ready",
+    "kind": "SUBSTITUTION_LEDGER",
+    "ms": "substitution-ledger",
+    "result": "361",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אותיות אחרי",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1013",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אותיות לפני",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "1136",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי בלבד",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "898",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "הכפלה",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "471053",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש גדול",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "6271",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מסתתר גדול",
+    "ugx": "ready",
+    "kind": "ADJACENT_DIFFERENCE",
+    "ms": "adjacent-difference",
+    "result": "1421",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי דמילוי",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "4751",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי דמילוי גדול",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "9441",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "הכפלה גדולה",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "471053",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "ריבוע גדול",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "5787",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מילה",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "9687",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש הפוך",
+    "ugx": "ready",
+    "kind": "CUMULATIVE_PREFIX",
+    "ms": "prefix-triangle",
+    "result": "7572",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מדרגות",
+    "ugx": "ready",
+    "kind": "POSITION_WEIGHTED",
+    "ms": "position-weighted",
+    "result": "3627",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי גדול",
+    "ugx": "ready",
+    "kind": "is-milui",
+    "ms": null,
+    "result": "3767",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+מילוי",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "4036",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+מסתתר",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "2990",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "רגיל+משולש",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "7840",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "משולש מילה+משולש הפוך",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": "prefix-triangle",
+    "result": "17259",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "איק בכר",
+    "ugx": "ready",
+    "kind": "SUBSTITUTION_LEDGER",
+    "ms": "substitution-ledger",
+    "result": "453",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "אות רבתי",
+    "ugx": "unavailable",
+    "kind": "none",
+    "ms": null,
+    "result": null,
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מיקום האות",
+    "ugx": "ready",
+    "kind": "LETTER_LEDGER",
+    "ms": "letter-ledger",
+    "result": "156",
+    "ctx": false,
+    "over": []
+   },
+   {
+    "m": "מילוי בלבד גדול",
+    "ugx": "ready",
+    "kind": "COMPOSITE",
+    "ms": null,
+    "result": "2198",
+    "ctx": false,
+    "over": []
+   }
+  ],
+  "docOverflow": false,
+  "errs": []
+ }
+}

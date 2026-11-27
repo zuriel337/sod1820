@@ -40,6 +40,11 @@ test("ribua 5787: a separate cumulative triangle for each word, every prefix wit
   assert.ok(t.includes("3,110 + 2,677 = 5,787"), "the words are added to the result");
   assert.ok(t.includes("400 + 480 + 680 + 770 + 780 = 3,110"), "the prefixes of the first word are added to its sum");
   assert.equal((html.match(/<li /g) || []).length, 10, "ten prefixes, none invented, none skipped");
+  // a real triangle of letters: row k holds the first k letters of the word as tiles (1+2+3+4+5 per word), the newest letter marked, no activity bars
+  assert.equal((html.match(/class="sod29-ms-tile[ "]/g) || []).length, 30, "15 letter tiles in each of the two triangles");
+  assert.equal((html.match(/sod29-ms-tile is-new/g) || []).length, 10, "one newest letter per row");
+  assert.ok(!/sod29-ms-bar/.test(html), "no horizontal bars");
+  assert.match(html, /--ms-n:5/, "the triangle knows its base width");
 });
 
 test("every number the structure prints is a number of the engine trace (nothing is calculated here)", async () => {
@@ -59,7 +64,7 @@ test("each trace kind has its own shape: the continuing triangle, the reverse tr
   const forward = markup("משולש מילה");
   assert.match(markup("משולש מילה"), /data-ms-scope="phrase"/);
   assert.match(markup("משולש הפוך"), /data-ms="prefix-triangle"/);
-  const emphasised = html => (html.match(/<em[^>]*><span>(.)<\/span><\/em>/) || [])[1];
+  const emphasised = html => (html.match(/<i class="sod29-ms-tile is-new"><span>(.)<\/span>/) || [])[1];
   assert.equal(emphasised(forward), "ת", "the forward triangle adds its first letter first");
   assert.equal(emphasised(markup("משולש הפוך")), "ז", "the reverse triangle starts from the last letter of the expression");
   assert.match(markup("משולש מדרגות"), /data-ms="position-weighted"/);
@@ -75,9 +80,58 @@ test("each trace kind has its own shape: the continuing triangle, the reverse tr
 test("one shared display: the Home, Posts, Number page, World and Beit Midrash all reach the same stage", () => {
   const unit = read("src/components/experience2029/UnitGematria2029.jsx");
   assert.ok(!/TraceFamilyStage2029/.test(unit.replace(/\/\/.*$/gm, "")), "the unit display no longer forks to its own generic cards");
-  assert.match(unit, /display === "full"\s*\n?\s*\? <SpatialMethodStage2029/);
+  assert.match(unit, /full and letters are ONE display/);
+  assert.match(unit, /<SpatialMethodStage2029 expression=\{phrase\}/);
   const stage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
-  assert.ok(!stage.includes('methodKey === "משולש מילה") return <TriangleWordStage'), "no second display for the continuing triangle");
   const family = read("src/components/gematria2029/MethodTraceExplanation2029.jsx");
   assert.match(family, /<MethodStructure2029 model=\{model\} \/>/);
+});
+
+test("all 32 active methods: each trace is verified and each is drawn by exactly one canonical stage", async () => {
+  const { drawsStructure } = await load();
+  const keys = Object.keys(traces);
+  assert.equal(keys.length, 32);
+  const DEDICATED = new Set(["רגיל", "מילוי", "מילוי גדול", "מילוי דמילוי", "מילוי דמילוי גדול", "מסתתר", "קדמי"]);   // the dedicated stages of SpatialMethodStage2029
+  const seen = { dedicated: [], structure: [], composite: [], context: [] };
+  for (const key of keys) {
+    const t = traces[key];
+    if (t.trace_kind === "context_required") { seen.context.push(key); continue; }
+    const m = projectGematriaTrace(t, { expression: PHRASE, methodKey: key });
+    assert.equal(m.state, "ready", `${key}: the engine trace is verified and projected`);
+    assert.equal(m.result, Number(t.result), `${key}: the result is the engine's`);
+    if (m.components?.length) seen.composite.push(key);
+    else if (DEDICATED.has(key)) seen.dedicated.push(key);
+    else { assert.equal(drawsStructure(m), true, `${key}: a method without a dedicated stage has a structure view`); seen.structure.push(key); }
+  }
+  assert.deepEqual(seen.context, ["אות רבתי"]);
+  assert.equal(seen.composite.length, 6);
+  assert.equal(seen.dedicated.length + seen.structure.length + seen.composite.length + seen.context.length, 32, "no method is left without a display");
+});
+
+test("a composite shows the engine's own operation: operands, operator and result", async () => {
+  const { EquationLine } = await load();
+  const m = model("מילוי בלבד");
+  const html = renderToStaticMarkup(React.createElement(EquationLine, { values: m.components.map(c => c.value), operator: m.operator, total: m.result }));
+  assert.ok(text(html).includes("2,467 − 1,569 = 898"));
+  const sumModel = model("רגיל+מילוי");
+  assert.ok(text(renderToStaticMarkup(React.createElement(EquationLine, { values: sumModel.components.map(c => c.value), operator: sumModel.operator, total: sumModel.result }))).includes("1,569 + 2,467 = 4,036"));
+  assert.equal(renderToStaticMarkup(React.createElement(EquationLine, { values: [1, 2], operator: "sum", total: 4 })), "", "an equation that does not hold is never printed");
+});
+
+test("duplicates are gone: one stage, one equation, one list of steps", () => {
+  const exists = file => fs.existsSync(new URL(`../${file}`, import.meta.url));
+  assert.equal(exists("src/components/experience2029/GematriaShowcase2029.jsx"), false, "the Post letters showcase is the same canonical stage now");
+  const explanation = read("src/components/gematria2029/MethodTraceExplanation2029.jsx");
+  assert.ok(!/TraceBreakdown2029/.test(explanation), "the generic breakdown is retired");
+  assert.match(explanation, /import\("\.\/SpatialMethodStage2029\.jsx"\)/);
+  const stage = read("src/components/gematria2029/SpatialMethodStage2029.jsx");
+  assert.ok(!/TriangleWordStage|buildTriangleWordRows/.test(stage));
+  assert.match(stage, /function CompositeStage/);
+  for (const file of ["src/components/research/WorldSourceConnections.jsx", "src/components/research/WorldSourceStory.jsx"]) assert.ok(!/CompositeTrace|COMPOSITE' \? <p/.test(read(file)), `${file}: the composite is drawn by the stage`);
+  for (const file of ["src/components/number2029/NumberCore2029.jsx", "src/components/number2029/NumberDrawer2029.jsx", "src/pages/Number2029Page.jsx"]) assert.ok(!/traceSteps|gematriaTraceLines/.test(read(file)), `${file}: no second list of steps`);
+  const calculator = read("src/pages/Calculator2029Page.jsx");
+  assert.ok(!/function traceSteps/.test(calculator)); assert.match(calculator, /SpatialMethodStage2029/);
+  const unit = read("src/components/experience2029/UnitGematria2029.jsx");
+  assert.match(unit, /className="r29-btn" onClick=\{open\}>פתח בדף המספר/, "the open-in-Number-page button is in the Royal button family");
+  assert.ok(!/GematriaShowcase2029/.test(unit.replace(/\/\/.*$/gm, "")));
 });

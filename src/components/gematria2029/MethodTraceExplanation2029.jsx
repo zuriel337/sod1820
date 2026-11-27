@@ -1,26 +1,11 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { methodMechanicalDefinition } from "../../lib/research/beitMidrashMethodDefinition.js";
 import { canonicalMethodPublicLabel } from "../../lib/presentation/canonicalPresentation.js";
 import { projectGematriaTrace } from "../../lib/research/gematriaTracePresentation.js";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import MethodStructure2029, { drawsStructure } from "./MethodStructure2029.jsx";
-
-export function TraceBreakdown2029({ model }) {
-  if (model.state !== "ready") return null;
-  if (model.components.length) return <div className="sod29-method-components">
-    <p className="sod29-method-equation" dir="ltr">{model.components.map((c) => c.value).join(model.operator === "diff" ? " − " : " + ")} = {model.result}</p>
-    {model.components.map((component) => <details key={component.id}>
-      <summary>{component.label} <b>{component.value}</b></summary>
-      <TraceBreakdown2029 model={component.detail} />
-    </details>)}
-  </div>;
-  return <div className="sod29-method-trace-groups">
-    {model.groups.map((group) => <section key={group.id}>
-      <h4>{group.label}{group.subtotal != null ? ` · סכום המילה: ${group.subtotal}` : ""}</h4>
-      <ol>{group.rows.map((row) => <li key={row.id}>{row.text}</li>)}</ol>
-    </section>)}
-  </div>;
-}
+// The one canonical stage draws the calculation here too (loaded on demand: SpatialMethodStage2029 itself imports TraceFamilyStage2029 from this file).
+const SpatialMethodStage2029 = lazy(() => import("./SpatialMethodStage2029.jsx"));
 
 export function TraceFamilyStage2029({ model, depth = "S2" }) {
   const [selected, setSelected] = useState(0);
@@ -49,10 +34,10 @@ export function TraceFamilyStage2029({ model, depth = "S2" }) {
       <div><span>{model.methodLabel}</span><strong>{model.expression}</strong><small>{model.instruction}</small></div>
       <div className="sod29-spatial-method-stage__result"><small>תוצאה</small><b>{model.result}</b></div>
     </div>
-    {model.components.length ? <TraceBreakdown2029 model={model} /> : <>
+    <>
       <MethodStructure2029 model={model} />
       {drawsStructure(model) ? <details className="sod29-method-stepwise"><summary>צעד אחר צעד</summary>{stepwise}</details> : stepwise}
-    </>}
+    </>
   </section>;
 }
 
@@ -70,7 +55,7 @@ export default function MethodTraceExplanation2029({ method, methods = [], expre
         <li>{model.instruction || "פתחו את פירוט החישוב כדי לראות את תרומת האותיות לפי כללי השיטה."}</li>
         <li>{model.state === "ready" ? <>התוצאה בביטוי הזה: <strong>{model.result}</strong>. אפשר לחזור ללשונית חישוב ולבחור צעד בהמחשה.</> : loading ? "צעדי החישוב נטענים…" : "פירוט מאומת אינו זמין כרגע. אפשר לבחור שוב את השיטה ולנסות מחדש."}</li>
       </ol>
-      <TraceBreakdown2029 model={model} />
+      <Suspense fallback={null}><SpatialMethodStage2029 expression={expression} methodKey={method.methodKey} trace={trace} expectedValue={method.computedValue ?? null} depth="S2" loading={loading} /></Suspense>
     </section>}
     {definition.structure ? <section><h3>מבנה השיטה</h3><p>{definition.structure}</p></section> : null}
     {definition.dependencies.length ? <section><h3>קשר לשיטות אחרות</h3><ul>{definition.dependencies.map((item) => <li key={item}>{item}</li>)}</ul></section> : null}

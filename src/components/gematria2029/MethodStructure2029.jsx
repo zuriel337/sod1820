@@ -24,6 +24,15 @@ function SumLine({ values, total, label = null, quiet = false }) {
   </p>;
 }
 
+/** The composition of a composite method: operands and result are the engine's own numbers; printed only when the operation really gives the engine's result. */
+export function EquationLine({ values, operator, total }) {
+  if (!values.every(num) || !num(total)) return null;
+  const ok = operator === "diff" ? values.length === 2 && Number(values[0]) - Number(values[1]) === Number(total) : sum(values) === Number(total);
+  if (!ok) return null;
+  const op = operator === "diff" ? "−" : "+";
+  return <p className="sod29-ms-sum" dir="ltr">{values.map((v, i) => <React.Fragment key={i}>{i ? <span className="sod29-ms-op">{op}</span> : null}<span>{fmt(v)}</span></React.Fragment>)}<span className="sod29-ms-op">=</span><b>{fmt(total)}</b></p>;
+}
+
 function Word({ group, children, total = group.subtotal, values = null }) {
   return <section className="sod29-ms-word" aria-label={`המילה ${group.label}`}>
     <h4>{group.label}</h4>
@@ -32,20 +41,20 @@ function Word({ group, children, total = group.subtotal, values = null }) {
   </section>;
 }
 
-function PrefixTriangle({ group, max }) {
-  // the engine's source positions tell the direction: the letter added at each step is the last one of the prefix, or the first one when the triangle is read from the end
+function PrefixTriangle({ group, size }) {
+  // The engine's source positions tell the direction: the letter added at each step is the last one of the prefix, or the first one when the triangle is read from the end.
   const reversed = group.rows.length > 1 && Number(group.rows[0].position) > Number(group.rows.at(-1).position);
-  return <ol className="sod29-ms-triangle">
-    {group.rows.map((row, i) => {
+  // A real triangle: row k holds the first k letters (tiles), centred, so the rows widen from the apex down; the engine's prefix value sits at the row's end.
+  return <ol className="sod29-ms-triangle" style={{ "--ms-n": size }}>
+    {group.rows.map((row) => {
+      const letters = [...row.prefix];
       const added = row.source?.base_value;
-      const prefix = [...row.prefix];
-      return <li key={row.id} style={{ "--ms-fill": max > 0 ? Math.max(4, Math.round((row.value / max) * 100)) : 0 }}>
-        <span className="sod29-ms-prefix" dir="rtl" aria-label={`קידומת ${row.prefix}`}>
-          {prefix.map((ch, k) => (k === (reversed ? 0 : prefix.length - 1)) ? <em key={k}><HebrewGlyph2029 text={ch} /></em> : <HebrewGlyph2029 key={k} text={ch} />)}
+      return <li key={row.id} aria-label={`קידומת ${row.prefix}: ${row.value}`}>
+        <b className="sod29-ms-value" dir="ltr">{fmt(row.value)}</b>
+        <span className="sod29-ms-tiles" dir="rtl" aria-hidden="true">
+          {letters.map((ch, k) => <i key={k} className={`sod29-ms-tile${k === (reversed ? 0 : letters.length - 1) ? " is-new" : ""}`}><HebrewGlyph2029 text={ch} /></i>)}
         </span>
         <span className="sod29-ms-added" dir="ltr">{num(added) ? `+${fmt(added)}` : ""}</span>
-        <b className="sod29-ms-value" dir="ltr">{fmt(row.value)}</b>
-        <i className="sod29-ms-bar" aria-hidden="true" />
       </li>;
     })}
   </ol>;
@@ -53,15 +62,12 @@ function PrefixTriangle({ group, max }) {
 
 function CumulativePrefix({ model }) {
   const resets = model.semantics?.per_word_reset === true;
-  const all = model.groups.flatMap((g) => g.rows.map((r) => r.value));
-  const max = Math.max(...all);
   const words = model.groups.map((group) => ({ group, values: group.rows.map((r) => r.value) }));
   return <div className="sod29-ms" data-ms="prefix-triangle" data-ms-scope={resets ? "per-word" : "phrase"}>
     {words.map(({ group, values }) => <Word key={group.id} group={group} values={values} total={resets ? group.subtotal : model.result}>
-      <PrefixTriangle group={group} max={resets ? Math.max(...values) : max} />
+      <PrefixTriangle group={group} size={group.rows.length} />
     </Word>)}
     {resets && model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
-    {!resets || model.groups.length === 1 ? null : null}
   </div>;
 }
 

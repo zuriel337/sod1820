@@ -1,10 +1,9 @@
 // The ONE display of a gematria finding inside a unit of the Post family (ZURIEL 16.11.2026): every claim trace of the approved text AND every gematria item the
 // editor adds renders HERE, from canonical engine data (loadUnitTrace → fetchNumberMethodProfile / fetchGematriaMethodTrace → projectGematriaTrace). It owns NO
-// calculation, NO copy of a value or a letter breakdown, NO HTML and NO CSS of its own per item: a change to the shared components below (the Method Trace stages and
-// the Post-family showcase) or to their tokens changes every gematria in every unit at once.
+// calculation, NO copy of a value or a letter breakdown, NO HTML and NO CSS of its own per item: a change to the one canonical stage below (SpatialMethodStage2029)
+// or to its tokens changes every gematria in every unit, on the Home, in the Number page, the World and the Beit Midrash, at once.
 //   peak     — the number, big (the same Post control: data-gem opens the Number window)
-//   full     — the canonical Method Trace stage (TraceFamilyStage2029 / SpatialMethodStage2029, the Beit Midrash / Number page family)
-//   letters  — the Post-family showcase: letters and words, the sum line and the equation (GematriaShowcase2029)
+//   full / letters — ONE display: the canonical stage of the method (the dedicated stages of רגיל, מילוי, קדמי and מסתתר, the mathematical structure of every other method, the composition of a composite)
 //   compact  — one line: expression = number (method)
 // A source's claim is shown NEXT TO the engine's result (never replaced by it); an unreadable trace says so and invents no step.
 import React, { useEffect, useRef, useState } from "react";
@@ -12,9 +11,9 @@ import { loadUnitTrace } from "../../lib/research/unitGematriaTrace2029.js";
 import { ATTRIBUTION_GROUPS } from "../../lib/research/postPreviewUnits2029.js";
 import { HINT_STATES } from "../../lib/research/postSourceHintCheck2029.js";
 import { GX_DISPLAYS } from "../../lib/research/postUnitBody2029.js";
-import GematriaShowcase2029 from "./GematriaShowcase2029.jsx";
 import SpatialMethodStage2029 from "../gematria2029/SpatialMethodStage2029.jsx";
 import { use2029Shell } from "./Sod2029Shell.jsx";
+import "./royal2029.css";
 
 const byLabel = (by) => (by === "editorial" || !by ? "בנוסח העריכה" : `בדברי ${(ATTRIBUTION_GROUPS.find((g) => g.identity === by) || {}).label?.replace(/^דברי\s+/, "") || by}`);
 
@@ -34,13 +33,11 @@ export function GematriaView2029({ state, phrase, display = "letters", stated = 
   const num = <span data-gem={String(state.value)} role="button" tabIndex={0} aria-label={`בדוק את המספר ${state.value}`} onClick={open}>{state.value}</span>;
   if (display === "peak") return <div className="sod29-ugx-peak"><p data-sod-role="peak" data-sod-align="center">{num}</p><small>{phrase} · שיטת {state.methodLabel}</small><GapNote state={state} stated={stated} /></div>;
   if (display === "compact") return <p className="sod29-ugx-compact"><span dir="rtl">{phrase}</span> = {num} <small>(שיטת {state.methodLabel})</small><GapNote state={state} stated={stated} /></p>;
-  const heavy = state.model.components?.length;
+  // full and letters are ONE display: the canonical stage of the method (every consumer: Home, Posts, the Number page, the World, the Beit Midrash).
   return <div className="sod29-ugx-trace">
-    {display === "full"
-      ? <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" />
-      : (heavy ? <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" /> : <GematriaShowcase2029 model={state.model} expression={phrase} />)}
+    <SpatialMethodStage2029 expression={phrase} methodKey={state.methodKey} trace={state.trace} expectedValue={state.value} depth="S2" />
     <GapNote state={state} stated={stated} />
-    <p className="sod29-pu-trace-links"><button type="button" onClick={open}>פתח בדף המספר</button></p>
+    <p className="sod29-pu-trace-links"><button type="button" className="r29-btn" onClick={open}>פתח בדף המספר</button></p>
   </div>;
 }
 
