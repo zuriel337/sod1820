@@ -114,6 +114,14 @@ language sql stable security definer set search_path to 'public', 'pg_temp' as $
     where b.net_ref = p_ref and b.lifted_at is null and (b.expires_at is null or b.expires_at > now()))
 $f$;
 revoke all on function public.community_net_ref_v1(text), public.community_net_blocked_v1(text), public.community_trusted_client_ip_v1() from public, anon, authenticated;
+-- Which writes are community writes is decided HERE, on the server, never by the client's origin parameter alone: a write is a community write when its origin is a community origin OR when it answers
+-- a message whose STORED origin is a community origin (a reply to a community message that claims another origin would still notify and bump that thread). Everything else is untouched.
+create or replace function public.community_write_scope_v1(p_origin text, p_parent uuid) returns boolean
+language sql stable security definer set search_path to 'public', 'pg_temp' as $f$
+  select coalesce(nullif(p_origin, ''), 'beit_midrash') in ('openweb', 'community_2029')
+      or (p_parent is not null and exists (select 1 from public.research_contributions r where r.id = p_parent and r.origin in ('openweb', 'community_2029')))
+$f$;
+revoke all on function public.community_write_scope_v1(text, uuid) from public, anon, authenticated;
 
 -- 3. the two guest write routes: anchored patches (the address becomes a hash at once; the block is checked before any log write)
 do $migration$
@@ -142,9 +150,9 @@ $a$;
   c1n constant text := $a$    v_ip := nullif(btrim(v_ip), '');
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
     v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
-    if v_ip is not null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
-    -- No trusted address header = no reference: a guest write into the community fails closed (as add_guest_community_message already does); other origins are unchanged.
-    if v_ip is null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') then raise exception 'rate_limited'; end if;
+    if v_ip is not null and public.community_write_scope_v1(p_origin, p_parent_id) and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    -- No trusted address header = no reference: a guest write into the community (decided on the server: community origin, or an answer to a stored community message) fails closed, as add_guest_community_message already does; other writes are unchanged.
+    if v_ip is null and public.community_write_scope_v1(p_origin, p_parent_id) then raise exception 'rate_limited'; end if;
     if v_ip is not null then
 $a$;
   c2 constant text := $a$      where ip = v_ip and created_at > now() - interval '1 hour';

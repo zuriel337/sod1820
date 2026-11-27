@@ -148,7 +148,7 @@ check "$(( (T1-T0)/1000000 < 20000 ))" 1 'perf: the added work per guest write i
 BLK=$(Q -c "select count(*) from public.community_net_blocks"); EVT=$(Q -c "select count(*) from public.community_net_block_events"); GP=$(Q -c "select count(*) from public.community_guest_posts where net_ref is not null")
 F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null; check "$(GMD5 add_guest_community_message)|$(GMD5 add_contribution)|$(GMD5 toggle_contribution_reaction)" '4eb11358227e6b3d8d77b933e076b28a|2c2baa01ecf07abf1e1511f3cb951d3b|96af69da3d9d8b1b82113248b09e97fa' 'rollback: the three guest write routes are restored byte for byte (same md5)'
 check "$(Q -c "select count(*) from public.community_net_blocks")|$(Q -c "select count(*) from public.community_net_block_events")|$(Q -c "select count(*) from public.community_guest_posts where net_ref is not null")" "$BLK|$EVT|$GP" 'rollback: no block, event or network reference is deleted'
-check "$(Q -c "select count(*) from pg_proc where (proname like 'community_net_%' and proname <> 'community_net_block_events_append_only_v1') or proname in ('community_guest_block_from_message_v1','community_guest_hide_v1','community_trusted_client_ip_v1')")" 0 'rollback: the staff API and the helpers are gone'
+check "$(Q -c "select count(*) from pg_proc where (proname like 'community_net_%' and proname <> 'community_net_block_events_append_only_v1') or proname in ('community_guest_block_from_message_v1','community_guest_hide_v1','community_trusted_client_ip_v1','community_write_scope_v1')")" 0 'rollback: the staff API and the helpers are gone'
 check "$(G 203.0.113.7 'אחרי שחזור' | grep -c ERROR)" 0 'rollback: with the routes restored, guest writing works as before the proposal'
 F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$(G 203.0.113.7 'אחרי החלה חוזרת' | grep -c 'community_write_blocked')" 1 'reapply: re-applying after a rollback restores enforcement from the kept blocks and the same key'
 # Discovery Center D5 (add_contribution single attribution rule, docs/reviews/discovery-center-20261126; exact copy in test/fixtures) replaces the SAME function. Order D5 -> community must keep BOTH
@@ -164,7 +164,7 @@ chmod 644 "$TMP/d5.sql"; F "$TMP/d5.sql" >/dev/null
 D5MD5=$(GMD5 add_contribution); echo "D5 body md5 $D5MD5"
 check "$(Q -c "select position('rc_unique_contributor_for_user_v1' in prosrc) > 0 from pg_proc where proname='add_contribution'")" t 'D5: the attribution rule of D5 is in the live function before the community proposal'
 F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$?" 0 'D5 then community: the proposal applies on top of D5 (guard accepts the D5 body)'
-check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) > 0) and (position('community_net_ref_v1' in prosrc) > 0) and (position('community_2029' in prosrc) > 0) from pg_proc where proname='add_contribution'")" t 'D5 then community: BOTH changes are in add_contribution (no overwrite)'
+check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) > 0) and (position('community_net_ref_v1' in prosrc) > 0) and (position('community_write_scope_v1' in prosrc) > 0) from pg_proc where proname='add_contribution'")" t 'D5 then community: BOTH changes are in add_contribution (no overwrite)'
 check "$(G 203.0.113.7 'אחרי D5 ואחרי הקהילה' | grep -c 'community_write_blocked')" 1 'D5 then community: enforcement works on the D5 body'
 F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
 check "$(GMD5 add_contribution)" "$D5MD5" 'D5 then community, rolled back: add_contribution is exactly the D5 body again (D5 is kept)'
@@ -181,6 +181,18 @@ check "$(ANON "$(H 198.51.100.55)" community_2029 'עם-כותרת' | grep -c ER
 RIDC=$ROOTMSG
 check "$(as_user - '{}' "select public.toggle_contribution_reaction('$RIDC','👍','v-nohdr')" | grep -c 'rate_limited')|$(as_user - "$(H 198.51.100.55)" "select public.toggle_contribution_reaction('$RIDC','👍','v-hdr')" | grep -c ERROR)" '1|0' 'no header: a guest reaction in the community is refused; with the header it works'
 check "$(as_user "$USR" '{}' "select public.add_contribution('תגובה','community_2029','מחובר-ללא-כותרת')" | grep -c ERROR)|$(as_user "$USR" '{}' "select public.toggle_contribution_reaction('$RIDC','👍','')" | grep -c ERROR)" '0|0' 'no header: a signed-in account writes and reacts as before (never judged by its network)'
+# The community context is decided on the server, not by the origin parameter the client sends (ZURIEL 27.11.2026): a blocked network must not get through by changing p_origin, and an answer to a stored
+# community message counts as a community write whatever origin it claims. Writes that are really outside the community stay open for the same network.
+G 198.51.100.66 'לחסימה-בדיקת-פרמטר' >/dev/null
+MSGB=$(Q -c "select contribution_id from public.community_guest_posts order by created_at desc limit 1")
+as_user "$ADM" - "select public.community_guest_block_from_message_v1('$MSGB','h24','בדיקת עקיפת פרמטר המקור')" >/dev/null
+HB=$(H 198.51.100.66)
+ADDP() { as_user - "$1" "select public.add_contribution('תגובה','$2','$3',null,null,$4,null,null,'x',null)" 2>&1; }
+check "$(ADDP "$HB" community_2029 'חסום-1' null | grep -c community_write_blocked)|$(ADDP "$HB" openweb 'חסום-2' null | grep -c community_write_blocked)" '1|1' 'origin parameter: a blocked network cannot write into the community with a community origin'
+check "$(ADDP "$HB" beit_midrash 'חסום-3' "'$ROOTMSG'" | grep -c community_write_blocked)|$(ADDP "$HB" number 'חסום-4' "'$ROOTMSG'" | grep -c community_write_blocked)|$(ADDP "$HB" '' 'חסום-5' "'$ROOTMSG'" | grep -c community_write_blocked)" '1|1|1' 'origin parameter: claiming another origin (or none) does not help when the message answers a stored community message'
+check "$(ADDP '{}' beit_midrash 'ללא-כותרת-1' "'$ROOTMSG'" | grep -c rate_limited)|$(ADDP '{}' number 'ללא-כותרת-2' "'$ROOTMSG'" | grep -c rate_limited)" '1|1' 'origin parameter: with no trusted header an answer to a community message fails closed whatever origin it claims'
+check "$(ADDP "$HB" beit_midrash 'מחוץ-1' null | grep -c ERROR)|$(ADDP "$HB" number 'מחוץ-2' null | grep -c ERROR)|$(ADDP "$HB" '' 'מחוץ-3' null | grep -c ERROR)|$(Q -c "select count(*) from public.research_contributions where body in ('מחוץ-1','מחוץ-2','מחוץ-3')")" '0|0|0|3' 'origin parameter: writes that are really outside the community (no community origin, no community parent) stay open for the same blocked network'
+check "$(as_user "$USR" "$HB" "select public.add_contribution('תגובה','openweb','מחובר-חסום-רשת')" | grep -c ERROR)" 0 'origin parameter: a signed-in account on the blocked network is never blocked'
 F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
 # Live-body review (26.11.2026, D5 applied live, add_contribution md5 abbcf299...): the proposal must keep attribution, permissions and the notification triggers exactly.
 # State here: D5 body installed, community rolled back. Record the signature of the three functions, add stub triggers (an AFTER INSERT notification like trg_rc_notify and a thread bump), then apply.
