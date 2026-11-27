@@ -34,10 +34,10 @@ export function publicMapGroups2029(production) {
     { title: "שידורים וסרטונים", links: [
       ...(production ? [["/broadcasts", "מרכז השידורים"], ["/post?media=video&view=videos", "כל הסרטונים"],
         ["/post?media=video", "פוסטים עם וידאו"], ["/melech-hamisparim/718", "מלך המספרים · 718"]] : []),
-      ["/or-geula", "אור הגאולה"],
+      registered("or-geula"),
     ] },
     { title: "קהילה", links: [
-      registered("or-geula", "צ'אט הקהילה"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
+      registered("community-chat", "צ'אט הקהילה"), ["/community/researchers", "כותבי הקהילה"], ["/community/comments", "תגובות לפוסטים"],
     ] },
     ...(production ? [{ title: "הרצאות", links: [
       ["/category/הרצאות", "קטלוג ההרצאות"],
