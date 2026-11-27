@@ -35,12 +35,13 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
         if (!/toggle_contribution_reaction/.test(r.url())) return;
         const bearer = String(r.headers().authorization || '').replace(/^Bearer /, '');
         let claims = {}; try { claims = JSON.parse(Buffer.from(bearer.split('.')[1] || '', 'base64url').toString()); } catch { /* not a JWT */ }
-        reactionCalls.push(`request role=${claims.role} sub=${claims.sub ? 'yes' : 'no'} body=${String(r.postData() || '').slice(0, 90)}`);
+        const apikey = String(r.headers().apikey || '').split('.')[1] || ''; let keyRole = ''; try { keyRole = JSON.parse(Buffer.from(apikey, 'base64url').toString()).role; } catch { /* not a JWT */ }
+        reactionCalls.push(`request role=${claims.role} sub=${claims.sub ? 'yes' : 'no'} apikey=${keyRole} aud=${claims.aud} headers=${Object.keys(r.headers()).filter((k) => /ip|forward|profile|prefer/.test(k)).join(',')}`);
       });
       page.on('requestfailed', (r) => { if (/toggle_contribution_reaction/.test(r.url())) reactionCalls.push(`failed ${r.failure()?.errorText}`); });
       page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
     };
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 130)} | ${trace.slice(-3).join('; ')}${reactionCalls.length ? ` | reaction calls: ${reactionCalls.slice(-3).join(' / ')}` : ''}`); return false; } };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 130)} | ${trace.slice(-3).join('; ')}${reactionCalls.length ? ` | reaction calls: ${reactionCalls.slice(-4).join(' / ')}` : ''}`); return false; } };
     const message = (page, id) => page.locator(`article#message-${id}`);
     const openCommunity = async (page, id) => { await page.goto('https://sod1820.co.il/community', { waitUntil: 'domcontentloaded', timeout: 30000 }); await message(page, id).first().waitFor({ timeout: 40000 }); };
     const noSideScroll = (page) => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth + 1);
@@ -78,6 +79,8 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
       });
       await step('pressing like stores one like, pressing dislike stores one dislike, and the buttons show the counts', async () => {
         await likeButton().first().click({ timeout: 15000 });
+        const replay = await rpc('toggle_contribution_reaction', { p_id: ownId, p_emoji: '👍', p_visitor: 'community-repeatable-like' }, tb);
+        reactionCalls.push(`replay with the member token from outside the page: ${replay.status} ${JSON.stringify(replay.body).slice(0, 70)}`);
         const liked = await until(() => row(ownId), (r) => r?.reactions?.community_likes === 1);
         if (liked?.reactions?.community_likes !== 1) throw new Error(`stored likes ${liked?.reactions?.community_likes}`);
         await dislikeButton().first().click({ timeout: 15000 });
