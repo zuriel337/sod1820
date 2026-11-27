@@ -56,10 +56,12 @@ test("a number a person typed or computed is never collected nor listed: fixed m
   const rd = p => readFileSync(new URL(p, root), "utf8");
   const emitter = rd("src/lib/siteActivity2029.js");
   assert.doesNotMatch(emitter.replace(/^\s*\/\/.*$/gm, ""), /props\.number|\bvalue\b/, "the emitter has no value and sets no number");
-  const { readingActionProps } = await import("../src/lib/publicReadingTelemetry2029.js");
-  const kept = readingActionProps("activity_2029", "compute", { operation_id: "abc", method: "ragil", number: 5787, section: "calculator" });
-  assert.equal("number" in kept, false, "the public build drops a number even if a caller passes one");
-  assert.equal(kept.section, "calculator");
+  // The client list stays identical to the live ingest_event allow-list (test/analytics-followups-20261118.test.mjs), which still admits an optional activity_2029.number:
+  // narrowing the database list is an ingest_event change and needs its own approval. Until then NO caller may pass a value, so none is ever sent.
+  const { readdirSync, statSync } = await import("node:fs");
+  const files = []; (function walk(d) { for (const n of readdirSync(d)) { const f = d + "/" + n; if (statSync(f).isDirectory()) walk(f); else if (/\.(jsx?|mjs)$/.test(n) && !/\.test\./.test(n)) files.push(f); } })(new URL("../src", import.meta.url).pathname);
+  const offenders = files.filter(f => /\b(?:start|record)SiteActivity\([^)]*\bvalue\b/.test(readFileSync(f, "utf8")));
+  assert.deepEqual(offenders, [], "no shipped caller passes a computed or typed value to the activity family");
   const apply = rd("supabase/proposed/measurement-reliability-20261127/03-floors-by-visitor.sql");
   assert.match(apply, /'computed_refs','\[\]'::jsonb,/);
   assert.match(apply, /'computed',jsonb_build_object\('mask','\*\*\*\*\*','events'/);
