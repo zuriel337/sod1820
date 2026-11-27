@@ -4128,7 +4128,7 @@
           "source": "canonical Supabase read 2026-11-25",
           "after_20261126": "24h 25.11 09:18 -> 26.11 09:18 UTC. /api/public-document (Vercel observability, same query as before): MISS 25,364 (84.8%), HIT 3,326 (11.1%), STALE 1,193 (4.0%), 9 empty, of 29,892. Before: MISS 86.7%, HIT 9.0%, STALE 4.4% of 28,476. Change-list reads (Supabase edge_logs, same string match, both windows): 52 -> 3,020. Function duration 8.21 -> 10.90 GB-h; middleware CPU 505 s -> 501 s. Field TTFB for Posts (own web_vital events, 1 sample per sample_id, burst excluded): phone 1,203 -> 1,659 ms (n 45 -> 30); desktop 1,266 -> 1,342 ms (n 35 -> 15). The Vercel Speed Insights query was rejected (402 payment_required), so the earlier 1,328/1,470 ms Speed Insights figures are not comparable.",
           "protocol_9bf41e6": {
-            "status": "STARTED 26.11.2026 10:50 UTC; after-window closes 27.11.2026 ~11:05 UTC (reminder scheduled)",
+            "status": "AFTER MEASURED 27.11.2026 ~11:10 UTC with a validity finding: build 9bf41e6 served only 3.5 h, so the matched after windows measure later builds; Vercel part not measured (query errors); see after_measured_20261127",
             "before_build": "2029-BK3LoBjq (463bdc1), Production 25.11 ~17:39 -> 26.11 10:50 UTC",
             "after_build": "2029-BcTZsiDj (9bf41e6)",
             "matched_hours_utc": "18:00-24:00 and 07:00-10:00. Before = 25.11 18:00-24:00 + 26.11 07:00-10:00; after = 26.11 18:00-24:00 + 27.11 07:00-10:00. Excluded hours (documented anomalies): 00:00-06:30 UTC (traffic wave), 06:00-06:30 (crawler-like spike). Vercel queries must use hourly granularity and sum whole hours (coarser buckets snap outside the requested window).",
@@ -4165,7 +4165,187 @@
               }
             },
             "vercel_baseline": "recomputed at after-time with the same hourly queries (route eq /api/public-document by cache_result; function_duration_gbhr; middleware function_cpu_time_ms; function ttfb p75). Field: own web_vital events, one sample per sample_id, device and path groups, n reported; n<30 marked weak.",
-            "nothing_measured_as_after_yet": true
+            "after_measured_20261127": {
+              "measured_at": "2026-11-27 ~11:10 UTC (read-only, no change to cache, SQL, WAF or thresholds)",
+              "validity_finding": "The after windows did NOT run build 2029-BcTZsiDj (9bf41e6). Per web_vital build tags it served only 26.11 11:04-14:34 UTC (58 samples); it was replaced 26.11 14:37 by 2029-C5ROC4LY (until 27.11 01:30), then 2029-BlkNvGWl (27.11 02:00-05:55), then 2029-BnSB9XOS (27.11 05:51 onward). The matched after windows (26.11 18:00-24:00, 27.11 07:00-10:00) therefore measure builds C5ROC4LY, BlkNvGWl and BnSB9XOS, not the 9bf41e6 change alone. The 24h attribution to 9bf41e6 is NOT valid.",
+              "edge_logs_after_(same_string_match_event_message_like; retention 24h kept for 26.11 18:00 to 27.11 10:00)": {
+                "window_A_26.11_18_24": {
+                  "all_requests": 226729,
+                  "change_list_reads": 914,
+                  "is_number_indexable": 353,
+                  "posts_by_number_strict": 948,
+                  "is_phrase_indexable": 2095,
+                  "number_anchors": 1363,
+                  "gematria_words": 6781,
+                  "node_ua_requests": 17500,
+                  "options_requests": 61976
+                },
+                "window_B_27.11_07_10": {
+                  "all_requests": 68208,
+                  "change_list_reads": 357,
+                  "is_number_indexable": 48,
+                  "posts_by_number_strict": 1193,
+                  "is_phrase_indexable": 2925,
+                  "number_anchors": 1271,
+                  "gematria_words": 7075,
+                  "node_ua_requests": 10754,
+                  "options_requests": 23142
+                },
+                "sum_9h": {
+                  "all_requests": 294937,
+                  "change_list_reads": 1271,
+                  "is_number_indexable": 401,
+                  "posts_by_number_strict": 2141,
+                  "is_phrase_indexable": 5020,
+                  "number_anchors": 2634,
+                  "gematria_words": 13856,
+                  "node_ua_requests": 28254
+                },
+                "vs_baseline_sum_9h": "all_requests 80,828 -> 294,937 (x3.65); change_list_reads 679 -> 1,271 (x1.87); is_number_indexable 322 -> 401; posts_by_number_strict 408 -> 2,141 (x5.2); is_phrase_indexable 3,313 -> 5,020; number_anchors 651 -> 2,634 (x4.0); gematria_words 7,200 -> 13,856; node_ua_requests 14,095 -> 28,254.",
+                "caveat": "Total API requests rose 3.65x between matched windows, so absolute counts are confounded by traffic. The baseline's exact string rules are not in the repository: OPTIONS preflights are counted here (about 27% of requests); the comparison is indicative only. The number-page family (posts_by_number_strict, number_anchors) grew faster than total requests."
+              },
+              "vercel_after": "NOT MEASURED. Every observability query (vercel.request.count by cache_result, function_duration_gbhr, middleware cpu, ttfb; hourly granularity, the project-with-owner-id scope that worked on 25-26.11, and older scope forms) returned HTTP 400 bad_request in this session, including a plain query that had worked before. Not retried further; no figure is invented. Needs a fresh attempt or the dashboard.",
+              "field_web_vital_p75_ms_(own events, one sample per sample_id, final phase preferred, is_bot not true; n<30 is weak)": {
+                "A_before_matched_(BK3LoBjq)": {
+                  "chat_desktop": {
+                    "n": 34,
+                    "ttfb": 1069,
+                    "lcp": 2372,
+                    "fcp": 2244
+                  },
+                  "chat_mobile": {
+                    "n": 20,
+                    "ttfb": 1235,
+                    "lcp": 1841,
+                    "fcp": 1733,
+                    "weak": true
+                  },
+                  "post_desktop": {
+                    "n": 7,
+                    "ttfb": 1260,
+                    "lcp": 2395,
+                    "fcp": 2088,
+                    "weak": true
+                  },
+                  "post_mobile": {
+                    "n": 15,
+                    "ttfb": 1123,
+                    "lcp": 2546,
+                    "fcp": 2408,
+                    "weak": true
+                  }
+                },
+                "B_after_matched_(C5ROC4LY, BlkNvGWl, BnSB9XOS; NOT 9bf41e6)": {
+                  "chat_desktop": {
+                    "n": 71,
+                    "ttfb": 4585,
+                    "lcp": 7748,
+                    "fcp": 6820
+                  },
+                  "chat_mobile": {
+                    "n": 30,
+                    "ttfb": 1012,
+                    "lcp": 1732,
+                    "fcp": 1500
+                  },
+                  "post_desktop": {
+                    "n": 7,
+                    "ttfb": 1445,
+                    "lcp": 2812,
+                    "fcp": 2505,
+                    "weak": true
+                  },
+                  "post_mobile": {
+                    "n": 14,
+                    "ttfb": 1397,
+                    "lcp": 1827,
+                    "fcp": 1820,
+                    "weak": true
+                  }
+                },
+                "per_build_all_hours": {
+                  "BK3LoBjq": {
+                    "post_desktop": {
+                      "n": 782,
+                      "ttfb": 2443,
+                      "lcp": 4148,
+                      "fcp": 2648
+                    },
+                    "post_mobile": {
+                      "n": 34,
+                      "ttfb": 1332,
+                      "lcp": 2478,
+                      "fcp": 2355
+                    },
+                    "chat_desktop": {
+                      "n": 576,
+                      "ttfb": 2472,
+                      "lcp": 3639,
+                      "fcp": 3087
+                    }
+                  },
+                  "BcTZsiDj_(26.11_11:04-14:34_only)": {
+                    "post_desktop": {
+                      "n": 5,
+                      "weak": true,
+                      "ttfb": 877,
+                      "lcp": 1496
+                    },
+                    "post_mobile": {
+                      "n": 4,
+                      "weak": true
+                    },
+                    "chat_desktop": {
+                      "n": 26,
+                      "weak": true,
+                      "ttfb": 2568,
+                      "lcp": 10257
+                    },
+                    "chat_mobile": {
+                      "n": 5,
+                      "weak": true
+                    }
+                  },
+                  "C5ROC4LY": {
+                    "post_desktop": {
+                      "n": 13,
+                      "weak": true,
+                      "ttfb": 952,
+                      "lcp": 1507
+                    },
+                    "post_mobile": {
+                      "n": 16,
+                      "weak": true,
+                      "ttfb": 1337,
+                      "lcp": 1724
+                    },
+                    "chat_desktop": {
+                      "n": 111,
+                      "ttfb": 5064,
+                      "lcp": 8260,
+                      "fcp": 7320
+                    },
+                    "chat_mobile": {
+                      "n": 37,
+                      "ttfb": 936,
+                      "lcp": 1514
+                    }
+                  }
+                }
+              },
+              "findings": [
+                "Posts: every cell has n<30 (desktop 7, mobile 14-15): no conclusion on Posts. The only post cell with n>=30 across builds is BK3LoBjq all hours (desktop n=782, TTFB 2,443 / LCP 4,148), which is a different hour mix.",
+                "/community/chat on desktop is slower in the after window (TTFB p75 1,069 -> 4,585; LCP 2,372 -> 7,748; n 34 -> 71), the same on C5ROC4LY (n=111) and on BcTZsiDj (n=26, weak); chat on phones is not slower (1,235 -> 1,012). Desktop-only and present on three builds suggests a traffic or client mix change (the known /community/chat desktop wave) rather than the 9bf41e6 change; this is NOT proven (no per-request bot signal here).",
+                "The apparent field improvement on Posts (LCP) is within n<30 noise."
+              ],
+              "not_measured": [
+                "Vercel cache_result, function_duration_gbhr, middleware CPU, function TTFB (query errors)",
+                "a clean per-build 24h of 9bf41e6 (it served 3.5 h)",
+                "bot share of the chat desktop samples"
+              ],
+              "recommendation": "Repeat the Vercel part when the tool answers; judge 9bf41e6 only on its own 26.11 11:04-14:34 slice (too small, n<30) or re-measure the current build BnSB9XOS with its own protocol. No change to cache, SQL, WAF or thresholds was made."
+            },
+            "nothing_measured_as_after_yet": false
           }
         },
         "guard": [],
