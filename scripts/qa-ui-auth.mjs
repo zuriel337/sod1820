@@ -24,34 +24,34 @@ export async function runAuthUi({ settings, browser, devices, newSignedIn, synth
     const guest = await browser.newContext({ ...options, locale: 'he-IL' });
     try {
       const page = await guest.newPage();
-      await step('a guest who opens the admin console is sent to the home page and sees no console', async () => {
+      await step('a guest who opens the admin console stays on the private gate and sees no console', async () => {
         await page.goto('https://sod1820.co.il/2029/control', { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await page.waitForURL((url) => !url.pathname.startsWith('/2029/control'), { timeout: 45000 });
-        if (await page.getByText('ADMIN · READ ONLY').count()) throw new Error('console shown to a guest');
+        await page.getByText('זהו מסך פרטי').first().waitFor({ timeout: 45000 });
+        if (await page.getByRole('heading', { name: 'Control Plane' }).count()) throw new Error('console shown to a guest');
       });
     } finally { await guest.close(); }
 
     // member
     const asMember = await newSignedIn(options, member);
     try {
-      await step('a signed-in member who opens the admin console is sent away and sees no console', async () => {
+      await step('a signed-in member who opens the admin console stays on the private gate and sees no console', async () => {
         await asMember.page.goto('https://sod1820.co.il/2029/control', { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await asMember.page.waitForURL((url) => !url.pathname.startsWith('/2029/control'), { timeout: 45000 });
-        if (await asMember.page.getByText('ADMIN · READ ONLY').count()) throw new Error('console shown to a member');
+        await asMember.page.getByText('זהו מסך פרטי').first().waitFor({ timeout: 45000 });
+        if (await asMember.page.getByRole('heading', { name: 'Control Plane' }).count()) throw new Error('console shown to a member');
       });
     } finally { await asMember.context.close(); }
 
     // administrator
     const asAdmin = await newSignedIn(options, admin);
     try {
-      await step('the administrator stays on the admin console, which says it is read only', async () => {
+      await step('the administrator stays on the admin console (Control Plane, internal)', async () => {
         await asAdmin.page.goto('https://sod1820.co.il/2029/control', { waitUntil: 'domcontentloaded', timeout: 45000 });
-        await asAdmin.page.getByText('ADMIN · READ ONLY').first().waitFor({ timeout: 60000 });
+        await asAdmin.page.getByRole('heading', { name: 'Control Plane' }).first().waitFor({ timeout: 60000 });
         if (!asAdmin.page.url().includes('/2029/control')) throw new Error(`url ${asAdmin.page.url()}`);
       });
       await step('after a reload the administrator is still on the console', async () => {
         await asAdmin.page.reload({ waitUntil: 'domcontentloaded' });
-        await asAdmin.page.getByText('ADMIN · READ ONLY').first().waitFor({ timeout: 60000 });
+        await asAdmin.page.getByRole('heading', { name: 'Control Plane' }).first().waitFor({ timeout: 60000 });
       });
     } finally { await asAdmin.context.close(); }
   }
