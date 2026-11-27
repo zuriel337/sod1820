@@ -26,6 +26,7 @@ function config() {
 }
 
 import { runP1 } from './qa-scenarios-p1.mjs';
+import { runP3 } from './qa-scenarios-p3.mjs';
 import { runMessagesUi } from './qa-ui-messages.mjs';
 import { runNotificationsUi } from './qa-ui-notifications.mjs';
 import { runElsVerify, runCipherUi } from './qa-ui-cipher.mjs';
@@ -160,6 +161,7 @@ try {
     } finally { await context.close(); }
   }
   try { await runP1({ ...settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'p1: flow', String(error.message).split('\n')[0].slice(0, 160)); }
+  try { await runP3({ ...settings, syntheticAccount: (role) => syntheticAccount(settings, role), note }); } catch (error) { failed = true; note(false, 'p3: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runMessagesUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-messages: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runNotificationsUi({ settings, browser, devices, newSignedIn, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'ui-notifications: flow', String(error.message).split('\n')[0].slice(0, 160)); }
   try { await runElsVerify({ settings, syntheticAccount: () => syntheticAccount(settings), note }); } catch (error) { failed = true; note(false, 'els-verify: flow', String(error.message).split('\n')[0].slice(0, 160)); }

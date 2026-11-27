@@ -203,38 +203,107 @@
     "edit_contribution",
     "remove_contribution",
     "moderate_contribution",
+    "pin_contribution",
+    "forum_feed_contributions",
+    "community_reply_counts",
     "approve_contribution",
     "add_guest_community_message",
-    "forum_feed_contributions",
     "community_thread_updates"
    ],
    "tables": [
-    "contributions"
+    "research_contributions",
+    "research_contribution_edits",
+    "research_contribution_deletions",
+    "community_net_blocks",
+    "community_net_key",
+    "anon_contrib_log"
    ],
    "scenarios": [
     {
      "id": "comments.add",
-     "label": "הוספת תגובה (חבר)",
-     "role": "member",
-     "results": []
+     "label": "הוספת תגובה (חבר) ותשובה",
+     "role": "member x2",
+     "results": [
+      "comments: member A adds a comment",
+      "comments: member B replies"
+     ]
     },
     {
      "id": "comments.guest",
-     "label": "תגובת אורח וסקירה",
+     "label": "תגובת אורח, תור סקירה ואישור מנהל",
      "role": "guest+admin",
-     "results": []
+     "results": [
+      "comments: a guest comment is stored as pending",
+      "comments: the pending guest comment is invisible",
+      "comments: the administrator approves it",
+      "comments: after a fresh sign-in of another member"
+     ]
     },
     {
      "id": "comments.edit-remove",
      "label": "עריכה ומחיקה של תגובה שלי; זר לא יכול",
      "role": "member x2",
-     "results": []
+     "results": [
+      "comments: the author edits their comment",
+      "comments: the previous text is kept",
+      "comments: a stranger cannot edit or delete",
+      "comments: the author deletes their comment",
+      "comments: the deleted text is archived",
+      "comments: an edit to an empty text is refused"
+     ]
     },
     {
      "id": "comments.moderate",
-     "label": "אישור והסתרה (מנהל)",
+     "label": "הסתרה ואישור (מנהל), חבר לא יכול",
+     "role": "admin+member",
+     "results": [
+      "comments: a member cannot approve a guest comment",
+      "comments: the administrator hides it",
+      "comments: an unknown moderation status is refused",
+      "comments: the administrator can delete another"
+     ]
+    },
+    {
+     "id": "comments.pin",
+     "label": "נעיצה והסרת נעיצה (מנהל)",
+     "role": "admin+member",
+     "results": [
+      "comments: the administrator pins and unpins"
+     ]
+    },
+    {
+     "id": "comments.privacy",
+     "label": "תוכן שלא נסקר פרטי; כתיבה ישירה לטבלה חסומה",
+     "role": "member x2+guest",
+     "results": [
+      "comments: a member contribution that is not a plain comment",
+      "comments: unreviewed content is private",
+      "comments: the public forum feed lists",
+      "comments: a member cannot write, change or delete comments straight",
+      "comments: a guest cannot call the edit function",
+      "comments: an empty body and an unknown intent"
+     ]
+    },
+    {
+     "id": "comments.guest-network",
+     "label": "הגנת רשת לאורח: מפתח, כתובת, מגבלת שעה וחסימה",
+     "role": "guest+admin",
+     "results": [
+      "comments: a guest comment fails closed",
+      "comments: a guest comment without the platform address",
+      "comments: the guest rate log keeps only",
+      "comments: a guest network may write five",
+      "comments: a blocked network cannot write as a guest",
+      "comments: lifting the block"
+     ]
+    },
+    {
+     "id": "comments.admin-edit",
+     "label": "מנהל אינו משכתב תגובת חבר (רק הכותב)",
      "role": "admin",
-     "results": []
+     "results": [
+      "comments: the administrator cannot rewrite"
+     ]
     }
    ]
   },
@@ -251,15 +320,61 @@
    "scenarios": [
     {
      "id": "likes.toggle",
-     "label": "לייק והסרה, מונה מתעדכן",
+     "label": "לייק והסרה, מונה מתעדכן ונשמר אחרי רענון",
      "role": "member",
-     "results": []
+     "results": [
+      "likes: member A likes a comment",
+      "likes: after a fresh sign-in the counter",
+      "likes: the same member pressing again removes"
+     ]
     },
     {
      "id": "likes.second-account",
      "label": "לייק משני חשבונות נספר פעמיים",
      "role": "member x2",
-     "results": []
+     "results": [
+      "likes: a like from a second account"
+     ]
+    },
+    {
+     "id": "likes.repeatable",
+     "label": "לייק ודיסלייק מצטברים (ערוץ הקהילה) ואינם מתבטלים",
+     "role": "member x2",
+     "results": [
+      "likes: the repeatable like adds one each press",
+      "likes: the repeatable counters and the per-account likes",
+      "likes: the repeatable channel only accepts"
+     ]
+    },
+    {
+     "id": "likes.guest",
+     "label": "לייק של אורח עם זהות דפדפן; חסימות ורשת",
+     "role": "guest+member",
+     "results": [
+      "likes: a guest can react with a browser identity",
+      "likes: the same guest identity pressing again",
+      "likes: a guest reaction without the address header",
+      "likes: a guest reaction from a blocked network"
+     ]
+    },
+    {
+     "id": "likes.refusals",
+     "label": "דחיות: אימוג׳י, דיסלייק רגיל, תגובה לא סקורה, ענף מוסתר או מחוק",
+     "role": "member x2+admin",
+     "results": [
+      "likes: an unknown emoji and a dislike outside",
+      "likes: a reaction on an unreviewed comment",
+      "likes: a reply under a hidden comment",
+      "likes: a reaction on a reply whose parent was deleted"
+     ]
+    },
+    {
+     "id": "likes.privacy",
+     "label": "תצפית פרטיות: רשימת הלייקים הציבורית חושפת מזהי חשבון",
+     "role": "guest",
+     "results": [
+      "likes: observation for the owner"
+     ]
     }
    ]
   },
@@ -267,23 +382,73 @@
    "id": "follow",
    "label": "מעקב",
    "rpcs": [
-    "canonical_follow_subject"
+    "watch_toggle",
+    "follow_subject_state",
+    "canonical_follow_subject",
+    "claim_follow_prefs_from_identity"
    ],
    "tables": [
-    "notification_prefs"
+    "notification_prefs",
+    "subscribe_events",
+    "persons",
+    "identity_edges"
    ],
    "scenarios": [
     {
      "id": "follow.toggle",
-     "label": "מעקב וביטול מעקב",
+     "label": "מעקב וביטול מעקב (מספר)",
      "role": "member",
-     "results": []
+     "results": [
+      "follow: member A follows a number",
+      "follow: the follow is stored on the account",
+      "follow: unfollow clears it"
+     ]
     },
     {
      "id": "follow.reload",
-     "label": "המעקב נשמר אחרי רענון",
+     "label": "המעקב נשמר אחרי כניסה מחדש",
      "role": "member",
-     "results": []
+     "results": [
+      "follow: after a fresh sign-in the follow"
+     ]
+    },
+    {
+     "id": "follow.alias-history",
+     "label": "כתיב ישן לא מכפיל; היסטוריית מעקב פרטית; נושא לא נתמך",
+     "role": "member x2",
+     "results": [
+      "follow: following the old spelling",
+      "follow: the follow history",
+      "follow: an unsupported subject"
+     ]
+    },
+    {
+     "id": "follow.guest",
+     "label": "מעקב אורח על זהות דפדפן, בלי קריאת טבלה",
+     "role": "guest",
+     "results": [
+      "follow: a guest follow is kept on the browser identity",
+      "follow: a guest cannot read the preferences",
+      "follow: a follow with neither an account"
+     ]
+    },
+    {
+     "id": "follow.claim",
+     "label": "מעקב אורח עובר לחשבון אחרי הוכחת זהות",
+     "role": "guest+member",
+     "results": [
+      "follow: a guest follow carries over",
+      "follow: a later follow from that browser"
+     ]
+    },
+    {
+     "id": "follow.thread",
+     "label": "מעקב אחרי שרשור קהילה (חשבון + שורש ציבורי)",
+     "role": "member+guest",
+     "results": [
+      "follow: a community thread can be followed",
+      "follow: the thread follow can be removed"
+     ]
     }
    ]
   },
@@ -460,10 +625,13 @@
     },
     {
      "id": "counters.replies",
-     "label": "מונה תגובות עולה בתגובה",
+     "label": "מונה תגובות עולה בתשובה, יורד בהסתרה, נשמר מתחת למחוקה",
      "role": "member",
-     "results": [],
-     "blocker": "comments family (research_contributions) is next"
+     "results": [
+      "comments: member B replies and the reply counter",
+      "comments: the reply counter drops to zero",
+      "comments: the live reply stays counted"
+     ]
     }
    ]
   },

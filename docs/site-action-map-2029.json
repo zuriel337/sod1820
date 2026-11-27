@@ -4578,7 +4578,8 @@
    ],
    "tests": [
     "test/community-first-upload-lazy-storage-2029.browser.mjs",
-    "test/public-reading-full-account-transport.test.mjs"
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
    ]
   },
   "add_guest_community_message": {
@@ -4775,9 +4776,9 @@
     "test/post-one-tree-measures-2029.browser.test.mjs",
     "test/posts-follow-targets-2029.test.mjs",
     "test/posts-library-2029.browser.test.mjs",
+    "test/qa-prod-definitions.test.mjs",
     "test/release-visual-egress-contract.test.mjs",
-    "test/release-visual-egress-guard.browser.mjs",
-    "test/release-visual-egress-guard.test.mjs"
+    "test/release-visual-egress-guard.browser.mjs"
    ]
   },
   "claim_daily_credit": {
@@ -5103,7 +5104,8 @@
    "tests": [
     "test/community1187-loading.browser.cjs",
     "test/final-preparation-hosted.browser.mjs",
-    "test/public-reading-production-artifact.test.mjs"
+    "test/public-reading-production-artifact.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
    ]
   },
   "community_staff_user_ids_v1": {
@@ -5926,7 +5928,8 @@
    ],
    "tests": [
     "test/community-dislike-20261115.browser.mjs",
-    "test/public-reading-full-account-transport.test.mjs"
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
    ]
   },
   "watch_toggle": {
@@ -5952,7 +5955,8 @@
    ],
    "tests": [
     "test/personal-continuity-2029.test.mjs",
-    "test/public-reading-full-account-transport.test.mjs"
+    "test/public-reading-full-account-transport.test.mjs",
+    "test/qa-prod-definitions.test.mjs"
    ]
   },
   "push_subscription_delete_v1": {
