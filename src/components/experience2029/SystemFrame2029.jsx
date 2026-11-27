@@ -1027,6 +1027,7 @@ function SystemFrame2029Body({
   }, [context?.returnTo, navigate, research, surface]);
 
   const closeTransient = useCallback(() => {
+    import("../../lib/measurementNav2029.js").then(m => m.panelClose(transient?.kind), () => {});
     if (transient?.kind === TRANSIENT.NEWSLETTER) dismissGuestNewsletterInvite2029();
     // A report opened from "האזור האישי שלי" returns to it when it closes (ZURIEL 11.11), the same panel, not the page behind it.
     setTransient(transient?.kind === TRANSIENT.ISSUE && transient.payload?.returnToWorkspace === true ? { kind: TRANSIENT.WORKSPACE, payload: null } : null);

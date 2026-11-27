@@ -44,14 +44,33 @@ export function itemView(kind, id) {
   try { emit("item_2029", "view", { props: { kind: k, item_ref: ref } }); return true; } catch { return false; }
 }
 
-// One delegated listener for a click on a link to a number page: the moment a person moves from one number to another (the landing is only a page view).
+export function studyAction(control) { const c = token(control); return send("study_action", { section: "beit_midrash", ...(c ? { panel: c } : {}) }); }
+
+// Delegated listeners, installed once after the first page is measured (lazy; capture + passive; nothing is queued, nothing is stored):
+//  * a click on a link to a number page: the moment a person moves from one number to another (the landing is only a page view);
+//  * a click on the share entry that opens the share bar (the completion is measured separately by the share family);
+//  * a click on a control inside the study house (beit midrash): which control, as a token, never its text;
+//  * the first play of a native <video> element (bare iframes cannot be observed; the shared external player has its own family);
+//  * a submit of a search form (role="search"): that a search was run, never what was typed.
 let installed = false;
-export function installNumberLinkMeasure2029(doc = globalThis.document) {
+const played = new WeakSet();
+export function installNavMeasure2029(doc = globalThis.document) {
   if (installed || !doc?.addEventListener) return false;
   installed = true;
   doc.addEventListener("click", event => {
-    const a = event.target?.closest?.('a[href^="/number/"], a[href^="/2029/number/"]');
-    if (a) send("number_link_open", { from_surface: surfaceToken(), target_surface: "number" });
+    const el = event.target?.closest?.('a[href^="/number/"], a[href^="/2029/number/"], [data-share-entry="bar"], [data-experience-surface="beit-midrash"] :is(button, a)');
+    if (!el) return;
+    if (el.matches('[data-share-entry="bar"]')) shareBarOpen(surfaceToken());
+    else if (el.matches('a[href^="/number/"], a[href^="/2029/number/"]')) send("number_link_open", { from_surface: surfaceToken(), target_surface: "number" });
+    else studyAction(el.getAttribute("data-action") || el.getAttribute("data-method") || el.id);
+  }, { capture: true, passive: true });
+  doc.addEventListener("play", event => {
+    const v = event.target;
+    if (v?.tagName === "VIDEO" && !played.has(v)) { played.add(v); mediaPlay("native"); }
+  }, { capture: true, passive: true });
+  doc.addEventListener("submit", event => {
+    if (event.target?.matches?.('form[role="search"]')) searchSubmit(surfaceToken(), undefined);
   }, { capture: true, passive: true });
   return true;
 }
+export const installNumberLinkMeasure2029 = installNavMeasure2029;

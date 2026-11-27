@@ -6,7 +6,7 @@ import { registerMeasurementFamilies2029 } from "./measurementFamilies2029.js";
 export function readingNavSpec() {
   return {
     item_2029: { events: ["view"], fields: { kind: "token", item_ref: "token" } },
-    nav_2029: { events: ["number_link_open", "panel_open", "panel_close", "search_submit", "share_bar_open", "media_play", "gallery_open"],
+    nav_2029: { events: ["number_link_open", "panel_open", "panel_close", "search_submit", "share_bar_open", "media_play", "gallery_open", "study_action"],
       fields: { from_surface: "token", target_surface: "token", panel: "token", section: "token", outcome: "token", provider: "token", count: "int" } },
     calc_outcome_2029: { events: ["ai_analysis_result", "compute_failed", "compute_empty", "equals_preview_shown", "equals_preview_all_opened"],
       fields: { surface: "token", method: "token", reason: "token", count: "int" } },

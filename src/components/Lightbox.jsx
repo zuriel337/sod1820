@@ -42,6 +42,7 @@ export default function Lightbox({ images = [], initialIndex = 0, onClose, onEdi
     if (via === "copy") { setShared(true); setTimeout(() => setShared(false), 2000); }
   }
 
+  useEffect(() => { import("../lib/measurementNav2029.js").then(m => m.galleryOpen(), () => {}); }, []);
   useEffect(() => { setIdx(initialIndex); }, [initialIndex]);
   useEffect(() => { setTall(false); }, [idx]);   // איפוס זיהוי-הגובה בכל מעבר תמונה
 

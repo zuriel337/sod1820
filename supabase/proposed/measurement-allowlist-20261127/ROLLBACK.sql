@@ -6,7 +6,7 @@ begin;
   declare
     v_def text := pg_get_functiondef('public.ingest_event(text,text,text,text,text,text,text,text,text,text,smallint,jsonb,jsonb,boolean)'::regprocedure);
     v_old text := $q$"calculator_2029":$q$;
-    v_new text := $q$"item_2029":{"events":["view"],"fields":{"kind":"token","item_ref":"token"}},"nav_2029":{"events":["number_link_open","panel_open","panel_close","search_submit","share_bar_open","media_play","gallery_open"],"fields":{"from_surface":"token","target_surface":"token","panel":"token","section":"token","outcome":"token","provider":"token","count":"int"}},"calc_outcome_2029":{"events":["ai_analysis_result","compute_failed","compute_empty","equals_preview_shown","equals_preview_all_opened"],"fields":{"surface":"token","method":"token","reason":"token","count":"int"}},"calculator_2029":$q$;
+    v_new text := $q$"item_2029":{"events":["view"],"fields":{"kind":"token","item_ref":"token"}},"nav_2029":{"events":["number_link_open","panel_open","panel_close","search_submit","share_bar_open","media_play","gallery_open","study_action"],"fields":{"from_surface":"token","target_surface":"token","panel":"token","section":"token","outcome":"token","provider":"token","count":"int"}},"calc_outcome_2029":{"events":["ai_analysis_result","compute_failed","compute_empty","equals_preview_shown","equals_preview_all_opened"],"fields":{"surface":"token","method":"token","reason":"token","count":"int"}},"calculator_2029":$q$;
   begin
     if position(v_new in v_def) = 0 then return; end if;  -- already rolled back
     v_def := replace(v_def, v_new, v_old);

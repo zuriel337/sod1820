@@ -8,7 +8,7 @@ begin;
     v_new text := $q$or (v_props->'engagement_version' is distinct from '1'::jsonb and v_props->'engagement_version' is distinct from '2'::jsonb)$q$;
   begin
     if position(v_new in v_def) = 0 then return; end if;
-    if md5(replace(v_def, v_new, v_old)) not in ('3d2fa7cf1aa7513b981d338cab5aebc2','54b4c76942c8a4ff3553ecdd43341dde') then raise exception 'the rest of ingest_event changed after the proposal; rollback by hand'; end if;
+    if md5(replace(v_def, v_new, v_old)) not in ('3d2fa7cf1aa7513b981d338cab5aebc2','2c965ff385fe61e90a02957a43b25ba7') then raise exception 'the rest of ingest_event changed after the proposal; rollback by hand'; end if;
     execute replace(v_def, v_new, v_old);
   end $$;
 commit;

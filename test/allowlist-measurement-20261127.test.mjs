@@ -52,3 +52,15 @@ test("nav helpers: tokens only, capped, a cipher id becomes a 12-character token
   assert.equal(mod.panelOpen("Bad Token!"), false);
   delete globalThis.sessionStorage;
 });
+
+test("the delegated listeners: number links, share-bar entry, study-house controls, native video play and search forms; no text, capped", async () => {
+  const mod = await import("../src/lib/measurementNav2029.js");
+  const src = readFileSync(new URL("../src/lib/measurementNav2029.js", import.meta.url), "utf8");
+  for (const needle of ['[data-share-entry="bar"]', 'data-experience-surface="beit-midrash"', '"play"', 'form[role="search"]', "installNavMeasure2029"]) assert.ok(src.includes(needle), needle);
+  assert.doesNotMatch(src, /textContent|innerText|\.value\b/, "no text of a control or a field is ever read");
+  assert.equal(typeof mod.installNavMeasure2029, "function");
+  assert.equal(mod.installNumberLinkMeasure2029, mod.installNavMeasure2029, "the earlier name stays valid");
+  assert.ok(readingNavSpec().nav_2029.events.includes("study_action"));
+  assert.match(readFileSync(new URL("../src/components/Lightbox.jsx", import.meta.url), "utf8"), /m\.galleryOpen\(\)/);
+  assert.match(readFileSync(new URL("../src/components/experience2029/SystemFrame2029.jsx", import.meta.url), "utf8"), /m\.panelClose\(transient\?\.kind\)/);
+});
