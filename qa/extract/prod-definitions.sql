@@ -1575,3 +1575,1493 @@ grant UPDATE on public.els_records to service_role;
 -- @@ colgrant public.els_records
 grant select (id, title, search_term, torah_book, torah_section, skip_distance, image_url, description, primary_number, anchor_numbers, importance, visibility, status, created_at, owner_user_id, author_name, positions, source, scope, direction, slug, self_published, home_hidden, corpus_id, term_norm, start_index, engine_detail) on public.els_records to anon;
 grant select (id, title, search_term, torah_book, torah_section, skip_distance, image_url, description, primary_number, anchor_numbers, importance, visibility, status, created_at, owner_user_id, author_name, positions, source, scope, direction, slug, self_published, home_hidden, corpus_id, term_norm, start_index, engine_detail) on public.els_records to authenticated;
+-- @@ table public.anon_contrib_log
+create table public.anon_contrib_log (
+  id bigint not null default nextval('anon_contrib_log_id_seq'::regclass),
+  ip text,
+  created_at timestamp with time zone not null default now(),
+  constraint anon_contrib_log_pkey PRIMARY KEY (id)
+);
+-- @@ table public.beit_midrash
+create table public.beit_midrash (
+  id uuid not null default gen_random_uuid(),
+  type text not null default 'מקור'::text,
+  title text not null,
+  body text,
+  related_numbers integer[],
+  related_phrases text[],
+  source_ref text,
+  link text,
+  origin text not null default 'צוריאל'::text,
+  verified boolean not null default false,
+  ai_touched boolean not null default false,
+  space text not null default 'core'::text,
+  is_active boolean not null default true,
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now(),
+  constraint beit_midrash_origin_check CHECK ((origin = ANY (ARRAY['צוריאל'::text, 'ai'::text]))),
+  constraint beit_midrash_pkey PRIMARY KEY (id),
+  constraint beit_midrash_type_check CHECK ((type = ANY (ARRAY['שיעור'::text, 'דיון'::text, 'מקור'::text, 'שאלה_תשובה'::text, 'כללי'::text])))
+);
+-- @@ table public.community_net_blocks
+create table public.community_net_blocks (
+  id uuid not null default gen_random_uuid(),
+  net_ref text not null,
+  duration_kind text not null,
+  created_at timestamp with time zone not null default now(),
+  created_by uuid not null,
+  reason text not null,
+  expires_at timestamp with time zone,
+  source_message_id uuid,
+  lifted_at timestamp with time zone,
+  lifted_by uuid,
+  lift_reason text,
+  permanent_requested_at timestamp with time zone,
+  permanent_requested_by uuid,
+  permanent_request_reason text,
+  permanent_approved_at timestamp with time zone,
+  permanent_approved_by uuid,
+  constraint community_net_blocks_check CHECK (((duration_kind = 'permanent'::text) = (expires_at IS NULL))),
+  constraint community_net_blocks_duration_kind_check CHECK ((duration_kind = ANY (ARRAY['h24'::text, 'd3'::text, 'd7'::text, 'permanent'::text]))),
+  constraint community_net_blocks_pkey PRIMARY KEY (id),
+  constraint community_net_blocks_reason_check CHECK (((char_length(btrim(reason)) >= 10) AND (char_length(btrim(reason)) <= 300)))
+);
+-- @@ table public.community_net_key
+create table public.community_net_key (
+  singleton boolean not null default true,
+  key bytea not null,
+  created_at timestamp with time zone not null default now(),
+  constraint community_net_key_pkey PRIMARY KEY (singleton),
+  constraint community_net_key_singleton_check CHECK (singleton)
+);
+-- @@ table public.contribution_events
+create table public.contribution_events (
+  id uuid not null default gen_random_uuid(),
+  user_id uuid,
+  kind text not null,
+  ref text,
+  value bigint,
+  source text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamp with time zone not null default now(),
+  constraint contribution_events_pkey PRIMARY KEY (id)
+);
+-- @@ table public.contributors
+create table public.contributors (
+  id uuid not null default gen_random_uuid(),
+  slug text not null,
+  display_name text not null,
+  kind text not null default 'community'::text,
+  phone text,
+  email text,
+  user_id uuid,
+  avatar_url text,
+  role text,
+  bio text,
+  vip boolean not null default false,
+  active boolean not null default true,
+  source text,
+  notes text,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  media jsonb not null default '[]'::jsonb,
+  code text,
+  locked boolean not null default false,
+  access_code text,
+  tags text[],
+  building boolean not null default false,
+  wa_names text[] default '{}'::text[],
+  feature_media boolean default false,
+  merged_into text,
+  dossier_settings jsonb not null default '{}'::jsonb,
+  trusted boolean not null default false,
+  specialty text,
+  specialty_label text,
+  on_whatsapp boolean not null default false,
+  accent text,
+  emblem text,
+  engaged boolean not null default true,
+  page_config jsonb not null default jsonb_build_object('version', 1),
+  wa_channel text,
+  wa_group_url text,
+  constraint contributors_code_key UNIQUE (code),
+  constraint contributors_pkey PRIMARY KEY (id),
+  constraint contributors_slug_key UNIQUE (slug)
+);
+-- @@ table public.identity_edges
+create table public.identity_edges (
+  id uuid not null default gen_random_uuid(),
+  sod_id text not null,
+  person_id uuid not null,
+  kind text not null,
+  legacy_id text,
+  confidence smallint not null default 100,
+  first_seen timestamp with time zone not null default now(),
+  last_seen timestamp with time zone not null default now(),
+  meta jsonb,
+  constraint identity_edges_pkey PRIMARY KEY (id)
+);
+-- @@ table public.persons
+create table public.persons (
+  person_id uuid not null default gen_random_uuid(),
+  created_at timestamp with time zone not null default now(),
+  first_seen timestamp with time zone,
+  last_seen timestamp with time zone,
+  first_source text,
+  first_app_context text,
+  account_user_id uuid,
+  primary_channel text,
+  constraint persons_pkey PRIMARY KEY (person_id)
+);
+-- @@ table public.research_contribution_deletions
+create table public.research_contribution_deletions (
+  contribution_id uuid not null,
+  body text,
+  title text,
+  image_url text,
+  media jsonb,
+  status text,
+  deleted_by uuid,
+  deleted_at timestamp with time zone not null default now(),
+  constraint research_contribution_deletions_pkey PRIMARY KEY (contribution_id)
+);
+-- @@ table public.research_contribution_edits
+create table public.research_contribution_edits (
+  id bigint not null default nextval('research_contribution_edits_id_seq'::regclass),
+  contribution_id uuid not null,
+  body text,
+  edited_by uuid,
+  edited_at timestamp with time zone not null default now(),
+  constraint research_contribution_edits_pkey PRIMARY KEY (id)
+);
+-- @@ table public.research_contributions
+create table public.research_contributions (
+  id uuid not null default gen_random_uuid(),
+  author_user_id uuid,
+  author_contributor_id uuid,
+  author_name text,
+  intent text not null default 'תגובה'::text,
+  origin text not null default 'beit_midrash'::text,
+  research_state text not null default 'idea'::text,
+  status text not null default 'pending'::text,
+  target_type text,
+  target_id text,
+  parent_id uuid,
+  title text,
+  body text,
+  gematria_claim jsonb,
+  projected_insight_id uuid,
+  reactions jsonb not null default '{}'::jsonb,
+  created_at timestamp with time zone not null default now(),
+  updated_at timestamp with time zone not null default now(),
+  graph_node_id uuid,
+  pinned_at timestamp with time zone,
+  last_activity_at timestamp with time zone default now(),
+  image_url text,
+  is_featured boolean not null default false,
+  convergence_slug text,
+  is_answer boolean default false,
+  reaction_boosts jsonb not null default '{}'::jsonb,
+  media jsonb not null default '[]'::jsonb,
+  edited_at timestamp with time zone,
+  deleted_at timestamp with time zone,
+  deleted_by uuid,
+  thread_hidden_at timestamp with time zone,
+  thread_bumped_at timestamp with time zone,
+  constraint research_contributions_media_array_ck CHECK ((jsonb_typeof(media) = 'array'::text)),
+  constraint research_contributions_pkey PRIMARY KEY (id)
+);
+-- @@ table public.subscribe_events
+create table public.subscribe_events (
+  id uuid not null default gen_random_uuid(),
+  user_id uuid,
+  visitor_id text,
+  topic text not null,
+  source text,
+  action text not null default 'follow'::text,
+  created_at timestamp with time zone not null default now(),
+  constraint subscribe_events_pkey PRIMARY KEY (id)
+);
+-- @@ fk public.contribution_events.contribution_events_user_id_fkey
+alter table public.contribution_events add constraint contribution_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
+-- @@ fk public.contributors.contributors_user_id_fkey
+alter table public.contributors add constraint contributors_user_id_fkey FOREIGN KEY (user_id) REFERENCES users(id);
+-- @@ fk public.identity_edges.identity_edges_person_id_fkey
+alter table public.identity_edges add constraint identity_edges_person_id_fkey FOREIGN KEY (person_id) REFERENCES persons(person_id) ON DELETE CASCADE;
+-- @@ fk public.research_contribution_deletions.research_contribution_deletions_contribution_id_fkey
+alter table public.research_contribution_deletions add constraint research_contribution_deletions_contribution_id_fkey FOREIGN KEY (contribution_id) REFERENCES research_contributions(id) ON DELETE CASCADE;
+-- @@ fk public.research_contribution_edits.research_contribution_edits_contribution_id_fkey
+alter table public.research_contribution_edits add constraint research_contribution_edits_contribution_id_fkey FOREIGN KEY (contribution_id) REFERENCES research_contributions(id) ON DELETE CASCADE;
+-- @@ fk public.research_contributions.research_contributions_author_contributor_id_fkey
+alter table public.research_contributions add constraint research_contributions_author_contributor_id_fkey FOREIGN KEY (author_contributor_id) REFERENCES contributors(id) ON DELETE SET NULL;
+-- @@ fk public.research_contributions.research_contributions_author_user_id_fkey
+alter table public.research_contributions add constraint research_contributions_author_user_id_fkey FOREIGN KEY (author_user_id) REFERENCES auth.users(id) ON DELETE SET NULL;
+-- @@ fk public.research_contributions.research_contributions_graph_node_id_fkey
+alter table public.research_contributions add constraint research_contributions_graph_node_id_fkey FOREIGN KEY (graph_node_id) REFERENCES nodes(id);
+-- @@ fk public.research_contributions.research_contributions_parent_id_fkey
+alter table public.research_contributions add constraint research_contributions_parent_id_fkey FOREIGN KEY (parent_id) REFERENCES research_contributions(id) ON DELETE CASCADE;
+-- @@ fk public.research_contributions.research_contributions_projected_insight_id_fkey
+alter table public.research_contributions add constraint research_contributions_projected_insight_id_fkey FOREIGN KEY (projected_insight_id) REFERENCES insights(id) ON DELETE SET NULL;
+-- @@ index public.anon_contrib_log.anon_contrib_log_ip_time
+CREATE INDEX anon_contrib_log_ip_time ON public.anon_contrib_log USING btree (ip, created_at);
+-- @@ index public.community_net_blocks.community_net_blocks_one_open_per_net
+CREATE UNIQUE INDEX community_net_blocks_one_open_per_net ON public.community_net_blocks USING btree (net_ref) WHERE (lifted_at IS NULL);
+-- @@ index public.contributors.idx_contributors_kind
+CREATE INDEX idx_contributors_kind ON public.contributors USING btree (kind, active);
+-- @@ index public.identity_edges.identity_edges_legacy_idx
+CREATE INDEX identity_edges_legacy_idx ON public.identity_edges USING btree (legacy_id) WHERE (legacy_id IS NOT NULL);
+-- @@ index public.identity_edges.identity_edges_legacy_seed_row_unique
+CREATE UNIQUE INDEX identity_edges_legacy_seed_row_unique ON public.identity_edges USING btree (sod_id, person_id, legacy_id) WHERE ((kind = 'legacy_seed'::text) AND (legacy_id IS NOT NULL));
+-- @@ index public.identity_edges.identity_edges_legacy_seed_unique
+CREATE UNIQUE INDEX identity_edges_legacy_seed_unique ON public.identity_edges USING btree (legacy_id) WHERE ((kind = 'legacy_seed'::text) AND (legacy_id IS NOT NULL) AND (legacy_id <> ALL (ARRAY['0401ea30-ee9f-4b27-9ff6-f7782b95e434'::text, '0572e53c-0f18-4bd6-87e5-55df9db52462'::text, '07881577-d8b5-41cb-9f0b-c3c871bcbbf0'::text, '10aafa66-17de-47c7-9482-76ec99329478'::text, '13659d7d-da16-47f9-9d7b-7ace3fa18ef5'::text, '1597fc45-e3db-4128-9f75-6aa21467be03'::text, '15a66b1a-de3d-4d7c-b2b1-97987336c316'::text, '17d159e0-89ef-4159-b124-8a9ae37b3e49'::text, '19982a25-7d08-4294-8993-b38a17a8f020'::text, '1e0ad37b-6757-4762-a7ee-826a68af9c8a'::text, '22618c48-76f3-4d2e-a19f-a262f375ad7e'::text, '23718595-cd02-4fa6-ac93-869ad2e5917d'::text, '2620a46e-c05e-43c9-8658-02b320625d6a'::text, '2b9d4e5a-f4e6-4861-8673-9e5c57302552'::text, '2e022b27-8cc8-4018-853d-6e9bbde40e12'::text, '2fc90feb-ca71-483e-884a-72f1ede3f90c'::text, '30b4025e-fc99-4c52-9e99-709efba761b3'::text, '31501b76-9eea-423f-a2af-6ec02b1b8928'::text, '31fdf611-03f3-46c8-afcc-b47a7eaca4be'::text, '3451df85-47d8-4c40-9fdb-3fdd44601fe3'::text, '354f118d-77d7-4a68-b352-1aec49a354fb'::text, '36dff039-9165-43d8-9f86-6e83231cb25b'::text, '3801a71e-4a81-4083-ba19-6662dc84ca92'::text, '41d9045f-0c2d-47a4-bf6e-24b8e635dd8a'::text, '43a4a215-5adb-40c3-a55e-0ea5640a9930'::text, '45dd6aea-e84c-4a35-9d4d-c1e5d9d14c21'::text, '493c625b-647a-4ff3-90d4-523aaeccde57'::text, '499909e5-8455-4fd3-a365-2baf68b39435'::text, '4a1ce37d-5698-47ea-afaa-a28b82c9f181'::text, '4a5f3722-b770-429d-8b30-86cfe0f573ab'::text, '4f020a14-3059-4d78-90da-5498b43532b6'::text, '50ed52f3-fd2b-4241-a10c-d05f71ddcb08'::text, '53583e02-3132-4b71-bf2c-393ff9fe6cc9'::text, '5562fca4-e8f0-4bbd-aa59-bd0c9ea2c0d6'::text, '5880a8a6-19ad-4b04-b728-bd1de96274af'::text, '5bc0d16d-84b7-4d30-a03d-447ba13ba1da'::text, '5e4a9be7-1ed6-4634-af29-7c03981538e1'::text, '60ebe0d3-19a9-4133-af30-6521dfd97797'::text, '636108f7-f0fc-49b6-bcb3-b379aa0fcc6a'::text, '699a6084-de89-449a-8c07-2fd563ba2838'::text, '6a617540-a1d8-4aa5-8de6-1e8a595d9dc6'::text, '6bc01dad-8ac6-4a0e-b9d0-442f76a1a66d'::text, '6c5dbe93-33b0-4762-a354-d9b666888b45'::text, '6dfb9faf-20fd-45c4-826f-67a17ce32aaa'::text, '73f45c92-764b-4826-a5d6-eaafbbfb66ad'::text, '7a5949cc-2ecf-47df-8459-9c6078dd2548'::text, '7d00fdf3-fa49-4255-a44f-d3764f7a5771'::text, '7f64c940-7c95-48df-afa4-3b9f3c826150'::text, '7f949767-641e-44bf-bf90-25e5cd490b19'::text, '84b7f986-70e3-4627-9a27-b9a6306358dd'::text, '84e6fb22-2880-46a0-81fb-9a849e51912a'::text, '87d3c5ad-4382-45c4-a2d4-a09f808f05cd'::text, '8b811c6b-dc81-4c16-8f76-d3a54f68c5be'::text, '90e55583-931c-44f7-8608-60680058c4c3'::text, '91535ad7-324f-4746-ac7b-49a633e489ae'::text, '944386bd-597e-4389-8980-304da9daeb39'::text, '95536234-c308-4ddc-80a9-e6b757b6ba52'::text, '9ecf010e-0acb-4945-8b70-77938e5e1ccd'::text, '9f21766a-4f2e-4d3f-bb17-56c02403b3a2'::text, 'a06a1871-2f1d-4e83-8974-4f27497a1e7a'::text, 'a158a34c-a8d5-4cdd-81c8-9e29cb5f6026'::text, 'a377b835-dcb4-4d5a-9d4a-98bd120fd31d'::text, 'a5e15fce-43ca-4688-906a-b65dbc62d04c'::text, 'a7df7398-c99f-424e-8877-48a004780193'::text, 'ab082f57-8314-43b8-9cf6-dec334d3d8ac'::text, 'afcd9c5a-9acd-41ea-9a2c-b878deebad35'::text, 'b05b6057-e4ef-4671-9b66-7a17a3634c9a'::text, 'b0cc9c15-170d-4d7b-8a57-ca7276c93b00'::text, 'b1564f21-cb28-4209-9fbc-e9ddeccd15d7'::text, 'b82441be-6bf6-49bb-adac-32a773824239'::text, 'b8b1b5ca-ca85-421c-a4ed-bef498174a23'::text, 'b8e4a239-82b9-4074-b9a4-358a26ff23a1'::text, 'bc1c1900-3d4e-4e33-b04e-f1ea573886c6'::text, 'be7fc250-bccc-41ed-9d7f-27e9dd90ba2c'::text, 'c4362e06-3aae-47e9-bdc9-c577b2952202'::text, 'c4ce9630-5ca9-4517-86e8-cacdbc1e70a8'::text, 'c66ad8b0-abe5-429f-b344-7c881b1b888a'::text, 'c70eb4dc-6671-4a02-82e0-316eb4be9b96'::text, 'c8f695b3-90de-4b41-bda3-771ab9513953'::text, 'c94570e2-6dda-4f21-8224-984e6cced1fe'::text, 'ca791261-6746-40ce-9fec-642b0ab4e894'::text, 'cc5846e5-1903-47cd-a474-5fffae194d83'::text, 'cd02988e-ed1e-496e-aadd-0fe8ef6e0fe7'::text, 'cf1bcdb2-b90c-4b32-bb68-0fbb0199a950'::text, 'd305a163-1f1b-42fa-8adb-a469bad5a8a9'::text, 'd48b3143-d1ab-4c60-a2e6-21f1ac726a4d'::text, 'd56c0eb8-b1bc-422f-adad-a7630eca561d'::text, 'd63f5f12-72d1-4f87-8c55-b2ff6c146f21'::text, 'd82030f3-7b36-4191-9d22-b6d1285b45bb'::text, 'd8b9cf80-02f2-446f-b0a1-2d35f98ee57f'::text, 'db5be8e2-e94d-4996-a137-d1e3a9f05786'::text, 'dcdad862-0cb4-4652-8a4a-24bea175f9e2'::text, 'ddf455eb-51f5-4b27-8827-acc626b2d5c3'::text, 'dfeabdd1-6a88-4b92-be27-7e60b9f3126b'::text, 'e61834e8-3000-4e4c-a7eb-a9c366a6b5b5'::text, 'e8a19666-b086-4900-8ca7-7d7cf80f74f6'::text, 'ebc67956-1e0c-4b53-9869-6481ca7e673f'::text, 'f20b5f89-0c92-4aca-a086-55e5406d7ccf'::text, 'f288657a-26f5-44f1-8872-e1db661fb7a4'::text, 'f471d861-fdec-488d-8716-2fcf4a6aa218'::text, 'f6162d18-8de7-4c0e-95e6-079a8eb0593c'::text, 'f8e293a8-c492-4237-a8a0-054c0d104897'::text, 'f9aec285-fc1d-49d6-bf4c-983f75a03f02'::text, 'f9d34e43-36a3-4f07-ab74-e1cc67f9434e'::text, 'fe66a39d-91fd-4040-beca-58d88b9601a3'::text])));
+-- @@ index public.identity_edges.identity_edges_person_idx
+CREATE INDEX identity_edges_person_idx ON public.identity_edges USING btree (person_id);
+-- @@ index public.identity_edges.identity_edges_singular_kind_unique
+CREATE UNIQUE INDEX identity_edges_singular_kind_unique ON public.identity_edges USING btree (sod_id, person_id, kind) WHERE (kind <> 'legacy_seed'::text);
+-- @@ index public.identity_edges.identity_edges_sod_idx
+CREATE INDEX identity_edges_sod_idx ON public.identity_edges USING btree (sod_id);
+-- @@ index public.identity_edges.identity_edges_user_idx
+CREATE INDEX identity_edges_user_idx ON public.identity_edges USING btree (person_id) WHERE (kind = 'login'::text);
+-- @@ index public.persons.persons_account_user_id_unique
+CREATE UNIQUE INDEX persons_account_user_id_unique ON public.persons USING btree (account_user_id) WHERE (account_user_id IS NOT NULL);
+-- @@ index public.research_contribution_edits.rc_edits_idx
+CREATE INDEX rc_edits_idx ON public.research_contribution_edits USING btree (contribution_id, edited_at DESC);
+-- @@ index public.research_contributions.rc_author_idx
+CREATE INDEX rc_author_idx ON public.research_contributions USING btree (author_user_id);
+-- @@ index public.research_contributions.rc_community_body_trgm_idx
+CREATE INDEX rc_community_body_trgm_idx ON public.research_contributions USING gin (body gin_trgm_ops) WHERE ((status = 'approved'::text) AND (origin = ANY (ARRAY['openweb'::text, 'community_2029'::text])));
+-- @@ index public.research_contributions.rc_deleted_idx
+CREATE INDEX rc_deleted_idx ON public.research_contributions USING btree (parent_id) WHERE (deleted_at IS NOT NULL);
+-- @@ index public.research_contributions.rc_deleted_root_idx
+CREATE INDEX rc_deleted_root_idx ON public.research_contributions USING btree (created_at, id) WHERE ((deleted_at IS NOT NULL) AND (parent_id IS NULL));
+-- @@ index public.research_contributions.rc_facets_idx
+CREATE INDEX rc_facets_idx ON public.research_contributions USING btree (origin, intent, research_state, status);
+-- @@ index public.research_contributions.rc_parent_idx
+CREATE INDEX rc_parent_idx ON public.research_contributions USING btree (parent_id);
+-- @@ index public.research_contributions.rc_status_idx
+CREATE INDEX rc_status_idx ON public.research_contributions USING btree (status, created_at DESC);
+-- @@ index public.research_contributions.rc_target_idx
+CREATE INDEX rc_target_idx ON public.research_contributions USING btree (target_type, target_id, created_at DESC);
+-- @@ index public.subscribe_events.ix_subscribe_events_source
+CREATE INDEX ix_subscribe_events_source ON public.subscribe_events USING btree (source);
+-- @@ index public.subscribe_events.ix_subscribe_events_topic
+CREATE INDEX ix_subscribe_events_topic ON public.subscribe_events USING btree (topic);
+-- @@ rls public.anon_contrib_log
+alter table public.anon_contrib_log enable row level security;
+-- @@ rls public.beit_midrash
+alter table public.beit_midrash enable row level security;
+-- @@ rls public.community_net_blocks
+alter table public.community_net_blocks enable row level security;
+-- @@ rls public.community_net_key
+alter table public.community_net_key enable row level security;
+-- @@ rls public.contribution_events
+alter table public.contribution_events enable row level security;
+-- @@ rls public.contributors
+alter table public.contributors enable row level security;
+-- @@ rls public.identity_edges
+alter table public.identity_edges enable row level security;
+-- @@ rls public.persons
+alter table public.persons enable row level security;
+-- @@ rls public.research_contribution_deletions
+alter table public.research_contribution_deletions enable row level security;
+-- @@ rls public.research_contribution_edits
+alter table public.research_contribution_edits enable row level security;
+-- @@ rls public.research_contributions
+alter table public.research_contributions enable row level security;
+-- @@ rls public.subscribe_events
+alter table public.subscribe_events enable row level security;
+-- @@ policy public.beit_midrash.bm_public_read
+create policy bm_public_read on public.beit_midrash as PERMISSIVE for SELECT to anon, authenticated using (true);
+-- @@ policy public.contribution_events.ce_read_own
+create policy ce_read_own on public.contribution_events as PERMISSIVE for SELECT to public using ((auth.uid() = user_id));
+-- @@ policy public.contributors.contributors_read
+create policy contributors_read on public.contributors as PERMISSIVE for SELECT to public using (((COALESCE((dossier_settings ->> 'visibility'::text), 'public'::text) <> 'private'::text) OR (user_id = auth.uid()) OR (EXISTS ( SELECT 1
+   FROM users u
+  WHERE ((u.id = auth.uid()) AND (u.role = 'admin'::text))))));
+-- @@ policy public.research_contributions.rc_public_read
+create policy rc_public_read on public.research_contributions as PERMISSIVE for SELECT to public using (((status = 'approved'::text) OR (author_user_id = auth.uid())));
+-- @@ policy public.research_contributions.research_contributions_admin_read
+create policy research_contributions_admin_read on public.research_contributions as PERMISSIVE for SELECT to authenticated using (( SELECT rd_is_admin() AS rd_is_admin));
+-- @@ policy public.subscribe_events.se_owner_read
+create policy se_owner_read on public.subscribe_events as PERMISSIVE for SELECT to public using (((user_id = auth.uid()) OR (EXISTS ( SELECT 1
+   FROM users
+  WHERE ((users.id = auth.uid()) AND (users.role = 'admin'::text))))));
+-- @@ function public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text, p_target_id text, p_parent_id uuid, p_title text, p_gematria_claim jsonb, p_author_name text, p_image_url text)
+CREATE OR REPLACE FUNCTION public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text DEFAULT NULL::text, p_target_id text DEFAULT NULL::text, p_parent_id uuid DEFAULT NULL::uuid, p_title text DEFAULT NULL::text, p_gematria_claim jsonb DEFAULT NULL::jsonb, p_author_name text DEFAULT NULL::text, p_image_url text DEFAULT NULL::text)
+ RETURNS uuid
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_cid uuid;
+  v_name text;
+  v_status text;
+  v_state text;
+  new_id uuid;
+  v_ip text;
+  v_recent int;
+  v_trusted boolean := false;
+  v_intent text := nullif(btrim(coalesce(p_intent,'')), '');
+begin
+  if p_body is null or length(btrim(p_body)) = 0 then raise exception 'empty body'; end if;
+
+  if v_intent is null or not (v_intent = any(array[
+    'תגובה','חידוש','שאלה','תיקון','תצפית','השערה','מקור','צופן','גימטריה','קשר'
+  ]::text[])) then
+    raise exception 'invalid intent';
+  end if;
+
+  if v_uid is not null then
+    select u.id, u.trusted
+      into v_cid, v_trusted
+    from public.rc_unique_contributor_for_user_v1(v_uid) u;
+    v_trusted := coalesce(v_trusted, false);
+
+    v_status := case when v_intent = 'תגובה' then 'approved' else 'pending' end;
+    v_state  := case
+      when v_intent = 'תגובה' then 'discussion'
+      when v_trusted then 'validated'
+      else 'idea'
+    end;
+
+    select coalesce(nullif(display_name,''), nullif(username,''))
+      into v_name
+    from public.users
+    where id = v_uid
+    limit 1;
+  else
+    -- M0 (12.11.2026): the platform-set client address first (as add_guest_community_message); the first X-Forwarded-For hop is client-controlled.
+    v_ip := coalesce(nullif(btrim(coalesce((current_setting('request.headers', true)::json)->>'cf-connecting-ip', '')), ''),
+                     nullif(btrim(coalesce((current_setting('request.headers', true)::json)->>'x-real-ip', '')), ''),
+                     split_part(coalesce((current_setting('request.headers', true)::json)->>'x-forwarded-for',''), ',', 1));
+    v_ip := nullif(btrim(v_ip), '');
+    -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
+    v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
+    if v_ip is not null and public.community_write_scope_v1(p_origin, p_parent_id) and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    -- No trusted address header = no reference: a guest write into the community (decided on the server: community origin, or an answer to a stored community message) fails closed, as add_guest_community_message already does; other writes are unchanged.
+    if v_ip is null and public.community_write_scope_v1(p_origin, p_parent_id) then raise exception 'rate_limited'; end if;
+    if v_ip is not null then
+      select count(*) into v_recent
+      from public.anon_contrib_log
+      where ip in (v_ip, coalesce(public.community_trusted_client_ip_v1(), v_ip)) and created_at > now() - interval '1 hour';
+      if v_recent >= 5 then raise exception 'rate_limited'; end if;
+      insert into public.anon_contrib_log(ip) values (v_ip);
+    end if;
+    v_status := 'pending';
+    v_state  := 'discussion';
+    v_name := left(coalesce(nullif(btrim(p_author_name),''), 'אורח'), 40);
+  end if;
+
+  insert into public.research_contributions
+    (author_user_id, author_contributor_id, author_name, intent, origin, research_state, status,
+     target_type, target_id, parent_id, title, body, gematria_claim, image_url)
+  values
+    (v_uid, v_cid, v_name, v_intent, coalesce(nullif(p_origin,''),'beit_midrash'),
+     v_state, v_status, p_target_type, p_target_id, p_parent_id, p_title,
+     left(p_body, 6000), p_gematria_claim, nullif(btrim(p_image_url), ''))
+  returning id into new_id;
+
+  if p_parent_id is not null then
+    update public.research_contributions
+       set last_activity_at = now()
+     where id = p_parent_id;
+  end if;
+
+  if v_uid is not null and v_status = 'approved' then
+    insert into public.contribution_events (user_id, kind, ref, value, source, metadata)
+    values (
+      v_uid,
+      'contribution_posted',
+      new_id::text,
+      public.contribution_weight(v_intent, false, false, coalesce(nullif(p_origin,''),'beit_midrash') <> 'broadcast'),
+      coalesce(nullif(p_origin,''),'beit_midrash'),
+      jsonb_build_object('intent', v_intent, 'parent_id', p_parent_id, 'auto', true)
+    );
+  end if;
+
+  return new_id;
+end;
+$function$
+;
+-- @@ function public.claim_follow_prefs_from_identity()
+CREATE OR REPLACE FUNCTION public.claim_follow_prefs_from_identity()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_uid uuid;
+  v_vis text;
+  v_topics text[] := '{}'::text[];
+  v_guest_mute timestamptz;
+  v_guest_intensity text;
+begin
+  if NEW.kind not in ('login', 'legacy_seed') then return NEW; end if;
+
+  select p.account_user_id into v_uid
+  from public.persons p
+  where p.person_id = NEW.person_id;
+
+  if v_uid is null then return NEW; end if;
+
+  -- Lock every proven browser visitor in deterministic order, then the account projection.
+  -- A linked guest watch takes visitor -> account in the same order; an authenticated watch
+  -- takes only account. This avoids AB-BA cycles while closing the post-claim orphan window.
+  for v_vis in
+    select distinct ie.legacy_id
+    from public.identity_edges ie
+    where ie.person_id = NEW.person_id
+      and ie.kind = 'legacy_seed'
+      and nullif(btrim(coalesce(ie.legacy_id, '')), '') is not null
+    order by ie.legacy_id
+  loop
+    perform pg_advisory_xact_lock(
+      hashtextextended('visitor:' || v_vis || '|follow-identity', 0)
+    );
+  end loop;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended('user:' || v_uid::text || '|follow-identity', 0)
+  );
+
+  -- Re-read only after every relevant Follow projection is quiescent.
+  with raw_topics as (
+    select unnest(coalesce(np.topics, '{}'::text[])) as topic
+    from public.notification_prefs np
+    where np.user_id = v_uid
+    union all
+    select unnest(coalesce(np.topics, '{}'::text[])) as topic
+    from public.notification_prefs np
+    join public.identity_edges ie
+      on ie.kind = 'legacy_seed'
+     and ie.legacy_id = np.visitor_id
+     and ie.person_id = NEW.person_id
+    where np.user_id is null
+  ), normalized as (
+    select public.canonical_follow_topic(topic) as topic
+    from raw_topics
+  )
+  select coalesce(array_agg(distinct topic order by topic) filter (where topic <> ''), '{}'::text[])
+    into v_topics
+  from normalized;
+
+  -- Carry mute/intensity only when creating the account projection. Never transfer guest
+  -- delivery channels: historical guest {email} is not proof of channel consent.
+  select max(np.muted_until),
+         (array_agg(np.intensity order by np.updated_at desc))[1]
+    into v_guest_mute, v_guest_intensity
+  from public.notification_prefs np
+  join public.identity_edges ie
+    on ie.kind = 'legacy_seed'
+   and ie.legacy_id = np.visitor_id
+   and ie.person_id = NEW.person_id
+  where np.user_id is null;
+
+  if exists (select 1 from public.notification_prefs where user_id = v_uid) then
+    update public.notification_prefs
+       set topics = v_topics,
+           updated_at = now()
+     where user_id = v_uid;
+  elsif coalesce(array_length(v_topics, 1), 0) > 0 then
+    insert into public.notification_prefs(user_id, topics, channels, intensity, muted_until)
+      values (v_uid, v_topics, '{}'::text[], coalesce(v_guest_intensity, 'normal'), v_guest_mute);
+  end if;
+
+  delete from public.notification_prefs np
+   where np.user_id is null
+     and exists (
+       select 1
+       from public.identity_edges ie
+       where ie.kind = 'legacy_seed'
+         and ie.legacy_id = np.visitor_id
+         and ie.person_id = NEW.person_id
+     );
+
+  return NEW;
+end
+$function$
+;
+-- @@ function public.community_message_context(p_id uuid)
+CREATE OR REPLACE FUNCTION public.community_message_context(p_id uuid)
+ RETURNS TABLE(id uuid, parent_id uuid, author_name text, author_user_id uuid, author_contributor_id uuid, title text, body text, reactions jsonb, origin text, created_at timestamp with time zone, edited_at timestamp with time zone, is_deleted boolean, contributor_id uuid, contributor_user_id uuid, contributor_display_name text, contributor_avatar_url text, total_count bigint)
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  return query
+  with recursive up(rid, pid, depth, tomb) as (
+    select r.id, r.parent_id, 1,
+           case when r.status = 'approved' and r.deleted_at is null and r.thread_hidden_at is null
+                     and r.origin in ('openweb','community_2029') and nullif(btrim(r.body), '') is not null then false
+                when r.deleted_at is not null and r.thread_hidden_at is null and r.origin in ('openweb','community_2029') then true
+                else null end
+    from public.research_contributions r where r.id = p_id
+    union all
+    select r.id, r.parent_id, up.depth + 1,
+           case when r.status = 'approved' and r.deleted_at is null and r.thread_hidden_at is null
+                     and r.origin in ('openweb','community_2029') and nullif(btrim(r.body), '') is not null then false
+                when r.deleted_at is not null and r.thread_hidden_at is null and r.origin in ('openweb','community_2029') then true
+                else null end
+    from public.research_contributions r join up on r.id = up.pid
+    where up.tomb is not null and up.depth < 30
+  ), chain as (
+    select * from up where tomb is not null
+  )
+  select r.id, r.parent_id,
+         case when c.tomb then null else r.author_name end,
+         case when c.tomb then null else r.author_user_id end,
+         case when c.tomb then null else r.author_contributor_id end,
+         case when c.tomb then null else r.title end,
+         case when c.tomb then null else r.body end,
+         case when c.tomb then '{}'::jsonb else r.reactions end,
+         r.origin, r.created_at,
+         case when c.tomb then null else r.edited_at end,
+         c.tomb,
+         case when c.tomb then null else ct.id end,
+         case when c.tomb then null else ct.user_id end,
+         case when c.tomb then null else ct.display_name end,
+         case when c.tomb then null else ct.avatar_url end,
+         null::bigint
+  from chain c
+  join public.research_contributions r on r.id = c.rid
+  left join public.contributors ct on ct.id = r.author_contributor_id
+  -- the target itself must be visible; ancestors stop at the first invisible one
+  where exists (select 1 from chain t where t.rid = p_id)
+    and exists (select 1 from chain t where t.pid is null)
+  order by c.depth desc;
+end;
+$function$
+;
+-- @@ function public.edit_contribution(p_id uuid, p_body text)
+CREATE OR REPLACE FUNCTION public.edit_contribution(p_id uuid, p_body text)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+declare v_uid uuid := auth.uid(); v_author uuid; v_origin text;
+begin
+  if v_uid is null then raise exception 'auth required'; end if;
+  select author_user_id,origin into v_author,v_origin from public.research_contributions where id=p_id;
+  if not found then raise exception 'not found'; end if;
+  if v_origin in ('openweb','community_2029') then
+    perform public.community_edit_message(p_id,p_body);
+    return;
+  end if;
+  if p_body is null or length(btrim(p_body))=0 then raise exception 'empty body'; end if;
+  if not public.rd_is_admin() and (v_author is null or v_author is distinct from v_uid) then raise exception 'not authorized'; end if;
+  update public.research_contributions set body=left(p_body,6000),updated_at=now() where id=p_id;
+end $function$
+;
+-- @@ function public.moderate_contribution(p_id uuid, p_status text)
+CREATE OR REPLACE FUNCTION public.moderate_contribution(p_id uuid, p_status text)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+begin
+  if not exists (select 1 from public.users u where u.id=auth.uid() and u.role='admin') then
+    raise exception 'not authorized'; end if;
+  if p_status not in ('hidden','rejected','pending','approved') then raise exception 'bad status'; end if;
+  update public.research_contributions set status=p_status, updated_at=now() where id=p_id;
+end; $function$
+;
+-- @@ function public.remove_contribution(p_id uuid)
+CREATE OR REPLACE FUNCTION public.remove_contribution(p_id uuid)
+ RETURNS void
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+declare v_uid uuid := auth.uid(); v_author uuid; v_origin text;
+begin
+  if v_uid is null then raise exception 'auth required'; end if;
+  select author_user_id,origin into v_author,v_origin from public.research_contributions where id=p_id;
+  if not found then raise exception 'not found'; end if;
+  if v_origin in ('openweb','community_2029') then
+    perform public.community_delete_message(p_id);
+    return;
+  end if;
+  if not public.rd_is_admin() and (v_author is null or v_author is distinct from v_uid) then raise exception 'not authorized'; end if;
+  update public.research_contributions set status='hidden',updated_at=now() where id=p_id;
+end $function$
+;
+-- @@ function public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text)
+CREATE OR REPLACE FUNCTION public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare
+  v_key text;
+  v_arr jsonb;
+  v_reactions jsonb;
+  v_added boolean;
+  v_parent uuid;
+  v_chain_ids uuid[];
+  v_chain_parents uuid[];
+  v_approved boolean;
+  v_has_root boolean;
+  v_row record;
+  v_locked integer := 0;
+  v_repeat boolean := p_visitor in ('community-repeatable-like', 'community-repeatable-dislike');
+  v_counter text := case when p_visitor = 'community-repeatable-dislike' then 'community_dislikes' else 'community_likes' end;
+  v_repeat_emoji text := case when p_visitor = 'community-repeatable-dislike' then '👎' else '👍' end;
+begin
+  v_key := coalesce(auth.uid()::text, nullif('v:' || coalesce(nullif(btrim(p_visitor), ''), ''), 'v:'));
+  if v_key is null then raise exception 'no identity'; end if;
+  -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
+  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029')) then
+    if public.community_net_ref_v1(public.community_trusted_client_ip_v1()) is null then raise exception 'rate_limited'; end if;   -- no trusted address header: fail closed
+    if public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  end if;
+  if p_emoji is null or p_emoji not in ('👍','👎','💡','🔥','🙏','✨')
+    or (p_emoji = '👎' and p_visitor is distinct from 'community-repeatable-dislike') then
+    raise exception 'bad emoji';
+  end if;
+
+  -- A reply must reach an approved root through approved existing ancestors.
+  -- Missing rows, nonpublic rows, cycles and chains over the 128-row safety
+  -- bound use the same denial and never return reactions or change activity.
+  with recursive ancestry as (
+    select rc.id, rc.parent_id, rc.status, array[rc.id] as visited, 1 as depth
+    from public.research_contributions rc where rc.id = p_id
+    union all
+    select rc.id, rc.parent_id, rc.status, a.visited || rc.id, a.depth + 1
+    from ancestry a join public.research_contributions rc on rc.id = a.parent_id
+    where a.depth < 128 and not (rc.id = any(a.visited))
+  )
+  select array_agg(id order by depth), array_agg(parent_id order by depth),
+         bool_and(coalesce(status = 'approved', false)), bool_or(parent_id is null)
+  into v_chain_ids, v_chain_parents, v_approved, v_has_root
+  from ancestry;
+  if v_approved is distinct from true or v_has_root is distinct from true then
+    raise exception 'not found';
+  end if;
+
+  -- Lock the whole chain from target toward root, then validate its current status
+  -- and links. A moderation/reparent/delete racing the initial read fails
+  -- closed. This matches admin_boost_reaction's existing target -> parent order;
+  -- UUID order would invert its locks for some replies and introduce deadlocks.
+  for v_row in
+    select rc.id, rc.parent_id, rc.status, rc.reactions, rc.origin, rc.deleted_at, rc.thread_hidden_at
+    from public.research_contributions rc where rc.id = any(v_chain_ids)
+    order by array_position(v_chain_ids, rc.id) for update
+  loop
+    if v_row.status is distinct from 'approved'
+      or v_row.parent_id is distinct from v_chain_parents[array_position(v_chain_ids, v_row.id)] then
+      raise exception 'not found';
+    end if;
+    if v_repeat and (p_emoji <> v_repeat_emoji or coalesce(v_row.origin,'') not in ('openweb','community_2029')
+      or v_row.thread_hidden_at is not null or (v_row.id = p_id and v_row.deleted_at is not null)) then
+      raise exception 'not found';
+    end if;
+    v_locked := v_locked + 1;
+    if v_row.id = p_id then
+      v_reactions := v_row.reactions;
+      v_parent := v_row.parent_id;
+    end if;
+  end loop;
+  if v_locked <> cardinality(v_chain_ids) then raise exception 'not found'; end if;
+
+  v_reactions := coalesce(v_reactions, '{}'::jsonb);
+  if v_repeat then
+    v_reactions := jsonb_set(v_reactions, array[v_counter],
+      to_jsonb(greatest(coalesce((v_reactions->>v_counter)::bigint,0),0) + 1));
+    update public.research_contributions set reactions = v_reactions, last_activity_at = now() where id = p_id;
+    if v_parent is not null then
+      update public.research_contributions set last_activity_at = now() where id = v_parent;
+    end if;
+    return v_reactions;
+  end if;
+  v_arr := coalesce(v_reactions -> p_emoji, '[]'::jsonb);
+  if v_arr ? v_key then
+    v_arr := (select coalesce(jsonb_agg(e), '[]'::jsonb) from jsonb_array_elements_text(v_arr) e where e <> v_key);
+    v_added := false;
+  else
+    v_arr := v_arr || to_jsonb(v_key);
+    v_added := true;
+  end if;
+
+  v_reactions := jsonb_set(v_reactions, array[p_emoji], v_arr);
+  if v_added then
+    update public.research_contributions set reactions = v_reactions, last_activity_at = now() where id = p_id;
+    if v_parent is not null then
+      update public.research_contributions set last_activity_at = now() where id = v_parent;
+    end if;
+  else
+    update public.research_contributions set reactions = v_reactions where id = p_id;
+  end if;
+  return v_reactions;
+end;
+$function$
+;
+-- @@ function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text)
+CREATE OR REPLACE FUNCTION public.watch_toggle(p_topic text, p_source text DEFAULT NULL::text, p_on boolean DEFAULT true, p_visitor text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_auth_uid uuid := auth.uid();
+  v_uid uuid := v_auth_uid;
+  v_topics text[];
+  v_has boolean;
+  v_vis text;
+  v_changed boolean := false;
+  v_topic text := public.canonical_follow_topic(p_topic);
+  v_equivs text[];
+begin
+  if v_topic = '' then raise exception 'bad topic'; end if;
+  -- Only the explicit Community source gains this public-root capability.
+  if p_source = 'community_thread' then
+    if v_auth_uid is null then raise exception 'account required' using errcode='42501'; end if;
+    if v_topic !~ '^thread:[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' then
+      raise exception 'invalid community thread' using errcode='22023';
+    end if;
+    if p_on and not exists (
+      select 1 from public.community_message_context(substr(v_topic,8)::uuid) c
+      where c.id=substr(v_topic,8)::uuid and c.parent_id is null and not c.is_deleted
+    ) then raise exception 'public thread unavailable' using errcode='42501'; end if;
+  end if;
+  v_equivs := public.follow_topic_aliases(v_topic);
+
+  if v_auth_uid is not null then
+    -- Authenticated caller: account identity is authoritative; p_visitor is ignored.
+    perform pg_advisory_xact_lock(
+      hashtextextended('user:' || v_auth_uid::text || '|follow-identity', 0)
+    );
+  else
+    v_vis := nullif(btrim(coalesce(p_visitor, '')), '');
+    if v_vis is null then raise exception 'no identity'; end if;
+
+    -- Guest capability lock first. If a concurrent claim currently owns it we wait; after it
+    -- commits, the re-check below sees the new identity edge and routes into the account row.
+    perform pg_advisory_xact_lock(
+      hashtextextended('visitor:' || v_vis || '|follow-identity', 0)
+    );
+
+    select p.account_user_id into v_uid
+    from public.identity_edges ie
+    join public.persons p on p.person_id = ie.person_id
+    where ie.kind = 'legacy_seed'
+      and ie.legacy_id = v_vis
+      and p.account_user_id is not null
+    limit 1;
+
+    if v_uid is not null then
+      -- Same order as claim_follow_prefs_from_identity(): visitor -> account.
+      perform pg_advisory_xact_lock(
+        hashtextextended('user:' || v_uid::text || '|follow-identity', 0)
+      );
+    end if;
+  end if;
+
+  if v_uid is not null then
+    select topics into v_topics
+    from public.notification_prefs
+    where user_id = v_uid
+    for update;
+  else
+    select topics into v_topics
+    from public.notification_prefs
+    where visitor_id = v_vis
+    for update;
+  end if;
+
+  v_topics := coalesce(v_topics, '{}');
+  v_has := v_topics && v_equivs;
+
+  if p_on then
+    if not v_has then
+      v_topics := array_append(v_topics, v_topic);
+      v_changed := true;
+      -- For a linked guest, keep both account and browser provenance. For authenticated calls
+      -- visitor_id is NULL; for an unlinked guest user_id is NULL.
+      insert into public.subscribe_events(user_id, visitor_id, topic, source, action)
+        values (v_uid, v_vis, v_topic, p_source, 'follow');
+    elsif not (v_topic = any(v_topics)) or (
+      select count(*) from unnest(v_topics) x where x = any(v_equivs)
+    ) > 1 then
+      -- Representation reconciliation only; never a second Follow event.
+      v_topics := array(
+        select distinct x
+        from unnest(v_topics) x
+        where not (x = any(v_equivs))
+      );
+      v_topics := array_append(v_topics, v_topic);
+      v_changed := true;
+    end if;
+  elsif v_has then
+    v_topics := array(
+      select distinct x
+      from unnest(v_topics) x
+      where not (x = any(v_equivs))
+    );
+    v_changed := true;
+    insert into public.subscribe_events(user_id, visitor_id, topic, source, action)
+      values (v_uid, v_vis, v_topic, p_source, 'unfollow');
+  end if;
+
+  if v_changed then
+    if v_uid is not null then
+      insert into public.notification_prefs(user_id, topics, channels)
+        values (v_uid, v_topics, '{}'::text[])
+        on conflict (user_id) do update
+          set topics = excluded.topics, updated_at = now();
+    else
+      insert into public.notification_prefs(visitor_id, topics, channels)
+        values (v_vis, v_topics, '{}'::text[])
+        on conflict (visitor_id) do update
+          set topics = excluded.topics, updated_at = now();
+    end if;
+  end if;
+
+  return jsonb_build_object(
+    'following', p_on and (v_has or v_changed),
+    'topic', v_topic,
+    'aliases', v_equivs,
+    'claimed_account', v_auth_uid is null and v_uid is not null
+  );
+end
+$function$
+;
+-- @@ function public._community_message_owned_by_caller_v1(p_row research_contributions)
+CREATE OR REPLACE FUNCTION public._community_message_owned_by_caller_v1(p_row research_contributions)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+  select (select auth.uid()) is not null
+    and (p_row).origin in ('openweb', 'community_2029')
+    and case
+      -- An explicit current author cannot be superseded by a conflicting alias.
+      when (p_row).author_user_id is not null then
+        (p_row).author_user_id = (select auth.uid())
+      else exists (
+        select 1 from public.contributors c
+        where c.id = (p_row).author_contributor_id
+          and (
+            c.user_id = (select auth.uid())
+            or (
+              c.user_id is null
+              and exists (
+                select 1 from public.identity_edges e
+                join public.persons p on p.person_id = e.person_id
+                where e.kind = 'legacy_seed'
+                  and e.legacy_id = 'contributor:' || c.id::text
+                  and e.confidence = 100
+                  and e.meta->'human_gate' = 'true'::jsonb
+                  and p.account_user_id = (select auth.uid())
+              )
+              and not exists (
+                select 1 from public.identity_edges other
+                left join public.persons p on p.person_id = other.person_id
+                where other.kind = 'legacy_seed'
+                  and other.legacy_id = 'contributor:' || c.id::text
+                  and p.account_user_id is distinct from (select auth.uid())
+              )
+            )
+          )
+      )
+    end;
+$function$
+;
+-- @@ function public.canonical_follow_subject(p_entity_type text, p_stable_id text)
+CREATE OR REPLACE FUNCTION public.canonical_follow_subject(p_entity_type text, p_stable_id text)
+ RETURNS text
+ LANGUAGE plpgsql
+ IMMUTABLE
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_type text := lower(btrim(coalesce(p_entity_type, '')));
+  v_id text := btrim(coalesce(p_stable_id, ''));
+begin
+  if v_type = '' or v_id = '' then return ''; end if;
+
+  return case v_type
+    when 'number'         then public.canonical_follow_topic('number:' || v_id)
+    when 'author'         then public.canonical_follow_topic('author:' || v_id)
+    when 'category'       then public.canonical_follow_topic('cat:' || v_id)
+    when 'cipher_feed'    then 'codes:new'
+    when 'reality_stream' then 'stream:reality'
+    when 'media_channel'  then case
+      when lower(replace(v_id, '_', '-')) in ('or-geula', 'orgeula') then 'channel:or-geula'
+      else public.canonical_follow_topic('channel:' || v_id)
+    end
+    when 'channel'        then case
+      when lower(replace(v_id, '_', '-')) in ('or-geula', 'orgeula') then 'channel:or-geula'
+      else public.canonical_follow_topic('channel:' || v_id)
+    end
+    else ''
+  end;
+end
+$function$
+;
+-- @@ function public.canonical_follow_topic(p_topic text)
+CREATE OR REPLACE FUNCTION public.canonical_follow_topic(p_topic text)
+ RETURNS text
+ LANGUAGE plpgsql
+ IMMUTABLE
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_topic text := btrim(coalesce(p_topic, ''));
+  v_label text;
+begin
+  if v_topic = '' then return ''; end if;
+
+  if v_topic like 'category:%' then
+    v_topic := 'cat:' || substr(v_topic, 10);
+  elsif v_topic ~ '^num_[0-9]+$' then
+    v_topic := 'number:' || substr(v_topic, 5);
+  elsif v_topic = 'els' then
+    v_topic := 'codes:new';
+  elsif v_topic in ('orgeula:new', 'or-geula', 'channel:orgeula') then
+    v_topic := 'channel:or-geula';
+  end if;
+
+  if v_topic like 'cat:%' then
+    v_label := substr(v_topic, 5);
+    v_label := replace(replace(replace(v_label, '"', '״'), '“', '״'), '”', '״');
+    return 'cat:' || v_label;
+  end if;
+
+  return v_topic;
+end
+$function$
+;
+-- @@ function public.community_delete_message(p_id uuid)
+CREATE OR REPLACE FUNCTION public.community_delete_message(p_id uuid)
+ RETURNS text
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.research_contributions%rowtype;
+  v_now timestamptz := now();
+begin
+  if v_uid is null then raise exception 'auth required' using errcode='42501'; end if;
+  select * into v_row from public.research_contributions where id=p_id for update;
+  if not found then raise exception 'not authorized' using errcode='42501'; end if;
+  if v_row.author_contributor_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('person_contributor:'||v_row.author_contributor_id::text,1820));
+  end if;
+  if v_row.origin is null or v_row.origin not in ('openweb','community_2029')
+     or not (public.rd_is_admin() or coalesce(public._community_message_owned_by_caller_v1(v_row),false)) then
+    raise exception 'not authorized' using errcode='42501';
+  end if;
+  if v_row.graph_node_id is not null or v_row.projected_insight_id is not null then
+    raise exception 'source_requires_review' using errcode='55000';
+  end if;
+  if v_row.deleted_at is not null then return 'already_deleted'; end if;
+  if v_row.thread_hidden_at is not null or v_row.status is null or v_row.status not in ('approved','pending') then
+    raise exception 'not deletable' using errcode='55000';
+  end if;
+  insert into public.research_contribution_deletions(contribution_id,body,title,image_url,media,status,deleted_by,deleted_at)
+  values(v_row.id,v_row.body,v_row.title,v_row.image_url,v_row.media,v_row.status,v_uid,v_now);
+  update public.research_contributions
+     set body=null,title=null,image_url=null,media='[]'::jsonb,status='hidden',
+         deleted_at=v_now,deleted_by=v_uid,updated_at=v_now
+   where id=p_id;
+  return 'deleted';
+end $function$
+;
+-- @@ function public.community_edit_message(p_id uuid, p_body text)
+CREATE OR REPLACE FUNCTION public.community_edit_message(p_id uuid, p_body text)
+ RETURNS timestamp with time zone
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'pg_catalog', 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_row public.research_contributions%rowtype;
+  v_body text := btrim(coalesce(p_body,''));
+  v_now timestamptz := now();
+begin
+  if v_uid is null then raise exception 'auth required' using errcode='42501'; end if;
+  if length(v_body)=0 or length(v_body)>6000 then
+    raise exception 'body must contain 1 to 6000 characters' using errcode='22023';
+  end if;
+  select * into v_row from public.research_contributions where id=p_id for update;
+  if not found then raise exception 'not authorized' using errcode='42501'; end if;
+  if v_row.author_contributor_id is not null then
+    perform pg_advisory_xact_lock(hashtextextended('person_contributor:'||v_row.author_contributor_id::text,1820));
+  end if;
+  if not coalesce(public._community_message_owned_by_caller_v1(v_row),false) then
+    raise exception 'not authorized' using errcode='42501';
+  end if;
+  if v_row.graph_node_id is not null or v_row.projected_insight_id is not null then
+    raise exception 'source_requires_review' using errcode='55000';
+  end if;
+  if v_row.status is distinct from 'approved' or v_row.deleted_at is not null or v_row.thread_hidden_at is not null then
+    raise exception 'not editable' using errcode='55000';
+  end if;
+  if btrim(coalesce(v_row.body,''))=v_body then return v_row.edited_at; end if;
+  insert into public.research_contribution_edits(contribution_id,body,edited_by,edited_at)
+  values(v_row.id,v_row.body,v_uid,v_now);
+  update public.research_contributions set body=v_body,edited_at=v_now,updated_at=v_now where id=p_id;
+  return v_now;
+end $function$
+;
+-- @@ function public.community_has_live_descendant(p_id uuid)
+CREATE OR REPLACE FUNCTION public.community_has_live_descendant(p_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  with recursive d(id, deleted, live, depth) as (
+    select c.id,
+           c.deleted_at is not null and c.thread_hidden_at is null,
+           c.status = 'approved' and c.deleted_at is null and c.thread_hidden_at is null
+             and c.origin in ('openweb','community_2029') and nullif(btrim(c.body), '') is not null,
+           1
+    from public.research_contributions c
+    where c.parent_id = p_id
+    union all
+    select c.id,
+           c.deleted_at is not null and c.thread_hidden_at is null,
+           c.status = 'approved' and c.deleted_at is null and c.thread_hidden_at is null
+             and c.origin in ('openweb','community_2029') and nullif(btrim(c.body), '') is not null,
+           d.depth + 1
+    from public.research_contributions c
+    join d on c.parent_id = d.id
+    where d.deleted and d.depth < 64
+  )
+  select exists (select 1 from d where live);
+$function$
+;
+-- @@ function public.community_net_blocked_v1(p_ref text)
+CREATE OR REPLACE FUNCTION public.community_net_blocked_v1(p_ref text)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  select p_ref is not null and exists (select 1 from public.community_net_blocks b
+    where b.net_ref = p_ref and b.lifted_at is null and (b.expires_at is null or b.expires_at > now()))
+$function$
+;
+-- @@ function public.community_net_ref_v1(p_ip text)
+CREATE OR REPLACE FUNCTION public.community_net_ref_v1(p_ip text)
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_norm text; v_key bytea;
+begin
+  if p_ip is null or btrim(p_ip) = '' then return null; end if;
+  begin
+    v_norm := case when family(btrim(p_ip)::inet) = 6 then host(network(set_masklen(btrim(p_ip)::inet, 64))) else host(btrim(p_ip)::inet) end;
+  exception when others then return null;
+  end;
+  select key into v_key from public.community_net_key where singleton;
+  if v_key is null then return null; end if;
+  return encode(sha256(v_key || convert_to(v_norm, 'UTF8')), 'hex');
+end $function$
+;
+-- @@ function public.community_reply_counts(p_ids uuid[])
+CREATE OR REPLACE FUNCTION public.community_reply_counts(p_ids uuid[])
+ RETURNS TABLE(parent_id uuid, reply_count bigint)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select c.parent_id, count(*)::bigint
+  from public.research_contributions c
+  where c.parent_id = any (p_ids[1:200])
+    and c.origin in ('openweb','community_2029')
+    and c.thread_hidden_at is null
+    and (
+      (c.status = 'approved' and c.deleted_at is null and nullif(btrim(c.body), '') is not null)
+      or (c.deleted_at is not null and public.community_has_live_descendant(c.id))
+    )
+  group by c.parent_id;
+$function$
+;
+-- @@ function public.community_trusted_client_ip_v1()
+CREATE OR REPLACE FUNCTION public.community_trusted_client_ip_v1()
+ RETURNS text
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+declare v_h jsonb; v_ip text;
+begin
+  begin v_h := nullif(current_setting('request.headers', true), '')::jsonb; exception when others then return null; end;
+  v_ip := nullif(btrim(coalesce(v_h->>'cf-connecting-ip', '')), '');
+  if v_ip is null then return null; end if;
+  begin perform v_ip::inet; exception when others then return null; end;
+  return v_ip;
+end $function$
+;
+-- @@ function public.community_write_scope_v1(p_origin text, p_parent uuid)
+CREATE OR REPLACE FUNCTION public.community_write_scope_v1(p_origin text, p_parent uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+  select coalesce(nullif(p_origin, ''), 'beit_midrash') in ('openweb', 'community_2029')
+      or (p_parent is not null and exists (select 1 from public.research_contributions r where r.id = p_parent and r.origin in ('openweb', 'community_2029')))
+$function$
+;
+-- @@ function public.contribution_weight(p_intent text, p_verified boolean, p_promoted boolean, p_onsite boolean)
+CREATE OR REPLACE FUNCTION public.contribution_weight(p_intent text, p_verified boolean, p_promoted boolean, p_onsite boolean DEFAULT false)
+ RETURNS integer
+ LANGUAGE sql
+ IMMUTABLE
+AS $function$
+  select (case p_intent
+    when 'חידוש' then 10 when 'צופן' then 8 when 'גימטריה' then 8 when 'השערה' then 6
+    when 'תצפית' then 5 when 'מקור' then 5 when 'תיקון' then 4 when 'קשר' then 3
+    when 'שאלה' then 2 else 1 end)
+  + case when p_verified then 5 else 0 end
+  + case when p_promoted then 5 else 0 end
+  + case when p_onsite   then 3 else 0 end;   -- 🏆 עדיפות לכותב-האתר (רשום, לא-משודר)
+$function$
+;
+-- @@ function public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text)
+CREATE OR REPLACE FUNCTION public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text DEFAULT NULL::text)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_uid uuid := auth.uid();
+  v_vis text;
+  v_topic text := public.canonical_follow_subject(p_entity_type, p_stable_id);
+  v_equivs text[];
+  v_topics text[] := '{}'::text[];
+begin
+  if v_topic = '' then raise exception 'unsupported follow subject'; end if;
+  v_equivs := public.follow_topic_aliases(v_topic);
+
+  if v_uid is not null then
+    select coalesce(np.topics, '{}'::text[]) into v_topics
+    from public.notification_prefs np
+    where np.user_id = v_uid;
+  else
+    v_vis := nullif(btrim(coalesce(p_visitor, '')), '');
+    if v_vis is null then raise exception 'no identity'; end if;
+    select coalesce(np.topics, '{}'::text[]) into v_topics
+    from public.notification_prefs np
+    where np.user_id is null and np.visitor_id = v_vis;
+  end if;
+
+  v_topics := coalesce(v_topics, '{}'::text[]);
+  return jsonb_build_object(
+    'following', v_topics && v_equivs,
+    'topic', v_topic
+  );
+end
+$function$
+;
+-- @@ function public.follow_topic_aliases(p_topic text)
+CREATE OR REPLACE FUNCTION public.follow_topic_aliases(p_topic text)
+ RETURNS text[]
+ LANGUAGE plpgsql
+ IMMUTABLE
+ SET search_path TO 'public'
+AS $function$
+declare
+  v_topic text := public.canonical_follow_topic(p_topic);
+  v_label text;
+  v_straight text;
+begin
+  if v_topic = '' then return array[]::text[]; end if;
+
+  if v_topic like 'cat:%' then
+    v_label := substr(v_topic, 5);
+    v_straight := replace(v_label, '״', '"');
+    return array(
+      select distinct x
+      from unnest(array[
+        v_topic,
+        'cat:' || v_straight,
+        'category:' || v_label,
+        'category:' || v_straight
+      ]) as x
+      where x <> ''
+    );
+  end if;
+
+  if v_topic like 'number:%' then
+    v_label := substr(v_topic, 8);
+    return array[v_topic, 'num_' || v_label];
+  end if;
+
+  if v_topic = 'codes:new' then
+    return array['codes:new', 'els'];
+  end if;
+
+  if v_topic = 'channel:or-geula' then
+    return array['channel:or-geula', 'orgeula:new', 'or-geula', 'channel:orgeula'];
+  end if;
+
+  return array[v_topic];
+end
+$function$
+;
+-- @@ function public.forum_feed_contributions(p_limit integer)
+CREATE OR REPLACE FUNCTION public.forum_feed_contributions(p_limit integer DEFAULT 200)
+ RETURNS TABLE(id uuid, author_name text, author_user_id uuid, intent text, research_state text, status text, target_type text, target_id text, title text, body text, image_url text, gematria_claim jsonb, reactions jsonb, reaction_boosts jsonb, pinned_at timestamp with time zone, created_at timestamp with time zone, last_activity_at timestamp with time zone, trusted boolean)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  with t as (
+    select coalesce(array_agg(user_id) filter (where user_id is not null), '{}') as uids,
+           coalesce(array_agg(display_name) filter (where display_name is not null), '{}') as names
+    from public.contributors where trusted = true
+  ),
+  active as (
+    select distinct parent_id as id
+    from public.research_contributions
+    where parent_id is not null and status = 'approved'
+  )
+  select rc.id, rc.author_name, rc.author_user_id, rc.intent, rc.research_state,
+         rc.status, rc.target_type, rc.target_id, rc.title, rc.body, rc.image_url,
+         rc.gematria_claim, rc.reactions, coalesce(rc.reaction_boosts,'{}'::jsonb) as reaction_boosts,
+         rc.pinned_at, rc.created_at,
+         coalesce(rc.last_activity_at, rc.created_at) as last_activity_at,
+         ( (rc.author_user_id is not null and rc.author_user_id = any(t.uids))
+           or (rc.author_name is not null and rc.author_name = any(t.names)) ) as trusted
+  from public.research_contributions rc, t
+  where rc.parent_id is null
+    and (
+      rc.status = 'approved'
+      or (rc.status = 'published' and rc.id in (select id from active))
+    )
+  order by coalesce(rc.last_activity_at, rc.created_at) desc
+  limit greatest(1, coalesce(p_limit, 200));
+$function$
+;
+-- @@ function public.rc_unique_contributor_for_user_v1(p_user uuid)
+CREATE OR REPLACE FUNCTION public.rc_unique_contributor_for_user_v1(p_user uuid)
+ RETURNS TABLE(id uuid, trusted boolean)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+WITH m AS (SELECT c.id, coalesce(c.trusted, false) AS trusted FROM public.contributors c WHERE c.user_id = p_user AND c.active AND c.merged_into IS NULL)
+SELECT m.id, m.trusted FROM m WHERE (SELECT count(*) FROM m) = 1;
+$function$
+;
+-- @@ function public.rd_is_admin()
+CREATE OR REPLACE FUNCTION public.rd_is_admin()
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  select exists (select 1 from public.users u where u.id = auth.uid() and u.role = 'admin');
+$function$
+;
+-- @@ trigger public.contribution_events.ce_award_after_insert
+CREATE TRIGGER ce_award_after_insert AFTER INSERT ON public.contribution_events FOR EACH ROW EXECUTE FUNCTION ce_award();
+-- @@ trigger public.identity_edges.trg_identity_edges_claim_follow_prefs
+CREATE TRIGGER trg_identity_edges_claim_follow_prefs AFTER INSERT OR UPDATE ON public.identity_edges FOR EACH ROW WHEN ((new.kind = ANY (ARRAY['login'::text, 'legacy_seed'::text]))) EXECUTE FUNCTION claim_follow_prefs_from_identity();
+-- @@ trigger public.research_contributions.trg_00_rc_resolve_author_contributor
+CREATE TRIGGER trg_00_rc_resolve_author_contributor BEFORE INSERT ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION rc_resolve_author_contributor();
+-- @@ trigger public.research_contributions.trg_00_zvi_standing_approve_research_contribution
+CREATE TRIGGER trg_00_zvi_standing_approve_research_contribution BEFORE INSERT OR UPDATE OF status, author_contributor_id, author_user_id ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION fn_zvi_standing_approve_research_contribution();
+-- @@ trigger public.research_contributions.trg_community_thread_bump_v1
+CREATE TRIGGER trg_community_thread_bump_v1 AFTER INSERT OR UPDATE OF status ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION fn_community_thread_bump_v1();
+-- @@ trigger public.research_contributions.trg_rc_normalize_author
+CREATE TRIGGER trg_rc_normalize_author BEFORE INSERT OR UPDATE OF author_user_id, author_name ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION rc_normalize_author_name();
+-- @@ trigger public.research_contributions.trg_rc_notify
+CREATE TRIGGER trg_rc_notify AFTER INSERT OR UPDATE OF status ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION notify_on_contribution();
+-- @@ trigger public.research_contributions.trg_research_contribution_hint_media_exclusion
+CREATE TRIGGER trg_research_contribution_hint_media_exclusion BEFORE INSERT OR UPDATE OF media ON public.research_contributions FOR EACH ROW EXECUTE FUNCTION private_research_item_hint_media_cross_source_guard();
+-- @@ tablegrant public.anon_contrib_log
+grant DELETE on public.anon_contrib_log to service_role;
+grant INSERT on public.anon_contrib_log to service_role;
+grant REFERENCES on public.anon_contrib_log to service_role;
+grant SELECT on public.anon_contrib_log to service_role;
+grant TRIGGER on public.anon_contrib_log to service_role;
+grant TRUNCATE on public.anon_contrib_log to service_role;
+grant UPDATE on public.anon_contrib_log to service_role;
+-- @@ tablegrant public.beit_midrash
+grant SELECT on public.beit_midrash to anon;
+grant SELECT on public.beit_midrash to authenticated;
+grant DELETE on public.beit_midrash to service_role;
+grant INSERT on public.beit_midrash to service_role;
+grant REFERENCES on public.beit_midrash to service_role;
+grant SELECT on public.beit_midrash to service_role;
+grant TRIGGER on public.beit_midrash to service_role;
+grant TRUNCATE on public.beit_midrash to service_role;
+grant UPDATE on public.beit_midrash to service_role;
+-- @@ tablegrant public.community_net_blocks
+grant DELETE on public.community_net_blocks to service_role;
+grant INSERT on public.community_net_blocks to service_role;
+grant REFERENCES on public.community_net_blocks to service_role;
+grant SELECT on public.community_net_blocks to service_role;
+grant TRIGGER on public.community_net_blocks to service_role;
+grant TRUNCATE on public.community_net_blocks to service_role;
+grant UPDATE on public.community_net_blocks to service_role;
+-- @@ tablegrant public.community_net_key
+grant DELETE on public.community_net_key to service_role;
+grant INSERT on public.community_net_key to service_role;
+grant REFERENCES on public.community_net_key to service_role;
+grant SELECT on public.community_net_key to service_role;
+grant TRIGGER on public.community_net_key to service_role;
+grant TRUNCATE on public.community_net_key to service_role;
+grant UPDATE on public.community_net_key to service_role;
+-- @@ tablegrant public.contribution_events
+grant SELECT on public.contribution_events to authenticated;
+grant DELETE on public.contribution_events to service_role;
+grant INSERT on public.contribution_events to service_role;
+grant REFERENCES on public.contribution_events to service_role;
+grant SELECT on public.contribution_events to service_role;
+grant TRIGGER on public.contribution_events to service_role;
+grant TRUNCATE on public.contribution_events to service_role;
+grant UPDATE on public.contribution_events to service_role;
+-- @@ tablegrant public.contributors
+grant DELETE on public.contributors to service_role;
+grant INSERT on public.contributors to service_role;
+grant REFERENCES on public.contributors to service_role;
+grant SELECT on public.contributors to service_role;
+grant TRIGGER on public.contributors to service_role;
+grant TRUNCATE on public.contributors to service_role;
+grant UPDATE on public.contributors to service_role;
+-- @@ tablegrant public.identity_edges
+grant DELETE on public.identity_edges to service_role;
+grant INSERT on public.identity_edges to service_role;
+grant REFERENCES on public.identity_edges to service_role;
+grant SELECT on public.identity_edges to service_role;
+grant TRIGGER on public.identity_edges to service_role;
+grant TRUNCATE on public.identity_edges to service_role;
+grant UPDATE on public.identity_edges to service_role;
+-- @@ tablegrant public.persons
+grant DELETE on public.persons to service_role;
+grant INSERT on public.persons to service_role;
+grant REFERENCES on public.persons to service_role;
+grant SELECT on public.persons to service_role;
+grant TRIGGER on public.persons to service_role;
+grant TRUNCATE on public.persons to service_role;
+grant UPDATE on public.persons to service_role;
+-- @@ tablegrant public.research_contribution_deletions
+grant DELETE on public.research_contribution_deletions to service_role;
+grant INSERT on public.research_contribution_deletions to service_role;
+grant REFERENCES on public.research_contribution_deletions to service_role;
+grant SELECT on public.research_contribution_deletions to service_role;
+grant TRIGGER on public.research_contribution_deletions to service_role;
+grant TRUNCATE on public.research_contribution_deletions to service_role;
+grant UPDATE on public.research_contribution_deletions to service_role;
+-- @@ tablegrant public.research_contribution_edits
+grant DELETE on public.research_contribution_edits to service_role;
+grant INSERT on public.research_contribution_edits to service_role;
+grant REFERENCES on public.research_contribution_edits to service_role;
+grant SELECT on public.research_contribution_edits to service_role;
+grant TRIGGER on public.research_contribution_edits to service_role;
+grant TRUNCATE on public.research_contribution_edits to service_role;
+grant UPDATE on public.research_contribution_edits to service_role;
+-- @@ tablegrant public.research_contributions
+grant SELECT on public.research_contributions to anon;
+grant SELECT on public.research_contributions to authenticated;
+grant DELETE on public.research_contributions to service_role;
+grant INSERT on public.research_contributions to service_role;
+grant REFERENCES on public.research_contributions to service_role;
+grant SELECT on public.research_contributions to service_role;
+grant TRIGGER on public.research_contributions to service_role;
+grant TRUNCATE on public.research_contributions to service_role;
+grant UPDATE on public.research_contributions to service_role;
+-- @@ tablegrant public.subscribe_events
+grant SELECT on public.subscribe_events to authenticated;
+grant DELETE on public.subscribe_events to service_role;
+grant INSERT on public.subscribe_events to service_role;
+grant REFERENCES on public.subscribe_events to service_role;
+grant SELECT on public.subscribe_events to service_role;
+grant TRIGGER on public.subscribe_events to service_role;
+grant TRUNCATE on public.subscribe_events to service_role;
+grant UPDATE on public.subscribe_events to service_role;
+-- @@ colgrant public.contributors
+grant select (id, slug, display_name, kind, user_id, avatar_url, role, bio, vip, active, source, notes, created_at, updated_at, media, code, locked, tags, building, wa_names, feature_media, merged_into, dossier_settings, trusted, specialty, specialty_label, on_whatsapp, accent, emblem, engaged, page_config, wa_channel, wa_group_url) on public.contributors to anon;
+grant select (id, slug, display_name, kind, user_id, avatar_url, role, bio, vip, active, source, notes, created_at, updated_at, media, code, locked, tags, building, wa_names, feature_media, merged_into, dossier_settings, trusted, specialty, specialty_label, on_whatsapp, accent, emblem, engaged, page_config, wa_channel, wa_group_url) on public.contributors to authenticated;
+-- @@ fngrant public._community_message_owned_by_caller_v1(p_row research_contributions)
+revoke all on function public._community_message_owned_by_caller_v1(p_row research_contributions) from public;
+-- @@ fngrant public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text, p_target_id text, p_parent_id uuid, p_title text, p_gematria_claim jsonb, p_author_name text, p_image_url text)
+revoke all on function public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text, p_target_id text, p_parent_id uuid, p_title text, p_gematria_claim jsonb, p_author_name text, p_image_url text) from public;
+grant execute on function public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text, p_target_id text, p_parent_id uuid, p_title text, p_gematria_claim jsonb, p_author_name text, p_image_url text) to anon;
+grant execute on function public.add_contribution(p_intent text, p_origin text, p_body text, p_target_type text, p_target_id text, p_parent_id uuid, p_title text, p_gematria_claim jsonb, p_author_name text, p_image_url text) to authenticated;
+-- @@ fngrant public.canonical_follow_subject(p_entity_type text, p_stable_id text)
+revoke all on function public.canonical_follow_subject(p_entity_type text, p_stable_id text) from public;
+-- @@ fngrant public.canonical_follow_topic(p_topic text)
+revoke all on function public.canonical_follow_topic(p_topic text) from public;
+-- @@ fngrant public.claim_follow_prefs_from_identity()
+revoke all on function public.claim_follow_prefs_from_identity() from public;
+-- @@ fngrant public.community_delete_message(p_id uuid)
+revoke all on function public.community_delete_message(p_id uuid) from public;
+grant execute on function public.community_delete_message(p_id uuid) to authenticated;
+-- @@ fngrant public.community_edit_message(p_id uuid, p_body text)
+revoke all on function public.community_edit_message(p_id uuid, p_body text) from public;
+grant execute on function public.community_edit_message(p_id uuid, p_body text) to authenticated;
+-- @@ fngrant public.community_has_live_descendant(p_id uuid)
+revoke all on function public.community_has_live_descendant(p_id uuid) from public;
+-- @@ fngrant public.community_message_context(p_id uuid)
+revoke all on function public.community_message_context(p_id uuid) from public;
+grant execute on function public.community_message_context(p_id uuid) to anon;
+grant execute on function public.community_message_context(p_id uuid) to authenticated;
+-- @@ fngrant public.community_net_blocked_v1(p_ref text)
+revoke all on function public.community_net_blocked_v1(p_ref text) from public;
+-- @@ fngrant public.community_net_ref_v1(p_ip text)
+revoke all on function public.community_net_ref_v1(p_ip text) from public;
+-- @@ fngrant public.community_reply_counts(p_ids uuid[])
+revoke all on function public.community_reply_counts(p_ids uuid[]) from public;
+grant execute on function public.community_reply_counts(p_ids uuid[]) to anon;
+grant execute on function public.community_reply_counts(p_ids uuid[]) to authenticated;
+-- @@ fngrant public.community_trusted_client_ip_v1()
+revoke all on function public.community_trusted_client_ip_v1() from public;
+-- @@ fngrant public.community_write_scope_v1(p_origin text, p_parent uuid)
+revoke all on function public.community_write_scope_v1(p_origin text, p_parent uuid) from public;
+-- @@ fngrant public.contribution_weight(p_intent text, p_verified boolean, p_promoted boolean, p_onsite boolean)
+revoke all on function public.contribution_weight(p_intent text, p_verified boolean, p_promoted boolean, p_onsite boolean) from public;
+-- @@ fngrant public.edit_contribution(p_id uuid, p_body text)
+revoke all on function public.edit_contribution(p_id uuid, p_body text) from public;
+grant execute on function public.edit_contribution(p_id uuid, p_body text) to authenticated;
+-- @@ fngrant public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text)
+revoke all on function public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text) from public;
+grant execute on function public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text) to anon;
+grant execute on function public.follow_subject_state(p_entity_type text, p_stable_id text, p_visitor text) to authenticated;
+-- @@ fngrant public.follow_topic_aliases(p_topic text)
+revoke all on function public.follow_topic_aliases(p_topic text) from public;
+-- @@ fngrant public.forum_feed_contributions(p_limit integer)
+revoke all on function public.forum_feed_contributions(p_limit integer) from public;
+grant execute on function public.forum_feed_contributions(p_limit integer) to anon;
+grant execute on function public.forum_feed_contributions(p_limit integer) to authenticated;
+-- @@ fngrant public.moderate_contribution(p_id uuid, p_status text)
+revoke all on function public.moderate_contribution(p_id uuid, p_status text) from public;
+grant execute on function public.moderate_contribution(p_id uuid, p_status text) to authenticated;
+-- @@ fngrant public.rc_unique_contributor_for_user_v1(p_user uuid)
+revoke all on function public.rc_unique_contributor_for_user_v1(p_user uuid) from public;
+-- @@ fngrant public.rd_is_admin()
+revoke all on function public.rd_is_admin() from public;
+grant execute on function public.rd_is_admin() to authenticated;
+grant execute on function public.rd_is_admin() to service_role;
+-- @@ fngrant public.remove_contribution(p_id uuid)
+revoke all on function public.remove_contribution(p_id uuid) from public;
+grant execute on function public.remove_contribution(p_id uuid) to authenticated;
+-- @@ fngrant public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text)
+revoke all on function public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text) from public;
+grant execute on function public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text) to anon;
+grant execute on function public.toggle_contribution_reaction(p_id uuid, p_emoji text, p_visitor text) to authenticated;
+-- @@ fngrant public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text)
+revoke all on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) from public;
+grant execute on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) to anon;
+grant execute on function public.watch_toggle(p_topic text, p_source text, p_on boolean, p_visitor text) to authenticated;
