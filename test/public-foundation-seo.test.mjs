@@ -15,7 +15,7 @@ test("XML uses the same historical/native policy including video primaries and p
     if(url.pathname.endsWith("/video_media_assets_v1")) rows=[{primary_page_url:"https://sod1820.co.il/new-native",media_url:"https://media.invalid/v.mp4",video_kind:"selfhost",title:"New source"}];
     if(url.pathname.endsWith("/sitemap_phrases_v1")) rows=[{phrase:"בראשית"}];
     if(url.pathname.endsWith("/sitemap_numbers")) rows=[{value:1820}];
-    return Response.json(rows);
+    return Response.json(rows,{headers:url.pathname.endsWith("/sitemap_numbers")?{"content-range":"0-0/1"}:{}});
   },async()=>{
     const res=response();await sitemap({publicFoundationPreview:true},res);assert.equal(res.code,200);
     // DEF-002 (audit 2026-11-06): the edge answers `/old-original/` with a 308 to `/old-original` and the served canonical is

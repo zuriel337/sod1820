@@ -17,6 +17,7 @@ const GUEST_ERRORS = {
   invalid_parent: "ההודעה שאליה עונים אינה זמינה יותר.",
   invalid_name: "השם צריך להיות בן 2 עד 30 תווים, בלי סימנים מיוחדים.",
   reply_only: "אורחים יכולים להגיב על הודעה קיימת בלבד. כדי לפתוח שיחה חדשה אפשר להירשם.",
+  community_write_blocked: "הכתיבה כאורח מהרשת הזו מוגבלת כרגע. אפשר להירשם ולפרסם, או לנסות שוב מאוחר יותר.",
 };
 export function guestPublishErrorMessage(error) {
   const text = `${error?.message || ""} ${error?.details || ""} ${error?.hint || ""}`;

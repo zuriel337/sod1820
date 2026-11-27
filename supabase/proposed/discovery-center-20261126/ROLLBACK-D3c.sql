@@ -1,0 +1,1 @@
+-- החזרת D3c: חזרה לגוף D3 המקורי (בלי אימות תצוגה). מריצים מחדש את D3-admin_set_home_featured_discovery_v1.sql (CREATE OR REPLACE; ההרשאות נשמרות).

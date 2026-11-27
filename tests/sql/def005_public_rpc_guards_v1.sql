@@ -40,10 +40,11 @@ grant execute on function public.ai_quota_check(text, text, integer), public.fn_
 comment on function public.fn_outbox_bump(text) is $c$outbox bump - ünï "double" 'single'$c$;
 
 -- everything that must stay public (callers exist) and the names that moved out of DEF-005 (they are not named by it)
+-- ZURIEL 26.11.2026 (S2, applied: log_security_lockdown_20261126155000): log_security is no longer public; only service_role may call it. It is therefore not in the lists below.
 do $$
 declare n text;
 begin
-  foreach n in array array['ingest_event','track_visit','log_crawl','log_edge','log_security','log_journey_ab','log_journey_save','fn_log_name_research','recent_number_opens',
+  foreach n in array array['ingest_event','track_visit','log_crawl','log_edge','log_journey_ab','log_journey_save','fn_log_name_research','recent_number_opens',
     'propose_community_word','lang_link_add','ai_signal','increment_post_share','add_wall_word','save_wall_word_private','fn_els_search','community_feed_page',
     'refresh_traffic_daily','enqueue_word_review','trusted_contributor_uids','push_sub_count','fn_metatron_gaps','fn_metatron_status',
     'fn_cohort_acceptance','fn_decision_reeval_check','contrib_unlock','record_feedback','vote_translit','log_translit_query','increment_post_share_by_slug','blocked_countries']
@@ -157,7 +158,7 @@ begin
   end loop;
   if not pg_temp.can('anon', 'public.log_edge_geo(text)') then raise exception 'DEF-005 must not touch log_edge_geo'; end if;
   -- everything with a client or middleware caller stays executable for anon and authenticated; so does fn_els_search (INVOKER dependent)
-  foreach n in array array['ingest_event','track_visit','log_crawl','log_edge','log_security','log_journey_ab','log_journey_save','fn_log_name_research','recent_number_opens',
+  foreach n in array array['ingest_event','track_visit','log_crawl','log_edge','log_journey_ab','log_journey_save','fn_log_name_research','recent_number_opens',
     'propose_community_word','lang_link_add','ai_signal','increment_post_share','add_wall_word','save_wall_word_private','fn_els_search','community_feed_page']
   loop
     sig := format('public.%I()', n);

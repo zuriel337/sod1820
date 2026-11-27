@@ -15,7 +15,9 @@ const CONFIGS = ["vercel.json", "public-reading-deploy/vercel.json"];
 // The Edge middleware only runs on paths its exported matcher matches. Paths with a dot (files such as /tzofen.html,
 // /sitemap.xml), /api/ and /assets/ never reach it, so they never need legitimacy registration.
 export function middlewareMatcher() {
-  const literal = read("middleware.js").match(/matcher:\s*\[\s*'([^']+)'\s*\]/);
+  // The matcher is an array: its FIRST entry is the general route matcher; the later entries (security probe layer: .php and dot-file scanner paths) only
+  // exist to answer 403 on scanner addresses and never cover a route that needs legitimacy registration.
+  const literal = read("middleware.js").match(/matcher:\s*\[\s*'([^']+)'\s*(?:,[^\]]*)?\]/);
   if (!literal) throw new Error("middleware.js matcher literal not found");
   return new RegExp("^" + literal[1].replace(/\\\\/g, "\\") + "$");
 }

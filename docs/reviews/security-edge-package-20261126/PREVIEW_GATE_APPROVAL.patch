@@ -1,0 +1,43 @@
+diff --git a/public-reading-deploy/review-admission.js b/public-reading-deploy/review-admission.js
+index c30725e4f..ff557c7fa 100644
+--- a/public-reading-deploy/review-admission.js
++++ b/public-reading-deploy/review-admission.js
+@@ -46,7 +46,11 @@ export const ELS_REGISTERED_REVIEW_BRANCH = "gpt/els-onboarding-access-plan-2026
+ // ZURIEL, 25.11.2026 ("תעלה פריביו מוגן", then "פריביו" after the exact-list patch was described): ONE protected Preview of the Home "עדכונים אחרונים" /
+ // "עכשיו" threads work. Exact branch only, Preview target only, no alias, never Production; it adds no flag and no domain authority.
+ export const HOME_NOW_UNIFIED_PREVIEW_BRANCH = "ccr-7ed7f384-d0u3rk";
+-export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH, HOME_NOW_UNIFIED_PREVIEW_BRANCH]);
++// Decision 337 (26.11.2026), S1 request in docs/reviews/security-edge-package-20261126/README.md section 6 (a Preview is built only after ZURIEL approves that exact request): ONE protected Preview of the edge security-probe package (403 for scanner paths, authenticated reporting, canary), exact branch
++// below. Same rules: exact name, Preview target only, never Production, no flag of its own. The Preview proves the 403, the headers and that the matcher compiles;
++// recording needs the Production OIDC token and is proven by the first scheduled canary after a separately approved deployment.
++export const SECURITY_EDGE_PREVIEW_BRANCH = "ccr-s1-security-edge-20261126";
++export const REVIEW_BRANCHES = Object.freeze([REVIEW_BRANCH, ...ADDITIONAL_REVIEW_BRANCHES, TZVI_SOURCE_REVIEW_BRANCH, STATISTICS_REVIEW_BRANCH, STATISTICS_ACCEPTANCE_REVIEW_BRANCH, INDEXING_FIRST_WORDS_PREVIEW_BRANCH, COMMUNITY_SHARE_PREVIEW_BRANCH, ELS_REGISTERED_REVIEW_BRANCH, HOME_NOW_UNIFIED_PREVIEW_BRANCH, SECURITY_EDGE_PREVIEW_BRANCH]);
+ // Existing Git-branch alias in the same project, verified through Vercel.
+ // A stable callback avoids a different Auth allowlist entry for every commit.
+ export const REVIEW_AUTH_HOST = "sod1820-git-gpt-2029-public-cutover-f-7ce8ee-sod1820-s-projects.vercel.app";
+diff --git a/scripts/test-public-reading-main-release-contract.mjs b/scripts/test-public-reading-main-release-contract.mjs
+index c9293776e..684603088 100644
+--- a/scripts/test-public-reading-main-release-contract.mjs
++++ b/scripts/test-public-reading-main-release-contract.mjs
+@@ -31,7 +31,7 @@ export function assertMainReleaseContract() {
+   assertPublicationConfig(readPublicationConfig());
+   assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
+   assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
+-  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu","ccr-dcadb071-v1z5ol","ccr-06bc2910-pgarr4","ccr-b086914f-f5wwfd","gpt/tzvi-source-lineage-20261120","codex/1456-sitewide-statistics-20261120","claude/pr-1461-acceptance-review-28cnqo","ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share","gpt/els-onboarding-access-plan-20261123","ccr-7ed7f384-d0u3rk"],"review branches are an exact, recorded allowlist, never a pattern");
++  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu","ccr-dcadb071-v1z5ol","ccr-06bc2910-pgarr4","ccr-b086914f-f5wwfd","gpt/tzvi-source-lineage-20261120","codex/1456-sitewide-statistics-20261120","claude/pr-1461-acceptance-review-28cnqo","ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share","gpt/els-onboarding-access-plan-20261123","ccr-7ed7f384-d0u3rk","ccr-s1-security-edge-20261126"],"review branches are an exact, recorded allowlist, never a pattern");
+   assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
+   assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
+   return true;
+diff --git a/test/public-reading-protected-review.test.mjs b/test/public-reading-protected-review.test.mjs
+index 5ef323742..563f9c15a 100644
+--- a/test/public-reading-protected-review.test.mjs
++++ b/test/public-reading-protected-review.test.mjs
+@@ -290,7 +290,7 @@ test('stable Auth alias needs the exact generated Preview platform proof; canoni
+ test("an additional review branch is an exact, Preview-only allowlist entry; nothing else is admitted", () => {
+   const extra = ADDITIONAL_REVIEW_BRANCHES[0];
+   assert.deepEqual([...ADDITIONAL_REVIEW_BRANCHES], ["claude/number-typography-v2-20261111", "ccr-b8e8ab12-9hoamu", "ccr-dcadb071-v1z5ol", "ccr-06bc2910-pgarr4", "ccr-b086914f-f5wwfd"]);
+-  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra, "ccr-b8e8ab12-9hoamu", "ccr-dcadb071-v1z5ol", "ccr-06bc2910-pgarr4", "ccr-b086914f-f5wwfd", "gpt/tzvi-source-lineage-20261120", "codex/1456-sitewide-statistics-20261120", "claude/pr-1461-acceptance-review-28cnqo", "ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share", "gpt/els-onboarding-access-plan-20261123", "ccr-7ed7f384-d0u3rk"]);
++  assert.deepEqual([...REVIEW_BRANCHES], [REVIEW_BRANCH, extra, "ccr-b8e8ab12-9hoamu", "ccr-dcadb071-v1z5ol", "ccr-06bc2910-pgarr4", "ccr-b086914f-f5wwfd", "gpt/tzvi-source-lineage-20261120", "codex/1456-sitewide-statistics-20261120", "claude/pr-1461-acceptance-review-28cnqo", "ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share", "gpt/els-onboarding-access-plan-20261123", "ccr-7ed7f384-d0u3rk", "ccr-s1-security-edge-20261126"]);
+   assert.ok(Object.isFrozen(REVIEW_BRANCHES) && Object.isFrozen(ADDITIONAL_REVIEW_BRANCHES));
+   const env = { ...fixtureEnv, VERCEL_GIT_COMMIT_REF: extra };
+   const identity = protectedReviewBuildIdentity({ env, sourceSha: sha, sourceDirty: false, requestedSourceSha: sha });

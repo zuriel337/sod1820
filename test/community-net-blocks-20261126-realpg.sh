@@ -1,0 +1,210 @@
+#!/usr/bin/env bash
+# Community network protection (ZURIEL 26.11.2026) on an isolated REAL PostgreSQL. Nothing touches a shared database. The two guest write routes are exact copies of the live
+# bodies (md5-checked). Proves: the network is a keyed hash made at write time (no raw address stored by the new code, none returned to staff), blocks apply to guest writes only and
+# expire by themselves, permanent blocks need a request and ONE designated approver (fail closed while unset), every action is audited append-only, historical messages are never
+# guessed, authorization is staff-only, reads and signed-in accounts are untouched, the rollback restores both routes exactly and deletes no record.
+set -euo pipefail
+ROOT=$(cd "$(dirname "$0")/.." && pwd); P=$ROOT/supabase/proposed; FX=$ROOT/test/fixtures
+PG_BIN=${PG_BIN:-/usr/lib/postgresql/16/bin}
+if [ ! -x "$PG_BIN/initdb" ]; then echo "SKIP: no PostgreSQL binaries at $PG_BIN"; exit 0; fi
+TMP=$(mktemp -d); chmod 755 "$TMP"
+RUN=(); if [ "$(id -u)" = 0 ]; then RUN=(su "${PG_USER:-postgres}" -s /bin/bash -c); chown "${PG_USER:-postgres}" "$TMP"; fi
+as() { if [ ${#RUN[@]} -gt 0 ]; then "${RUN[@]}" "$1"; else bash -c "$1"; fi; }
+as "$PG_BIN/initdb -D $TMP/data -A trust -U postgres >/dev/null"
+as "$PG_BIN/pg_ctl -D $TMP/data -o '-k $TMP -p 54397 -c listen_addresses=' -l $TMP/log -w start >/dev/null"
+trap 'as "$PG_BIN/pg_ctl -D $TMP/data -m immediate stop >/dev/null" || true; rm -rf "$TMP"' EXIT
+PSQL=("$PG_BIN/psql" -h "$TMP" -p 54397 -U postgres)
+"${PSQL[@]}" -qc 'create database review' >/dev/null
+Q() { "${PSQL[@]}" -d review -v ON_ERROR_STOP=1 -qtAX "$@"; }
+QE() { "${PSQL[@]}" -d review -qtAX "$@" 2>&1 || true; }
+F() { "${PSQL[@]}" -d review -v ON_ERROR_STOP=1 -qtAX -1 -f "$1" 2>&1; }
+FE() { "${PSQL[@]}" -d review -qtAX -1 -f "$1" 2>&1 || true; }
+pass=0; check() { if [ "$1" = "$2" ]; then pass=$((pass+1)); echo "PASS $3"; else echo "FAIL $3 (got '$1', want '$2')"; exit 1; fi; }
+MOD=11111111-1111-4111-8111-111111111111; ADM=22222222-2222-4222-8222-222222222222; USR=33333333-3333-4333-8333-333333333333; APP=44444444-4444-4444-8444-444444444444
+# as_user <uid|-> <headers json|-> <sql>  : one transaction with the identity and the request headers a PostgREST call would carry
+as_user() { local u="$1" h="$2" s="$3"; local role=authenticated; [ "$u" = "-" ] && role=anon; local pre="select set_config('test.uid','$( [ "$u" = "-" ] && echo "" || echo "$u")',true);"; [ "$h" != "-" ] && pre="$pre select set_config('request.headers','$h',true);"; QE -c "$pre set local role $role; $s"; }
+H() { echo "{\"cf-connecting-ip\":\"$1\"}"; }
+
+Q -c "create role anon; create role authenticated; create role service_role; create schema auth;
+create function auth.uid() returns uuid language sql stable as \$\$ select nullif(current_setting('test.uid', true), '')::uuid \$\$;
+create table public.users(id uuid primary key, role text, community_moderator boolean default false, display_name text, username text);
+insert into public.users values ('$MOD','user',true,'אמילי','emily'), ('$ADM','admin',false,'מנהל','admin1'), ('$USR','user',false,'גולש','u1'), ('$APP','admin',false,'מאשר','approver');
+create function public.community_can_moderate_guests() returns boolean language sql stable security definer as \$\$ select exists (select 1 from public.users where id = auth.uid() and (role = 'admin' or community_moderator)) \$\$;
+create table public.contributors(id uuid default gen_random_uuid(), user_id uuid, trusted boolean);
+create table public.contribution_events(user_id uuid, kind text, ref text, value numeric, source text, metadata jsonb);
+create function public.contribution_weight(a text, b boolean, c boolean, d boolean) returns numeric language sql as 'select 1::numeric';
+create table public.research_contributions(id uuid primary key default gen_random_uuid(), author_user_id uuid, author_contributor_id uuid, author_name text, intent text, origin text, research_state text, status text,
+  target_type text, target_id text, parent_id uuid, title text, body text, gematria_claim jsonb, image_url text, deleted_at timestamptz, thread_hidden_at timestamptz, last_activity_at timestamptz, reactions jsonb, updated_at timestamptz default now());
+create table public.community_guest_settings(singleton boolean primary key default true, enabled boolean, updated_at timestamptz default now());
+insert into public.community_guest_settings values (true, true);
+create table public.community_guest_posts(contribution_id uuid primary key, created_at timestamptz not null default now(), reviewed_at timestamptz, reviewed_by uuid);
+create table public.anon_contrib_log(id bigserial primary key, ip text, created_at timestamptz default now());
+create index anon_contrib_log_ip_time on public.anon_contrib_log(ip, created_at);
+grant usage on schema public, auth to anon, authenticated;
+grant select on public.research_contributions to anon, authenticated;"
+F "$FX/community_writers_live_20261126.sql" >/dev/null
+Q -c "grant execute on function public.add_guest_community_message(text,uuid,text,text), public.add_contribution(text,text,text,text,text,uuid,text,jsonb,text,text), public.toggle_contribution_reaction(uuid,text,text) to anon, authenticated"
+GMD5() { Q -c "select md5(prosrc) from pg_proc where proname='$1'"; }
+check "$(GMD5 add_guest_community_message)|$(GMD5 add_contribution)|$(GMD5 toggle_contribution_reaction)" '4eb11358227e6b3d8d77b933e076b28a|2c2baa01ecf07abf1e1511f3cb951d3b|96af69da3d9d8b1b82113248b09e97fa' 'fixture: the three guest write routes (reply, contribution, reaction) are byte-identical to the live sources'
+ROOTMSG=$(Q -c "insert into public.research_contributions(author_name,origin,status,target_type,target_id,body) values ('חבר','community_2029','approved','home','community','שורש') returning id")
+G() { as_user - "$(H "$1")" "select public.add_guest_community_message('$2', '$ROOTMSG', '', null)"; } # $1 ip, $2 body
+check "$(G 203.0.113.7 'תגובה לפני התיקון' | grep -c ERROR)|$(Q -c "select ip from public.anon_contrib_log")|$(Q -c "select count(*) from public.community_guest_posts")" '0|203.0.113.7|1' 'baseline: before the patch the raw address is what the existing rate-limit log stores (the gap)'
+HIST=$(Q -c "select contribution_id from public.community_guest_posts limit 1")
+# rows the OLD code wrote in the last hour for two other networks: the limits must still count them after the switch to hashes
+Q -c "insert into public.anon_contrib_log(ip) values ('192.0.2.77'),('192.0.2.77'),('192.0.2.77'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78')"
+
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$?" 0 'apply: the proposal applies as one transaction on the live fingerprints'
+check "$(FE "$P/20261126200000_community_net_blocks_PROPOSAL.sql" | grep -c ERROR)" 0 'apply: re-applying is a quiet no-op'
+check "$(G 203.0.113.7 'תגובה אחרי התיקון' | grep -c ERROR)|$(Q -c "select count(*) from public.community_guest_posts where net_ref ~ '^[0-9a-f]{64}\$'")|$(Q -c "select count(*) from public.community_guest_posts where net_ref is null")" '0|1|1' 'link: a new guest message carries a 64-hex network reference; the historical one has none (no guess, no time matching)'
+check "$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9.:]+\$' and id > 9")|$(Q -c "select count(*) from public.anon_contrib_log where ip ~ '^[0-9a-f]{64}\$'")" '0|1' 'privacy: from now on the rate-limit log stores the hash, never the raw address'
+check "$(Q -c "select count(*) from public.community_guest_posts g join public.anon_contrib_log l on l.ip = g.net_ref")" 1 'privacy: the message reference and the rate-limit log use the same keyed hash'
+NEW=$(Q -c "select contribution_id from public.community_guest_posts where net_ref is not null limit 1")
+
+# authorization
+check "$(as_user $USR - "select public.community_guest_block_from_message_v1('$NEW','h24','הטרדה חוזרת של אורח')" | grep -c 'not authorized')" 1 'auth: a signed-in non-staff user cannot block'
+check "$(as_user - - "select public.community_guest_block_from_message_v1('$NEW','h24','הטרדה חוזרת של אורח')" | grep -c 'permission denied')" 1 'auth: anon cannot even call the staff API'
+check "$(as_user $MOD - "select public.community_net_ref_v1('203.0.113.7')" | grep -c 'permission denied')|$(as_user - - "select count(*) from public.community_net_blocks" | grep -c 'permission denied')|$(as_user $MOD - "select count(*) from public.community_net_key" | grep -c 'permission denied')" '1|1|1' 'auth: staff and anon cannot call the internal helpers or read the key, blocks or reference tables'
+check "$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW','permanent','הטרדה חוזרת של אורח')" | grep -c 'bad_duration')|$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW','d3','קצר')" | grep -c 'reason_required')|$(as_user $MOD - "select public.community_guest_block_from_message_v1('$HIST','d3','הטרדה חוזרת של אורח')" | grep -c 'no_network_reference')|$(as_user $MOD - "select public.community_guest_block_from_message_v1('$ROOTMSG','d3','הטרדה חוזרת של אורח')" | grep -c 'not_guest_post')" '1|1|1|1' 'rules: no permanent block is created directly; a reason is mandatory; a historical message cannot be blocked; a non-guest message cannot be blocked'
+
+# block, hide, enforcement
+BID=$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW','h24','הטרדה חוזרת של אורח אחרי אזהרה')" | tail -1)
+check "$(Q -c "select status from public.research_contributions where id='$NEW'")|$(Q -c "select count(*) from public.community_net_block_events where block_id='$BID' and action='block_created'")|$(Q -c "select count(*) from public.community_net_block_events where action='message_hidden'")|$(Q -c "select (extract(epoch from (expires_at - created_at))/3600)::int from public.community_net_blocks where id='$BID'")" 'approved|1|0|24' 'separate: blocking a network does NOT hide the message; the block lasts 24 hours and is audited'
+check "$(as_user $MOD - "select public.community_guest_hide_v1('$NEW','הודעה פוגענית וברורה')" | grep -c ERROR)|$(Q -c "select status from public.research_contributions where id='$NEW'")|$(Q -c "select count(*) from public.community_net_blocks")|$(Q -c "select count(*) from public.community_net_block_events where action='message_hidden'")" '0|hidden|1|1' 'separate: hiding a message is its own action; it creates no block and is audited'
+check "$(G 203.0.113.7 'ניסיון מהרשת החסומה' | grep -c 'community_write_blocked')" 1 'enforce: a guest reply from the blocked network is refused'
+check "$(G 203.0.113.9 'מאותה רשת' | grep -c ERROR)|$(G 198.51.100.4 'רשת אחרת' | grep -c ERROR)" '0|0' 'enforce: another address is not blocked (an IPv4 address is the unit)'
+check "$(as_user - "$(H 203.0.113.7)" "select public.add_contribution('תגובה','community_2029','x',null,null,null,null,null,'אורח',null)" | grep -c 'community_write_blocked')" 1 'enforce: the anonymous COMMUNITY contribution route cannot be used to bypass the block'
+check "$(as_user - "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','מחקר מחוץ לקהילה',null,null,null,null,null,'אורח',null)" | grep -c ERROR)" 0 'scope: the same blocked network can still send a contribution outside the community (origin beit_midrash)'
+OUT=$(Q -c "insert into public.research_contributions(author_name,origin,status,target_type,target_id,body) values ('חבר','beit_midrash','approved','research','x','מחוץ לקהילה') returning id")
+check "$(as_user - "$(H 203.0.113.7)" "select public.toggle_contribution_reaction('$OUT','👍','community-repeatable-like')" | grep -c 'community_write_blocked')" 0 'scope: a reaction on a message outside the community (origin beit_midrash) is not affected by the block'
+check "$(as_user $USR "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','חשבון מחובר',null,null,null,null,null,null,null)" | grep -c ERROR)" 0 'scope: a signed-in account on the same network is not affected'
+check "$(as_user - - "select count(*) from public.research_contributions where status='approved'" | tail -1)" "$(Q -c "select count(*) from public.research_contributions where status='approved'")" 'scope: reading is not affected by a block (anon read of approved rows still works)'
+check "$(as_user $MOD - "select * from public.community_net_blocks_list_v1(false, 10)" | grep -cE '203\.0\.113|[0-9a-f]{64}')|$(Q -c "select count(*) from pg_proc p where proname like 'community_%' and prorettype::regtype::text not in ('void','boolean','uuid') and pg_get_function_result(oid) ~* 'net_ref|ip'")" '0|0' 'privacy: the staff list contains neither the address nor the network reference, and no new function returns an address or reference column'
+check "$(as_user $MOD - "select count(*) from public.community_net_blocks_list_v1(false, 10)" | tail -1)|$(as_user $USR - "select count(*) from public.community_net_blocks_list_v1(false, 10)" | tail -1)" '1|0' 'auth: the list is for staff only (a non-staff user gets nothing)'
+check "$(as_user $MOD - "select linked_messages||'/'||state||'/'||created_by_name from public.community_net_blocks_list_v1(false, 10)" | tail -1)" '1/active/אמילי' 'list: shows the count of linked messages, the state and who blocked, never the network'
+check "$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW','d3','ניסיון חוזר באותה רשת')" | grep -c 'already_blocked')" 1 'rules: a network cannot carry two open blocks'
+check "$(as_user $MOD - "select count(*) from public.community_guest_recent_v1(50)" | tail -1)|$(as_user $USR - "select count(*) from public.community_guest_recent_v1(50)" | tail -1)|$(as_user $MOD - "select * from public.community_guest_recent_v1(50)" | grep -cE '203\.0\.113|[0-9a-f]{64}')" "$(Q -c "select count(*) from public.community_guest_posts")|0|0" 'recent: staff see recent guest messages (also hidden ones, so a hidden message can still be blocked) with only can_block / network_blocked flags; others see nothing; no address or reference'
+check "$(as_user $MOD - "select can_block::text||'/'||network_blocked::text||'/'||status from public.community_guest_recent_v1(50) where id='$NEW'" | tail -1)|$(as_user $MOD - "select can_block::text from public.community_guest_recent_v1(50) where id='$HIST'" | tail -1)" 'true/true/hidden|false' 'recent: a hidden message from a blocked network shows blocked, a historical one shows it cannot be blocked'
+# expiry and lift
+Q -c "update public.community_net_blocks set expires_at = now() - interval '1 minute', created_at = now() - interval '25 hours' where id='$BID'"
+Q -c "truncate public.anon_contrib_log"   # the shared hourly limit would otherwise (correctly) refuse this third write from the same network
+check "$(G 203.0.113.7 'אחרי הפקיעה' | grep -c ERROR)" 0 'expiry: the block ends by itself (checked at write time, no cron)'
+check "$(as_user $MOD - "select state from public.community_net_blocks_list_v1(true, 10)" | tail -1)" expired 'expiry: the list shows it as expired'
+NEW2=$(Q -c "select contribution_id from public.community_guest_posts where net_ref is not null order by created_at desc limit 1")
+B2=$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW2','d7','הטרדה חוזרת של אורח שוב')" | tail -1)
+check "$(Q -c "select count(*) from public.community_net_blocks where lifted_at is not null and lift_reason='expired'")|$(Q -c "select duration_kind from public.community_net_blocks where id='$B2'")" '1|d7' 'expiry: a new block retires the expired one and starts a fresh 7-day block'
+check "$(as_user $MOD - "select public.community_net_block_lift_v1('$B2','נבדק והוסר לבקשת הצוות')" | grep -c ERROR)|$(G 203.0.113.7 'אחרי ביטול' | grep -c ERROR)" '0|0' 'lift: a block can be lifted and writing resumes at once'
+check "$(QE -c "update public.community_net_block_events set reason='x'" | grep -c 'append-only')|$(QE -c "delete from public.community_net_block_events" | grep -c 'append-only')" '1|1' 'audit: the event table is append-only (no update, no delete)'
+# permanent: request + one designated approver, fail closed while unset
+NEW3=$(Q -c "select contribution_id from public.community_guest_posts where net_ref is not null order by created_at desc limit 1")
+B3=$(as_user $MOD - "select public.community_guest_block_from_message_v1('$NEW3','d3','הטרדה חוזרת וחמורה של אורח')" | tail -1)
+check "$(as_user $MOD - "select public.community_net_block_request_permanent_v1('$B3','ביקשתי חסימה לצמיתות כי ההטרדה חוזרת')" | grep -c 'permanent_disabled')|$(Q -c "select permanent_enabled from public.community_net_settings")" '1|f' 'permanent: DISABLED by default; even a staff request is refused until the owner enables it'
+Q -c "update public.community_net_settings set permanent_enabled = true"
+check "$(as_user $ADM - "select public.community_net_block_approve_permanent_v1('$B3','אישור לצמיתות')" | grep -c 'not authorized')" 1 'permanent: once enabled, an admin is still not enough while no approver is designated (fail closed)'
+as_user $MOD - "select public.community_net_block_request_permanent_v1('$B3','ביקשתי חסימה לצמיתות כי ההטרדה חוזרת')" >/dev/null
+Q -c "update public.community_net_settings set permanent_approver_user_id='$APP'"
+check "$(as_user $ADM - "select public.community_net_block_approve_permanent_v1('$B3','אישור לצמיתות')" | grep -c 'not authorized')|$(as_user $MOD - "select public.community_net_block_approve_permanent_v1('$B3','אישור לצמיתות')" | grep -c 'not authorized')" '1|1' 'permanent: other admins and moderators cannot approve; only the designated approver'
+check "$(as_user $APP - "select public.community_net_block_approve_permanent_v1('$B3','אישור לצמיתות על ידי הבעלים')" | grep -c ERROR)|$(Q -c "select duration_kind||'/'||coalesce(expires_at::text,'none') from public.community_net_blocks where id='$B3'")" '0|permanent/none' 'permanent: the designated approver turns the requested block permanent (no expiry)'
+Q -c "select pg_sleep(0)"; check "$(G 203.0.113.7 'רשת חסומה לצמיתות' | grep -c 'community_write_blocked')" 1 'permanent: the permanent block keeps refusing guest writes'
+check "$(Q -c "select string_agg(action, ',' order by id) from public.community_net_block_events where block_id='$B3'")" 'block_created,permanent_requested,permanent_approved' 'audit: who, when and why are recorded for every step (event rows carry the actor and the reason)'
+# reactions (likes / dislikes): guests only
+PUB=$(Q -c "select id from public.research_contributions where origin='community_2029' and parent_id is null limit 1")
+check "$(as_user - "$(H 203.0.113.7)" "select public.toggle_contribution_reaction('$PUB','👍','community-repeatable-like')" | grep -c 'community_write_blocked')|$(as_user - "$(H 203.0.113.7)" "select public.toggle_contribution_reaction('$PUB','👎','community-repeatable-dislike')" | grep -c 'community_write_blocked')" '1|1' 'reactions: a guest like and a guest dislike from a permanently blocked network are refused'
+check "$(as_user - "$(H 198.51.100.77)" "select public.toggle_contribution_reaction('$PUB','👍','community-repeatable-like')" | grep -c ERROR)|$(as_user $USR "$(H 203.0.113.7)" "select public.toggle_contribution_reaction('$PUB','👍','community-repeatable-like')" | grep -c ERROR)" '0|0' 'reactions: another network is not blocked, and a SIGNED-IN account on the blocked network can still react'
+check "$(as_user $USR "$(H 203.0.113.7)" "select public.add_contribution('תגובה','beit_midrash','חשבון מחובר ברשת חסומה',null,null,null,null,null,null,null)" | grep -c ERROR)" 0 'accounts: a registered user is never blocked because the network is shared with a blocked guest (writes either)'
+# trusted source: only cf-connecting-ip counts; client-writable headers can neither bypass nor frame
+check "$(as_user - '{"x-forwarded-for":"203.0.113.7"}' "select public.add_guest_community_message('מזויף xff', '$ROOTMSG', '', null)" | grep -c 'rate_limited')|$(as_user - '{"x-real-ip":"203.0.113.7"}' "select public.add_guest_community_message('מזויף real', '$ROOTMSG', '', null)" | grep -c 'rate_limited')" '1|1' 'trust: x-forwarded-for / x-real-ip alone are never used (no address = fail closed), so a client cannot frame another network by writing them'
+check "$(as_user - '{"cf-connecting-ip":"198.51.100.88","x-forwarded-for":"203.0.113.7"}' "select public.add_guest_community_message('cf מנצח', '$ROOTMSG', '', null)" | grep -c ERROR)|$(as_user - '{"cf-connecting-ip":"203.0.113.7","x-forwarded-for":"198.51.100.99"}' "select public.add_guest_community_message('xff אינו עוקף', '$ROOTMSG', '', null)" | grep -c 'community_write_blocked')" '0|1' 'trust: with cf-connecting-ip present it alone decides: a forged x-forwarded-for neither frames nor bypasses a block'
+check "$(as_user - '{"cf-connecting-ip":"203.0.113.7"}' "select public.community_trusted_client_ip_v1()" | grep -c 'permission denied')" 1 'trust: the address helper is internal'
+# existing write limits survive the move from raw address to keyed hash
+LIMIT_OK=0; for i in 1 2 3; do [ "$(G 192.0.2.50 "בדיקת מגבלה $i" | grep -c ERROR)" = 0 ] && LIMIT_OK=$((LIMIT_OK+1)); done
+check "$LIMIT_OK|$(G 192.0.2.50 'הרביעית' | grep -c 'rate_limited')|$(G 192.0.2.51 'רשת אחרת' | grep -c ERROR)" '3|1|0' 'limits: guests keep 3 messages per hour per network (the 4th is refused, another network is independent)'
+CL=0; for i in 1 2 3 4 5; do [ "$(as_user - "$(H 192.0.2.60)" "select public.add_contribution('תגובה','beit_midrash','x$i',null,null,null,null,null,'אורח',null)" | grep -c ERROR)" = 0 ] && CL=$((CL+1)); done
+check "$CL|$(as_user - "$(H 192.0.2.60)" "select public.add_contribution('תגובה','beit_midrash','x6',null,null,null,null,null,'אורח',null)" | grep -c 'rate_limited')" '5|1' 'limits: anonymous contributions keep 5 per hour per network'
+Q -c "insert into public.anon_contrib_log(ip) values ('192.0.2.77'),('192.0.2.77'),('192.0.2.77'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78'),('192.0.2.78')"   # rows of the OLD code (raw address) written within the last hour
+check "$(G 192.0.2.77 'אחרי המעבר ל-hash' | grep -c 'rate_limited')|$(as_user - "$(H 192.0.2.78)" "select public.add_contribution('תגובה','beit_midrash','x',null,null,null,null,null,'אורח',null)" | grep -c 'rate_limited')" '1|1' 'limits: rows written by the old code (raw address) still count for the same network after the switch: the window does NOT reset (guests 3/hour, contributions 5/hour)'
+# per-staff cap under parallel requests: 30 networks, 8 parallel clients, cap 10 per hour
+Q -c "create table public.tmp_msgs(n int primary key, id uuid); do \$\$ declare i int; c uuid; begin for i in 1..30 loop insert into public.research_contributions(author_name,origin,status,target_type,target_id,parent_id,body) values ('אורח','community_2029','approved','home','community','$ROOTMSG','x') returning id into c; insert into public.tmp_msgs values (i, c); insert into public.community_guest_posts(contribution_id, net_ref) values (c, encode(sha256(convert_to('net'||i,'UTF8')),'hex')); end loop; end \$\$; grant select on public.tmp_msgs to authenticated; truncate public.community_net_block_events restart identity;"
+cat > "$TMP/cap.pgb" <<PGB
+\set n random(1,30)
+begin;
+set local role authenticated;
+select set_config('test.uid','$MOD',true);
+do \$\$ begin perform public.community_guest_block_from_message_v1((select id from public.tmp_msgs where n = :n), 'h24', 'חסימה מקבילה לבדיקת התקרה'); exception when others then null; end \$\$;
+commit;
+PGB
+"$PG_BIN/pgbench" -h "$TMP" -p 54397 -U postgres -n -c 8 -j 4 -t 25 -f "$TMP/cap.pgb" review >/dev/null 2>&1 || true
+check "$(Q -c "select count(*) from public.community_net_block_events where actor='$MOD' and action='block_created'")" 10 'cap: 200 parallel block requests from one staff member over 30 networks create exactly 10 blocks (the hourly cap holds under concurrency)'
+# IPv6: one /64 is one network
+V6=$(as_user - "$(H 2001:db8:aaaa:1::5)" "select public.add_guest_community_message('מרשת שש', '$ROOTMSG', '', null)" | tail -1)
+V6M=$(Q -c "select contribution_id from public.community_guest_posts order by created_at desc limit 1")
+as_user $ADM - "select public.community_guest_block_from_message_v1('$V6M','h24','הטרדה חוזרת מרשת IPv6')" >/dev/null
+check "$(as_user - "$(H 2001:db8:aaaa:1::99)" "select public.add_guest_community_message('אותה רשת', '$ROOTMSG', '', null)" | grep -c 'community_write_blocked')|$(as_user - "$(H 2001:db8:aaaa:2::5)" "select public.add_guest_community_message('רשת אחרת', '$ROOTMSG', '', null)" | grep -c ERROR)" '1|0' 'ipv6: the unit is the /64; a different /64 is not blocked'
+check "$(as_user - "$(H 'not-an-ip')" "select public.add_guest_community_message('x', '$ROOTMSG', '', null)" | grep -c 'rate_limited')" 1 'fail closed: an unparsable address cannot write (as the existing route already did without an address)'
+# performance of the added work
+T0=$(date +%s%N); Q -c "select count(public.community_net_blocked_v1(public.community_net_ref_v1('203.0.113.' || (i % 250)))) from generate_series(1,100000) i" >/dev/null; T1=$(date +%s%N)
+echo "INFO perf: 100,000 (hash + block lookup) took $(( (T1-T0)/1000000 )) ms = $(( (T1-T0)/100000000 )) x 0.1 us-ish per call on this machine (only guest writes pay it; reads pay nothing)"
+check "$(( (T1-T0)/1000000 < 20000 ))" 1 'perf: the added work per guest write is far below a millisecond'
+# rollback
+BLK=$(Q -c "select count(*) from public.community_net_blocks"); EVT=$(Q -c "select count(*) from public.community_net_block_events"); GP=$(Q -c "select count(*) from public.community_guest_posts where net_ref is not null")
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null; check "$(GMD5 add_guest_community_message)|$(GMD5 add_contribution)|$(GMD5 toggle_contribution_reaction)" '4eb11358227e6b3d8d77b933e076b28a|2c2baa01ecf07abf1e1511f3cb951d3b|96af69da3d9d8b1b82113248b09e97fa' 'rollback: the three guest write routes are restored byte for byte (same md5)'
+check "$(Q -c "select count(*) from public.community_net_blocks")|$(Q -c "select count(*) from public.community_net_block_events")|$(Q -c "select count(*) from public.community_guest_posts where net_ref is not null")" "$BLK|$EVT|$GP" 'rollback: no block, event or network reference is deleted'
+check "$(Q -c "select count(*) from pg_proc where (proname like 'community_net_%' and proname <> 'community_net_block_events_append_only_v1') or proname in ('community_guest_block_from_message_v1','community_guest_hide_v1','community_trusted_client_ip_v1','community_write_scope_v1')")" 0 'rollback: the staff API and the helpers are gone'
+check "$(G 203.0.113.7 'אחרי שחזור' | grep -c ERROR)" 0 'rollback: with the routes restored, guest writing works as before the proposal'
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$(G 203.0.113.7 'אחרי החלה חוזרת' | grep -c 'community_write_blocked')" 1 'reapply: re-applying after a rollback restores enforcement from the kept blocks and the same key'
+# Discovery Center D5 (add_contribution single attribution rule, docs/reviews/discovery-center-20261126; exact copy in test/fixtures) replaces the SAME function. Order D5 -> community must keep BOTH
+# changes; the community rollback must give D5's body back, not the older one. (D5's own md5 guard reads pg_get_functiondef of the live body; here its DO block is cut and replaced by the stub it needs.)
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
+Q -c "create function public.rc_unique_contributor_for_user_v1(u uuid) returns table(id uuid, trusted boolean) language sql stable as \$\$ select c.id, c.trusted from public.contributors c where c.user_id = u limit 1 \$\$"
+python3 - "$FX/discovery_center_d5_20261126.sql" "$TMP/d5.sql" <<'PY'
+import re, sys
+t = open(sys.argv[1]).read(); a = t.index("DO $$"); b = t.index("END $$;", a) + len("END $$;")
+open(sys.argv[2], "w").write(t[:a] + t[b:])
+PY
+chmod 644 "$TMP/d5.sql"; F "$TMP/d5.sql" >/dev/null
+D5MD5=$(GMD5 add_contribution); echo "D5 body md5 $D5MD5"
+check "$(Q -c "select position('rc_unique_contributor_for_user_v1' in prosrc) > 0 from pg_proc where proname='add_contribution'")" t 'D5: the attribution rule of D5 is in the live function before the community proposal'
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null; check "$?" 0 'D5 then community: the proposal applies on top of D5 (guard accepts the D5 body)'
+check "$(Q -c "select (position('rc_unique_contributor_for_user_v1' in prosrc) > 0) and (position('community_net_ref_v1' in prosrc) > 0) and (position('community_write_scope_v1' in prosrc) > 0) from pg_proc where proname='add_contribution'")" t 'D5 then community: BOTH changes are in add_contribution (no overwrite)'
+check "$(G 203.0.113.7 'אחרי D5 ואחרי הקהילה' | grep -c 'community_write_blocked')" 1 'D5 then community: enforcement works on the D5 body'
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
+check "$(GMD5 add_contribution)" "$D5MD5" 'D5 then community, rolled back: add_contribution is exactly the D5 body again (D5 is kept)'
+# Missing trusted header (ZURIEL 27.11.2026): without cf-connecting-ip no guest write into the community may pass unlimited and unblocked. The old code stored unlimited anonymous community contributions with no header
+# or with a rotating x-forwarded-for; the proposal must refuse them, and must leave every other origin and every signed-in write alone.
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null
+CNTB() { Q -c "select count(*) from public.research_contributions where body like '$1%'"; }
+ANON() { as_user - "$1" "select public.add_contribution('תגובה','$2','$3',null,null,null,null,null,'x',null)" 2>&1; }
+for i in 1 2 3 4 5 6 7; do ANON '{}' community_2029 "nohdr-$i" >/dev/null; ANON "{\"x-forwarded-for\":\"198.51.100.$i\"}" community_2029 "xffonly-$i" >/dev/null; ANON '{"x-real-ip":"198.51.100.9"}' openweb "realip-$i" >/dev/null; done
+check "$(CNTB nohdr)|$(CNTB xffonly)|$(CNTB realip)" '0|0|0' 'no header: anonymous community contributions are refused (none stored) with no header, with only a client-writable x-forwarded-for or x-real-ip'
+check "$(ANON '{}' community_2029 nohdr-x | grep -c 'rate_limited')" 1 'no header: the refusal is the same neutral rate_limited error the guest reply route already gives'
+check "$(ANON '{}' beit_midrash 'מחוץ-לקהילה-ללא-כותרת' | grep -c ERROR)|$(CNTB 'מחוץ-לקהילה-ללא-כותרת')" '0|1' 'no header: an anonymous write to another origin (outside the community) is untouched'
+check "$(ANON "$(H 198.51.100.55)" community_2029 'עם-כותרת' | grep -c ERROR)|$(CNTB 'עם-כותרת')" '0|1' 'header present: the same write passes (limits still count per network)'
+RIDC=$ROOTMSG
+check "$(as_user - '{}' "select public.toggle_contribution_reaction('$RIDC','👍','v-nohdr')" | grep -c 'rate_limited')|$(as_user - "$(H 198.51.100.55)" "select public.toggle_contribution_reaction('$RIDC','👍','v-hdr')" | grep -c ERROR)" '1|0' 'no header: a guest reaction in the community is refused; with the header it works'
+check "$(as_user "$USR" '{}' "select public.add_contribution('תגובה','community_2029','מחובר-ללא-כותרת')" | grep -c ERROR)|$(as_user "$USR" '{}' "select public.toggle_contribution_reaction('$RIDC','👍','')" | grep -c ERROR)" '0|0' 'no header: a signed-in account writes and reacts as before (never judged by its network)'
+# The community context is decided on the server, not by the origin parameter the client sends (ZURIEL 27.11.2026): a blocked network must not get through by changing p_origin, and an answer to a stored
+# community message counts as a community write whatever origin it claims. Writes that are really outside the community stay open for the same network.
+G 198.51.100.66 'לחסימה-בדיקת-פרמטר' >/dev/null
+MSGB=$(Q -c "select contribution_id from public.community_guest_posts order by created_at desc limit 1")
+as_user "$ADM" - "select public.community_guest_block_from_message_v1('$MSGB','h24','בדיקת עקיפת פרמטר המקור')" >/dev/null
+HB=$(H 198.51.100.66)
+ADDP() { as_user - "$1" "select public.add_contribution('תגובה','$2','$3',null,null,$4,null,null,'x',null)" 2>&1; }
+check "$(ADDP "$HB" community_2029 'חסום-1' null | grep -c community_write_blocked)|$(ADDP "$HB" openweb 'חסום-2' null | grep -c community_write_blocked)" '1|1' 'origin parameter: a blocked network cannot write into the community with a community origin'
+check "$(ADDP "$HB" beit_midrash 'חסום-3' "'$ROOTMSG'" | grep -c community_write_blocked)|$(ADDP "$HB" number 'חסום-4' "'$ROOTMSG'" | grep -c community_write_blocked)|$(ADDP "$HB" '' 'חסום-5' "'$ROOTMSG'" | grep -c community_write_blocked)" '1|1|1' 'origin parameter: claiming another origin (or none) does not help when the message answers a stored community message'
+check "$(ADDP '{}' beit_midrash 'ללא-כותרת-1' "'$ROOTMSG'" | grep -c rate_limited)|$(ADDP '{}' number 'ללא-כותרת-2' "'$ROOTMSG'" | grep -c rate_limited)" '1|1' 'origin parameter: with no trusted header an answer to a community message fails closed whatever origin it claims'
+check "$(ADDP "$HB" beit_midrash 'מחוץ-1' null | grep -c ERROR)|$(ADDP "$HB" number 'מחוץ-2' null | grep -c ERROR)|$(ADDP "$HB" '' 'מחוץ-3' null | grep -c ERROR)|$(Q -c "select count(*) from public.research_contributions where body in ('מחוץ-1','מחוץ-2','מחוץ-3')")" '0|0|0|3' 'origin parameter: writes that are really outside the community (no community origin, no community parent) stay open for the same blocked network'
+check "$(as_user "$USR" "$HB" "select public.add_contribution('תגובה','openweb','מחובר-חסום-רשת')" | grep -c ERROR)" 0 'origin parameter: a signed-in account on the blocked network is never blocked'
+F "$P/20261126200000_community_net_blocks_ROLLBACK.sql" >/dev/null
+# Live-body review (26.11.2026, D5 applied live, add_contribution md5 abbcf299...): the proposal must keep attribution, permissions and the notification triggers exactly.
+# State here: D5 body installed, community rolled back. Record the signature of the three functions, add stub triggers (an AFTER INSERT notification like trg_rc_notify and a thread bump), then apply.
+SIG() { Q -c "select string_agg(proname || ':' || prosecdef::text || ':' || coalesce(proacl::text,'') || ':' || coalesce(array_to_string(proconfig, ','),''), '|' order by proname) from pg_proc where pronamespace='public'::regnamespace and proname in ('add_contribution','add_guest_community_message','toggle_contribution_reaction')"; }
+Q -c "insert into public.contributors(user_id, trusted) values ('$USR', false)"
+Q -c "create table public.notif_stub(rid uuid, kind text); create function public.notif_stub_fn() returns trigger language plpgsql as \$\$ begin insert into public.notif_stub values (new.id, new.origin); return new; end \$\$; create trigger trg_rc_notify_stub after insert on public.research_contributions for each row execute function public.notif_stub_fn()"
+SIG_BEFORE=$(SIG)
+ATTR() { as_user "$USR" - "select public.add_contribution('תגובה','community_2029','$1')" >/dev/null; Q -c "select author_contributor_id is not null and author_user_id = '$USR' and status = 'approved' and research_state = 'discussion' and (select count(*) from public.notif_stub n where n.rid = r.id) = 1 from public.research_contributions r where body = '$1'"; }
+check "$(ATTR 'לפני הקהילה')" t 'live body: signed-in contribution is attributed to the one contributor, approved at once, and notified once (before the proposal)'
+F "$P/20261126200000_community_net_blocks_PROPOSAL.sql" >/dev/null
+check "$(SIG)" "$SIG_BEFORE" 'live body: owner, security definer, ACL (PUBLIC/anon/authenticated as before) and search_path of the three functions are unchanged by the proposal'
+check "$(ATTR 'אחרי הקהילה')" t 'live body: after the proposal the same signed-in contribution is attributed, approved and notified exactly the same (no new or lost trigger effect)'
+check "$(as_user '-' "$(H 203.0.113.99)" "select public.add_contribution('תגובה','community_2029','אורח אחרי')" | grep -c ERROR)|$(Q -c "select count(*) from public.notif_stub")" '0|3' 'live body: an anonymous contribution still fires the notification trigger once'
+check "$(as_user "$USR" - "select public.add_contribution('תגובה','beit_midrash','מחוץ לקהילה')" | grep -c ERROR)" 0 'live body: a signed-in write outside the community is untouched'
+echo "COMMUNITY NET BLOCKS 20261126 REAL POSTGRES ${pass} checks PASS ($("$PG_BIN/postgres" --version); isolated)"
