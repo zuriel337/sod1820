@@ -46,8 +46,8 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
       })) continue;
       if (!await step('searching a word verifies an occurrence through the real edge function and opens the matrix', async () => {
         const field = page.locator('form.els29-native-basic-form input[placeholder="למשל: משיח"]:visible').first();
-        await field.click(); await field.fill('תורה');
-        if ((await field.inputValue()) !== 'תורה') throw new Error('the word was not typed');
+        await field.click(); await field.fill('תורהקדשה');
+        if ((await field.inputValue()) !== 'תורהקדשה') throw new Error('the word was not typed');
         await page.locator('form.els29-native-basic-form button.els29-native-search:visible').first().click();
         await page.getByRole('button', { name: 'פעולות לציר הנבחר' }).first().waitFor({ timeout: 120000 });
       })) continue;
