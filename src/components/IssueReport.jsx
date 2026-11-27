@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
-import { persistExplicitIssueReport } from "../lib/events.js";
+import { persistExplicitIssueReport } from "../lib/issueReport2029.js";
 import { useAuth } from "../lib/AuthContext.jsx";
 import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { copyLink } from "../lib/share.js";

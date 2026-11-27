@@ -13,10 +13,10 @@ begin;
     v_new text := $q$or (v_props->'engagement_version' is distinct from '1'::jsonb and v_props->'engagement_version' is distinct from '2'::jsonb)$q$;
   begin
     if position(v_new in v_def) > 0 then
-      if md5(v_def) not in ('d5a37d261f13c4f910d1bdd6ecf1417c','78551e617ddae927b5eb6c89caf7c87d') then raise exception 'ingest_event drift (engagement v2 present but the rest differs); re-review'; end if;
+      if md5(v_def) not in ('d5a37d261f13c4f910d1bdd6ecf1417c','1e2e1366f7178548ae2d325616e2a843') then raise exception 'ingest_event drift (engagement v2 present but the rest differs); re-review'; end if;
       return;  -- already applied
     end if;
-    if md5(v_def) not in ('3d2fa7cf1aa7513b981d338cab5aebc2','065653fc71219e1e6d7fe94511c8d138') then raise exception 'ingest_event changed since the 27.11.2026 read (md5 %); re-read before applying', md5(v_def); end if;
+    if md5(v_def) not in ('3d2fa7cf1aa7513b981d338cab5aebc2','54b4c76942c8a4ff3553ecdd43341dde') then raise exception 'ingest_event changed since the 27.11.2026 read (md5 %); re-read before applying', md5(v_def); end if;
     if (length(v_def) - length(replace(v_def, v_old, ''))) / length(v_old) <> 1 then raise exception 'anchor (engagement version clause): not found exactly once'; end if;
     execute replace(v_def, v_old, v_new);
   end $$;

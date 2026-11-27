@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 // S1 (27.11.2026): what a person types in an issue report goes to the authorized support store, never into analytics.
-const { persistExplicitIssueReport } = await import("../src/lib/events.js");
+const { persistExplicitIssueReport } = await import("../src/lib/issueReport2029.js");
 const calls = [];
 const client = { rpc: async (name, args) => { calls.push([name, args]); return { error: null }; } };
 
@@ -41,5 +41,5 @@ test("the component sends through the support store only, in every build", () =>
   assert.doesNotMatch(src, /\btrack\(/);
   assert.match(src, /return persistExplicitIssueReport\(payload\)/);
   const ev = readFileSync(new URL("../src/lib/events.js", import.meta.url), "utf8");
-  assert.doesNotMatch(ev.slice(ev.indexOf("persistExplicitIssueReport")), /p_surface:\s*"issue_report"/);
+  assert.doesNotMatch(ev, /p_surface:\s*"issue_report"|persistExplicitIssueReport/, "the entry no longer carries any issue-report writer");
 });

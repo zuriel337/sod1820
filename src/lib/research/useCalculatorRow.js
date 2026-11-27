@@ -1,3 +1,4 @@
+import { recordFirstCompute, recordComputeFailed, recordComputeEmpty } from "../calculatorOutcome2029.js";
 import { startSiteActivity, recordSiteActivity } from "../siteActivity2029.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { fetchNumberMethodProfile } from "./numberCoreProjection.js";
@@ -48,7 +49,7 @@ export function useCalculatorRow(seed = "") {
     const cached = profileCache.get(phrase);
     if (cached) {
       setProfile({ loading: false, rows: cached, error: null, expression: phrase });
-      if (userEdit.current) { recordCompute.current?.(); userEdit.current = false; logSearch(phrase, regularValueOfRows(cached), "gematria"); }
+      if (userEdit.current) { recordCompute.current?.(); recordFirstCompute(phrase.length); userEdit.current = false; logSearch(phrase, regularValueOfRows(cached), "gematria"); }
       return undefined;
     }
     setProfile((current) => ({ ...current, loading: true, error: null }));
@@ -58,10 +59,11 @@ export function useCalculatorRow(seed = "") {
         if (rows.length) remember(profileCache, phrase, rows);
         if (id === requestRef.current) {
           setProfile({ loading: false, rows, error: null, expression: phrase });
-          if (userEdit.current && rows.length) { recordCompute.current?.(); userEdit.current = false; logSearch(phrase, regularValueOfRows(rows), "gematria"); }
+          if (userEdit.current && rows.length) { recordCompute.current?.(); recordFirstCompute(phrase.length); userEdit.current = false; logSearch(phrase, regularValueOfRows(rows), "gematria"); }
+          else if (userEdit.current) { recordComputeEmpty(); userEdit.current = false; }
         }
       } catch (error) {
-        if (id === requestRef.current) setProfile({ loading: false, rows: [], error, expression: phrase });
+        if (id === requestRef.current) { setProfile({ loading: false, rows: [], error, expression: phrase }); if (userEdit.current) { recordComputeFailed("fetch_failed"); userEdit.current = false; } }
       }
     }, CALCULATOR_ROW_SETTLE_MS);
     return () => window.clearTimeout(timer);

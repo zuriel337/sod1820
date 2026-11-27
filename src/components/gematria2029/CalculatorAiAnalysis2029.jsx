@@ -57,6 +57,7 @@ export default function CalculatorAiAnalysis2029({ selection, ledger = null, sam
       },
     });
     if (id !== requestRef.current) return;
+    import("../../lib/calculatorOutcome2029.js").then(m => m.recordAiResult(Boolean(result && clean(result.answer)), "no_answer"), () => {});
     if (!result || !clean(result.answer)) {
       setState({ key, busy: false, answer: "", level: "", note: "רזיאל לא הצליח לענות כרגע, או שהמכסה להיום הסתיימה. החישוב עצמו תקין." });
       return;

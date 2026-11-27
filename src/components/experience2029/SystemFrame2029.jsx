@@ -1050,6 +1050,7 @@ function SystemFrame2029Body({
     }
     setTransient({ kind, payload });
     setNavOpen(false);
+    import("../../lib/measurementNav2029.js").then(m => m.panelOpen(kind), () => {});
   }, [navOpen, completeSurfaceEntry, contextLocked]);
 
   // ZURIEL 15.11: restore the existing guest invitation (22s or 450px scroll).
