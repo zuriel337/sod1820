@@ -51,10 +51,6 @@ function CalculationDepth({ witness, openNumber }) {
         <p>תוצאה <b>{entry.verified.value}</b> · גרסת שיטה {entry.verified.trace.method_version} · התאמה למנוע אומתה</p>
         <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method} trace={entry.verified.trace}
           expectedValue={entry.verified.value} depth="S2" />
-        {entry.verified.trace.trace_kind === 'COMPOSITE' ? <p data-discovery-composite>
-          רכיבי המנוע: {(entry.verified.trace.steps?.components || []).map((c) => `${c.component_method}: ${c.component_value}`).join(' · ')}
-          {' · '}פעולה: {entry.verified.trace.steps?.operator} · תוצאה: {entry.verified.value}
-        </p> : null}
         <button className="sod29-action" onClick={() => openNumber(entry.verified)}>לדף המספר {entry.verified.value}</button>
         <details><summary>פרטי האימות</summary><pre>{JSON.stringify(entry.verified.trace, null, 2)}</pre></details>
       </> : <p role="status">החישוב אינו זמין לאימות כעת. אין החלפה בשיטה אחרת.</p>}
