@@ -112,3 +112,16 @@ test('the main menu keeps its approved destinations at desktop and phone', { tim
     } finally { await close(); }
   }
 });
+
+test('one canonical address for the community, and no page title carries the site name twice', { timeout: 150000 }, async () => {
+  for (const path of ['/community', '/community/chat']) {
+    const { page, close } = await open(path);
+    try {
+      assert.equal(await page.locator('link[rel="canonical"]').getAttribute('href'), 'https://sod1820.co.il/community/chat', `${path} declares the one canonical address`);
+    } finally { await close(); }
+  }
+  for (const link of SITE_LINKS.filter((item) => !item.external && IDENTITY[item.id])) {
+    const { page, close } = await open(link.href);
+    try { assert.ok(!/SOD1820 · SOD1820/.test(await page.title()), `${link.href}: "${await page.title()}"`); } finally { await close(); }
+  }
+});
