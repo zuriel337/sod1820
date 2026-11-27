@@ -135,3 +135,12 @@ test("duplicates are gone: one stage, one equation, one list of steps", () => {
   assert.match(unit, /className="r29-btn" onClick=\{open\}>פתח בדף המספר/, "the open-in-Number-page button is in the Royal button family");
   assert.ok(!/GematriaShowcase2029/.test(unit.replace(/\/\/.*$/gm, "")));
 });
+
+test("narrow screens: מסתתר becomes a vertical chain per word and קדמי a wrapping grid (no sideways scrolling inside a method display)", () => {
+  const stage = read("src/components/gematria2029/SpatialMethodStage2029.jsx"), css = read("src/components/gematria2029/spatialMethodStage2029.css");
+  assert.match(stage, /function MistaterStack/); assert.match(stage, /ResizeObserver/); assert.match(stage, /narrow \? <MistaterStack scene=\{scene\} \/>/);
+  assert.match(stage, /resolveSceneTraceValue\(scene, connector\.identityRef\)\.difference/, "the differences are the scene's (the engine's), not calculated");
+  assert.match(css, /@media \(max-width:560px\)\{\s*\.sod29-spatial-method-stage__potential\{display:grid/);
+  assert.match(css, /--ms-side:96px/, "the triangle keeps its tiles at 20px and above on a phone");
+  assert.ok(!/(?<![-\w])(?:height|block-size)\s*:\s*\d+px/.test(css.slice(css.indexOf(".sod29-ms{"))), "the structure views have no fixed heights");
+});

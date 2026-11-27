@@ -74,3 +74,11 @@
 - עברו: `button-family-guard`, `number-method-experience`, `beit-midrash-methods-study`, שלוש בדיקות `spatial-scene`, `spatial-letter-anatomy`, `post2029-living-tree-infra`, `semantic-animation-projection`, `discovery-center`, `design-contract-v2-typography`, `unitGematriaTrace2029`/`worldSourceConnections`/`eventSystemMethodRuntime`, `test-2029-number-preview`, `test-2029-system-frame`, `test-entry-contextual-learn-2029`.
 - **עודכנו ציפיות של מסלולים שהוחלפו ביוזמה מאושרת:** `test-2029-number-preview` (משולש מילה נצייר ע"י המבנה האחיד ולא בשלב נפרד), ו־`test-number-method-experience-browser` (רשימת הצעדים הטקסטואלית והלחצן שלה הוחלפו בשלב הקנוני). לא הורד שום סף.
 - **לא הורצו/לא עברו בסביבה זו:** חוק השפה הציבורית נכשל בשני כשלים ידועים שגם ב־`main` (SystemFrame והיכל); סקריפטי העולם (`test-world-source-*`) דורשים חבילת דפדפן שאינה זמינה כאן, ולכן הם לא הורצו: הציפיות שלהם על `[data-composite-trace]` ו־`[data-discovery-composite]` נשמרו על שלב ההרכב החדש אבל לא אומתו בהם; `test-number-method-experience-browser` נכשל גם על `main` באותו צעד (`ready()` של רגיל בלולאת השיטות) ולכן לא מוכיח כאן.
+
+
+## עדכון נוסף: נייד לקדמי ולמסתתר, עיגון בחוזים, חיווט בדיקות (27.11.2026)
+- **מסתתר בנייד:** כשרוחב השלב קטן מ־560px הסצנה האופקית מצוירת כשרשרת אנכית לכל מילה (האות, ערכה וההפרש בין סמוכות, כולם מהסצנה שנקראת מהעקבה); בתצוגה רחבה והתלת־ממד נשארים. **קדמי בנייד:** רשת עוטפת של משולשים במקום גלילה אופקית.
+- **עיגון בחוזים הקיימים (בלי חוזה חדש):** `docs/g3-gematria-presentation-contract-v1.md` § 12 ("Method structure display — one canonical stage for every consumer") ומשפט מצביע ב־`SOD1820_DESIGN_CONTRACT_V2.md`. קובעים: כניסה אחת (`SpatialMethodStage2029`), מספרי המנוע בלבד, מבנה לפי סוג העקבה, שיטה חדשה אינה גמורה בלי תצוגה ובדיקת כל 32, כללי נייד, רשימת הכפילויות שהוסרו (לא להחזיר) וכפתורי Royal.
+- **חיווט ל־CI:** `test/method-structure-2029.test.mjs` נוסף ל־`live-contracts-2029.yml` (בדיקה על עקבות 32 השיטות מהמנוע החי). 
+- **נבדק שוב בדפדפן מול הנתונים החיים:** כל 32 השיטות, מחשב ונייד: 31 מוצגות, אות רבתי מציגה "נדרש הקשר", אין גלישה אופקית (`sweep-32-methods.json`); הבית ודף המספר (מחשב ונייד) מציגים את אותו משולש, בלי גלישה.
+- **תקציב מהירות:** `eagerJsGzip` 176,459 (ב־`main`: 176,479), `frameCssGzip` זהה (34,357), `frameJsGzip` 46,740 מול 46,736 ב־`main` (תנודת הרכב חבילה של 4 בתים, מתחת לגבול 46,990).

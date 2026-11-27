@@ -153,6 +153,8 @@ jobs:
           src/lib/research/numberMathProfileFinding.test.js
           src/lib/research/numberPhrasePresentationOrder.test.js
           src/lib/research/number2029LiveGlass.test.js
+      - name: Gematria method display (one canonical stage for every consumer; the engine's numbers only; all 32 active methods on a committed live-engine fixture; no duplicate renderers)
+        run: node --test test/method-structure-2029.test.mjs
       - name: Number page, Typography V2 and public addresses (the 14px floor and the type roles, one H1, the canonical /number address and its one-hop 308, legacy focus=dna, the browser robots tag follows the server)
         run: |
           node --test test/number-typography-v2-2029.test.mjs test/number-address-canonical-2029.test.mjs test/seo-robots-follow-2029.test.mjs test/gematria-focus-foundation-2029.test.mjs test/public-canonical-parity-repair.test.mjs

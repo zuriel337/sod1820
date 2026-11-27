@@ -3,7 +3,7 @@ import { TraceFamilyStage2029 } from "./MethodTraceExplanation2029.jsx";
 import { EquationLine } from "./MethodStructure2029.jsx";
 import HebrewGlyph2029 from "./HebrewGlyph2029.jsx";
 import NavigationIcon2029 from "../experience2029/NavigationIcon2029.jsx";
-import React, { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { buildWordLetterAnatomySpecs, HEBREW_LETTER_NAMES_ENGINE_DEFAULT } from "../../lib/spatial/hebrewLetterAnatomy.js";
 import { compileMistaterSceneV1, resolveSceneSocketWorld, resolveSceneWorldPosition, resolveSceneTraceValue } from "../../lib/spatial/semanticSceneCompiler.js";
 import { evaluateS4Capability } from "../../lib/spatial/gpuCapability.js";
@@ -290,6 +290,16 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
   const scene = useMemo(() => buildMistaterScene(expression, trace), [expression, trace]);
   const [s4, setS4] = useState(false);
   const [s4Note, setS4Note] = useState(null);
+  // On a narrow screen the horizontal scene is drawn as one vertical chain per word (the same scene: letters, values and differences, in reading order).
+  const hostRef = useRef(null);
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const el = hostRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const observer = new ResizeObserver(([entry]) => setNarrow(entry.contentRect.width < 560));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
   useEffect(() => { setS4(false); setS4Note(null); }, [expression, trace]);
   const promoteS4 = () => {
     const cap = evaluateS4Capability();
@@ -311,7 +321,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
   const letters = scene.nodes.filter((n) => n.kind === "letter_anchor");
   const resultNode = scene.nodes.find((n) => n.id === scene.resultId);
   const result = resolveSceneTraceValue(scene, resultNode.identityRef).value;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={s4 ? "S4" : depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}>
+  return <section ref={hostRef} className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="מסתתר" data-depth={s4 ? "S4" : depth} data-method-visual="adjacent-letter-tension" data-scene-schema={scene.schema} data-scene-id={scene.scene_id} data-projection-signature={scene.projection_signature}>
     <MethodStageHead methodKey="מסתתר" expression={expression} result={result} subtitle="המתח בין אותיות סמוכות" />
     <div className="sod29-spatial-method-stage__depth-controls">
       {s4
@@ -323,7 +333,7 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
       <Suspense fallback={<p className="sod29-spatial-method-stage__s4-loading" role="status">טוען תצוגה תלת־ממדית…</p>}>
         <MistaterScene3D scene={scene} onFallback={fallbackToS2} />
       </Suspense>
-    </S4ErrorBoundary> : <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
+    </S4ErrorBoundary> : narrow ? <MistaterStack scene={scene} /> : <div className="sod29-spatial-method-stage__tension" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
       <div className="sod29-spatial-method-stage__tension-scene" dir="ltr" style={{ width, height }}>
         <svg className="sod29-spatial-method-stage__tension-svg" viewBox={`0 0 ${width} ${height}`} width={width} height={height} aria-hidden="true" focusable="false">
           {scene.connectors.map((connector, index) => {
@@ -351,6 +361,27 @@ function MistaterStage({ expression, trace, depth, onRazielAction, onOpenHeichal
     <p className="sod29-spatial-method-stage__boundary">הקווים מחברים אותיות סמוכות באותה מילה. על כל קו מופיע ההפרש, שמצטרף לסכום הסופי.</p>
     <GenericActions methodKey="מסתתר" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
+}
+
+/** The mistater scene on a narrow screen: one vertical chain per word, every letter with its value and the engine's difference between neighbours. */
+function MistaterStack({ scene }) {
+  const words = scene.nodes.filter((n) => n.kind === "word_group");
+  return <div className="sod29-spatial-method-stage__tension-stack" role="list" aria-label="קשרי ההפרש בין אותיות סמוכות">
+    {words.map((word) => {
+      const letters = scene.nodes.filter((n) => n.kind === "letter_anchor" && n.parent === word.id);
+      return <section key={word.id} className="sod29-ms-word" role="listitem" aria-label={`המילה ${word.label}`}>
+        <h4>{word.label}</h4>
+        <ol>{letters.map((node, i) => {
+          const connector = scene.connectors.find((c) => c.from.node === node.id);
+          const diff = connector ? resolveSceneTraceValue(scene, connector.identityRef).difference : null;
+          return <li key={node.id}>
+            <span className="sod29-spatial-method-stage__stack-letter"><b><HebrewGlyph2029 text={node.label} /></b><small>{resolveSceneTraceValue(scene, node.identityRef).value}</small></span>
+            {diff != null ? <span className="sod29-spatial-method-stage__stack-diff" aria-label={`הפרש ${diff}`}>{diff}</span> : null}
+          </li>;
+        })}</ol>
+      </section>;
+    })}
+  </div>;
 }
 
 function KadmiStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {

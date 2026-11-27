@@ -368,3 +368,15 @@
 .sod29-ms-component .sod29-spatial-method-stage{padding:0;border:0;background:none;box-shadow:none;overflow:visible}
 .sod29-ms-component .sod29-ms-word{padding:8px 6px}
 @media (max-width:520px){.sod29-ms-component .sod29-ms-triangle{--ms-side:84px}.sod29-ms-component .sod29-ms-tile{border-radius:6px}}
+
+/* Narrow screens: מסתתר as one vertical chain per word, קדמי as a wrapping grid of triangles (no sideways scrolling). */
+.sod29-spatial-method-stage__tension-stack{display:grid;gap:10px;min-width:0}
+.sod29-spatial-method-stage__tension-stack ol{list-style:none;margin:0;padding:0;display:grid;gap:0;justify-items:center}
+.sod29-spatial-method-stage__tension-stack li{display:grid;justify-items:center;gap:0}
+.sod29-spatial-method-stage__stack-letter{display:grid;justify-items:center;gap:2px;min-inline-size:64px;padding:6px 12px;border:1px solid color-mix(in srgb,var(--sms-accent) 38%,var(--sms-line));border-radius:12px;background:color-mix(in srgb,var(--sms-panel-soft) 90%,transparent)}
+.sod29-spatial-method-stage__stack-letter b{font-size:34px;line-height:1.1;color:var(--sms-hero)}
+.sod29-spatial-method-stage__stack-letter small{font-size:14px;color:var(--sms-muted);font-variant-numeric:tabular-nums}
+.sod29-spatial-method-stage__stack-diff{display:inline-grid;place-items:center;min-block-size:44px;padding-inline:14px;border-inline:2px solid var(--sms-accent);font:800 18px/1 var(--s29-font-numeric,var(--s29-font-ui,inherit));font-variant-numeric:tabular-nums;color:var(--sms-accent-text)}
+@media (max-width:560px){
+  .sod29-spatial-method-stage__potential{display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));justify-content:stretch;overflow:visible;gap:12px 8px;padding-inline:0}
+}
