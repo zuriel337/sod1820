@@ -132,3 +132,23 @@ test("unlisted destinations and gated personal actions cannot enter through menu
     else assert.ok(["public", "taxonomy-lookup"].includes(state), href + " " + state);
   }
 });
+
+// ZURIEL 27.11.2026 (proved error): the footer entry "אור הגאולה" pointed to the community chat. They are separate destinations everywhere.
+test("אור הגאולה and the community chat are separate registry entries, aliases and map destinations", () => {
+  const geula = SITE_LINKS.find((item) => item.id === "or-geula"), chat = SITE_LINKS.find((item) => item.id === "community-chat");
+  assert.equal(geula.href, "/or-geula");
+  assert.equal(chat.href, "/community/chat");
+  assert.ok(!geula.legacyHrefs.includes("/community/chat") && !chat.legacyHrefs.includes("/or-geula"));
+  assert.ok(chat.legacyHrefs.includes("/chat") && chat.legacyHrefs.includes("/דף-צאט-ראשי"), "the Legacy chat addresses stay with the chat");
+  assert.equal(findSiteLinkByPhrase("אור הגאולה")?.id, "or-geula");
+  for (const phrase of ["צאט", "הצאט", "צ'אט הקהילה", "שיחת הקהילה"]) assert.equal(findSiteLinkByPhrase(phrase)?.id, "community-chat", phrase);
+  const aliasOwners = new Map();
+  for (const item of SITE_LINKS) for (const alias of item.aliases) { assert.ok(!aliasOwners.has(alias) || aliasOwners.get(alias) === item.id, `alias "${alias}" belongs to two entries`); aliasOwners.set(alias, item.id); }
+  const entries = publicMapGroups2029(true).flatMap((group) => group.links || group.items || []);
+  const hrefs = entries.map((entry) => (Array.isArray(entry) ? entry[0] : entry.href));
+  assert.equal(hrefs.filter((href) => href === "/or-geula").length, 1, "the site map lists אור הגאולה once");
+  assert.equal(hrefs.filter((href) => href === "/community/chat").length, 1, "the site map lists the community chat once");
+  const label = (href) => { const entry = entries.find((e) => (Array.isArray(e) ? e[0] : e.href) === href); return Array.isArray(entry) ? entry[1] : entry.label; };
+  assert.equal(label("/or-geula"), "אור הגאולה");
+  assert.equal(label("/community/chat"), "צ'אט הקהילה");
+});

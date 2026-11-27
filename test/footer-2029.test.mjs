@@ -53,7 +53,7 @@ test("public footer links come from the registry and external links keep their v
   }
   const allowed = new Set(SITE_LINKS.map((item) => item.href));
   for (const href of hrefs(html)) assert.ok(allowed.has(href), `footer link ${href} is not in the registry`);
-  for (const href of ["/post", "/category/מימד-חמש", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/codes", "/archive", "/findings", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
+  for (const href of ["/post", "/category/מימד-חמש", "/or-geula", "/community/chat", "/category/סוד-החשמל", "/world", "/number", "/codes", "/archive", "/findings", "/2029/me/profile", "/2029/me/notifications", "/community", "/contact", "/privacy", "/map"]) {
     assert.ok(hrefs(html).includes(href), `${href} is missing from the footer`);
   }
 });
@@ -128,4 +128,12 @@ test("the footer updates strip is compact: no big card, WhatsApp join is part of
     assert.match(html, /<a class="f29-join" href="https:\/\/chat\.whatsapp\.com\/FaI8Nq95NMrCvZheSrW6Ql" target="_blank" rel="noopener noreferrer">/);
     assert.match(html, /עדכונים בוואטסאפ/);
   }
+});
+
+// ZURIEL 27.11.2026: "אור הגאולה" and the community chat are two destinations. The footer pairs each LABEL with its own address, not only the address list.
+test("the footer's אור הגאולה link opens /or-geula and the chat link opens /community/chat (label and address, never swapped)", async () => {
+  const html = render(await loadFooter(false), "/2029/posts");
+  const pair = (label) => [...html.matchAll(/<a [^>]*href="([^"]+)"[^>]*>([^<]*)<\/a>/g)].filter((m) => m[2].replace(/&#x27;/g, "'").includes(label)).map((m) => m[1]);
+  assert.deepEqual(pair("אור הגאולה"), ["/or-geula"]);
+  assert.deepEqual(pair("צ'אט הקהילה"), ["/community/chat"]);
 });
