@@ -31,7 +31,7 @@ export function assertMainReleaseContract() {
   assertPublicationConfig(readPublicationConfig());
   assert.equal(PRODUCTION_REVIEW_BRANCH,"main","retired cutover branches cannot create new production candidates");
   assert.equal(REVIEW_BRANCH,"gpt/2029-main-live-state-reconcile-20261104","only the explicitly current integration branch is admitted for review");
-  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu","ccr-dcadb071-v1z5ol","ccr-06bc2910-pgarr4","ccr-b086914f-f5wwfd","gpt/tzvi-source-lineage-20261120","codex/1456-sitewide-statistics-20261120","claude/pr-1461-acceptance-review-28cnqo","ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share","gpt/els-onboarding-access-plan-20261123","ccr-7ed7f384-d0u3rk","ccr-community-net-protection-20261126"],"review branches are an exact, recorded allowlist, never a pattern");
+  assert.deepEqual([...REVIEW_BRANCHES],[REVIEW_BRANCH,"claude/number-typography-v2-20261111","ccr-b8e8ab12-9hoamu","ccr-dcadb071-v1z5ol","ccr-06bc2910-pgarr4","ccr-b086914f-f5wwfd","gpt/tzvi-source-lineage-20261120","codex/1456-sitewide-statistics-20261120","claude/pr-1461-acceptance-review-28cnqo","ccr-62250444-voptzj", "ccr-62250444-voptzj-community-share","gpt/els-onboarding-access-plan-20261123","ccr-7ed7f384-d0u3rk","ccr-s1-security-edge-20261126","ccr-community-net-protection-20261126"],"review branches are an exact, recorded allowlist, never a pattern");
   assert.deepEqual(PUBLIC_READING_DEPLOYMENT_AUTHORIZATION,{state:"dormant",approvedSourceSha:null,approvedDeploymentId:null,approvedAt:null});
   assert.equal(publicMiddleware,canonicalMiddleware);assert.deepEqual(publicConfig,canonicalConfig);
   return true;
