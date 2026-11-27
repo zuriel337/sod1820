@@ -5,8 +5,10 @@ do $migration$
 declare v_def text; v_new text;
   t1n constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
   -- Community network protection (26.11.2026): guests only; a signed-in account is never blocked because of its network.
-  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029'))
-     and public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  if auth.uid() is null and exists (select 1 from public.research_contributions rc0 where rc0.id = p_id and rc0.origin in ('openweb','community_2029')) then
+    if public.community_net_ref_v1(public.community_trusted_client_ip_v1()) is null then raise exception 'rate_limited'; end if;   -- no trusted address header: fail closed
+    if public.community_net_blocked_v1(public.community_net_ref_v1(public.community_trusted_client_ip_v1())) then raise exception 'community_write_blocked'; end if;
+  end if;
 $a$;
   t1 constant text := $a$  if v_key is null then raise exception 'no identity'; end if;
 $a$;
@@ -34,7 +36,9 @@ $a$;
   c1n constant text := $a$    v_ip := nullif(btrim(v_ip), '');
     -- Community network protection (26.11.2026): hash first, refuse a blocked network before any log write.
     v_ip := public.community_net_ref_v1(public.community_trusted_client_ip_v1());
-    if v_ip is not null and coalesce(nullif(p_origin,''),'beit_midrash') in ('openweb','community_2029') and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    if v_ip is not null and public.community_write_scope_v1(p_origin, p_parent_id) and public.community_net_blocked_v1(v_ip) then raise exception 'community_write_blocked'; end if;
+    -- No trusted address header = no reference: a guest write into the community (decided on the server: community origin, or an answer to a stored community message) fails closed, as add_guest_community_message already does; other writes are unchanged.
+    if v_ip is null and public.community_write_scope_v1(p_origin, p_parent_id) then raise exception 'rate_limited'; end if;
     if v_ip is not null then
 $a$;
   c1 constant text := $a$    v_ip := nullif(btrim(v_ip), '');
@@ -77,3 +81,4 @@ drop function if exists public.community_net_blocks_list_v1(boolean,integer);
 drop function if exists public.community_net_blocked_v1(text);
 drop function if exists public.community_net_ref_v1(text);
 drop function if exists public.community_trusted_client_ip_v1();
+drop function if exists public.community_write_scope_v1(text,uuid);
