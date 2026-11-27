@@ -21,6 +21,8 @@ export const PUBLIC_READING_READ_RPCS = Object.freeze([
   "fn_verses_by_gematria", "lang_links_list", "number_neighbors", "fn_all_methods",
   "world_group_source_arrivals_v2", "rd_is_admin", "fn_list_family", "fn_name_protocol", "fn_cross_research",
   "is_number_indexable", "is_phrase_indexable",
+  // The /number landing's "surprise me": the admitted public numbers (the decision the number documents already use), no arguments, public by the database grant (ZURIEL 27.11.2026).
+  "sitemap_numbers",
   // Community reads the database already grants to anon/authenticated (ZURIEL, 8.11.2026):
   // tree-hint pins and the online-now list are public by design; this worker's own allowlist
   // had not caught up, so every caller without a verified admin token fell to the admin-only

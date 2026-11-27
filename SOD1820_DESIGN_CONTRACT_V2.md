@@ -367,6 +367,9 @@ Right Global Rail naming is canonical:
 `דף המספר` is the canonical global label. Generic `מספרים` is not a Global Navigation label.
 Because the live route is `/2029/number/:value`, selecting `דף המספר` without a value opens the canonical Search / Command projection rather than inventing a fake root route.
 
+> **PROPOSAL — not active, awaiting ZURIEL's decision (27.11.2026; no new contract, an amendment to the sentence above).**
+> The sentence above is the old navigation instruction. Proposed replacement: selecting `דף המספר` in Global Navigation leads to the full page `/number` (a landing: central search with live gematria, reverse / by-method / cross-expression search, the number of the day by the Hebrew date, the hot numbers in three windows, the foundation numbers by their approved classification, the new discoveries and active writers; the number-bound readers load on demand). `/number` is the existing public Number/Phrase entry family (see the naming law below), not a fake root route. The Search / Command projection (`NumberDrawer`) stays only for callers inside pages ("בחר מספר בעמוד"), and is not the menu destination. Nothing else in this section changes. Branch evidence: `claude/number-landing-20261127` (code, tests and screenshots); until the decision, the text above governs.
+
 Desktop Brand hierarchy is singular: the Topbar owns the persistent full approved Brand lockup. The expanded Right Global Rail must not repeat it; its top is a quieter functional navigation header with restrained Brand Atmosphere. The collapsed rail uses a neutral Home/navigation affordance and must never create a crown-only logo.
 
 Global rail expansion preference may persist locally as a presentation preference. This does not create a new navigation store or product-truth state.

@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 
 const PUBLIC_FILES = [
+  "src/components/number2029/NumberLanding2029.jsx", "src/components/number2029/NumberLandingDiscoveries2029.jsx", "src/lib/research/numberLanding2029.js",
   "src/components/experience2029/SystemFrame2029.jsx",
   "src/pages/Home2029Page.jsx",
   "src/pages/World2029Page.jsx",
