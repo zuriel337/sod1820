@@ -1,0 +1,67 @@
+CREATE OR REPLACE FUNCTION public.fn_human_entrances(p_from date DEFAULT NULL::date, p_to date DEFAULT NULL::date)
+ RETURNS TABLE(session_id text, day date, first_ts timestamp with time zone, landing_path text, source text, device text, country text, visitor text, is_logged_in boolean, views integer, interactions integer, searches integer, engaged boolean, bounce boolean, suspected_bot boolean, classification_reason text)
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO 'public'
+AS $function$
+  -- v2_source_fix_20261124 (traffic_intelligence_law v11, implementation only): source falls back to the session's
+  -- arrival/source token (the v2 envelope refuses p_via); rule v2 needs collected country evidence (non-v2 landing);
+  -- suspected_bot is never NULL, so raw = net + suspected. Pre-15.11 output verified identical (65,989 sessions).
+  with base as (
+    select e.* from public.events e
+    where e.session_id is not null
+      and (p_from is null or e.ts::date >= p_from)
+      and (p_to   is null or e.ts::date <= p_to)
+  ),
+  sess as (
+    select session_id,
+      bool_or(is_bot) any_bot,
+      count(*) filter (where event_type='view') views,
+      count(*) filter (where event_type in ('search','cross_search','use','save','journey','add','open')) interactions,
+      count(*) filter (where event_type in ('search','cross_search')) searches,
+      max(props->>'source') filter (where surface='arrival' and event_type='source') arrival_source
+    from base group by session_id
+  ),
+  ent as (select session_id, views, interactions, searches, arrival_source from sess where any_bot=false and views>=1),
+  land as (
+    select distinct on (b.session_id)
+      b.session_id, b.ts first_ts,
+      -- #1461: measurement v2 stores a privacy LABEL in events.path ('/number/:value') and the
+      -- projected public identity in props.measurement.page_path ('/number/104'). Use the
+      -- identity when present so entity demand / Metatron / Raziel see v2 landings again.
+      -- Verified live 20.11.2026 over 30d: suspected_bot unchanged for 6,207/6,207 sessions.
+      coalesce(b.props->'measurement'->>'page_path', b.path) landing_path,
+      coalesce(b.via, e2.arrival_source) source, b.device,
+      (b.props->>'country') country, coalesce(b.person_id::text, b.sod_id) visitor,
+      (b.person_id is not null) is_logged_in,
+      coalesce(b.props ? 'measurement', false) landing_v2
+    from base b join ent e2 using(session_id)
+    where b.event_type='view'
+    order by b.session_id, b.ts asc
+  ),
+  joined as (
+    select l.session_id, l.first_ts::date dd, l.first_ts, l.landing_path, l.source, l.device, l.country,
+           l.visitor, l.is_logged_in, l.landing_v2, e.views, e.interactions, e.searches,
+           (e.views>=2) engaged, (e.views=1 and e.interactions=0) bounce,
+           coalesce((
+             (l.source='direct' and l.country is null and e.views=1 and e.interactions=0 and not l.landing_v2)
+             or
+             (l.source='direct' and e.views=1 and e.interactions=0
+               and (l.landing_path='/numbers' or l.landing_path like '/number/%'))
+           ), false) suspected_bot
+    from ent e join land l using(session_id)
+  )
+  select j.session_id, j.dd, j.first_ts, j.landing_path, j.source, j.device, j.country,
+         j.visitor, j.is_logged_in, j.views, j.interactions, j.searches, j.engaged, j.bounce,
+         j.suspected_bot,
+         case
+           when j.suspected_bot and j.source='direct' and j.country is null and j.views=1 and j.interactions=0
+                and not j.landing_v2
+             then 'direct + no_country + single_view + no_interaction (rule v2 preserved)'
+           when j.suspected_bot and j.source='direct' and j.views=1 and j.interactions=0
+                and (j.landing_path='/numbers' or j.landing_path like '/number/%')
+             then 'direct + numeric_landing + single_view + no_interaction (rule v3)'
+           else null
+         end
+  from joined j;
+$function$
