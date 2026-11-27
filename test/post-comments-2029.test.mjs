@@ -70,6 +70,9 @@ test("the native post mounts the comments behind its public projection: archive 
   const composer = readFileSync(new URL("../src/components/experience2029/PostCommentComposer2029.jsx", import.meta.url), "utf8");
   assert.match(composer, /addContribution\(\{ intent: "תגובה", origin: POST_COMMENT_ORIGIN, body, targetType: "post", targetId: postId/, "one record through the existing writer, keyed by the canonical post id");
   assert.match(composer, /sending\.current/, "no double send");
+  assert.match(composer, /client_timeout/, "a request that never answers ends in a visible failure");
+  assert.match(composer, /public_reading_operation_denied|public_post_unavailable/, "a refused or unavailable post is named, not shown as a generic failure");
+  assert.match(composer, /rate_limited/, "the hourly limit keeps its own message");
   assert.equal(POST_COMMENT_ORIGIN, "community_2029", "the existing community feed already lists this origin: one record, one source");
 });
 

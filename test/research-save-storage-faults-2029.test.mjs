@@ -122,15 +122,18 @@ test("the failure notice names the observed cause; the queue length is not a rea
 });
 
 test("every save front-end goes through the ONE runtime and the button states a real cause", () => {
-  const button = read("../src/components/userCenter/PersonalSaveButton2029.jsx");
+  // The button renders; the ONE indicator logic lives in usePersonalSave2029 (the same guarantees, now shared by every save surface).
+  const button = read("../src/components/userCenter/PersonalSaveButton2029.jsx") + read("../src/lib/research/usePersonalSave2029.js");
   assert.doesNotMatch(button, /syncPending>0\?'הפריט נקלט/, "the old guess is gone");
-  assert.match(button, /saveFailureNotice\(/);
-  assert.match(button, /localOnlyResearch\?\.\('reclaim',\{confirm:true\}\)/, "the reclaim is the existing one, explicit");
+  assert.match(button, /indicatorFailureNotice\(/);
+  assert.match(button, /localOnlyResearch\?\.\("reclaim", \{ confirm: true \}\)/, "the reclaim is the existing one, explicit");
   assert.doesNotMatch(read("../src/lib/research/ResearchProvider.jsx") + read("../src/lib/research/researchSyncRuntime.js"), /reclaimPassive/, "no second reclaim");
   for (const file of ["../src/components/community2029/CommunityPersonalActions2029.jsx", "../src/components/experience2029/PostActionBar2029.jsx", "../src/components/experience2029/PostReadingActions2029.jsx", "../src/pages/Number2029Page.jsx"]) {
     assert.match(read(file), /PersonalSaveButton2029/, `${file} uses the one button`);
   }
-  for (const file of ["../src/components/contributor2029/ContributorReadingController2029.jsx", "../src/components/experience2029/ElsSavedDiscovery2029.jsx", "../src/components/experience2029/SystemFrame2029.jsx", "../src/lib/research/RazielSessionProvider2029.jsx", "../src/lib/research/useUniversalWorkspace.js", "../src/pages/Books2029Page.jsx"]) {
+  assert.match(read("../src/pages/Books2029Page.jsx"), /usePersonalSave2029\(/, "the Book save is the same one indicator");
+  assert.doesNotMatch(read("../src/pages/Books2029Page.jsx"), /research\.saveItem/, "no second save mechanism in the Book page");
+  for (const file of ["../src/components/contributor2029/ContributorReadingController2029.jsx", "../src/components/experience2029/ElsSavedDiscovery2029.jsx", "../src/components/experience2029/SystemFrame2029.jsx", "../src/lib/research/RazielSessionProvider2029.jsx", "../src/lib/research/useUniversalWorkspace.js", "../src/lib/research/usePersonalSave2029.js"]) {
     assert.match(read(file), /research\.saveItem|saveItem\?\.|saveItem\(/, `${file} saves through research.saveItem (the one runtime)`);
   }
 });

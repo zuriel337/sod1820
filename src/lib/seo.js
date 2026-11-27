@@ -73,10 +73,16 @@ function upsertLink(rel, href) {
  * @param {string[]} [o.tags]        תגיות — למאמרים (article:tag)
  * @param {string} [o.section]       קטגוריה ראשית — למאמרים (article:section)
  */
+// The site name is added once, here, for every page: a caller that already ends its title with it ("העולם · SOD1820", "ספר · SOD1820") must not get it twice.
+export function composeSeoTitle(title) {
+  const text = String(title ?? "").trim();
+  if (!text) return SITE_NAME;
+  return text === SITE_NAME || text.endsWith(` · ${SITE_NAME}`) ? text : `${text} · ${SITE_NAME}`;
+}
 export function applySeo(o = {}) {
   if (typeof document === "undefined") return;
   const description = o.description || DEFAULT_DESC;
-  const title = o.fullTitle ? o.fullTitle : (o.title ? `${o.title} · ${SITE_NAME}` : `${SITE_NAME}`);
+  const title = o.fullTitle ? o.fullTitle : composeSeoTitle(o.title);
   const path = o.path != null ? o.path : window.location.pathname;
   const canonical = SITE_URL + (path === "/" ? "" : path);
   const image = o.image || DEFAULT_IMAGE;

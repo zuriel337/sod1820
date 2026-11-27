@@ -186,6 +186,7 @@ jobs:
           test/post-projection-parallel-20261115.test.mjs
           test/public-reading-analytics-worker.test.mjs
           test/public-reading-action-measurement.test.mjs
+          test/site-coverage-2029.test.mjs
           test/measurement-page-view-once-2029.test.mjs
           test/measurement-identity-20261115.test.mjs
           test/measurement-hebrew-path-20261118.test.mjs
