@@ -4738,6 +4738,120 @@
             "after": "62 + 62 rows (7.9-7.11), views 60,215 / IL 51,112, sessions 21,519; 124 rows labelled as Google numbers as received (not measured here); outside-window fingerprint unchanged; total 6,288 + 124; the 11-15.11 notes kept; no gap in the ga series from 7.9 to 26.11"
           },
           "pull_requests": "#1575 merged 1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749; #1577 merged 9576ae8206796d032fda2c64d4e849d55c84da53; #1579 merged 34551d3f530b5a6777b4abeecb8dcc34047ca594; #1574 merged 8e3fcee4d2c28e2fd659539d20e42f199a3cc159; #1581 (community load reduction) stays OUT of the unified deployment."
+        },
+        "post_deployment_measurements_20261127": {
+          "status": "BASELINE CAPTURED 27.11.2026 ~02:15 UTC (read-only) for the unified deployment of 66f4176a; after-windows are collecting; NO conclusion yet (the after data is minutes old).",
+          "deployment": {
+            "id": "dpl_J1KXz94F8JW2K5TYUNSyTdfRgRsP",
+            "source_sha": "66f4176a147b9abe6b2a0fc9fa81473616c60571",
+            "created_utc": "2026-11-27 01:56:42",
+            "ready_utc": "2026-11-27 01:57:46",
+            "aliases_moved_utc": "2026-11-27 ~01:57:52 (sod1820.co.il, www.sod1820.co.il, sod1820.vercel.app)",
+            "previous": "dpl_562GoZWmagD2A7snDnkxZbEzFDmY (source 3205ecd7, created 26.11 14:12, aliased 26.11 ~14:33)",
+            "front_end_build_tag_after": "2029-BlkNvGWl",
+            "front_end_build_tag_before": "2029-C5ROC4LY (first field sample 26.11 14:37 UTC, last 27.11 01:30 UTC)",
+            "post_deploy_canary": "run 45925531011 success (exact SHA re-confirmed)"
+          },
+          "measurement_windows_rule": "Hourly granularity only, whole hours summed (a 6 h granularity snaps to 06-12/12-18 and is not a window). Edge/function logs keep about 24 h, so the before series below were captured on 27.11 ~02:15. Field vitals are compared by the build tag in props.build, one sample per sample_id, n reported, n<30 per group is weak.",
+          "comparability_warning": "There is NO clean quiet-hour window on the previous build 2029-C5ROC4LY: it served 26.11 14:37 -> 27.11 01:57, and its hours 15-24 UTC are the /community/chat wave (about 50k requests per hour against 2-3k). The quiet window W1 (26.11 07-13 UTC) ran on other builds (field tags: 2029-BK3LoBjq until about 10:43, then 2029-BcTZsiDj from about 11:06; BcTZsiDj served until the 14:12-14:33 change to 3205ecd7). Server-side W1 vs after 27.11 07-13 is therefore build-confounded: context only. Valid like-for-like pairs: (1) field vitals by build tag after n>=30 per group; (2) 27.11 18-24 vs 26.11 18-24 only if the wave is absent or present in both and normalised per 1,000 requests; (3) number-family REST reads per number-document request.",
+          "before_vercel_server_26.11": {
+            "W1_quiet_26.11_07-13_UTC_6h (builds BK3LoBjq then BcTZsiDj, confounded)": {
+              "requests": 17041,
+              "edge_cache_HIT_pct": 39.3,
+              "MISS_pct": 54.9,
+              "public_document_invocations": 6634,
+              "card_invocations": 1599,
+              "function_duration_gbhr": 3.13,
+              "middleware_cpu_s": 124.0,
+              "fdt_out_gb": 0.63,
+              "function_ttfb_p75_ms_hourly_median": 987
+            },
+            "W2_wave_26.11_15-24_UTC_9h (build C5ROC4LY)": {
+              "requests": 462002,
+              "edge_cache_HIT_pct": 95.0,
+              "MISS_pct": 4.4,
+              "public_document_invocations": 18209,
+              "card_invocations": 1412,
+              "function_duration_gbhr": 5.41,
+              "middleware_cpu_s": 350.9,
+              "fdt_out_gb": 3.94,
+              "function_ttfb_p75_ms_hourly_median": 851
+            },
+            "public_document_cache_by_window": {
+              "W1": {
+                "requests": 7223,
+                "MISS": 6351,
+                "HIT": 588,
+                "STALE": 284,
+                "MISS_pct": 87.9
+              },
+              "W2": {
+                "requests": 23251,
+                "MISS": 16922,
+                "HIT": 5041,
+                "STALE": 1288,
+                "MISS_pct": 72.8
+              }
+            },
+            "note": "14:00 UTC 26.11 is where requests go from about 3k to 17k, then about 50k per hour until 23:59; 27.11 00:00 9.7k, 01:00 2.1k (the wave ends)."
+          },
+          "before_supabase_api_edge_logs_26.11": {
+            "W1_07-13_requests": 84020,
+            "W1_per_hour": 14003,
+            "W2_15-24_requests": 312009,
+            "W2_per_hour": 34668,
+            "W2_note": "includes 23:00 UTC 69,760 (an unexplained spike hour, not investigated)",
+            "number_family_rest_reads": {
+              "W1": {
+                "gematria_words": 6969,
+                "is_phrase_indexable": 2668,
+                "number_anchors": 818,
+                "is_number_indexable": 343,
+                "posts_by_number_strict": 612,
+                "fn_number_lookup": 476
+              },
+              "W2": {
+                "gematria_words": 9175,
+                "is_phrase_indexable": 3133,
+                "number_anchors": 1722,
+                "is_number_indexable": 509,
+                "posts_by_number_strict": 1178,
+                "fn_number_lookup": 1138
+              }
+            },
+            "change_list_reads": "0 in every hour 26.11 07:00 - 27.11 02:00 (the 26.11 baseline of protocol_9bf41e6 had 460 and 219 per window)"
+          },
+          "supabase_advisors_performance_27.11": "7 lint kinds (no ERROR level): unindexed_foreign_keys INFO, auth_rls_initplan WARN, no_primary_key INFO, unused_index INFO, multiple_permissive_policies WARN, duplicate_index WARN, auth_db_connections_absolute INFO. Same families as before; not compared item by item.",
+          "before_field_vitals_by_build (final phase, one sample per sample_id, p75)": "2029-C5ROC4LY: desktop other n=64 ttfb 406 lcp 553 cls 0.0009; desktop post n=19 ttfb 749 lcp 868; desktop community n=52 ttfb 737 lcp 2991; desktop number n=8 ttfb 1749 lcp 1796 (weak); mobile community n=28 ttfb 761 lcp 1472 cls 0.0288; mobile other n=16 ttfb 611 lcp 1500; mobile post n=12 ttfb 1357 lcp 2108 (weak). After tag 2029-BlkNvGWl at 02:02 UTC: n=30 samples total over four groups (desktop only), all weak.",
+          "checks_27.11_02:00-02:20_UTC": {
+            "sitemap_catalog_number_addresses": "1273 (was 1000 on 3205ecd7), catalog 1,743 url elements",
+            "number_document_10": "HTTP 200, robots index/follow, canonical /number/10, own title and description (fetched through Vercel; plain curl from the cloud environment got 403 from the edge, not circumvented)",
+            "robots_txt": "200: Allow /, Disallow /api/ and /unsubscribe, Sitemap line present",
+            "sitemap_index": "200, content + catalog + phrases pages",
+            "video_2029_events_after_deploy": "0 rows (15 min, plays need a human action); legacy surface video/play has 718 rows last 4.11; NOT a finding",
+            "traffic_daily": "26.11 entrances 1,428 engaged 1,231 bounces 196 suspected 4,959 (classification v4 live since the approved SQL); 27.11 so far entrances 9 suspected 63",
+            "events_since_deploy_15min": "191 events: page/view 66, page/engagement 56, web_vital 31, content/view 4, els 6, entry_2029 7, calculator_2029 3"
+          },
+          "search_console_baseline": {
+            "last_synced_day": "2026-11-23 (gsc-daily-sync runs 05:17 UTC; 3-4 day lag is normal for Google, not yet an alert)",
+            "total_clicks_per_day_9-23.11": "113-202 (dips 13.11 41 and 20.11 45)",
+            "impressions_per_day": "595-1722",
+            "number_pages_with_impressions_per_day": "113-219 (of 1,273 now listed in the catalog sitemap)",
+            "reading": "Indexing effect of the 273 added numbers is NOT measurable before 30.11-7.12; do not read it earlier."
+          },
+          "not_measured_yet": [
+            "after Vercel window under 2029-BlkNvGWl (needs whole hours; first clean candidate 27.11 07-13 UTC, build-confounded against W1)",
+            "after field vitals n>=30 per group",
+            "video_2029 events and embed_refused share (needs real plays)",
+            "Search Console / indexing of the new numbers",
+            "Speed Insights p75 (not yet queried)"
+          ],
+          "next_checkpoints_utc": [
+            "27.11 ~05:30 morning report (preliminary, 02:00-05:30 after-window, excludes protocol-anomalous 00:00-06:30 hours from conclusions)",
+            "27.11 ~13:15 first whole-hour after window 07-13",
+            "28.11 ~00:15 evening window 18-24"
+          ],
+          "protocol_9bf41e6_status": "Superseded: build 2029-BcTZsiDj (9bf41e6) served only about 26.11 10:50-14:33 per field tags; its after-window never ran. This block replaces it for the unified deployment of 66f4176a."
         }
       },
       {
