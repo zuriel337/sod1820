@@ -49,7 +49,7 @@ check "$(Q -c "select is_active from public.nodes where rule_id='traffic_intelli
 check "$(Q -c "select metadata->'rule_guard' is not null from public.nodes where rule_id='traffic_intelligence_law' and rule_version=13")" t 'the guard stamped the retirement itself (the file never wrote rule_guard)'
 check "$(Q -c "select supersedes_version from public.nodes where rule_id='traffic_intelligence_law' and rule_version=14")" 13 'v14 records that it supersedes v13'
 check "$(Q -c "select left(description, 17) from public.nodes where rule_id='traffic_intelligence_law' and rule_version=14")" 'STAND-IN V13 BODY' 'v14 keeps the whole v13 body first (extend, never rewrite)'
-for rule in "MEASUREMENT IDENTITY LAYERS" "INTENSITY IS NOT EVIDENCE OF AUTOMATION" "ENGAGEMENT VERSION 2" "FLOOR UNIT" "OPEN ACTIVITY TIER" "SUPPORT TEXT IS NOT ANALYTICS" "MEASURED ACTION TRIAD" "REACTIONS POLICY UNCHANGED" "PRESERVED FUTURE CAPABILITIES"; do
+for rule in "MEASUREMENT IDENTITY LAYERS" "INTENSITY IS NOT EVIDENCE OF AUTOMATION" "ENGAGEMENT VERSION 2" "FLOOR UNIT" "OPEN ACTIVITY TIER" "PUBLIC BY DEFAULT, PERSONAL SEARCH MASKED" "SUPPORT TEXT IS NOT ANALYTICS" "MEASURED ACTION TRIAD" "REACTIONS POLICY UNCHANGED" "PRESERVED FUTURE CAPABILITIES"; do
   check "$(Q -c "select position('$rule' in description) > 0 from public.nodes where rule_id='traffic_intelligence_law' and rule_version=14")" t "v14 carries the clause: $rule"
 done
 check "$(Q -c "select count(*) from public.nodes where rule_id='other_law' and is_active")" 1 'no other law is touched'

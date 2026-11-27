@@ -29,6 +29,13 @@ OPEN ACTIVITY TIER. A public statistics surface MAY list every public canonical 
 per-session linking; (5) order is fixed and is not by count or recency among items below the popularity floor; (6) each list is capped and the remainder is a count;
 (7) sessions not classified human appear as totals only; machines appear apart from people. Popularity (the floor above) and activity (this tier) are shown apart.
 
+PUBLIC BY DEFAULT, PERSONAL SEARCH MASKED (ZURIEL 27.11.2026). The statistics are open to the public by default and show the breadth of activity on the site: opens
+of public pages, numbers, posts and ciphers, and the use of the research tools. An action whose content is a person's own search (a typed expression, name, number or
+query, or a search result that could reveal it) is shown only in aggregate, with the content replaced by a fixed mask: the same number of asterisks for every item,
+whatever its length or content. The system records WHICH action was performed and WHETHER it succeeded (MEASURED ACTION TRIAD), never what was typed. No identity,
+personal expression or search result that could reveal either is published, listed, ranked, or recoverable by comparing windows or snapshots. Personal search text is
+not stored in analytics. This clause adds no mechanism: it limits what the existing readers may show.
+
 SUPPORT TEXT IS NOT ANALYTICS. What a person types in a report, message or search is never written into events. Issue reports are stored in the authorized support
 store (administrator-read); analytics may count that a report exists, never what it says.
 

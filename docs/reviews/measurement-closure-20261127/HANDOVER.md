@@ -15,7 +15,7 @@
 
 | # | פעולה | קובץ | sha256 | ביטול (sha256) |
 |---|---|---|---|---|
-| 1 | חוק v14 | `measurement-reliability-20261127/04-contract-v14.sql` | `58b6496bd0fb32a8…` | `04-contract-v14.rollback.sql` `d93b2cb37ab9945f…` |
+| 1 | חוק v14 | `measurement-reliability-20261127/04-contract-v14.sql` | `725d4d4e85f75082…` | `04-contract-v14.rollback.sql` `d93b2cb37ab9945f…` |
 | 2 | ingest_event: engagement 1 ו־2 | `measurement-reliability-20261127/01-ingest-event-engagement-v2.sql` | `744b4293ebe28bd8…` | `01-ingest-event-engagement-v2.rollback.sql` `7113de0b8642c6d8…` |
 | 3 | ingest_event: משפחות nav / item / calc_outcome | `measurement-allowlist-20261127/PROPOSAL.sql` | `3c3211185c928f37…` | `ROLLBACK.sql` `b2df676a40ef20e6…` |
 | 5 | מסווג: הוכחת פעילות (cutover) | `measurement-reliability-20261127/02-classifier-activity-proof.sql` | `980a744486bdbe81…` | `02-classifier-activity-proof.rollback.sql` `0f28bc3b69f0214d…` |
@@ -27,7 +27,7 @@
 
 | # | תלות וסיבה | בדיקת קבלה אחרי הפעולה |
 |---|---|---|
-| 1 | אישור נוסח החוק (`CONTRACT_V14.md`). v14 נשען על v13 (md5 `e7ad8ffb…`). הביטול הוא **בהחלפה** (v15 עם גוף v13), כי ה־rule guard אוסר החייאה | `select rule_version from nodes where rule_id='traffic_intelligence_law' and is_active` = 14; חוק אחד פעיל |
+| 1 | אישור נוסח החוק (`CONTRACT_V14.md`; כולל הבהרת בעל האתר: סטטיסטיקות פתוחות, חיפוש אישי רק במצטבר עם כוכביות קבועות). v14 נשען על v13 (md5 `e7ad8ffb…`). הביטול הוא **בהחלפה** (v15 עם גוף v13), כי ה־rule guard אוסר החייאה | `select rule_version from nodes where rule_id='traffic_intelligence_law' and is_active` = 14; חוק אחד פעיל |
 | 2 | לפני הלקוח: ללא קובץ זה גרסת engagement 2 נדחית | `ingest_event` מקבל `engagement_version` 1 ו־2 ודוחה 3 (stub מבודד אומת; בחי: קריאת md5 `d5a37d26…` או `6efcfc48…` אם גם 3 הוחל) |
 | 3 | לפני הלקוח; סדר מול 2 חופשי (נבדק בשני הכיוונים) | md5 `2c965ff3…` (לבד) או `6efcfc48…` (אחרי 2); המשפחות `item_2029`, `nav_2029`, `calc_outcome_2029` ב־spec |
 | 4 | **מיזוג ופריסה של הלקוח** (אישורים נפרדים, נוהל הפריסה של CLAUDE.md). מחייב 2 ו־3 | אירועי `engagement_version=2` מתחילים להגיע; `nav_2029` ו־`item_2029` מתחילים להגיע; דיווח תקלה נכנס ל־`feedback` |

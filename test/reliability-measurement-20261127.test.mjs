@@ -38,7 +38,10 @@ test("the contract amendment text in the markdown is the text embedded in the SQ
   const md = read("CONTRACT_V14.md");
   const text = md.match(/```\n([\s\S]*?)\n```/)[1];
   assert.ok(read("04-contract-v14.sql").includes(text), "04-contract-v14.sql embeds the exact amendment");
-  for (const rule of ["MEASUREMENT IDENTITY LAYERS", "INTENSITY IS NOT EVIDENCE OF AUTOMATION", "ENGAGEMENT VERSION 2", "FLOOR UNIT", "OPEN ACTIVITY TIER", "SUPPORT TEXT IS NOT ANALYTICS", "MEASURED ACTION TRIAD", "REACTIONS POLICY UNCHANGED", "PRESERVED FUTURE CAPABILITIES"]) assert.ok(text.includes(rule), rule);
+  for (const rule of ["MEASUREMENT IDENTITY LAYERS", "INTENSITY IS NOT EVIDENCE OF AUTOMATION", "ENGAGEMENT VERSION 2", "FLOOR UNIT", "OPEN ACTIVITY TIER", "PUBLIC BY DEFAULT, PERSONAL SEARCH MASKED", "SUPPORT TEXT IS NOT ANALYTICS", "MEASURED ACTION TRIAD", "REACTIONS POLICY UNCHANGED", "PRESERVED FUTURE CAPABILITIES"]) assert.ok(text.includes(rule), rule);
+  // ZURIEL 27.11.2026: public by default; a personal search is shown only in aggregate with a fixed mask; the system knows the action and its success, never the text
+  for (const phrase of ["open to the public by default", "the same number of asterisks for every item", "WHICH action was performed and WHETHER it succeeded", "never what was typed",
+    "recoverable by comparing windows or snapshots", "Personal search text is\nnot stored in analytics", "adds no mechanism"]) assert.ok(text.includes(phrase), phrase);
   assert.ok(read("04-contract-v14.sql").includes("e7ad8ffbe9e4a612f53fa1d8c3799693"), "pins the active v13 description");
 });
 
