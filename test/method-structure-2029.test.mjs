@@ -71,7 +71,15 @@ test("each trace kind has its own shape: the continuing triangle, the reverse tr
   assert.ok(text(markup("משולש מדרגות")).includes("400 × 1"));
   assert.match(markup("אטבח"), /data-ms="substitution-ledger"/);
   assert.match(markup("הכפלה"), /data-ms="letter-ledger"/);
-  assert.ok(text(markup("הכפלה")).includes("400² = 160,000"), "a squared letter shows its square as the engine gave it");
+  const squared = text(markup("הכפלה"));
+  assert.ok(squared.includes("400²") && squared.includes("160,000"), "a squared letter shows its square as the engine gave it");
+  assert.equal((markup("הכפלה").match(/class="sod29-ms-ledger-tile"/g) || []).length, 10, "one tile per letter of the expression (the engine's spaces are word boundaries)");
+  assert.match(markup("אטבח"), /sod29-ms-ledger-tile/); assert.ok(text(markup("אטבח")).includes("ת ← ם"), "the substituted letter is the engine's");
+  assert.match(markup("משולש מדרגות"), /sod29-ms-stairs/);
+  assert.match(markup("משולש מדרגות"), /--ms-step:4/, "the fifth letter is the fifth step of the staircase");
+  const chain = markup("מסתתר גדול");
+  assert.match(chain, /sod29-ms-chain/); assert.ok(text(chain).includes("320") && text(chain).includes("398"), "the chain shows the engine's differences");
+  assert.equal((chain.match(/class="sod29-ms-diff"/g) || []).length, 8, "eight engine differences, four per word");
   assert.equal(drawsStructure(model("ריבוע")), true);
   assert.equal(drawsStructure(model("מילוי בלבד")), false, "a composite is drawn by its components");
   assert.equal(renderToStaticMarkup(React.createElement(Structure, { model: { state: "unverified" } })), "", "an unverified trace draws nothing");
@@ -91,7 +99,7 @@ test("all 32 active methods: each trace is verified and each is drawn by exactly
   const { drawsStructure } = await load();
   const keys = Object.keys(traces);
   assert.equal(keys.length, 32);
-  const DEDICATED = new Set(["רגיל", "מילוי", "מילוי גדול", "מילוי דמילוי", "מילוי דמילוי גדול", "מסתתר", "קדמי"]);   // the dedicated stages of SpatialMethodStage2029
+  const DEDICATED = new Set(["רגיל", "מילוי", "מילוי גדול", "מילוי דמילוי", "מילוי דמילוי גדול", "מסתתר", "קדמי", "משולש גדול"]);   // the dedicated stages of SpatialMethodStage2029
   const seen = { dedicated: [], structure: [], composite: [], context: [] };
   for (const key of keys) {
     const t = traces[key];
@@ -142,5 +150,5 @@ test("narrow screens: מסתתר becomes a vertical chain per word and קדמי 
   assert.match(stage, /resolveSceneTraceValue\(scene, connector\.identityRef\)\.difference/, "the differences are the scene's (the engine's), not calculated");
   assert.match(css, /@media \(max-width:560px\)\{\s*\.sod29-spatial-method-stage__potential\{display:grid/);
   assert.match(css, /--ms-side:96px/, "the triangle keeps its tiles at 20px and above on a phone");
-  assert.ok(!/(?<![-\w])(?:height|block-size)\s*:\s*\d+px/.test(css.slice(css.indexOf(".sod29-ms{"))), "the structure views have no fixed heights");
+  assert.ok(!/(?<![-\w])(?:height|block-size)\s*:\s*\d+px/.test(css.slice(css.indexOf(".sod29-ms{")).split("\n").filter((line) => !/ms-tile/.test(line)).join("\n")), "the structure views have no fixed heights (only the square letter tiles have a size)");
 });

@@ -71,37 +71,47 @@ function CumulativePrefix({ model }) {
   </div>;
 }
 
+/** value × position = contribution: a staircase, the step of each letter is its own position in the word (the engine's `position`). */
 function PositionWeighted({ model }) {
   return <div className="sod29-ms" data-ms="position-weighted">
     {model.groups.map((group) => <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
-      <ol className="sod29-ms-rows">{group.rows.map((row) => <li key={row.id}>
-        <span className="sod29-ms-letter"><HebrewGlyph2029 text={row.token} /></span>
+      <ol className="sod29-ms-stairs" style={{ "--ms-n": group.rows.length }}>{group.rows.map((row) => <li key={row.id} style={{ "--ms-step": Math.max(0, Number(row.position) - 1) }}>
+        <i className="sod29-ms-tile is-new"><HebrewGlyph2029 text={row.token} /></i>
         <span dir="ltr">{fmt(row.baseValue)} × {row.position}</span><b dir="ltr">= {fmt(row.value)}</b></li>)}</ol>
     </Word>)}
     {model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
   </div>;
 }
 
+/** The chain of one word: every letter with its value, and between neighbours the engine's difference. */
 function AdjacentDifference({ model }) {
   return <div className="sod29-ms" data-ms="adjacent-difference">
-    {model.groups.map((group) => <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
-      <ol className="sod29-ms-rows">{group.rows.map((row) => <li key={row.id}>
-        <span className="sod29-ms-letter" dir="rtl">{row.token}</span>
-        <span dir="ltr">{num(row.left) ? `${fmt(row.left)} − ${fmt(row.right)}` : ""}</span><b dir="ltr">= {fmt(row.value)}</b></li>)}</ol>
-    </Word>)}
+    {model.groups.map((group) => {
+      const letters = group.rows.map((row) => row.token.split(" ↔ "));
+      const chain = group.rows.length ? [{ letter: letters[0][0], value: group.rows[0].left }, ...group.rows.map((row, i) => ({ letter: letters[i][1], value: row.right, diff: row.value }))] : [];
+      const single = !group.rows[0]?.left && group.rows.length === 1;
+      return <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
+        {single ? <p className="sod29-ms-note">{group.rows[0].text}</p> : <ol className="sod29-ms-chain">{chain.map((node, i) => <li key={i}>
+          {node.diff != null ? <span className="sod29-ms-diff" dir="ltr" aria-label={`הפרש ${node.diff}`}>{fmt(node.diff)}</span> : null}
+          <span className="sod29-ms-card"><b><HebrewGlyph2029 text={node.letter} /></b><small dir="ltr">{num(node.value) ? fmt(node.value) : ""}</small></span>
+        </li>)}</ol>}
+      </Word>;
+    })}
     {model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
   </div>;
 }
 
+/** The ledger: one tile per letter (the letter, the letter it was replaced by when the method replaces, the value the engine gave it, the engine's running sum). */
 function Ledger({ model }) {
-  // The engine gives a running subtotal for every letter and no total per word, so none is calculated here: the rows end at the engine's own result.
+  // The engine gives a running subtotal for every letter and no total per word, so none is calculated here: the tiles end at the engine's own result.
   return <div className="sod29-ms" data-ms={model.kind === "SUBSTITUTION_LEDGER" ? "substitution-ledger" : "letter-ledger"}>
     {model.groups.map((group) => <Word key={group.id} group={group}>
-      <ol className="sod29-ms-rows">{group.rows.map((row) => {
+      <ol className="sod29-ms-ledger">{group.rows.map((row) => {
         const squared = row.source?.transform === "square" && num(row.source.base_value) && Number(row.source.base_value) ** 2 === Number(row.value);
-        return <li key={row.id}>
-          <span className="sod29-ms-letter"><HebrewGlyph2029 text={row.token} />{row.transformed && row.transformed !== row.token ? <> ← <HebrewGlyph2029 text={row.transformed} /></> : null}</span>
-          <span dir="ltr">{squared ? `${fmt(row.source.base_value)}²` : ""}</span><b dir="ltr">{squared ? "= " : ""}{fmt(row.value)}</b>
+        return <li key={row.id} className="sod29-ms-ledger-tile">
+          <span className="sod29-ms-letter"><HebrewGlyph2029 text={row.token} />{row.transformed && row.transformed !== row.token ? <em> ← <HebrewGlyph2029 text={row.transformed} /></em> : null}</span>
+          {squared ? <small dir="ltr">{fmt(row.source.base_value)}²</small> : null}
+          <b dir="ltr">{fmt(row.value)}</b>
           <small dir="ltr">Σ {fmt(row.subtotal)}</small></li>;
       })}</ol>
     </Word>)}

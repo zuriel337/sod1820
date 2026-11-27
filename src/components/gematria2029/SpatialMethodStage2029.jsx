@@ -387,8 +387,8 @@ function MistaterStack({ scene }) {
 function KadmiStage({ expression, trace, depth, onRazielAction, onOpenHeichal }) {
   const rows = useMemo(() => buildLedgerRows(trace), [trace]);
   if (!rows) return null;
-  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key="קדמי" data-depth={depth} data-method-visual="letter-potential-triangle">
-    <MethodStageHead methodKey="משולש" expression={expression} result={trace.result} subtitle="פוטנציאל משולשי לכל אות" />
+  return <section className="sod29-spatial-method-stage" dir="rtl" data-experience-capability="spatial-method-stage" data-method-key={trace.method_key} data-depth={depth} data-method-visual="letter-potential-triangle">
+    <MethodStageHead methodKey={trace.method_key === "קדמי" ? "משולש" : trace.method_key} expression={expression} result={trace.result} subtitle="פוטנציאל משולשי לכל אות" />
     <div className="sod29-spatial-method-stage__potential" role="list">
       {rows.map((row) => <span className="sod29-spatial-method-stage__potential-item" role="listitem" key={row.id}>
         <i aria-hidden="true" />
@@ -398,7 +398,7 @@ function KadmiStage({ expression, trace, depth, onRazielAction, onOpenHeichal })
       </span>)}
     </div>
     <p className="sod29-spatial-method-stage__boundary">לכל אות מצורפת התרומה שלה בשיטת משולש. הסכום המצטבר מופיע מתחתיה.</p>
-    <GenericActions methodKey="קדמי" expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
+    <GenericActions methodKey={trace.method_key} expression={expression} trace={trace} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />
   </section>;
 }
 
@@ -459,7 +459,7 @@ export default function SpatialMethodStage2029({
   if (["מילוי", "מילוי גדול", "מילוי דמילוי", "מילוי דמילוי גדול"].includes(methodKey)) return <MiluiStage expression={expression} trace={normalized} mode={mode} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "רגיל") return <RegularStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
   if (methodKey === "מסתתר") return <MistaterStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
-  if (methodKey === "קדמי") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
+  if (methodKey === "קדמי" || methodKey === "משולש גדול") return <KadmiStage expression={expression} trace={normalized} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;
 
   const model = projectGematriaTrace(normalized, { expression, methodKey, expectedValue });
   if (model.state === "ready" && model.components?.length) return <CompositeStage expression={expression} trace={normalized} model={model} depth={depth} onRazielAction={onRazielAction} onOpenHeichal={onOpenHeichal} />;

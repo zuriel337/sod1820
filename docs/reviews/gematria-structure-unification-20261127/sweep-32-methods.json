@@ -130,8 +130,8 @@
    {
     "m": "משולש גדול",
     "ugx": "ready",
-    "kind": "LETTER_LEDGER",
-    "ms": "letter-ledger",
+    "kind": "letter-potential-triangle",
+    "ms": null,
     "result": "6271",
     "ctx": false,
     "over": []
@@ -424,8 +424,8 @@
    {
     "m": "משולש גדול",
     "ugx": "ready",
-    "kind": "LETTER_LEDGER",
-    "ms": "letter-ledger",
+    "kind": "letter-potential-triangle",
+    "ms": null,
     "result": "6271",
     "ctx": false,
     "over": []
