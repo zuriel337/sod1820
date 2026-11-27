@@ -24,7 +24,14 @@ export function domainActionsModel(d) {
   if (!d || d.version !== 1 || d.state !== "measured") return null;
   const num = v => Number.isSafeInteger(v) && v >= 0 ? v : null;
   const load = d.visitor_load || {};
+  const silence = { expected: [], awaiting: [], preserved: [] };
+  for (const x of Array.isArray(d.expected_silence) ? d.expected_silence : []) {
+    if (typeof x?.surface !== "string" || typeof x?.event !== "string" || !/^[a-z0-9_-]{1,48}$/i.test(x.surface) || !/^[a-z0-9_]{1,48}$/i.test(x.event)) continue;
+    const row = { key: x.surface + "/" + x.event, last: typeof x.last_seen === "string" && /^\d{4}-\d{2}-\d{2}$/.test(x.last_seen) ? x.last_seen : null };
+    (x.status === "preserved" ? silence.preserved : x.status === "awaiting_release" ? silence.awaiting : silence.expected).push(row);
+  }
   return {
+    silence,
     window: d.window, from: d.from, to: d.to,
     rows: DOMAIN_ROWS.map(([key, label]) => ({ key, label, value: num(d[key]) })),
     load: { visitors: num(load.visitors), sessions: num(load.sessions), identified: num(load.identified_persons), views: num(load.views),

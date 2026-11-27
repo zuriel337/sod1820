@@ -13,7 +13,7 @@ do $pre$ begin
      or to_regprocedure('public.analytics_cache_get_v1(text,text)') is null
      or to_regprocedure('public.sitemap_numbers()') is null
      or to_regclass('public.crawl_daily') is null or to_regclass('public.posts') is null
-     or to_regclass('public.video_media_assets_v1') is null or to_regclass('public.analytics_cache') is null then
+     or to_regclass('public.video_media_assets_v1') is null or to_regclass('public.analytics_cache') is null or to_regclass('public.els_records') is null then
     raise exception 'open-activity: a dependency is missing';
   end if;
   if to_regprocedure('public.fn_ti_open_activity2029(text)') is not null or to_regprocedure('public.research_open_activity_2029(text)') is not null then
@@ -49,21 +49,24 @@ begin
       -- Two existing, closed event families: page/view (the measured route) and content/view (kind + the public numeric item id).
       -- Posts come from content/view (the exact public post id): the measured page path is the REQUESTED address and 50 of 92 post addresses opened in 30 days match no current slug.
       select ev.session_id,coalesce(ev.sod_id,ev.session_id) as vid,c.clean_classification as cls,ev.surface,ev.props->'measurement'->>'page_path' as pth,
-        case when ev.surface='content' and ev.props->>'kind'='post' and ev.props->>'item_id' ~ '^[0-9]{1,12}$' then ev.props->>'item_id' end as pid
+        case when ev.surface='content' and ev.props->>'kind'='post' and ev.props->>'item_id' ~ '^[0-9]{1,12}$' then ev.props->>'item_id' end as pid,
+        case when ev.surface='item_2029' and ev.props->>'kind'='cipher' and ev.props->>'item_ref' ~ '^[0-9a-f]{12}$' then ev.props->>'item_ref' end as iref
       from public.events ev join clean c using(session_id)
       where ev.ts >= (from_d::timestamp at time zone 'Asia/Jerusalem') and ev.ts < (to_d::timestamp at time zone 'Asia/Jerusalem')
         and not ev.is_bot and ev.props->'_measurement_verified'='2'::jsonb
-        and ev.surface in ('page','content') and ev.event_type='view' and c.clean_classification in ('human','unknown')
+        and ev.surface in ('page','content','item_2029') and ev.event_type='view' and c.clean_classification in ('human','unknown')
     ), gate as (
       select count(distinct vid) as sessions from seen where cls='human' and surface='page'
     ), keyed as (
       -- The item text comes from the address and is NEVER shown: it must match a canonical public row below (a crafted URL cannot put its own words on the public page).
       select session_id,vid,cls,
-        case when pid is not null then 'post'
+        case when iref is not null then 'cipher'
+             when pid is not null then 'post'
              when surface='page' and pth ~ '^/number/[0-9]{1,5}$' then 'number'
              when surface='page' and pth ~ '^/(tag|category)/[^/]{1,120}$' then 'topic'
              when surface='page' and pth ~ '^/video/[0-9a-f]{32}$' then 'video' end as fam,
-        case when pid is not null then pid
+        case when iref is not null then iref
+             when pid is not null then pid
              when surface<>'page' then null
              when pth ~ '^/number/' then split_part(pth,'/',3)
              when pth ~ '^/(tag|category)/' then substr(pth,2)
@@ -78,6 +81,7 @@ begin
         when 'number' then exists(select 1 from adm a where a.value=c.item::integer)
         when 'post' then exists(select 1 from public.posts p where p.id=c.item::bigint and p.title is not null and not coalesce(p.tags,'{}'::text[]) && array['טיוטה'::text])
         when 'video' then exists(select 1 from public.video_media_assets_v1 v where v.public_id=c.item)
+        when 'cipher' then exists(select 1 from public.els_records r where r.status='published' and r.visibility='public' and not coalesce(r.home_hidden,false) and replace(r.id::text,'-','') like c.item||'%')
         when 'topic' then exists(select 1 from public.posts p where p.title is not null and not coalesce(p.tags,'{}'::text[]) && array['טיוטה'::text]
           and ((c.item like 'tag/%' and exists(select 1 from unnest(coalesce(p.tags,'{}'::text[])) t where replace(t,' ','-')=substr(c.item,5)))
             or (c.item like 'category/%' and exists(select 1 from unnest(coalesce(p.categories,'{}'::text[])) t where replace(t,' ','-')=substr(c.item,10)))))
@@ -106,7 +110,7 @@ begin
         'by_bot',coalesce((select jsonb_agg(jsonb_build_object('bot',b.bot,'hits',b.hits) order by b.hits desc) from (
           select bot,sum(hits)::bigint as hits from public.crawl_daily where day>=from_d and day<to_d and not blocked and bot<>'other' group by bot order by 2 desc limit 10) b),'[]'::jsonb)),
       'floors',jsonb_build_object('popular_events',10,'popular_visitors',5,'window_visitors',min_sessions,'unit','distinct_visitor','list_cap',per_family),
-      'not_measured_by_item','["cipher","topic_card"]'::jsonb
+      'not_measured_by_item','["topic_card"]'::jsonb
     ) into payload;
     perform set_config('enable_nestloop',nestloop,true);
     stamp := now();
@@ -124,6 +128,9 @@ begin
           where p.title is not null and not coalesce(p.tags,'{}'::text[]) && array['טיוטה'::text]),'[]'::jsonb)
         when 'number' then coalesce((select jsonb_agg(jsonb_build_object('href','/number/'||x.k,'n',x.k::integer,'opens',x.o,'tier',x.t) order by x.i)
           from jsonb_to_recordset(f.value->'list') as x(k text,o bigint,t text,i integer)),'[]'::jsonb)
+        when 'cipher' then coalesce((select jsonb_agg(jsonb_build_object('href','/codes/'||r.slug,'title',coalesce(nullif(r.title,''),'צופן'),'opens',x.o,'tier',x.t) order by x.i)
+          from jsonb_to_recordset(f.value->'list') as x(k text,o bigint,t text,i integer) join public.els_records r on replace(r.id::text,'-','') like x.k||'%'
+          where r.status='published' and r.visibility='public' and not coalesce(r.home_hidden,false)),'[]'::jsonb)
         when 'video' then coalesce((select jsonb_agg(jsonb_build_object('href','/video/'||x.k,'opens',x.o,'tier',x.t) order by x.i)
           from jsonb_to_recordset(f.value->'list') as x(k text,o bigint,t text,i integer) where exists(select 1 from public.video_media_assets_v1 v where v.public_id=x.k)),'[]'::jsonb)
         else coalesce((select jsonb_agg(jsonb_build_object('href','/'||x.k,'label',replace(substr(x.k,position('/' in x.k)+1),'-',' '),'opens',x.o,'tier',x.t) order by x.i)

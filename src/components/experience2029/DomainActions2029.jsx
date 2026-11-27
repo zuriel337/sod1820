@@ -25,6 +25,11 @@ export default function DomainActions2029() {
       <h3>איך העומס מתפזר (ארבעה דברים נפרדים)</h3>
       <p>מבקרים (דפדפנים): <b>{nf(m.load.visitors)}</b> · סשנים: <b>{nf(m.load.sessions)}</b> · אנשים מזוהים: <b>{nf(m.load.identified)}</b> · צפיות: <b>{nf(m.load.views)}</b></p>
       <p>המבקר המוביל: {m.load.top1 == null ? "—" : m.load.top1 + "%"} מהצפיות · שלושת המובילים: {m.load.top3 == null ? "—" : m.load.top3 + "%"}. התפלגות לידיעה בלבד: אינה סיווג ואינה חשד.</p>
+      <h3>צפוי ואינו מגיע (30 ימים)</h3>
+      <p>אירועים שהמערכת בנויה לקבל ולא הגיעו כלל. "נראה לאחרונה" הוא יום, לא שעה. אירוע שלא הגיע אינו בהכרח תקלה: ייתכן שאיש לא השתמש בפיצ'ר.</p>
+      {m.silence.expected.length ? <ul>{m.silence.expected.map(x => <li key={x.key}><bdi>{x.key}</bdi> · {x.last ? "נראה לאחרונה " + x.last : "לא נראה מעולם בטווח השמירה"}</li>)}</ul> : <p role="status">כל האירועים הצפויים הגיעו.</p>}
+      {m.silence.awaiting.length ? <><h4>ממתינים לשחרור (מסד או לקוח)</h4><ul>{m.silence.awaiting.map(x => <li key={x.key}><bdi>{x.key}</bdi></li>)}</ul></> : null}
+      {m.silence.preserved.length ? <><h4>שמורים, לא פעילים (סיפורים ומסע): אינם כשל ואינם מועמדים להסרה</h4><ul>{m.silence.preserved.map(x => <li key={x.key}><bdi>{x.key}</bdi></li>)}</ul></> : null}
     </>}
   </section>;
 }

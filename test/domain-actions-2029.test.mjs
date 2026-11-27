@@ -29,3 +29,32 @@ test("the panel never calls a heavy visitor a bot and carries no identifier", ()
   const host = readFileSync(new URL("../src/components/experience2029/OperationalMetrics2029.jsx", import.meta.url), "utf8");
   assert.match(host, /<DomainActions2029 \/>/);
 });
+
+test("expected-but-not-arriving: grouped by status, day-level dates only, malformed rows dropped", () => {
+  const m = lib.domainActionsModel({ ...payload, expected_silence: [
+    { surface: "calculator_2029", event: "first_compute", status: "expected", last_seen: "2026-10-12" },
+    { surface: "nav_2029", event: "panel_open", status: "awaiting_release", last_seen: null },
+    { surface: "story_2029", event: "impression", status: "preserved", last_seen: null },
+    { surface: "bad surface!", event: "x", status: "expected" }, { surface: "els", event: "ui_action", status: "expected", last_seen: "2026-10-12T10:11:12Z" }] });
+  assert.deepEqual(m.silence.expected.map(x => x.key), ["calculator_2029/first_compute", "els/ui_action"]);
+  assert.equal(m.silence.expected[0].last, "2026-10-12");
+  assert.equal(m.silence.expected[1].last, null, "a time of day is never shown");
+  assert.deepEqual(m.silence.awaiting.map(x => x.key), ["nav_2029/panel_open"]);
+  assert.deepEqual(m.silence.preserved.map(x => x.key), ["story_2029/impression"]);
+});
+test("the SQL catalog equals expected-events.json, and the preserved capabilities are never removed", async () => {
+  const cat = JSON.parse(readFileSync(new URL("../docs/reviews/measurement-closure-20261127/expected-events.json", import.meta.url), "utf8")).events;
+  const sql = readFileSync(new URL("../supabase/proposed/measurement-domain-actions-20261127/PROPOSAL.sql", import.meta.url), "utf8");
+  const rows = [...sql.matchAll(/\('([a-z0-9_]+)','([a-z0-9_]+)','(expected|awaiting_release|preserved)'\)/g)].map(m => m[1] + "/" + m[2] + "/" + m[3]);
+  assert.deepEqual(rows, cat.map(c => c.surface + "/" + c.event + "/" + c.status));
+  const { readingActionSpec } = await import("../src/lib/publicReadingTelemetry2029.js");
+  const { readingStorySpec } = await import("../src/lib/publicReadingStorySpec2029.js");
+  assert.ok(readingActionSpec().journey_2029, "journey_2029 stays in the public allow-list");
+  assert.ok(readingStorySpec().story_2029, "story_2029 stays defined");
+  const preserved = cat.filter(c => c.status === "preserved").map(c => c.surface);
+  assert.ok(preserved.includes("story_2029") && preserved.includes("journey_2029"));
+  const transport = readFileSync(new URL("../public-reading-deploy/transport.js", import.meta.url), "utf8");
+  assert.match(transport, /registerMeasurementFamilies2029\(readingStorySpec\(\)\)/, "the worker still carries the story family");
+  const allow = readFileSync(new URL("../supabase/proposed/measurement-allowlist-20261127/PROPOSAL.sql", import.meta.url), "utf8");
+  assert.doesNotMatch(allow.split("\n").filter(l => !l.trim().startsWith("--")).join("\n"), /story_2029|journey_2029/, "no proposal removes a preserved family");
+});

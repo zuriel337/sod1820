@@ -51,7 +51,7 @@ export default function OpenActivity2029() {
       <p className="stats29-note">
         {m.unknownOpens > 0 ? <>לא סווגו כאנושיים: {nf(m.unknownOpens)} פתיחות (מוצגות כסכום בלבד). </> : null}
         {m.machinesServed > 0 ? <>מכונות, לא אנשים: {nf(m.machinesServed)} דפים הוגשו לסורקים באותו טווח, ואינם נכללים למעלה. </> : null}
-        {m.unmeasured.length ? <>צפנים וכרטיסי נושא עדיין אינם נמדדים לפי פריט.</> : null}
+        {m.unmeasured.includes("topic_card") ? <>כרטיסי נושא עדיין אינם נמדדים לפי פריט.</> : null}
       </p>
     </> : null}
   </section>;

@@ -34,6 +34,7 @@ insert into public.research_contributions values ('community_2029',pg_temp.yday(
 insert into public.subscribers values (pg_temp.yday(8)),(pg_temp.yday(8)); insert into public.subscribe_events values (pg_temp.yday(8)); insert into public.push_subscriptions values (now()-interval '3 days');
 insert into public.feedback values ('issue_report','טקסט פרטי של מבקר',pg_temp.yday(7)),('search','x',pg_temp.yday(7));
 -- one visitor with 50 views in 5 sessions, two visitors with 5 views each
+insert into public.events(session_id,ts,surface,event_type) values ('hZ',now()-interval '40 days','calculator_2029','first_compute'), ('hZ',pg_temp.yday(5),'els','ui_action');
 insert into public.events(session_id,ts,sod_id,surface,event_type) select 'hA'||(g%5), pg_temp.yday(6)+(g||' minutes')::interval, 'visA','page','view' from generate_series(1,50) g;
 insert into public.events(session_id,ts,sod_id,surface,event_type) select 'hB', pg_temp.yday(6)+(g||' minutes')::interval, 'visB','page','view' from generate_series(1,5) g;
 insert into public.events(session_id,ts,sod_id,surface,event_type) select 'hC', pg_temp.yday(6)+(g||' minutes')::interval, 'visC','page','view' from generate_series(1,5) g;
@@ -58,7 +59,12 @@ check "$(g "->>'issue_reports'")" 1 'issue reports are counted from the support 
 check "$(g "#>>'{visitor_load,visitors}'")" 3 'load: three visitors (four concepts kept apart)'
 check "$(g "#>>'{visitor_load,sessions}'")" 7 'load: seven sessions are not seven people'
 check "$(g "#>>'{visitor_load,top1_share_pct}'")" 83.3 'load: the top visitor holds 83.3% of the views (a distribution, no identifier)'
-check "$(Q -c "select ('$J'::jsonb)::text ~ 'visA|visB|visC|hA|טקסט פרטי|suspect|bot'")" f 'no identifier, no text and no suspicion word in the payload'
+check "$(Q -c "select (('$J'::jsonb)-'expected_silence')::text ~ 'visA|visB|visC|hA|טקסט פרטי|suspect|bot'")" f 'no identifier, no text and no suspicion word in the payload'
+check "$(g "->>'expected_catalog_size'")" "$(python3 -c "import json;print(len(json.load(open('$ROOT/docs/reviews/measurement-closure-20261127/expected-events.json'))['events']))")" 'the SQL catalog has every entry of expected-events.json'
+check "$(g "#>>'{expected_silence}'" | python3 -c "import json,sys;d=json.loads(sys.stdin.read());print(len([x for x in d if x['surface']=='els' and x['event']=='ui_action']))")" 0 'an event that arrived is not listed as silent'
+check "$(g "#>>'{expected_silence}'" | python3 -c "import json,sys;d=json.loads(sys.stdin.read());print([x['status'] for x in d if x['surface']=='story_2029'][0])")" preserved 'a preserved capability is listed as preserved, never as expected'
+check "$(g "#>>'{expected_silence}'" | python3 -c "import json,sys;d=json.loads(sys.stdin.read());print([x['status'] for x in d if x['surface']=='nav_2029'][0])")" awaiting_release 'a family waiting for its release is listed as awaiting_release'
+check "$(g "#>>'{expected_silence}'" | python3 -c "import json,sys;d=json.loads(sys.stdin.read());x=[x for x in d if x['surface']=='calculator_2029' and x['event']=='first_compute'][0];print(x['status']+':'+str(str(x['last_seen']).startswith('2026')))")" expected:True 'an expected event that went silent shows the last DAY it was seen'
 "${PSQL[@]}" -qX -f "$DIR/ROLLBACK.sql" >/dev/null
 check "$(Q -c "select count(*) from pg_proc where proname in ('fn_ti_domain_actions2029','research_domain_actions_2029')")" 0 'rollback removes both functions'
 echo "ALL PASS ($pass)"

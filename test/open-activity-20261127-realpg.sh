@@ -25,6 +25,7 @@ create table public.analytics_cache(cache_key text primary key,payload jsonb,com
 create table public.posts(id bigint,slug text,title text,tags text[],categories text[]);
 create table public.crawl_daily(day date,bot text,bucket text,blocked boolean,hits bigint);
 create table public.video_media_assets_v1(public_id text,google_indexable boolean);
+create table public.els_records(id uuid,slug text,title text,status text,visibility text,home_hidden boolean);
 create function public.sitemap_numbers() returns table(value integer) language sql as $$select unnest(array[10,20,30,40,50,60,70,80,90,100,110,120])$$;
 create or replace function public.fn_ti_clean_classification(date,date) returns table(session_id text,clean_classification text,clean_eligible boolean)
  language sql as $$select distinct session_id,case when session_id like 'h%' then 'human' when session_id like 'u%' then 'unknown' else 'bot' end,session_id like 'h%' from public.events$$;
@@ -35,6 +36,7 @@ for f in analytics_cache_producer_version_v1.fixture.sql analytics_cache_get_v1.
 # --- fixture data: complete Jerusalem days; D1 = yesterday ---
 Q <<'SQL'
 insert into public.posts values (1,'public-post-with-a-very-long-slug-that-the-path-cuts','כותרת ציבורית','{"תג א"}','{"קטגוריה א"}'),(4,'one-visitor-post','פוסט של מבקר אחד','{}','{}'),(2,'draft-post','טיוטה','{"טיוטה"}','{}'),(3,'popular-post','פוסט פופולרי','{}','{}');
+insert into public.els_records values ('0123abcd-4567-89ab-cdef-0123456789ab','public-cipher','צופן ציבורי','published','public',false),('ffffffff-0000-0000-0000-000000000000','draft-cipher','צופן טיוטה','draft','public',false);
 insert into public.video_media_assets_v1 values ('0123456789abcdef0123456789abcdef',true);
 insert into public.crawl_daily values ((now() at time zone 'Asia/Jerusalem')::date-1,'Googlebot','/number',false,500),((now() at time zone 'Asia/Jerusalem')::date-1,'Googlebot','/number',true,9999);
 create or replace function pg_temp.cv(sess text, kind text, item text, n int default 1) returns void language sql as $$
@@ -55,6 +57,7 @@ select pg_temp.cv('h'||g,'post','3',2) from generate_series(10,14) g;
 -- a post page view in the measured path must NOT create a post item (posts come from content/view)
 select pg_temp.ev('h26','/post/public-pos');
 select pg_temp.ev('h20','/tag/תג-א'),pg_temp.ev('h21','/category/קטגוריה-א'),pg_temp.ev('h22','/tag/not-a-real-tag');
+insert into public.events(ts,session_id,surface,event_type,is_bot,props) select (((now() at time zone 'Asia/Jerusalem')::date-1)::timestamp + interval '12 hours') at time zone 'Asia/Jerusalem', x.s, 'item_2029','view', false, jsonb_build_object('_measurement_verified',2,'kind','cipher','item_ref',x.r) from (values ('h40','0123abcd4567'),('h41','ffffffff0000'),('h42','aaaaaaaaaaaa')) x(s,r);
 select pg_temp.ev('h23','/video/0123456789abcdef0123456789abcdef'),pg_temp.ev('h24','/video/ffffffffffffffffffffffffffffffff');
 -- unknown class: totals only; a bot: never counted
 select pg_temp.ev('u1','/number/30'),pg_temp.ev('u2','/number/30'),pg_temp.ev('b1','/number/40');
@@ -81,6 +84,9 @@ check "$(Q -c "select (('$J'::jsonb)#>'{families,post,list,0}')->>'tier'")" popu
 check "$(Q -c "select count(*) from jsonb_array_elements(('$J'::jsonb)#>'{families,post,list}') x where x->>'title' in ('טיוטה') or x->>'href' like '%script%'")" 0 'no draft title and no crafted text on the public payload'
 check "$(j "#>>'{families,topic,items}'")" 2 'topics: a tag and a category that exist on public posts; an invented tag is not listed'
 check "$(j "#>>'{families,video,items}'")" 1 'videos: only identities known to the public video view'
+check "$(j "#>>'{families,cipher,items}'")" 1 'ciphers: a published public cipher named by its 12-character reference; a draft and an unknown reference are not listed'
+check "$(Q -c "select (('$J'::jsonb)#>'{families,cipher,list,0}')->>'href'")" /codes/public-cipher 'the cipher links to its public address'
+check "$(j "->'not_measured_by_item'")" '["topic_card"]' 'only topic cards remain unmeasured by item'
 check "$(j "#>>'{unknown,number,opens}'")" 2 'unknown class is a total only'
 check "$(j "#>>'{unknown,number,list}'")" '' 'unknown class has no list'
 check "$(j "#>>'{machines,served}'")" 500 'machines are a separate served-only total (blocked hits are not published)'

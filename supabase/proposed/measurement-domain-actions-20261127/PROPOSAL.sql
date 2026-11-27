@@ -22,7 +22,7 @@ declare
   w text := case when p_window in ('day','week','month') then p_window else 'week' end;
   to_d date := (now() at time zone 'Asia/Jerusalem')::date;
   from_d date := ((now() at time zone 'Asia/Jerusalem')::date) - (case when p_window='day' then 1 when p_window='month' then 30 else 7 end);
-  t0 timestamptz; t1 timestamptz; res jsonb; load jsonb;
+  t0 timestamptz; t1 timestamptz; res jsonb; load jsonb; silence jsonb;
 begin
   t0 := from_d::timestamp at time zone 'Asia/Jerusalem'; t1 := to_d::timestamp at time zone 'Asia/Jerusalem';
   with clean as materialized (select session_id, clean_classification from public.fn_ti_clean_classification(from_d, to_d)),
@@ -52,6 +52,99 @@ begin
     'issue_reports',(select count(*) from public.feedback where context='issue_report' and created_at >= t0 and created_at < t1),
     'visitor_load',load,
     'coverage','counts from the domain tables (the truth of each action); aggregated, no identity, no text; load shares are a distribution and never a classification');
+  -- EXPECTED BUT NOT ARRIVING (S3, 27.11.2026): the events the system is built to receive (docs/reviews/measurement-closure-20261127/expected-events.json) that had
+  -- NO arrival in the last 30 days, with the last day one was seen (a day, never a time). A preserved capability (stories, journey) is listed as "preserved, not active": never a failure.
+  with cat(surface,event_type,status) as (values
+    ('page','view','expected'),
+    ('page','engagement','expected'),
+    ('arrival','source','expected'),
+    ('performance','web_vital','expected'),
+    ('content','view','expected'),
+    ('calculator_2029','calculator_view','expected'),
+    ('calculator_2029','result_selected','expected'),
+    ('calculator_2029','first_compute','expected'),
+    ('calculator_2029','new_compute_from_share','expected'),
+    ('calculator_2029','raziel_opened','expected'),
+    ('calculator_2029','method_opened','expected'),
+    ('calculator_2029','share_created','expected'),
+    ('calculator_2029','classic_tile_opened','expected'),
+    ('calculator_2029','words_bar_pick','expected'),
+    ('calculator_2029','equals_preview_phrase_opened','expected'),
+    ('calculator_2029','shared_result_opened','expected'),
+    ('calculator_2029','ai_analysis_requested','expected'),
+    ('activity_2029','typing','expected'),
+    ('activity_2029','search','expected'),
+    ('activity_2029','compute','expected'),
+    ('activity_2029','select','expected'),
+    ('activity_2029','save','expected'),
+    ('activity_2029','view','expected'),
+    ('els','search','expected'),
+    ('els','cross_search','expected'),
+    ('els','ui_action','expected'),
+    ('els','operation_started','expected'),
+    ('els','operation_phase','expected'),
+    ('els','operation_finished','expected'),
+    ('els','cancel_requested','expected'),
+    ('entry_2029','orientation_shown','expected'),
+    ('entry_2029','orientation_expanded','expected'),
+    ('entry_2029','orientation_dismissed','expected'),
+    ('entry_2029','first_action','expected'),
+    ('entry_2029','exact_return','expected'),
+    ('entry_2029','post_media_open','expected'),
+    ('entry_2029','post_number_open','expected'),
+    ('entry_2029','post_source_open','expected'),
+    ('entry_2029','post_source_check_open','expected'),
+    ('entry_2029','post_writer_open','expected'),
+    ('entry_2029','learn_opened','expected'),
+    ('entry_2029','learn_layer','expected'),
+    ('entry_2029','learn_help_requested','expected'),
+    ('entry_2029','example_tried','expected'),
+    ('entry_2029','method_tried','expected'),
+    ('entry_2029','continued_to_research','expected'),
+    ('share','share','expected'),
+    ('join','click','expected'),
+    ('video_2029','play_requested','expected'),
+    ('video_2029','player_ready','expected'),
+    ('video_2029','embed_refused','expected'),
+    ('video_2029','watch_opened','expected'),
+    ('app_health','save_started','awaiting_release'),
+    ('app_health','save_confirmed','awaiting_release'),
+    ('app_health','save_failed','awaiting_release'),
+    ('app_health','auth_failed','awaiting_release'),
+    ('app_health','load_failed','awaiting_release'),
+    ('app_health','runtime_error','awaiting_release'),
+    ('nav_2029','number_link_open','awaiting_release'),
+    ('nav_2029','panel_open','awaiting_release'),
+    ('nav_2029','panel_close','awaiting_release'),
+    ('nav_2029','search_submit','awaiting_release'),
+    ('nav_2029','share_bar_open','awaiting_release'),
+    ('nav_2029','media_play','awaiting_release'),
+    ('nav_2029','gallery_open','awaiting_release'),
+    ('nav_2029','study_action','awaiting_release'),
+    ('item_2029','view','awaiting_release'),
+    ('calc_outcome_2029','ai_analysis_result','awaiting_release'),
+    ('calc_outcome_2029','compute_failed','awaiting_release'),
+    ('calc_outcome_2029','compute_empty','awaiting_release'),
+    ('calc_outcome_2029','equals_preview_shown','awaiting_release'),
+    ('calc_outcome_2029','equals_preview_all_opened','awaiting_release'),
+    ('story_2029','impression','preserved'),
+    ('story_2029','viewer_open','preserved'),
+    ('story_2029','item_view','preserved'),
+    ('story_2029','next','preserved'),
+    ('story_2029','prev','preserved'),
+    ('story_2029','close','preserved'),
+    ('story_2029','complete','preserved'),
+    ('journey_2029','start','preserved'),
+    ('journey_2029','step','preserved'),
+    ('journey_2029','save','preserved'),
+    ('journey_2029','resume','preserved'),
+    ('journey_2029','fork','preserved'),
+    ('activity_2029','share','preserved')),
+  seen as (select e.surface,e.event_type,count(*) filter (where e.ts >= now() - interval '30 days') as n30,max(e.ts)::date as last_day
+    from public.events e where e.ts >= now() - interval '120 days' and not e.is_bot and (e.surface,e.event_type) in (select surface,event_type from cat) group by 1,2)
+  select coalesce(jsonb_agg(jsonb_build_object('surface',c.surface,'event',c.event_type,'status',c.status,'last_seen',s.last_day) order by c.status,c.surface,c.event_type) filter (where coalesce(s.n30,0)=0),'[]'::jsonb)
+    into silence from cat c left join seen s on s.surface=c.surface and s.event_type=c.event_type;
+  res := res || jsonb_build_object('expected_silence',silence,'expected_catalog_size',(select count(*) from (values (0),(1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12),(13),(14),(15),(16),(17),(18),(19),(20),(21),(22),(23),(24),(25),(26),(27),(28),(29),(30),(31),(32),(33),(34),(35),(36),(37),(38),(39),(40),(41),(42),(43),(44),(45),(46),(47),(48),(49),(50),(51),(52),(53),(54),(55),(56),(57),(58),(59),(60),(61),(62),(63),(64),(65),(66),(67),(68),(69),(70),(71),(72),(73),(74),(75),(76),(77),(78),(79),(80),(81),(82),(83),(84)) v));
   return res;
 end $fn$;
 revoke all on function public.fn_ti_domain_actions2029(text) from public, anon, authenticated;

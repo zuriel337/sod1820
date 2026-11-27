@@ -5,7 +5,7 @@
 import { supabase } from "./supabase.js";
 
 export const OPEN_ACTIVITY_WINDOWS = Object.freeze([["day", "אתמול", "יממה"], ["week", "7 הימים האחרונים", "שבוע"], ["month", "30 הימים האחרונים", "חודש"]]);
-export const OPEN_ACTIVITY_FAMILIES = Object.freeze([["number", "דפי מספר"], ["post", "פוסטים"], ["topic", "נושאים ותגיות"], ["video", "סרטונים"]]);
+export const OPEN_ACTIVITY_FAMILIES = Object.freeze([["number", "דפי מספר"], ["post", "פוסטים"], ["cipher", "צפנים"], ["topic", "נושאים ותגיות"], ["video", "סרטונים"]]);
 const cache = new Map();
 
 export function readOpenActivity(window) {
@@ -25,7 +25,7 @@ export function openActivityUsable(d) {
 
 const label = (fam, item) => {
   if (fam === "number") return item.n != null ? String(item.n) : "";
-  if (fam === "post") return String(item.title || "").trim();
+  if (fam === "post" || fam === "cipher") return String(item.title || "").trim();
   if (fam === "topic") return String(item.label || "").trim();
   return ""; // a video has no public title in this payload: the model numbers it (never an invented name)
 };

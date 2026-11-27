@@ -25,7 +25,7 @@ const fixture = {
     topic: { items: 1, opens: 1, list: [{ href: '/tag/תג-א', label: 'תג א', opens: 1, tier: 'seen' }] },
     video: { items: 1, opens: 1, list: [{ href: '/video/0123456789abcdef0123456789abcdef', opens: 1, tier: 'seen' }] },
   },
-  unknown: { post: { items: 40, opens: 60 } }, machines: { served: 1234 }, not_measured_by_item: ['cipher', 'topic_card'],
+  unknown: { post: { items: 40, opens: 60 } }, machines: { served: 1234 }, not_measured_by_item: ['topic_card'],
 };
 await build({ stdin: { contents: source, resolveDir: process.cwd(), loader: 'jsx' }, bundle: true, outfile: join(dir, 'app.js'), format: 'esm',
   loader: { '.woff2': 'file', '.woff': 'file', '.ttf': 'file', '.svg': 'file', '.png': 'file', '.webp': 'file' },
@@ -58,7 +58,7 @@ try {
     assert.equal(await page.getByRole('button', { name: /פתח עוד/ }).count(), 0, 'no button when everything is shown');
     assert.equal(await page.getByText('ועוד 2 פריטים שנפתחו ואינם ברשימה').count(), 1, 'items beyond the server cap are a count');
     assert.equal(await page.getByText('לא סווגו כאנושיים: 60 פתיחות').count(), 1); assert.equal(await page.getByText(/1,234 דפים הוגשו לסורקים/).count(), 1);
-    assert.equal(await page.getByText(/צפנים וכרטיסי נושא עדיין אינם נמדדים לפי פריט/).count(), 1);
+    assert.equal(await page.getByText(/כרטיסי נושא עדיין אינם נמדדים לפי פריט/).count(), 1);
     // A window with too little activity draws a sentence, not a list.
     await page.getByRole('button', { name: 'יממה', exact: true }).click(); await page.getByText(/אין מספיק פעילות/).waitFor();
     assert.equal(await page.locator('.stats29-open-family').count(), 0);

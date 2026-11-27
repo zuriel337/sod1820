@@ -10,6 +10,12 @@ on:
       - 'test/search-wall*'
       - 'test/search-log-2029*'
       - 'test/sitewide-statistics*'
+      - 'supabase/proposed/measurement-*-20261127/**'
+      - 'supabase/proposed/open-activity-20261127/**'
+      - 'docs/reviews/measurement-closure-20261127/**'
+      - 'test/*20261127*'
+      - 'test/open-activity-2029*'
+      - 'test/domain-actions-2029*'
       - '.github/workflows/sitewide-statistics-2029.yml'
 permissions:
   contents: read
@@ -65,15 +71,24 @@ jobs:
           PG_BIN="$PG_BIN" bash test/statistics-sections-realpg.sh
           PG_BIN="$PG_BIN" bash test/sitewide-statistics-privacy-floor-realpg.sh
           PG_BIN="$PG_BIN" bash test/search-wall-realpg.sh
+          # Measurement closure S1-S5 (27.11.2026): every SQL proposal on its real psql file, apply / rollback / drift / order
+          PG_BIN="$PG_BIN" bash test/open-activity-20261127-realpg.sh
+          PG_BIN="$PG_BIN" bash test/measurement-reliability-20261127-realpg.sh
+          PG_BIN="$PG_BIN" bash test/measurement-allowlist-20261127-realpg.sh
+          PG_BIN="$PG_BIN" bash test/measurement-domain-actions-20261127-realpg.sh
+          PG_BIN="$PG_BIN" bash test/contract-v14-realpg.sh
       - name: Build and existing shell budget
         run: |
           npm run build
           node scripts/build-public-reading-production.mjs
       - name: Measurement contracts
         run: node --test test/sitewide-statistics-20261120.test.mjs test/sitewide-statistics-rollout.test.mjs test/public-reading-action-measurement.test.mjs test/measurement-identity-20261115.test.mjs test/measurement-page-view-once-2029.test.mjs test/measurement-transport-hardening-2029.test.mjs test/public-reading-protected-review.test.mjs test/sitewide-statistics-preview.test.mjs test/search-log-2029.test.mjs test/shell-surface-known-2029.test.mjs
+      - name: Measurement closure package (engagement v2, issue reports to the support store, allow-list families, cumulative activity, domain actions)
+        run: node --test src/lib/engagement.test.js src/components/experience2029/frameRenewalShare2029.test.js test/reliability-measurement-20261127.test.mjs test/allowlist-measurement-20261127.test.mjs test/open-activity-2029.test.mjs test/domain-actions-2029.test.mjs test/issue-report-support-store-20261127.test.mjs test/story-2029-measurement.test.mjs
       - name: Public artifact and browser acceptance
         run: |
           node test/sitewide-statistics-20261120.browser.mjs
+          node test/open-activity-2029.browser.mjs
           node --test test/measurement-visit-once-2029.browser.mjs
           node --test test/article-first-new-post-2029.browser.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
