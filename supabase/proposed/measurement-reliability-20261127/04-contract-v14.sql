@@ -41,7 +41,14 @@ store (administrator-read); analytics may count that a report exists, never what
 
 MEASURED ACTION TRIAD. For every principal action the system separates CLICK (pressed), START (operation begun), SUCCESS and FAILURE, using the closed event families
 only (tokens, booleans and bounded integers). An action whose truth is held in a domain table (registration, sign-in, message, reaction, follow) is counted from that
-table by this law's readers, aggregated and without identity, instead of by a second event.$amend$,
+table by this law's readers, aggregated and without identity, instead of by a second event.
+
+REACTIONS POLICY UNCHANGED. This law counts reactions (likes, dislikes) only as aggregate counts read from the domain table. It does not change the existing reactions
+policy (who may react, whether a reaction repeats, how it is shown) and it never creates, changes or removes a reaction.
+
+PRESERVED FUTURE CAPABILITIES. Approved capabilities that are not yet active (stories, the 2029 journey, and their closed measurement families) stay preserved and
+allow-listed; their emitters are built when the capability launches. The silence of a preserved capability is shown as "preserved, not active", never as a failure,
+and is never a reason to remove it or its family.$amend$,
     (n.metadata - 'rule_guard') || jsonb_build_object('amended','27.11.2026 measurement reliability (ZURIEL)','supersedes','v13'),
     true,n.rule_id,14,n.depends_on,13,n.weight
   from public.nodes n where n.type='rule' and n.rule_id='traffic_intelligence_law' and n.rule_version=13;

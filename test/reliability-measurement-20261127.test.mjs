@@ -38,7 +38,7 @@ test("the contract amendment text in the markdown is the text embedded in the SQ
   const md = read("CONTRACT_V14.md");
   const text = md.match(/```\n([\s\S]*?)\n```/)[1];
   assert.ok(read("04-contract-v14.sql").includes(text), "04-contract-v14.sql embeds the exact amendment");
-  for (const rule of ["MEASUREMENT IDENTITY LAYERS", "INTENSITY IS NOT EVIDENCE OF AUTOMATION", "ENGAGEMENT VERSION 2", "FLOOR UNIT", "OPEN ACTIVITY TIER", "SUPPORT TEXT IS NOT ANALYTICS", "MEASURED ACTION TRIAD"]) assert.ok(text.includes(rule), rule);
+  for (const rule of ["MEASUREMENT IDENTITY LAYERS", "INTENSITY IS NOT EVIDENCE OF AUTOMATION", "ENGAGEMENT VERSION 2", "FLOOR UNIT", "OPEN ACTIVITY TIER", "SUPPORT TEXT IS NOT ANALYTICS", "MEASURED ACTION TRIAD", "REACTIONS POLICY UNCHANGED", "PRESERVED FUTURE CAPABILITIES"]) assert.ok(text.includes(rule), rule);
   assert.ok(read("04-contract-v14.sql").includes("e7ad8ffbe9e4a612f53fa1d8c3799693"), "pins the active v13 description");
 });
 
