@@ -31,6 +31,12 @@ export async function runCommentsUi({ settings, browser, devices, newSignedIn, s
         if (/toggle_contribution_reaction/.test(r.url())) reactionCalls.push(`${r.status()} ${(await r.text().catch(() => '')).slice(0, 80)}`);
         else if (r.status() >= 400 && !/community_replies_page|community_thread_updates|track_visit|world_group|\/posts/.test(r.url())) trace.push(`${r.status()} ${new URL(r.url()).pathname}`);
       });
+      page.on('request', (r) => {
+        if (!/toggle_contribution_reaction/.test(r.url())) return;
+        const bearer = String(r.headers().authorization || '').replace(/^Bearer /, '');
+        let claims = {}; try { claims = JSON.parse(Buffer.from(bearer.split('.')[1] || '', 'base64url').toString()); } catch { /* not a JWT */ }
+        reactionCalls.push(`request role=${claims.role} sub=${claims.sub ? 'yes' : 'no'} body=${String(r.postData() || '').slice(0, 90)}`);
+      });
       page.on('requestfailed', (r) => { if (/toggle_contribution_reaction/.test(r.url())) reactionCalls.push(`failed ${r.failure()?.errorText}`); });
       page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
     };
