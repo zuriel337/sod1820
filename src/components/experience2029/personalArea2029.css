@@ -22,9 +22,16 @@
 .pa29-id-text strong{font:800 19px/1.25 var(--s29-font-display,var(--s29-font-ui,inherit));color:var(--r29-gold-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
 .pa29-id-text small{font-size:14px;color:var(--s29-muted);direction:ltr;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
 .pa29-badge[data-pa29-badge="out"]{--r29-hue:var(--r29-amber)}
-.pa29-coins{display:flex;flex-wrap:wrap;gap:8px}
-.pa29-coin{min-block-size:38px;padding:2px 14px;gap:7px;font-size:17px}
-.pa29-coin small{font:600 12.5px/1 var(--s29-font-ui,inherit);color:var(--s29-muted)}
+/* The coins sit symmetrically: 2 per row on a phone (an odd last one is centred at the same width), one row of 3-4 in a wide panel (ZURIEL 27.11.2026). Same .r29-coin, no new family. */
+.pa29-coins{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pa29-coin{min-block-size:38px;padding:2px 10px;gap:7px;font-size:17px;min-inline-size:0}
+.pa29-coin:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;inline-size:calc(50% - 4px)}
+@container workspace-panel (min-width:560px){
+  .pa29-coins:is([data-pa29-count="3"],[data-pa29-count="4"]){grid-template-columns:repeat(var(--pa29-n,4),minmax(0,1fr))}
+  .pa29-coins[data-pa29-count="3"]{--pa29-n:3}
+  .pa29-coin:nth-child(3):last-child{grid-column:auto;justify-self:auto;inline-size:auto}
+}
+.pa29-coin small{font:600 14px/1 var(--s29-font-ui,inherit);color:var(--s29-muted)}
 .pa29-actions{display:grid}
 /* The ONE main action: royal blue (Design V2 §14.2, ZURIEL 19.11.2026; formerly gold), onAccent text in every preset. */
 .pa29-primary{min-block-size:48px;inline-size:100%;padding:0 18px;border-radius:999px;cursor:pointer;font:800 16px/1.2 var(--s29-font-ui,inherit);text-align:center;
