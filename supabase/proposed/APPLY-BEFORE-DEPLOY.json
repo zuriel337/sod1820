@@ -137,6 +137,28 @@
       "introduced_by": "PR #1568 (עולם הגילויים והתרומות)",
       "deployed_before_sql": "degrades_gracefully",
       "degradation_test": "test/discovery-center-2029.test.mjs"
+    },
+    {
+      "rpc": "research_open_activity_2029",
+      "sql": "supabase/proposed/open-activity-20261127/PROPOSAL.sql",
+      "rollback_sql": "supabase/proposed/open-activity-20261127/ROLLBACK.sql",
+      "callers": [
+        "src/lib/researchOpenActivity2029.js"
+      ],
+      "introduced_by": "measurement closure S1-S6 (PR #1589)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/open-activity-2029.test.mjs"
+    },
+    {
+      "rpc": "research_domain_actions_2029",
+      "sql": "supabase/proposed/measurement-domain-actions-20261127/PROPOSAL.sql",
+      "rollback_sql": "supabase/proposed/measurement-domain-actions-20261127/ROLLBACK.sql",
+      "callers": [
+        "src/lib/domainActions2029.js"
+      ],
+      "introduced_by": "measurement closure S1-S6 (PR #1589)",
+      "deployed_before_sql": "degrades_gracefully",
+      "degradation_test": "test/domain-actions-2029.test.mjs"
     }
   ],
   "known_missing_dormant": [

@@ -71,3 +71,16 @@ test("the page mounts the section, the section calls only the one reader, and no
   }
   assert.match(comp, /if \(state\.unavailable\) return null/, "an unapplied reader draws no block");
 });
+
+test("deployed before its SQL: research_open_activity_2029 answering PGRST202 / 404 draws nothing, any other error is still an error", async () => {
+  const { readOpenActivity, resetOpenActivityCacheForTest, openActivityModel } = lib;
+  const answer = error => ({ rpc: async () => ({ data: null, error }) });
+  resetOpenActivityCacheForTest();
+  assert.equal(await readOpenActivity("day", answer({ code: "PGRST202", message: "Could not find the function public.research_open_activity_2029" })), null);
+  assert.equal(openActivityModel(null), null, "no data, no section");
+  resetOpenActivityCacheForTest();
+  assert.equal(await readOpenActivity("week", answer({ status: 404 })), null);
+  resetOpenActivityCacheForTest();
+  await assert.rejects(readOpenActivity("month", answer({ code: "42501", message: "permission denied" })), /permission denied|42501|object/i);
+  resetOpenActivityCacheForTest();
+});

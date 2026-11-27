@@ -8,16 +8,19 @@ export const OPEN_ACTIVITY_WINDOWS = Object.freeze([["day", "אתמול", "ימ�
 export const OPEN_ACTIVITY_FAMILIES = Object.freeze([["number", "דפי מספר"], ["post", "פוסטים"], ["cipher", "צפנים"], ["topic", "נושאים ותגיות"], ["video", "סרטונים"]]);
 const cache = new Map();
 
-export function readOpenActivity(window) {
+// The reader is a proposal until its SQL is applied (supabase/proposed/APPLY-BEFORE-DEPLOY.json): PGRST202 (function not found) or HTTP 404 is "not applied yet"
+// and answers null, so the section simply does not draw and never shows an invented number. Any other error (42501, network) is thrown as before.
+export const notAppliedYet = error => error?.code === "PGRST202" || error?.status === 404;
+export function readOpenActivity(window, client = supabase) {
   if (!cache.has(window)) {
-    cache.set(window, supabase.rpc("research_open_activity_2029", { p_window: window }).then(({ data, error }) => {
-      // PGRST202/404 (reader not applied yet) or 42501: the section simply does not draw; never an invented number.
-      if (error) throw error;
+    cache.set(window, client.rpc("research_open_activity_2029", { p_window: window }).then(({ data, error }) => {
+      if (error) { if (notAppliedYet(error)) return null; throw error; }
       return data;
     }).catch(error => { cache.delete(window); throw error; }));
   }
   return cache.get(window);
 }
+export function resetOpenActivityCacheForTest() { cache.clear(); }
 
 export function openActivityUsable(d) {
   return Boolean(d && d.version === 1 && d.state === "measured" && d.families && typeof d.families === "object");

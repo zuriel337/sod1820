@@ -58,3 +58,16 @@ test("the SQL catalog equals expected-events.json, and the preserved capabilitie
   const allow = readFileSync(new URL("../supabase/proposed/measurement-allowlist-20261127/PROPOSAL.sql", import.meta.url), "utf8");
   assert.doesNotMatch(allow.split("\n").filter(l => !l.trim().startsWith("--")).join("\n"), /story_2029|journey_2029/, "no proposal removes a preserved family");
 });
+
+test("deployed before its SQL: research_domain_actions_2029 answering PGRST202 / 404 draws nothing, any other error is still an error", async () => {
+  const { readDomainActions, resetDomainActionsCacheForTest, domainActionsModel } = lib;
+  const answer = error => ({ rpc: async () => ({ data: null, error }) });
+  resetDomainActionsCacheForTest();
+  assert.equal(await readDomainActions("day", answer({ code: "PGRST202", message: "Could not find the function public.research_domain_actions_2029" })), null);
+  assert.equal(domainActionsModel(null), null, "no data, no block");
+  resetDomainActionsCacheForTest();
+  assert.equal(await readDomainActions("week", answer({ status: 404 })), null);
+  resetDomainActionsCacheForTest();
+  await assert.rejects(readDomainActions("month", answer({ code: "42501", message: "permission denied" })));
+  resetDomainActionsCacheForTest();
+});

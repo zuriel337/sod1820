@@ -9,15 +9,18 @@ export const DOMAIN_ROWS = Object.freeze([
 ]);
 const cache = new Map();
 
-export function readDomainActions(window) {
+// A proposal until its SQL is applied (supabase/proposed/APPLY-BEFORE-DEPLOY.json): PGRST202 (function not found) or HTTP 404 answers null and the centre draws nothing.
+export const notAppliedYet = error => error?.code === "PGRST202" || error?.status === 404;
+export function readDomainActions(window, client = supabase) {
   if (!cache.has(window)) {
-    cache.set(window, supabase.rpc("research_domain_actions_2029", { p_window: window }).then(({ data, error }) => {
-      if (error) throw error;
+    cache.set(window, client.rpc("research_domain_actions_2029", { p_window: window }).then(({ data, error }) => {
+      if (error) { if (notAppliedYet(error)) return null; throw error; }
       return data;
     }).catch(error => { cache.delete(window); throw error; }));
   }
   return cache.get(window);
 }
+export function resetDomainActionsCacheForTest() { cache.clear(); }
 
 // Pure model. forbidden or unavailable draws nothing; a missing number is "—", never 0 (a missing measurement is UNKNOWN).
 export function domainActionsModel(d) {
