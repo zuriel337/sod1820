@@ -458,7 +458,8 @@ Native Topic 2029 now owns canonical `/topic/:slug` in production. Remaining Leg
 12. RSS/JSON Feed/IndexNow-style freshness;
 13. English Golden + hreflang;
 14. broader agent discovery;
-15. post-migration cleanup/retirement of remaining internal calculator compatibility after native replacement.
+15. post-migration cleanup/retirement of remaining internal calculator compatibility after native replacement;
+16. **PLANNED (337 flagship, 27.11.2026, documentation only):** index and expose every verified public gematria method, not only the regular one, with every approved public discovery reachable by expression, number, method, researcher and source without a post — see §16.
 
 ---
 
@@ -501,3 +502,36 @@ Historical PR #555 redirected the public Beit Midrash route family to World, but
 ### HG-3 — Public machine endpoint / feed
 
 Recommended: defer implementation until the native Topic renderer and indexability contract are proven. Architecture is preserved now; no new endpoint required for the first SEO release.
+
+---
+
+## 16. Addendum 27.11.2026 — all verified gematria methods in indexing and AI exposure (337 flagship)
+
+**Status:** PLANNED · DOCUMENTATION ONLY. Human-Gate direction from ZURIEL, 27.11.2026. Nothing here is implemented, applied, merged or deployed; it starts only after the measurement closure (S1–S6, PR #1589) is done, and every live change needs a separate, exact approval.
+**Mode:** EXTEND_EXISTING. This is an extension of the existing route / SEO / `applySeo` / sitemap owners and of this plan. No parallel SEO mechanism, no second registry, no per-method duplicate pages without a stated justification.
+
+### 16.1 Goal
+Every approved public discovery becomes reachable by search engines and AI systems through its **expression, number, method, researcher and source**, even when no post was written for it. Indexing and exposure cover **every verified gematria method**, not only the regular one.
+
+### 16.2 Test case
+"תפרצי בתשפז" is verified and published. Its engine value in the regular method is 1569; the discovery is 5787 in the squared-triangle method (ריבוע). The first text a search engine receives today emphasizes 1569 and not 5787. The expected result of this work is that the verified, published discovery (expression → 5787, method ריבוע, with its source and researcher) is what is exposed, while 1569 stays available as the regular value.
+
+### 16.3 Findings handed over by ZURIEL (to be re-verified against the live database and the live sitemap when the work starts)
+12,610 expressions are eligible for the sitemap; 12,009 of them have no registered link to a WordPress post.
+
+### 16.4 Constraints
+- Keep verified calculation, source and interpretation separate, as the active contracts require. A derived title or description is display metadata only; it is not a finding, a claim or a decision (Open Index Law 24.11.2026 §2).
+- A number page opens only when it carries material (Open Index Law §4). A duplicate address stays canonical to the open one (§3). The life journey stays private.
+- Method pages and method-qualified addresses are created only where a justification is recorded; the default is a single address per expression and number, with the methods carried inside it.
+- No new collection of data and no change to any active contract without approval.
+
+### 16.5 Future checks (read-only first; nothing is started now)
+1. Coverage map of the researchers' contributions and of the deep research stores: which approved public stores and record types reach the SEO / AI layer and the sitemap, and which do not.
+2. How the title, description and first server text are built today for an expression and for a number, who owns that code, and where the emphasized value is chosen.
+3. Of the 12,009 expressions without a post, how many carry an approved discovery in a method other than regular.
+4. **Number-page index eligibility by research richness across all methods** (not only the regular value): the criterion for "has material" counted over every verified method, researchers and sources.
+5. A proposal to extend the existing owner (not a page per method), for ZURIEL's approval, with the end-to-end chain from Open Index Law §5: ingestion, title, page, share preview, sitemap, robots.
+
+### 16.6 Not in scope now
+Any code, SQL, page, sitemap or robots change; any bot blocking; any deployment.
+
