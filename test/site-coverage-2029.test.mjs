@@ -10,6 +10,10 @@ const coverage = JSON.parse(readFileSync(join(root, "docs/reviews/measurement-co
 const { readingActionSpec } = await import("../src/lib/publicReadingTelemetry2029.js");
 const { registerVideoSpec2029 } = await import("../src/lib/publicReadingVideoSpec2029.js");
 registerVideoSpec2029();
+// The public build also carries the S4/S5 families registered on demand (public-reading-deploy/transport.js); the guard sees the same list.
+const { registerNavSpec2029 } = await import("../src/lib/publicReadingNavSpec2029.js");
+const { registerStorySpec2029 } = await import("../src/lib/publicReadingStorySpec2029.js");
+registerNavSpec2029(); registerStorySpec2029();
 const spec = readingActionSpec();
 // page, performance and the visit RPC have their own validators outside the family spec.
 const OWN_VALIDATOR = new Set(["page", "performance"]);
