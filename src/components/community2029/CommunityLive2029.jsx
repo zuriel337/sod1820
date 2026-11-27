@@ -4,6 +4,7 @@ import { communityShareOwnWords } from "../../lib/community/communityShareHandof
 export { communityShareDraft } from "../../lib/community/communityShareHandoff.js";
 import { canonicalCommunityAuthorKey } from "../../lib/community/communityCanonicalIdentity2029.js";
 import React, { lazy, Suspense, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../lib/AuthContext.jsx";
 import AccountEntry2029 from "../auth2029/AccountEntry2029.jsx";
@@ -219,6 +220,7 @@ function LiveMessage({ row: sourceRow, onReply, accountProfiles, showSource = fa
       {permissions?.state === "ready" && permissions.canEdit && mode !== "edit" ? <button type="button" ref={editButton} className="sod29-community-manage-action" onClick={() => open("edit")}>עריכה</button> : null}
       {permissions?.state === "ready" && permissions.canDelete && !mode ? <button type="button" className="sod29-community-manage-action" onClick={() => open("delete")}>מחיקה</button> : null}
     </div>
+    <div className="sod29-community-reply-slot" data-reply-slot={row.id} />
     {moderationItem ? <Suspense fallback={null}><GuestMessageModeration2029 item={moderationItem} unreviewed={guestUnreviewed} onChanged={guestModeration.changed} /></Suspense> : null}
     {quoteNotice ? <p className="sod29-community-edited" role="status">{quoteNotice}</p> : null}
     {permissions?.reason === "source_requires_review" ? <p className="sod29-community-edited">עדכון המקור דורש בדיקה.</p> : null}
@@ -909,6 +911,11 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     setProfileFilter("all"); setProfileSort("newest");
     setParams((current) => { const next = new URLSearchParams(current); next.set("member", selectedAuthorId); next.delete("memberCard"); return next; });
   };
+  // "השב" opens THE one composer (one draft, one state) in the slot directly under the answered message; with no slot on screen it stays at its place.
+  const placeComposer = (node) => {
+    const slot = replyTo?.id && typeof document !== "undefined" ? document.querySelector(`[data-reply-slot="${CSS.escape(replyTo.id)}"]`) : null;
+    return slot ? createPortal(node, slot) : node;
+  };
   const startReply = (row) => {
     if (actionsLocked) return;
     if (row.quote) {
@@ -917,7 +924,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
       setDraft(next);
     }
     setReplyTo(row); setComposerExpanded(true); requestAnimationFrame(() => {
-      const editor = composerRef.current; editor?.focus();
+      const editor = composerRef.current; editor?.focus({ preventScroll: true });
       if (row.quote && editor) { const range = document.createRange(); range.selectNodeContents(editor); range.collapse(false); const selection = window.getSelection(); selection.removeAllRanges(); selection.addRange(range); }
     });
   };
@@ -1080,7 +1087,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
         <CommunityTreeHints2029 hints={treeHints} />
         {canModerateGuests && user ? <Suspense fallback={null}><CommunityNetBlocksPanel2029 version={moderationVersion} onChanged={onModerationChanged} /></Suspense> : null}
         {messageActions.principalKey && messageActions.state === "unavailable" ? <p role="status">אפשרויות העריכה אינן זמינות כרגע. <button type="button" className="sod29-community-secondary" onClick={messageActions.retry}>ניסיון נוסף</button></p> : null}
-        {!actionsLocked ? <section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
+        {!actionsLocked ? placeComposer(<section className="sod29-community-composer" data-compact={compactComposer} data-expanded={composerOpen} aria-label="כתיבת הודעה">
           <label className={compactComposer ? "sod29-community-sr-only" : undefined} htmlFor="community-live-draft">מה תרצו לשתף?</label>
           {replyTo ? <div className="sod29-community-reply-target"><span>תשובה ל{replyTo.authorName}</span><button type="button" onClick={() => setReplyTo(null)}>ביטול תשובה</button></div> : null}
           <div className={compactComposer ? "sod29-community-compose-row" : undefined}>
@@ -1113,7 +1120,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
           {replyTo?.draftUnavailable ? <p className="sod29-community-status" role="alert">לא ניתן לפתוח את ההודעה שאליה עונים. אפשר לנסות שוב או לבטל את התשובה. <button type="button" className="sod29-community-text-action" onClick={draftCache.retryReply}>ניסיון נוסף</button></p> : null}
           {notice ? <p className="sod29-community-status" role="status">{notice}</p> : null}
           {guestMustJoin && joinOpen ? <div className="sod29-community-guest-join" id="community-guest-join"><p role="status">ההודעה שלכם שמורה. נרשמים בשנייה והיא מתפרסמת מיד.</p><AccountEntry2029 inline returnHref={communityAccountReturnHref(window.location)} /></div> : null}
-        </section> : null}
+        </section>) : null}
         {hasThreadRequest ? <section className="sod29-community-focus" aria-labelledby="community-focus-title">
           <header className="sod29-community-focus-head"><div><p>{personalThreadReturn ? "מתוך התגובות אליי" : "הקהילה"}</p><h2 id="community-focus-title">{personalThreadReturn ? "השיחה שבה התקבלה התגובה" : "השיחה המלאה"}</h2></div><div>
             <Link className="sod29-community-secondary" to={threadReturnHref}>{personalThreadReturn ? "חזרה להודעות שלי" : "חזרה לקהילה"}</Link>

@@ -1095,3 +1095,17 @@ a.sod29-tree-pin:hover,a.sod29-tree-pin:focus-visible{background:color-mix(in sr
   }
 }
 .sod29-community-emoji-picker .r29-btn{font-size:22px}
+/* ZURIEL 27.11.2026: on a narrow screen the head panel is laid against the screen, not against its button: in RTL the button sits at the physical left,
+   so a 288px panel anchored to it ran past the right edge at 320px. Fixed to the screen with an 8px gutter on both sides (logical, so RTL and LTR agree). */
+@media(max-width:480px){
+  .sod29-community--full .sod29-community-head-menu .sod29-community-head-actions{
+    position:fixed;
+    inset-inline:8px;
+    inset-block-start:64px;
+    width:auto;
+    max-width:none;
+    max-height:calc(100dvh - 80px);
+  }
+}
+.sod29-community-reply-slot:empty{display:none}
+.sod29-community-reply-slot>.sod29-community-composer{margin-block:10px 0;position:static}
