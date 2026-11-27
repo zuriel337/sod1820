@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabase.js";
 import { applySeo, clearUnifiedVideoJsonLd, setUnifiedVideoJsonLd } from "../lib/seo.js";
 import { use2029Palette } from "../lib/palette2029.js";
 import { TYPEFACE } from "../lib/designTokens.js";
+import { useVideoCaptions2029, videoCaptionCandidates2029 } from "../lib/research/videoCaptions2029.js";
 
 const SERIES_LABELS = {
   "or-geula": "אור הגאולה",
@@ -33,6 +34,10 @@ function internalPath(url) {
 
 export function Player({ asset, poster }) {
   const [play, setPlay] = useState(false);
+  // Captions beside a canonical self-hosted video (…/captions/<lang>.vtt), offered only when the file exists (checked on play).
+  const captionCandidates = useMemo(() => asset.video_kind === "selfhost"
+    ? videoCaptionCandidates2029({ mediaHref: asset.media_url }) : [], [asset.video_kind, asset.media_url]);
+  const [captions, probeCaptions] = useVideoCaptions2029(captionCandidates);
   const yt = asset.youtube_id || (asset.video_kind === "youtube"
     ? String(asset.media_url || "").match(/[?&]v=([A-Za-z0-9_-]{11})/)?.[1]
     : null);
@@ -55,7 +60,10 @@ export function Player({ asset, poster }) {
 
   if (asset.video_kind === "selfhost") {
     return <video src={asset.media_url} controls autoPlay playsInline preload="none" poster={poster}
-      style={{ width: "100%", maxHeight: "72vh", borderRadius: 18, background: "#000" }} />;
+      crossOrigin={captionCandidates.length ? "anonymous" : undefined} onPlay={probeCaptions}
+      style={{ width: "100%", maxHeight: "72vh", borderRadius: 18, background: "#000" }}>
+      {captions.map(track => <track key={track.lang} kind="subtitles" src={track.src} srcLang={track.lang} label={track.label} />)}
+    </video>;
   }
   if (yt) {
     return <iframe title={asset.title || "YouTube"} src={`https://www.youtube-nocookie.com/embed/${yt}?autoplay=1`}

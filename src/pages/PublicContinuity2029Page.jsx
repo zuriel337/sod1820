@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useVideoCaptions2029, videoCaptionCandidates2029 } from "../lib/research/videoCaptions2029.js";
 import ExternalVideoFacade2029 from "../components/experience2029/ExternalVideoFacade2029.jsx";
 import { externalVideoLinksFromText } from "../lib/community/messageLinks.js";
 import { Link, Navigate, useLocation, useParams, useSearchParams } from "react-router-dom";
@@ -96,14 +97,20 @@ function SourceDate({ value }) {
 
 function SourceMedia({ item, start }) {
   const [failed, setFailed] = useState(false);
+  // Captions (the video's transcript as WebVTT) are offered only when the file exists; the check runs on the first play.
+  const captionCandidates = useMemo(() => item.mediaKind === "video"
+    ? videoCaptionCandidates2029({ mediaHref: item.mediaHref, occurrenceId: item.id, at: item.at }) : [], [item.mediaKind, item.mediaHref, item.id, item.at]);
+  const [captions, probeCaptions] = useVideoCaptions2029(captionCandidates);
   if (!item.mediaHref) return null;
   return <figure className="continuity-source-media" data-media-state={failed ? "failed" : "ready"}>
     {item.mediaKind === "audio" ? <audio controls preload="none" src={item.mediaHref} aria-label={item.title} onError={() => setFailed(true)} />
       : item.mediaKind === "video" ? <video controls playsInline preload="none" poster={item.posterHref || undefined}
-      src={item.mediaHref} aria-label={item.title} onError={() => setFailed(true)}
+      crossOrigin={captionCandidates.length ? "anonymous" : undefined}
+      src={item.mediaHref} aria-label={item.title} onError={() => setFailed(true)} onPlay={probeCaptions}
       onLoadedMetadata={event => {
         if (start > 0 && Number.isFinite(event.currentTarget.duration)) event.currentTarget.currentTime = Math.min(start, event.currentTarget.duration);
-      }} /> : <img src={item.mediaHref} alt={item.title} onError={() => setFailed(true)} />}
+      }}>{captions.map(track => <track key={track.lang} kind="subtitles" src={track.src} srcLang={track.lang} label={track.label} />)}</video>
+      : <img src={item.mediaHref} alt={item.title} onError={() => setFailed(true)} />}
     {failed ? <figcaption role="alert">המדיה לא נטענה. אפשר לנסות לרענן את העמוד.</figcaption> : null}
   </figure>;
 }
