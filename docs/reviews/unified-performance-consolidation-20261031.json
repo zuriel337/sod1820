@@ -4717,6 +4717,27 @@
             "ti-post-37034-daily-watch removal; fn_ti_daily; P1/P3 GA4 campaign data",
             "frame CSS reduction by the System Frame owner"
           ]
+        },
+        "applied_records_20261127": {
+          "note": "Three database actions approved separately by ZURIEL on 27.11.2026, each verified before and after (log: work_log 9b5bbee2). Recorded here; nothing else was applied.",
+          "1_contract_traffic_intelligence_law_v13": {
+            "approved": "README.md sha256 f50ab32f0d9ce9118fdb64000ebd4e6c4f40aefb8e90f900c1635935961e5ea0",
+            "how": "one transaction through the rule guard: v12 retired, v13 inserted active (supersedes_version 12); v12 text kept in full (md5 39c564c19530a5d5cb68f14d38a67bfa unchanged) and the approved text appended with the date 27.11.2026; metadata classification_v4_20261127 added with the distinction suspected_bot (statistical, rules v2/v3/v4) versus certain bots (events.is_bot=true, a separate column, none stored today)",
+            "after": "v13 active, v12 inactive, one active traffic_intelligence_law, owner unchanged, 87 active rules before and after",
+            "first_attempt": "refused by the rule guard (rule_guard key copied from v12) and rolled back completely; fixed by stripping that key"
+          },
+          "2_sql_classification_v4": {
+            "approved": "PROPOSAL.sql sha256 e47db0f8fb8148edc1ef1bf65b2e92d2db17769e682e4517f74c29fee09bda94",
+            "guard": "live md5 ed1fd14a3309be7f01b290c7bd7f28d0",
+            "after": "fn_human_entrances md5 dc60e1bcf2c74be8279658d8561bc043; ACL {postgres=X/postgres} unchanged; one overload; ACCEPTANCE 3/3",
+            "effect_read_only_26_11": "suspected 41 to 4,959 (4,918 by rule v4); entrances 6,346 to 1,428; identified visitors flagged 0; classification of 10-25.11 identical (fingerprint bbed18d5e431775769a6a445acf42894, 2,849 rows). No event row touched, nothing blocked."
+          },
+          "3_ga4_history_completion": {
+            "approved": "APPLY.sql sha256 cd0cecc6587c3e63db037fefdd6e21199a580808c320af9012e085104cfb7b95",
+            "before": "0 rows in the window; 6,288 rows; outside-window fingerprint 5e0042ca083429d233cb0fc23537d685",
+            "after": "62 + 62 rows (7.9-7.11), views 60,215 / IL 51,112, sessions 21,519; 124 rows labelled as Google numbers as received (not measured here); outside-window fingerprint unchanged; total 6,288 + 124; the 11-15.11 notes kept; no gap in the ga series from 7.9 to 26.11"
+          },
+          "pull_requests": "#1575 merged 1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749; #1577 merged 9576ae8206796d032fda2c64d4e849d55c84da53; #1579 merged 34551d3f530b5a6777b4abeecb8dcc34047ca594; #1574 merged 8e3fcee4d2c28e2fd659539d20e42f199a3cc159; #1581 (community load reduction) stays OUT of the unified deployment."
         }
       },
       {
@@ -5482,6 +5503,15 @@
         "task": "WORK_PUBLIC_DISCOVERY_20261122",
         "by": "CLAUDE (ZURIEL 27.11: apply ingest_event package A; handover for the unified deployment)",
         "what": "ingest_event package A applied (md5 6dd75853 -> 3d2fa7cf, ACCEPTANCE 4/4, behaviour checked in rolled-back transactions). Summary handover for the unified deployment written (S-64 unified_deployment_handover_20261127). Nothing deployed; classification SQL, GA4 write and the site deployment remain separate approvals.",
+        "previous": {
+          "note": "previous revision above"
+        }
+      },
+      {
+        "at": "2026-11-27T10:00:00Z",
+        "task": "WORK_PUBLIC_DISCOVERY_20261122",
+        "by": "CLAUDE (ZURIEL 27.11: record the applied actions, prepare the unified deployment)",
+        "what": "Recorded: contract v13, classification v4 SQL and GA4 history completion applied with separate approvals; #1574 and #1579 merged. Unified deployment package prepared for an exact approval; no deployment.",
         "previous": {
           "note": "previous revision above"
         }
