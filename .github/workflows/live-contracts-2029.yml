@@ -527,6 +527,8 @@ jobs:
           # Same browser version, same tests; only the package list is refreshed.
           sudo apt-get update
           npx playwright install --with-deps chromium
+      - name: Gematria method structure fits the card at 320-430px (no clipped equation, scrollable past the bar)
+        run: node --test test/method-structure-fit-2029.browser.mjs
       - name: Meta Pixel and AdSense (real CSP header + real worker), bots excluded
         run: node --test test/marketing-browser-2029.browser.mjs
       # Measurement (ZURIEL 12.11.2026, "fix measurement"): one first-party visit per real page view, in-app navigation counted, no duplicates from

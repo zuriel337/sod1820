@@ -77,7 +77,7 @@ function PositionWeighted({ model }) {
     {model.groups.map((group) => <Word key={group.id} group={group} values={group.rows.map((r) => r.value)}>
       <ol className="sod29-ms-stairs" style={{ "--ms-n": group.rows.length }}>{group.rows.map((row) => <li key={row.id} style={{ "--ms-step": Math.max(0, Number(row.position) - 1) }}>
         <i className="sod29-ms-tile is-new"><HebrewGlyph2029 text={row.token} /></i>
-        <span dir="ltr">{fmt(row.baseValue)} × {row.position}</span><b dir="ltr">= {fmt(row.value)}</b></li>)}</ol>
+        <span className="sod29-ms-calc"><span dir="ltr">{fmt(row.baseValue)} × {row.position}</span><b dir="ltr">= {fmt(row.value)}</b></span></li>)}</ol>
     </Word>)}
     {model.groups.length > 1 ? <SumLine values={model.groups.map((g) => g.subtotal)} total={model.result} label="סכום המילים" /> : null}
   </div>;
