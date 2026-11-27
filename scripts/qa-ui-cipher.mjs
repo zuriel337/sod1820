@@ -10,7 +10,9 @@ export async function runElsVerify({ settings, syntheticAccount, note }) {
   const login = await (await fetch(`${origin}/auth/v1/token?grant_type=password`, { method: 'POST', headers: { apikey: anon, 'content-type': 'application/json' }, body: JSON.stringify({ email: member.email, password: member.password }) })).json();
   const call = async (body, token = login.access_token) => {
     const response = await fetch(`${origin}/functions/v1/els-search-bridge`, { method: 'POST', headers: { apikey: anon, authorization: `Bearer ${token}`, 'content-type': 'application/json' }, body: JSON.stringify(body) });
-    return { status: response.status, body: await response.json().catch(() => null) };
+    const raw = await response.json().catch(() => null);
+    // the function answers { result, ... }; the checks read the verifier's own answer
+    return { status: response.status, body: raw && raw.result ? raw.result : raw, raw };
   };
   const golden = { skip: 10065, dir: 1, start: 50890 };
   const ok = await call({ op: 'verify_batch', term: 'תורהקדשה', scope: 'torah', corpus_id: CORPUS_ID, candidates: [golden, { ...golden, start: 50891 }] });
@@ -33,8 +35,9 @@ export async function runCipherUi({ settings, browser, devices, newSignedIn, syn
     const trace = [];
     page.on('response', (r) => { if (r.status() >= 400) trace.push(`${r.status()} ${new URL(r.url()).pathname}`); });
     page.on('pageerror', (e) => trace.push(`pageerror ${String(e.message).slice(0, 80)}`));
+    const notes = async () => (await page.locator('[role=alert], [role=status], .els29-native-notice').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).map((n) => (n.textContent || '').trim().slice(0, 90)))).join(' / ');
     const dump = async () => (await page.getByRole('button').evaluateAll((nodes) => nodes.filter((n) => n.offsetParent).slice(0, 40).map((n) => (n.getAttribute('aria-label') || n.textContent || '').trim().slice(0, 24)))).join(' | ');
-    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | buttons: ${await dump().catch(() => '')}`.slice(0, 600)); return false; } };
+    const step = async (name, fn) => { try { await fn(); note(true, `${label}: ${name}`); return true; } catch (error) { note(false, `${label}: ${name}`, `${String(error.message).split('\n')[0].slice(0, 110)} | ${trace.slice(-3).join('; ')} | notes: ${await notes().catch(() => '')} | buttons: ${await dump().catch(() => '')}`.slice(0, 900)); return false; } };
     const title = `QA צופן ${profile}`;
     try {
       if (!await step('the matrix page opens with the existing engine ready', async () => {
