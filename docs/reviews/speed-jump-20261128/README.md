@@ -74,3 +74,10 @@ Chromium (Playwright) עם פרופיל **Pixel 7** (390 px), **Slow 4G** (1.6 M
 - האתר החי לא נמדד אחרי התיקון (דורש פריסה מאושרת); מכשיר אמיתי לא נבדק; שאילתות Vercel מחזירות 400.
 - שארית CLS 0.0107 במעטפת (24 px ב־~1.4 s).
 - עם #1589 יתווסף מדור הפעילות המצטברת ל־/stats: צריך להיכנס לאותה המתנה (הוא קורא נפרד) כדי לא להוסיף בלוק מאוחר.
+
+
+## After the #1591 merge (a2e6393e) — late answer, the 24 px shift, post and number hints (28.11.2026)
+All lab, local build of the branch, Pixel 7, Slow 4G, CPU x4; not deployed, not live-verified, not a real device. Details and numbers: S-59 `stats_late_shrink_20261128`, `shell_shift_24px_20261128`, `number_post_hints_trial_20261128`.
+- `measure-stats-late-shrink.mjs <base> <one|full|empty|fail>`: the discovery answers are held until the reader has scrolled to the first tile row under the discovery center. Before the fix the row moved -397 px (one item), -1,512 px (empty, failed), not pressable; after: 0, 1, 0, 0 px, pressable. The CLS the browser reports for these cases is not lower (the placeholder cards above the held row count as moving) and is not the improvement.
+- The 24 px push of the window buttons came from the empty line above them receiving its text with the data; the line is reserved. Entry CLS 0.0108 -> 0 (3 runs).
+- Route hints for `/number/<value>` and `/post/<slug>` were tried on the same artifact with and without, and not kept: number first visit median 5.11 -> 4.91 s (ranges overlap), return 3.25 -> 3.5 s; post article text 6.7-7.0 s in both.

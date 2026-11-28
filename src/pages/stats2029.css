@@ -2,7 +2,7 @@
 .stats29 h2{font-size:20px;line-height:28px;margin:0 0 12px;color:var(--s29-accent-text,#d5b477)}
 .stats29 h3{font-size:15px;line-height:22px;margin:16px 0 8px;color:var(--s29-muted,#b6a995)}
 .stats29-window{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 16px}
-.stats29-window span{flex:1 1 100%;font-size:14px;color:var(--s29-muted,#b6a995)}
+.stats29-window span{flex:1 1 100%;font-size:14px;line-height:24px;min-block-size:24px;color:var(--s29-muted,#b6a995)} /* the line is reserved empty: its text ("מוצג: …" / "טוען את הטווח…") arrives with the data and used to push the buttons and the progress down by 24 px (28.11.2026) */
 .stats29-window button{font:inherit;min-height:44px;min-width:72px;padding:0 14px;border:1px solid var(--s29-line,#574327);border-radius:10px;background:transparent;color:inherit;cursor:pointer}
 .stats29-window button[aria-pressed=true]{background:var(--s29-panel-soft,#34291c);color:var(--s29-accent-text,#d5b477)}
 .stats29-block{margin:0 0 20px;padding:16px;border:1px solid var(--s29-line,#574327);border-radius:16px;background:var(--s29-panel,#201b16)}

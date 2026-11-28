@@ -4589,11 +4589,14 @@
             "events_one_entrance": "1 page/view + 1 track_visit; 3 window switches and 20 s idle add none (before = after)",
             "details": "docs/reviews/speed-jump-20261128/README.md (tools, recordings)",
             "status_by_surface": {
-              "stats_phone_jump": "FIXED ON BRANCH (lab), not deployed, not field-verified",
-              "calculator_entry_text_screen": "PARTIAL IMPROVEMENT (route hints: return visit 2.4 -> 0.9 s, first visit Slow 4G 3.65 -> 3.38 s, none on a fast network)",
-              "posts_entry_text_screen": "OPEN (no hints; app at ~5.2-6.5 s in the live lab)",
-              "number_pages_entry_text_screen": "OPEN (no hints; app at ~6.4 s in the live lab, graph 326 KB gzip)",
-              "stats_entry_text_screen": "OPEN (app at ~5.0 s)"
+              "stats_phone_jump": "MERGED to main in #1591 (a2e6393e), not deployed, not live-verified",
+              "stats_late_answer_row_held": "FIXED ON BRANCH (lab), not merged, not deployed",
+              "stats_shell_shift_24px": "FIXED ON BRANCH (lab), not merged, not deployed",
+              "calculator_entry_text_screen": "MERGED to main in #1591 as PARTIAL IMPROVEMENT (route hints: return visit 2.4 -> 0.9 s, first visit Slow 4G 3.65 -> 3.38 s, none on a fast network); not deployed; not live-verified",
+              "posts_entry_text_screen": "OPEN (hints tried, no measurable gain, not kept; bottleneck is the article's own read after the code)",
+              "number_pages_entry_text_screen": "OPEN (hints tried, ~0.2 s within noise on a first visit, none on return, not kept)",
+              "stats_entry_text_screen": "OPEN (app at ~3.4-5.0 s)",
+              "real_device": "NOT CHECKED anywhere in this record"
             },
             "stats_states_20261128": {
               "full": {
@@ -4623,11 +4626,65 @@
               "window_switch": "no loading block, no layout shift outside the data swap; aria-pressed follows",
               "max_gap_between_blocks_px": 20,
               "residual": "rows below the slot move up to 187 px when discoveries land after the page opens; with few items the page shrinks by 377 px below the fold"
+            },
+            "merge": {
+              "pr": "#1591",
+              "pr_head": "b557402ec79f58caa18c66337f83c26b37a4feb2",
+              "merge_commit": "a2e6393e7be4b24a3460fbcf664594ecf49b73d2",
+              "merged_into_main_at": "28.11.2026 (ZURIEL approval for exactly this head)",
+              "deployed": false,
+              "live_verified": false,
+              "note": "MERGED to main; NOT DEPLOYED. Everything below marked 'lab' was measured on a local build of the branch (public-reading artifact served locally, Pixel 7 profile, Slow 4G, CPU x4); nothing in this record was checked on the live site except the explicitly marked live baselines."
+            },
+            "stats_late_shrink_20261128": {
+              "level": "lab (branch work, after #1591), not deployed, not field-verified, not a real device",
+              "method": "measure-stats-late-shrink.mjs: Pixel 7, /stats, the discovery answers held 6.5 s while the reader scrolled to the first tile row below the discovery center, then released as one item / full / empty / failed; reported: how far that row moved on screen and whether it can still be pressed",
+              "after_1591_before_fix": {
+                "one_item": "row moved -397 px (slot shrank 398 px), not pressable",
+                "empty": "row moved -1,512 px, not pressable",
+                "failed": "row moved -1,512 px, not pressable",
+                "full": "slot grew 144 px, row moved -364 px"
+              },
+              "cause": "the reserved slot changes height after the reader is below it; Chromium's scroll anchoring held the row only some of the time (a first attempt that scrolled by the slot's height alone double-counted when the browser had also adjusted)",
+              "fix": "src/lib/keepReadingPlace2029.js: the element after the slot is the anchor; when the slot's height changes and its top is above the screen, the distance the anchor moved is scrolled back in the same frame (before paint)",
+              "after_fix": {
+                "one_item": "row moved 0 px, pressable (3 scroll corrections: -500, +103, +800 as the answers landed)",
+                "full": "row moved 1 px, pressable",
+                "empty": "row moved 0 px, pressable",
+                "failed": "row moved 0 px, pressable"
+              },
+              "caveat": "the layout-shift API still reports CLS in these cases (0.4-1.8 in the lab): what sits above the held row (the placeholder cards that disappear, the blocks that come into view) is counted as moving. The row the reader looks at and presses does not move; the metric does not improve and must not be quoted as the improvement.",
+              "first_data_timing": "unchanged: the open gate (settled readers, 900 ms grace) is not touched by this change",
+              "ci": "test/keep-reading-place-2029.browser.mjs (real Chromium, synthetic page, 4 cases) in the marketing-browser job; test/stats-no-jump-2029.test.mjs (source guards)"
+            },
+            "shell_shift_24px_20261128": {
+              "level": "lab (branch work), not deployed, not field-verified",
+              "cause": "the window line of /stats (the span above the day/week/month buttons) was empty and received its text ('מוצג: ...' / 'טוען את הטווח…') with the data, adding one 24 px line that pushed the buttons and the progress block down (BUTTON 354->378, .sod-canonical-progress 360->384, CLS 0.0107). Found by a mutation trace: the only change before the shift was a text node added in that span.",
+              "fix": "stats2029.css: the span is reserved at line-height 24px / min-block-size 24px",
+              "before_after": "entry to /stats, cold, Slow 4G, same build: CLS 0.0108 -> 0, 0, 0 (3 runs); shift list empty",
+              "shell_budget": "unchanged (page CSS, not the frame): frame CSS 34,357 of 34,362; eager JS no larger than the same tree without the change"
+            },
+            "number_post_hints_trial_20261128": {
+              "level": "lab, local artifact (generic document, no server-rendered article), Pixel 7, Slow 4G, CPU x4; same artifact with and without route hints",
+              "number_page_337": {
+                "graph": "60 files / 13 css, ~326 KB gzip beyond the entry",
+                "first_visit_slow4g_first_text_field_visible_s": "5.05-5.16 (median 5.11) without hints -> 4.76-5.06 (median 4.91) with hints (n=4 each, ranges overlap)",
+                "return_visit_slow4g_s": "2.79-3.88 (median 3.25) -> 2.80-3.66 (median 3.5): no gain",
+                "first_visit_fast_s": "1.39-1.54 -> 1.41-1.59: no gain",
+                "note": "'field visible' is the first visible text field of the page, an approximation of the central action; whether it is the action was not verified"
+              },
+              "post": {
+                "graph": "47 files / 7 css, ~273 KB gzip beyond the entry",
+                "first_visit_slow4g": "app shell text 4.54-4.72 s -> 4.40-4.44 s; article text 6.73-7.02 s -> 6.73-7.03 s (n=3 each): no gain for reading",
+                "bottleneck": "the article arrives after the code and then its own data read, not behind a download wave the hints can remove",
+                "live_baseline_not_hints": "live site, slug flydubai-fz1073-363-14000-remzei-geula, Slow 4G, n=1 each: article readable at 7.4 s first visit, 5.3 s return; the return-visit run also recorded CLS 0.84 (#post-unit-3 section 733 px -> 0 at 5.7 s), a single sample not reproduced and not investigated"
+              },
+              "decision": "NOT KEPT. No change that is a measurable improvement for the post (reading) or beyond noise for the number page; the route-preload.js and build changes were reverted. Hints compete with the entry on a slow line."
             }
           }
         },
         "guard": [],
-        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed. | 28.11.2026 STATS JUMP + ENTRY TEXT SCREEN (branch, no merge/deploy): FIXED on the branch: /stats draws once (waits for the weekly trend, the week before and the corpus, at most 900 ms after the pulse; the discovery slot keeps ~90% of its height; footer hidden while waiting; a window switch keeps the page); lab phone CLS with an early scroll 0.28-1.59 -> 0.007-0.011, cost: data about 1 s later. The calculator (/gematria) gets the Home's route hints with its document (36 hints, that document only): first visit Slow 4G 3.65 -> 3.38 s, return visit 2.4 -> 0.9 s, text and links for Google unchanged, shell budget unchanged. Still open: the same hints for /number, posts and /stats (own measurement each), the live site after a deployment, a real device, the 24 px shell shift at ~1.4 s (CLS 0.0107), and the new open-activity block of PR #1589 must join the /stats wait.",
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed. | 28.11.2026 STATS JUMP + ENTRY TEXT SCREEN (branch, no merge/deploy): FIXED on the branch: /stats draws once (waits for the weekly trend, the week before and the corpus, at most 900 ms after the pulse; the discovery slot keeps ~90% of its height; footer hidden while waiting; a window switch keeps the page); lab phone CLS with an early scroll 0.28-1.59 -> 0.007-0.011, cost: data about 1 s later. The calculator (/gematria) gets the Home's route hints with its document (36 hints, that document only): first visit Slow 4G 3.65 -> 3.38 s, return visit 2.4 -> 0.9 s, text and links for Google unchanged, shell budget unchanged. Still open: the same hints for /number, posts and /stats (own measurement each), the live site after a deployment, a real device, the 24 px shell shift at ~1.4 s (CLS 0.0107), and the new open-activity block of PR #1589 must join the /stats wait. | 28.11.2026 (after #1591 merge a2e6393e): row held and 24 px shell shift fixed on a branch (lab); post and number hints tried and not kept (see number_post_hints_trial_20261128); the post return-visit CLS 0.84 sample, the live site after a deployment and a real device remain open; #1589 mounts its new open-activity block last and drawn only after its first answer (its own late-arrival check is in that PR).",
         "next_owner": "speed session",
         "relates_to_groups": []
       },
