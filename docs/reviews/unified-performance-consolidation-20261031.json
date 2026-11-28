@@ -2479,7 +2479,7 @@
           "test/shell-supabase-preconnect-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
           "test/footer-loading-cls-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
         ],
-        "open": "Doc §8: entry preload and :has() footer rule need RUM validation; Chromium only.",
+        "open": "Doc §8: entry preload and :has() footer rule need RUM validation; Chromium only. | 28.11.2026: the same hint mechanism now also covers the calculator route /gematria on the work branch (not merged); see S-59 lab_20261128_stats_and_entry.",
         "next_owner": "Speed Law (CLAUDE.md)",
         "relates_to_groups": [
           "F01",
@@ -4495,7 +4495,10 @@
         },
         "code_now": [
           "src/components/experience2029/systemFrame2029.css :: footer reservation (S-12)",
-          "/community/chat thread list"
+          "/community/chat thread list",
+          "src/pages/Stats2029Page.jsx :: settled/open gate, dc slot (branch, not merged)",
+          "src/pages/stats2029.css :: busy min height, footer hidden while busy, discovery slot reserve (branch)",
+          "public-reading-deploy/route-preload.js :: ROUTES (Home, /gematria) + calculatorPreloadComment (branch)"
         ],
         "merged": true,
         "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
@@ -4512,10 +4515,83 @@
           "after": "17–24.11 phone p75 0.001–0.047; 7 days Posts 0.000 / other 0.041",
           "conditions": "events web_vital (cls, cls_shift_sources); one row per sample",
           "source": "canonical Supabase read 2026-11-25",
-          "after_20261126": "Own web_vital events, 1 sample per sample_id, 24h before (24.11 09:18) vs after (25.11 09:18 -> 26.11 09:18), burst 26.11 00:00-06:00 UTC excluded. /community/chat phone: CLS p75 0.089 -> 0.051, samples above 0.1: 15 of 64 (23%) -> 8 of 50 (16%), average 0.158 -> 0.069. /community/chat desktop: p75 0.029 -> 0.002, above 0.1: 8 of 60 -> 5 of 66, average 0.040 -> 0.055. Home phone: average 0.035 -> 0.008, above 0.1: 3 of 26 -> 1 of 16. Home desktop: average 0.060 -> 0.032. Posts: no sample above 0.1 on desktop; phone 1 -> 0."
+          "after_20261126": "Own web_vital events, 1 sample per sample_id, 24h before (24.11 09:18) vs after (25.11 09:18 -> 26.11 09:18), burst 26.11 00:00-06:00 UTC excluded. /community/chat phone: CLS p75 0.089 -> 0.051, samples above 0.1: 15 of 64 (23%) -> 8 of 50 (16%), average 0.158 -> 0.069. /community/chat desktop: p75 0.029 -> 0.002, above 0.1: 8 of 60 -> 5 of 66, average 0.040 -> 0.055. Home phone: average 0.035 -> 0.008, above 0.1: 3 of 26 -> 1 of 16. Home desktop: average 0.060 -> 0.032. Posts: no sample above 0.1 on desktop; phone 1 -> 0.",
+          "lab_20261128_stats_and_entry": {
+            "branch": "claude/work-public-discovery-log-read-ryfcnx (not merged, not deployed)",
+            "builds": {
+              "before": "main 7092eb91, entry 2029-C_MMDV2b",
+              "after": "work branch, entry 2029-BoekWW8n; public-reading artifact 2029-DIf2WD2z"
+            },
+            "conditions": "Chromium Pixel 7 390 px, Slow 4G 1.6 Mbps / 150 ms, CPU x4 (fast = 20 Mbps / 20 ms); live read-only data; early scroll while loading; n=3-4 per cell",
+            "stats_phone_cls": {
+              "before_slow4g": [
+                1.59,
+                0.55,
+                0.76,
+                0.57,
+                0.55,
+                0.28,
+                0.57
+              ],
+              "after_slow4g": [
+                0.0072,
+                0.0073,
+                0.0073,
+                0.0074
+              ],
+              "before_fast": [
+                1.59,
+                0.087,
+                0.001,
+                0.001
+              ],
+              "after_fast": [
+                0.007,
+                0.0107,
+                0.0107,
+                0.0107
+              ],
+              "recording_cls": {
+                "before": 1.17,
+                "after": 0.012
+              },
+              "first_data_visible_s": {
+                "slow4g": "4.3-4.4 -> 5.3-5.5",
+                "fast": "1.2-1.5 -> 2.2"
+              }
+            },
+            "stats_mechanism": "separate readers land one after another and push the rows below them: weekly trend +375 px, corpus tiles +146 px, discoveries +1,608 px; the footer (drawn when its chunk arrives) is pushed out of view for a reader who scrolled early; a window switch inserted a loading block above the data. Viewport CLS underreports it when the reader has not scrolled (pushed rows are below the fold).",
+            "calculator_entry_live_slow4g": {
+              "gematria": {
+                "text_screen_from_s": 1.2,
+                "typing_field_visible_s": "4.2-4.8",
+                "typed_to_result_ms": "14-19"
+              },
+              "number_345": {
+                "text_screen_s": 1.7,
+                "app_s": 6.4
+              },
+              "post": {
+                "text_screen_s": 1.4,
+                "app_s": "5.2 shell / 6.5 article"
+              },
+              "stats": {
+                "text_screen_s": 1.3,
+                "app_s": 5.0
+              },
+              "cause": "document -> entry (358 KB, ~2.5 s) -> then the page chunks and styles in three waves; the whole document is replaced, so CLS does not see it"
+            },
+            "calculator_hints_local_same_artifact": {
+              "first_visit_slow4g_field_visible_s": "3.56-4.02 (median 3.65) -> 3.24-3.47 (median 3.38)",
+              "return_visit_slow4g_s": "2.31-2.60 -> 0.89-0.99",
+              "first_visit_fast_s": "1.20-1.26 -> 1.24-1.36 (no gain)"
+            },
+            "events_one_entrance": "1 page/view + 1 track_visit; 3 window switches and 20 s idle add none (before = after)",
+            "details": "docs/reviews/speed-jump-20261128/README.md (tools, recordings)"
+          }
         },
         "guard": [],
-        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed.",
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed. | 28.11.2026 STATS JUMP + ENTRY TEXT SCREEN (branch, no merge/deploy): FIXED on the branch: /stats draws once (waits for the weekly trend, the week before and the corpus, at most 900 ms after the pulse; the discovery slot keeps ~90% of its height; footer hidden while waiting; a window switch keeps the page); lab phone CLS with an early scroll 0.28-1.59 -> 0.007-0.011, cost: data about 1 s later. The calculator (/gematria) gets the Home's route hints with its document (36 hints, that document only): first visit Slow 4G 3.65 -> 3.38 s, return visit 2.4 -> 0.9 s, text and links for Google unchanged, shell budget unchanged. Still open: the same hints for /number, posts and /stats (own measurement each), the live site after a deployment, a real device, the 24 px shell shift at ~1.4 s (CLS 0.0107), and the new open-activity block of PR #1589 must join the /stats wait.",
         "next_owner": "speed session",
         "relates_to_groups": []
       },
