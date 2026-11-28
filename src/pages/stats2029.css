@@ -30,3 +30,14 @@
 .stats29-trend{font-style:normal;font-weight:700;color:var(--s29-accent-text,#d5b477);font-variant-numeric:tabular-nums}
 .stats29-trend.is-down{color:var(--s29-muted,#b6a995)}
 .stats29-tile span .stats29-trend{margin-inline-start:4px;font-size:13px}
+
+/* While the page waits for its readers (28.11.2026): the data area keeps one screen of height, so the footer (drawn when its own chunk arrives) is below the fold and is never pushed out of view when the data lands. */
+.stats29[aria-busy="true"]{min-block-size:100svh}
+/* ...and the footer is not part of the page until the data is drawn (the same rule the frame applies while a route shows only its loading placeholder). */
+.sod29-root:has(.stats29[aria-busy="true"]) .f29{display:none}
+
+/* The discoveries are the slowest reader (about 2 s after the pulse; final height measured 28.11.2026: phone 1,686 px, tablet 1,426 px, desktop 779 px, reserved about 90%). Until they land the slot keeps most of its final height, so what sits below does not drop by a screen and a half when they arrive late. */
+.stats29-dc-slot{--stats29-dc-reserve:700px}
+@media (min-width:641px) and (max-width:1000px){.stats29-dc-slot{--stats29-dc-reserve:1300px}}
+@media (max-width:640px){.stats29-dc-slot{--stats29-dc-reserve:1500px}}
+.stats29-dc-slot[data-dc-state="loading"]{min-block-size:var(--stats29-dc-reserve)}

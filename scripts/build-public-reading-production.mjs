@@ -11,7 +11,7 @@ import { protectedReviewBuildIdentity, publicCandidateBuildIdentity, protectedRe
 import { BRAND_APP_ICON_2029, BRAND_LOCKUP_NAV_2029, BRAND_SITE_ICONS_2029 } from "../src/lib/brandAssets2029.js";
 import canonicalMiddleware, { config as canonicalMiddlewareConfig } from "../middleware.js";
 import { articleFirstFingerprint } from "./lib/article-first-fingerprint.mjs";
-import { homePreloadComment, hintLoaderScript2029 } from "../public-reading-deploy/route-preload.js";
+import { homePreloadComment, calculatorPreloadComment, hintLoaderScript2029 } from "../public-reading-deploy/route-preload.js";
 import publicMiddleware, { config as publicMiddlewareConfig } from "../public-reading-deploy/middleware.js";
 
 // Default artifact stays dormant. A separate explicit deployment-scoped review
@@ -110,10 +110,14 @@ document = document.replace(/<link rel="modulepreload" crossorigin href="\/asset
 document = document.replace(entry[0], `${hintLoaderScript2029([entry[1], ...entryGraph.filter(href => href !== entry[1])])}${publicReadingBootstrap(entry[1], sha)}`);
 // The Home's own code (public-reading-deploy/route-preload.js): its static import graph beyond the entry, listed in an inert comment that the
 // document handler turns into preload hints for the Home address only.
-const homePreload = homePreloadComment(JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8")));
+const viteManifest = JSON.parse(await readFile(resolve(output, ".vite/manifest.json"), "utf8"));
+const homePreload = homePreloadComment(viteManifest);
 if (!homePreload) throw new Error("missing_home_preload_graph");
+// The calculator (/gematria), same mechanism and the same hint loader: its chunks are fetched with the document instead of one wave after the entry runs.
+const calculatorPreload = calculatorPreloadComment(viteManifest);
+if (!calculatorPreload) throw new Error("missing_calculator_preload_graph");
 // After the bootstrap script, so the entry's own hint keeps its place directly before the bootstrap.
-document = document.replace("</head>", `${homePreload}</head>`);
+document = document.replace("</head>", `${homePreload}${calculatorPreload}</head>`);
 console.log(`home preload: ${(homePreload.match(/"\/assets\//g) || []).length} files; entry graph: ${entryGraph.length + 1} files (applied by the hint loader)`);
 // Candidate PWA only: retain the existing installed-app identity/name/start URL.
 // Refer to the exact complete 2029 brand asset; do not redraw/crop the mark or
