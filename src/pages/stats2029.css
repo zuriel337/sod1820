@@ -40,4 +40,6 @@
 .stats29-dc-slot{--stats29-dc-reserve:700px}
 @media (min-width:641px) and (max-width:1000px){.stats29-dc-slot{--stats29-dc-reserve:1300px}}
 @media (max-width:640px){.stats29-dc-slot{--stats29-dc-reserve:1500px}}
-.stats29-dc-slot[data-dc-state="loading"]{min-block-size:var(--stats29-dc-reserve)}
+.stats29-dc-slot[data-dc-state="loading"]{min-block-size:var(--stats29-dc-reserve);border-radius:16px;
+  background-image:repeating-linear-gradient(to bottom,color-mix(in srgb,currentColor 6%,transparent) 0 104px,transparent 104px 124px)}
+.stats29-dc-wait{margin:0;padding:10px 4px;font-size:14px;opacity:.8}

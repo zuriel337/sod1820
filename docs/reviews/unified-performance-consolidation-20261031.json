@@ -4587,7 +4587,43 @@
               "first_visit_fast_s": "1.20-1.26 -> 1.24-1.36 (no gain)"
             },
             "events_one_entrance": "1 page/view + 1 track_visit; 3 window switches and 20 s idle add none (before = after)",
-            "details": "docs/reviews/speed-jump-20261128/README.md (tools, recordings)"
+            "details": "docs/reviews/speed-jump-20261128/README.md (tools, recordings)",
+            "status_by_surface": {
+              "stats_phone_jump": "FIXED ON BRANCH (lab), not deployed, not field-verified",
+              "calculator_entry_text_screen": "PARTIAL IMPROVEMENT (route hints: return visit 2.4 -> 0.9 s, first visit Slow 4G 3.65 -> 3.38 s, none on a fast network)",
+              "posts_entry_text_screen": "OPEN (no hints; app at ~5.2-6.5 s in the live lab)",
+              "number_pages_entry_text_screen": "OPEN (no hints; app at ~6.4 s in the live lab, graph 326 KB gzip)",
+              "stats_entry_text_screen": "OPEN (app at ~5.0 s)"
+            },
+            "stats_states_20261128": {
+              "full": {
+                "slot_h": 1686,
+                "footer_reachable": true,
+                "cls": 0.003
+              },
+              "few": {
+                "slot_h": 1123,
+                "footer_reachable": true,
+                "cls": 0.013
+              },
+              "empty": {
+                "slot_state": "none",
+                "blank": 0,
+                "footer_reachable": true
+              },
+              "read_failure": {
+                "slot_state": "none",
+                "blank": 0,
+                "footer_reachable": true
+              },
+              "slow_9s": {
+                "while_waiting": "placeholder cards plus a status line (not an empty area)",
+                "footer_reachable": true
+              },
+              "window_switch": "no loading block, no layout shift outside the data swap; aria-pressed follows",
+              "max_gap_between_blocks_px": 20,
+              "residual": "rows below the slot move up to 187 px when discoveries land after the page opens; with few items the page shrinks by 377 px below the fold"
+            }
           }
         },
         "guard": [],

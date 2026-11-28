@@ -126,6 +126,7 @@ export default function Stats2029Page() {
         <section className="stats29-block" aria-labelledby="stats29-discoveries" data-stats-discoveries="true">
           <h2 id="stats29-discoveries">גילויים ותרומות</h2>
           <div className="stats29-dc-slot" data-dc-state={center.status}>
+          {center.status === "loading" ? <p className="stats29-dc-wait" role="status">טוען את הגילויים והתרומות…</p> : null}
           <DiscoveryTotals totals={center.totals} />
           <DiscoveryFeatured featured={center.model?.featured} featuredWith={center.model?.featuredWith} mode="stats" />
           {center.model?.latest.length || center.model?.contributions.length ? <div className={`dc29-grid${center.model.latest.length && center.model.contributions.length ? "" : " dc29-one"}`}>

@@ -22,7 +22,9 @@ test("the data area draws once: it waits for the weekly trend, the week before a
 test("while the page waits the footer is not part of it and the slowest block keeps most of its final height (so a late answer lands without a jump)", () => {
   assert.match(css, /\.stats29\[aria-busy="true"\]\{min-block-size:100svh\}/);
   assert.match(css, /\.sod29-root:has\(\.stats29\[aria-busy="true"\]\) \.f29\{display:none\}/);
-  assert.match(css, /\.stats29-dc-slot\[data-dc-state="loading"\]\{min-block-size:var\(--stats29-dc-reserve\)\}/);
+  assert.match(css, /\.stats29-dc-slot\[data-dc-state="loading"\]\{min-block-size:var\(--stats29-dc-reserve\)/);
+  assert.match(css, /repeating-linear-gradient/, "while it waits the reserved space shows placeholder cards, not an empty area");
+  assert.match(page, /className="stats29-dc-wait" role="status"/, "and says what it waits for");
   for (const reserve of ["1500px", "1300px", "700px"]) assert.ok(css.includes(`--stats29-dc-reserve:${reserve}`), reserve);
   assert.match(page, /<div className="stats29-dc-slot" data-dc-state=\{center\.status\}>/);
 });
