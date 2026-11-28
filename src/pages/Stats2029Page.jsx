@@ -40,6 +40,14 @@ export default function Stats2029Page() {
   const center = useDiscoveryCenter();
   const [weekly, setWeekly] = useState(null);
   const [before, setBefore] = useState(null);
+  // The page appears ONCE (27-28.11.2026, mobile jump): the pulse, the weekly trend, the corpus tiles, the week before and the discovery center are separate readers that
+  // used to land one after another, each pushing everything below it (weekly +375 px, corpus +146 px, discoveries +1,608 px; a reader who scrolled early saw the rows and
+  // the footer move, CLS 1.59). The data area now waits for all of them to settle (success or failure) or for a short ceiling, then draws in one step; a later answer
+  // is not drawn above what the reader already sees.
+  const [settled, setSettled] = useState({ weekly: false, before: false, corpus: false });
+  const settle = key => setSettled(v => v[key] ? v : { ...v, [key]: true });
+  const [grace, setGrace] = useState(false);
+  const [shown, setShown] = useState(false);
   useEffect(() => {
     let live = true;
     Promise.all([readResearchPulse(168), readResearchPulse(720)]).then(([d168, d720]) => {
@@ -48,13 +56,14 @@ export default function Stats2029Page() {
         const weeks = behaviourTrends(d168, d720), have = new Set(weeks.map(t => t.key));
         setWeekly({ behaviour: [...weeks, ...halfWeekTrends(d168).filter(t => !have.has(t.key))], added: addedTrends(d168, d720) });
       }
-    }, () => {});
-    import("../lib/research/homeWeekBefore2029.js").then(m => m.fetchHomeWeekBefore2029()).then(v => { if (live) setBefore(v); }, () => {});
+      if (live) settle("weekly");
+    }, () => { if (live) settle("weekly"); });
+    import("../lib/research/homeWeekBefore2029.js").then(m => m.fetchHomeWeekBefore2029()).then(v => { if (live) { setBefore(v); settle("before"); } }, () => { if (live) settle("before"); });
     return () => { live = false; };
   }, []);
   useEffect(() => {
     applySeo({ title: "סטטיסטיקה · מה קורה עכשיו באתר", description: "מה נחקר, נקרא ונסרק באתר: מספרים, פוסטים, מחשבונים, צפנים, קהילה ומנועי חיפוש. נתונים מצרפיים בלבד.", path: "/stats", noindex: true });
-    fetchHomeSystemPulse2029().then(setCorpus, () => setCorpus(null));
+    fetchHomeSystemPulse2029().then(v => { setCorpus(v); settle("corpus"); }, () => { setCorpus(null); settle("corpus"); });
   }, []);
   useEffect(() => {
     let live = true;
@@ -65,6 +74,12 @@ export default function Stats2029Page() {
   }, [manual]);
 
   const r = state.result, d = r?.data;
+  // The discoveries (the slowest reader) are not waited for: their slot reserves its height (stats2029.css), so they land without moving what is above or below by a screen.
+  const everything = !state.loading && settled.weekly && settled.before && settled.corpus;
+  // The other readers get a short grace after the pulse arrives (the pulse is the main data and always the first to land); after it the page draws with what it has.
+  const open = shown || Boolean(d && !state.loading && (everything || grace));
+  useEffect(() => { if (open && !shown) setShown(true); }, [open, shown]);
+  useEffect(() => { if (!d || grace) return undefined; const t = setTimeout(() => setGrace(true), 900); return () => clearTimeout(t); }, [Boolean(d), grace]);
   const human = d?.totals?.human || {}, unknown = d?.totals?.unknown || {};
   // A number a person typed or computed is never listed: the server sends only a total behind a fixed mask (an older server answer, a list, is ignored).
   const computedTotal = d?.computed && !Array.isArray(d.computed) && Number.isSafeInteger(d.computed.events) ? d.computed.events : 0;
@@ -73,14 +88,14 @@ export default function Stats2029Page() {
   const sections = (d?.sections || []).filter(x => SECTIONS[x.section]);
   return <Sod2029Shell surface="world" introVariant="compact" symbol={<NavigationIcon2029 name="now" />}
     eyebrow="סטטיסטיקה" title="מה קורה ב־SOD1820" description="מה נחקר, נקרא ונסרק באתר. נתונים מצרפיים בלבד: פעולות, לא אנשים.">
-    <main className="stats29" dir="rtl" data-experience-surface="stats">
+    <main className="stats29" dir="rtl" data-experience-surface="stats" aria-busy={!open && !state.failed ? "true" : undefined}>
       <div className="stats29-window" role="group" aria-label="טווח הנתונים">
-        <span>{r && !state.loading ? `מוצג: ${r.label}` : ""}</span>
+        <span aria-live="polite">{r && !state.loading ? `מוצג: ${r.label}` : shown && state.loading ? "טוען את הטווח…" : ""}</span>
         {PULSE_WINDOWS.map(([h, , short]) => <button key={h} type="button" aria-pressed={r?.hours === h} onClick={() => setManual(h)}>{short}</button>)}
       </div>
-      {state.loading ? <CanonicalProgress compact title="טוען את נתוני האתר" phase={manual ? "קורא את הטווח שנבחר" : "בוחר את הטווח הקצר ביותר שיש בו נתונים מלאים"} /> : null}
+      {!open && !state.failed ? <CanonicalProgress compact title="טוען את נתוני האתר" phase={manual ? "קורא את הטווח שנבחר" : "בוחר את הטווח הקצר ביותר שיש בו נתונים מלאים"} /> : null}
       {state.failed ? <p role="status">הנתונים אינם זמינים כרגע. אפשר לנסות שוב בעוד רגע.</p> : null}
-      {d ? <>
+      {d && open ? <>
         <section className="stats29-block" aria-labelledby="stats29-site">
           <h2 id="stats29-site">האתר במספרים · {r.label}</h2>
           <div className="stats29-grid">
@@ -107,19 +122,21 @@ export default function Stats2029Page() {
           {d.content?.length ? <><h3>הפוסטים שנקראים הכי הרבה</h3><ol className="stats29-list">{d.content.map(x => <li key={x.href}><Link to={x.href}>{x.title}</Link><small>{pulseCount(x.events)} קריאות</small></li>)}</ol></> : null}
           {d.phrases?.length ? <><h3>ביטויים מאושרים שנבחרו</h3><ol className="stats29-chips">{d.phrases.map(x => <li key={x.phrase}><span><b>{x.phrase}</b><small>{x.value} · {pulseCount(x.events)} בחירות</small></span></li>)}</ol></> : null}
         </section> : null}
-        <OpenActivity2029 />
         {sections.length ? <section className="stats29-block" aria-labelledby="stats29-sections">
           <h2 id="stats29-sections">פעילות לפי מדורים</h2>
           <ol className="stats29-bars">{sections.map(x => <li key={x.section}><span>{SECTIONS[x.section]}</span><i style={{ width: Math.max(4, Math.round(x.views / sections[0].views * 100)) + "%" }} /><small>{pulseCount(x.views)}</small></li>)}</ol>
         </section> : null}
         <section className="stats29-block" aria-labelledby="stats29-discoveries" data-stats-discoveries="true">
           <h2 id="stats29-discoveries">גילויים ותרומות</h2>
+          <div className="stats29-dc-slot" data-dc-state={center.status}>
+          {center.status === "loading" ? <p className="stats29-dc-wait" role="status">טוען את הגילויים והתרומות…</p> : null}
           <DiscoveryTotals totals={center.totals} />
           <DiscoveryFeatured featured={center.model?.featured} featuredWith={center.model?.featuredWith} mode="stats" />
           {center.model?.latest.length || center.model?.contributions.length ? <div className={`dc29-grid${center.model.latest.length && center.model.contributions.length ? "" : " dc29-one"}`}>
             {center.model.latest.length ? <div className="dc29-col"><DiscoveryLatest items={center.model.latest} model={center.model} mode="stats" admin={false} /></div> : null}
             {center.model.contributions.length ? <div className="dc29-col"><DiscoveryContributions items={center.model.contributions} mode="stats" stack /></div> : null}
           </div> : null}
+          </div>
           <h3 id="stats29-added">נוסף לאתר · {r.label}</h3>
             <div className="stats29-grid">
               <Tile value={added.community_messages} label="הודעות בקהילה" note={r.label} to="/community/chat" trend={r.hours === 168 ? weekly?.added?.community_messages : null} />
@@ -147,6 +164,7 @@ export default function Stats2029Page() {
           </div>
           {d.history.top_values?.length ? <><h3>הערכים שחושבו הכי הרבה (יוני עד נובמבר 2026)</h3><ol className="stats29-chips">{d.history.top_values.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.count)} חישובים</small></Link></li>)}</ol></> : null}
         </section> : null}
+        <OpenActivity2029 />
         <p className="stats29-note">כל רשימה מציגה רק פריטים שעברו 10 פעולות מ־5 ביקורים לפחות (וערך היסטורי רק מ־30 חישובים), כדי ששום פריט לא יצביע על אדם אחד. מספרים הם פעולות, לא אנשים; חיפושים פרטיים אינם מוצגים לעולם.
           {d.computed_at ? " עודכן " + new Date(d.computed_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) + "." : ""}</p>
       </> : null}

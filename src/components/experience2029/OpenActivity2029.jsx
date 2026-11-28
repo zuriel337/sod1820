@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import CanonicalProgress from "../CanonicalProgress.jsx";
 import { OPEN_ACTIVITY_WINDOWS, readOpenActivity, openActivityModel } from "../../lib/researchOpenActivity2029.js";
@@ -29,14 +29,17 @@ function Family({ f }) {
 export default function OpenActivity2029() {
   const [win, setWin] = useState("week");
   const [state, setState] = useState({ loading: true });
+  const answered = useRef(false); // the section is drawn only once it has data; a window switch afterwards keeps it drawn (no block appears or vanishes above content)
   useEffect(() => {
     let live = true;
     setState({ loading: true });
-    readOpenActivity(win).then(d => live && setState(d ? { model: openActivityModel(d), state: d.state } : { unavailable: true }), () => live && setState({ unavailable: true })); // null = the reader is not applied yet
+    readOpenActivity(win).then(d => live && (answered.current = Boolean(d), setState(d ? { model: openActivityModel(d), state: d.state } : { unavailable: true })), () => live && setState({ unavailable: true })); // null = the reader is not applied yet
     return () => { live = false; };
   }, [win]);
   // Reader not applied yet, or failed: the section is not drawn at all (no zero, no empty frame).
   if (state.unavailable) return null;
+  // First read still running: nothing is drawn yet (a late block would push the rows below it; the page mounts this section last for the same reason).
+  if (state.loading && !answered.current) return null;
   const m = state.model;
   return <section className="stats29-block" aria-labelledby="stats29-open" data-stats-open-activity="true">
     <h2 id="stats29-open">פעילות מצטברת · מה נפתח באתר</h2>

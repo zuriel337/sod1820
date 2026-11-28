@@ -1,11 +1,13 @@
 import { useAuth } from "../lib/AuthContext.jsx";
 import { startSiteActivity, recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import Sod2029Shell, { use2029Shell } from "../components/experience2029/Sod2029Shell.jsx";
 import ShareActions from "../components/ShareActions.jsx";
 import { FINDING_NOT_SENT, findingCardUrl, findingShareMessage } from "../lib/share.js";
+// the calculation of the chosen method is drawn by the one canonical stage (the plain list of steps was retired); loaded when a calculation is opened
+const SpatialMethodStage2029 = lazy(() => import("../components/gematria2029/SpatialMethodStage2029.jsx"));
 import MethodLens2029 from "../components/gematria2029/MethodLens2029.jsx";
 import CalculatorCompare2029 from "../components/gematria2029/CalculatorCompare2029.jsx";
 import CalculatorOpening2029 from "../components/gematria2029/CalculatorOpening2029.jsx";
@@ -46,16 +48,6 @@ const regularValueOfRows = rows => { const r = rows.find(x => x?.methodKey === "
 
 const clean = (value) => value == null ? "" : String(value).trim();
 const CALCULATOR_2029_AUTO_COMPUTE_DEBOUNCE_MS = 240;
-
-function traceSteps(finding) {
-  const raw = finding?.projection?.dimensions?.trace?.steps;
-  if (!Array.isArray(raw)) return [];
-  return raw.map((step) => {
-    if (typeof step === "string") return step;
-    if (!step || typeof step !== "object") return "";
-    return clean(step.label || step.description || step.expression || step.token || step.word || step.step);
-  }).filter(Boolean);
-}
 
 function eventProps(selection, extra = {}) {
   return {
@@ -516,8 +508,6 @@ function CalculatorExperience() {
     requestAnimationFrame(() => inputRef.current?.focus?.());
   };
 
-  const steps = traceSteps(trace.finding);
-
   return (
     <section className="sod29-calc2029" data-experience-surface="calculator-2029">
       {sharedRestored && selection ? (
@@ -591,11 +581,8 @@ function CalculatorExperience() {
                 <span>חישוב קנוני · {selection.methodLabel}</span>
                 <strong>{selection.expression} → {selection.resultValue}</strong>
               </div>
-              {steps.length ? (
-                <div className="sod29-calc2029-trace-steps">
-                  {steps.map((step, index) => <span key={step + ":" + index}>{step}</span>)}
-                </div>
-              ) : <small>המנוע החזיר Trace מאומת ללא צעדים טקסטואליים להצגה.</small>}
+              <Suspense fallback={null}><SpatialMethodStage2029 expression={selection.expression} methodKey={selection.methodKey}
+                trace={trace.finding?.projection?.dimensions?.trace || null} expectedValue={selection.resultValue ?? null} depth="S2" loading={trace.loading === true} /></Suspense>
             </div>
           ) : null}
 

@@ -2,7 +2,7 @@ import { PUBLIC_READING_RELEASE } from "../lib/publicReadingRelease2029.js";
 import { recordSiteActivity } from "../lib/siteActivity2029.js";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import ContextReturnAction2029 from "../components/experience2029/ContextReturnAction2029.jsx";
-import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
+import { traceNumber, isVerifiedMethodTrace } from "../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 // Finding share (ZURIEL 18.11.2026): a small button inside this (already lazy) page; the share actions load when the sheet opens.
 import FindingShare2029 from "../components/experience2029/FindingShare2029.jsx";
@@ -262,7 +262,6 @@ function NumberPageBody({ resolvedAddress = null }) {
   const [regularReadAttempt, setRegularReadAttempt] = useState(0);
   const regularPhraseState = storedRegularPhraseState.root === root && storedRegularPhraseState.readerIdentity === readerIdentity
     ? storedRegularPhraseState : PENDING_REGULAR_PHRASES;
-  const [traceOpen, setTraceOpen] = useState(false);
   const [deepViewInputState, setDeepViewInputState] = useState({ loading: false, data: null, error: null });
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [], error: null });
   const [systemMethodsState, setSystemMethodsState] = useState({ loading: false, cards: [], error: null, key: null });
@@ -304,7 +303,6 @@ function NumberPageBody({ resolvedAddress = null }) {
     setSelectedMethodKey(clean(urlFocus.method) || contextMethod);
     setActiveExpression(clean(urlFocus.expression) || contextExpression);
     setFocusedCrossingPartner(clean(urlFocus.crossingPartner) || contextCrossing);
-    setTraceOpen(false);
     setDeepRequested(false);
     setExpandedVerseState({
       loading: false,
@@ -684,7 +682,6 @@ function NumberPageBody({ resolvedAddress = null }) {
   const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
   const trace = currentMethodRows.length && isVerifiedMethodTrace(rawTrace, { expression: activeExpression, methodKey: selectedMethodProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
   const activeResult = traceNumber(trace?.result ?? selectedMethodProfile?.computedValue);
-  const traceSteps = gematriaTraceLines(trace, { expression: activeExpression, methodKey: selectedMethodKey });
 
   useEffect(() => {
     const next = traceNumber(activeResult);
@@ -934,7 +931,6 @@ function NumberPageBody({ resolvedAddress = null }) {
     setFocusedCrossingPartner("");
     setActiveExpression("");
     setSelectedMethodKey("");
-    setTraceOpen(false);
     research.updateResearchContext?.({
       selection: { entityId: String(root), entityType: "number" },
       lens: "number",
@@ -1314,8 +1310,6 @@ function NumberPageBody({ resolvedAddress = null }) {
         curation={numberCuration}
         curationCatalog={curationState.catalog}
         traceState={traceState}
-        traceOpen={traceOpen}
-        traceSteps={traceSteps}
         traceDetail={trace}
         stageProjection={stageProjection}
         materialStatus={materialStatus}
@@ -1329,7 +1323,6 @@ function NumberPageBody({ resolvedAddress = null }) {
         onExpressionSelect={(phrase, method = null, options = {}) => activateExpressionFocus(phrase, method || regularMethodProfile?.methodKey || null, options)}
         onResolveQuery={resolveNumberQuery}
         onMethodSelect={activateMethodFocus}
-        onToggleTrace={() => setTraceOpen((value) => !value)}
         hiddenCrossings={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.rows : EMPTY_METHOD_PROFILE_ROWS}
         hiddenCrossingsLoading={hiddenCrossState.key !== hiddenCrossSourceKey || hiddenCrossState.loading}
         hiddenCrossingsError={hiddenCrossState.key === hiddenCrossSourceKey ? hiddenCrossState.error : null}

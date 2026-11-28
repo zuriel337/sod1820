@@ -1,4 +1,4 @@
-import { gematriaTraceLines, traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
+import { traceNumber, isVerifiedMethodTrace } from "../../lib/research/gematriaTracePresentation.js";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import NumberCore2029 from "./NumberCore2029.jsx";
 import EnglishGematriaLane2029 from "../gematria2029/EnglishGematriaLane2029.jsx";
@@ -90,7 +90,6 @@ export default function NumberDrawer2029({
   const [methodResultState, setMethodResultState] = useState({ loading: false, data: null, error: null, key: null });
   const [languageBridgeState, setLanguageBridgeState] = useState({ loading: false, rows: [] });
   const [regularPhraseState, setRegularPhraseState] = useState({ loading: false, rows: [] });
-  const [traceOpen, setTraceOpen] = useState(false);
   const [hiddenCrossState, setHiddenCrossState] = useState({ loading: false, rows: [] });
   const internalContextSignatureRef = useRef(null);
   const modeRef = useRef(null);
@@ -115,7 +114,6 @@ export default function NumberDrawer2029({
       methodKey: nextMethodKey || null,
       root: traceNumber(nextRoot),
     } : null);
-    setTraceOpen(false);
   }, [
     target?.type,
     target?.id,
@@ -249,9 +247,8 @@ export default function NumberDrawer2029({
       expression: expr,
       methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
       root: focusRoot,
-      traceOpen,
     });
-  }, [surfaceMode, expression, selectedProfile?.methodKey, selectedProfile?.computedValue, selectedMethodKey, root, traceOpen]);
+  }, [surfaceMode, expression, selectedProfile?.methodKey, selectedProfile?.computedValue, selectedMethodKey, root]);
 
   useEffect(() => {
     if (previousSurfaceModeRef.current === surfaceMode) return;
@@ -362,7 +359,6 @@ export default function NumberDrawer2029({
 
   const rawTrace = traceState.finding?.projection?.dimensions?.trace || null;
   const trace = isVerifiedMethodTrace(rawTrace, { expression: expression, methodKey: selectedProfile?.methodKey || selectedMethodKey }) ? rawTrace : null;
-  const traceSteps = gematriaTraceLines(trace, { expression: expression, methodKey: selectedMethodKey });
   const activeResult = traceNumber(trace?.result ?? selectedProfile?.computedValue);
 
   useEffect(() => {
@@ -480,12 +476,10 @@ export default function NumberDrawer2029({
       setExpression("");
       setSelectedMethodKey("");
       setSurfaceMode("number");
-      setTraceOpen(false);
       return;
     }
     setExpression(raw);
     setSurfaceMode("focus");
-    setTraceOpen(false);
     setSelectedMethodKey("");
     const language = classifyCalculatorInput(raw);
     if (!language.hebrewApplicable) {
@@ -522,7 +516,6 @@ export default function NumberDrawer2029({
     const nextProfile = methodProfileEntry(profileRows, key);
     setSelectedMethodKey(key);
     setSurfaceMode("focus");
-    setTraceOpen(false);
     updateContext({}, {
       expression: clean(expression) || null,
       methodKey: nextProfile?.methodKey || clean(key) || null,
@@ -538,7 +531,6 @@ export default function NumberDrawer2029({
         expression: clean(expression),
         methodKey: selectedProfile?.methodKey || clean(selectedMethodKey) || null,
         root: traceNumber(root),
-        traceOpen,
       });
     }
     const sameRoot = root === next;
@@ -549,7 +541,6 @@ export default function NumberDrawer2029({
       setSelectedMethodKey("");
     }
     setSurfaceMode("number");
-    setTraceOpen(false);
   };
 
   const restoreOriginFocus = () => {
@@ -560,7 +551,6 @@ export default function NumberDrawer2029({
     setSelectedMethodKey(originFocus.methodKey || "");
     const restoredRoot = traceNumber(originFocus.root);
     if (restoredRoot != null) setRoot(restoredRoot);
-    setTraceOpen(originFocus.traceOpen === true);
   };
 
   const razielIntent = (intent, focus = {}) => {
@@ -674,19 +664,15 @@ export default function NumberDrawer2029({
       hiddenCrossingsLoading={hiddenCrossState.loading}
       mode="drawer"
       traceState={traceState}
-      traceOpen={traceOpen}
-      traceSteps={traceSteps}
       traceDetail={trace}
       onExpressionSelect={(phrase) => {
         setExpression(phrase);
         setInput(phrase);
         setSurfaceMode("focus");
         if (regularProfile?.methodKey) setSelectedMethodKey(regularProfile.methodKey);
-        setTraceOpen(false);
       }}
       onResolveQuery={resolveInputValue}
       onMethodSelect={selectMethod}
-      onToggleTrace={() => setTraceOpen((value) => !value)}
       onOpenCrossing={(crossing) => razielIntent("explain_crossing", { kind: "crossing", partner: crossing?.partner || null, methods: crossing?.methods || [] })}
       onOpenZero={openExplicitRoot}
       onOpenResult={openExplicitRoot}

@@ -2479,7 +2479,7 @@
           "test/shell-supabase-preconnect-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]",
           "test/footer-loading-cls-2029.test.mjs [exists on origin/main; CI: .github/workflows/live-contracts-2029.yml]"
         ],
-        "open": "Doc §8: entry preload and :has() footer rule need RUM validation; Chromium only.",
+        "open": "Doc §8: entry preload and :has() footer rule need RUM validation; Chromium only. | 28.11.2026: the same hint mechanism now also covers the calculator route /gematria on the work branch (not merged); see S-59 lab_20261128_stats_and_entry.",
         "next_owner": "Speed Law (CLAUDE.md)",
         "relates_to_groups": [
           "F01",
@@ -4128,7 +4128,7 @@
           "source": "canonical Supabase read 2026-11-25",
           "after_20261126": "24h 25.11 09:18 -> 26.11 09:18 UTC. /api/public-document (Vercel observability, same query as before): MISS 25,364 (84.8%), HIT 3,326 (11.1%), STALE 1,193 (4.0%), 9 empty, of 29,892. Before: MISS 86.7%, HIT 9.0%, STALE 4.4% of 28,476. Change-list reads (Supabase edge_logs, same string match, both windows): 52 -> 3,020. Function duration 8.21 -> 10.90 GB-h; middleware CPU 505 s -> 501 s. Field TTFB for Posts (own web_vital events, 1 sample per sample_id, burst excluded): phone 1,203 -> 1,659 ms (n 45 -> 30); desktop 1,266 -> 1,342 ms (n 35 -> 15). The Vercel Speed Insights query was rejected (402 payment_required), so the earlier 1,328/1,470 ms Speed Insights figures are not comparable.",
           "protocol_9bf41e6": {
-            "status": "STARTED 26.11.2026 10:50 UTC; after-window closes 27.11.2026 ~11:05 UTC (reminder scheduled)",
+            "status": "AFTER MEASURED 27.11.2026 ~11:10 UTC with a validity finding: build 9bf41e6 served only 3.5 h, so the matched after windows measure later builds; Vercel part not measured (query errors); see after_measured_20261127",
             "before_build": "2029-BK3LoBjq (463bdc1), Production 25.11 ~17:39 -> 26.11 10:50 UTC",
             "after_build": "2029-BcTZsiDj (9bf41e6)",
             "matched_hours_utc": "18:00-24:00 and 07:00-10:00. Before = 25.11 18:00-24:00 + 26.11 07:00-10:00; after = 26.11 18:00-24:00 + 27.11 07:00-10:00. Excluded hours (documented anomalies): 00:00-06:30 UTC (traffic wave), 06:00-06:30 (crawler-like spike). Vercel queries must use hourly granularity and sum whole hours (coarser buckets snap outside the requested window).",
@@ -4165,7 +4165,187 @@
               }
             },
             "vercel_baseline": "recomputed at after-time with the same hourly queries (route eq /api/public-document by cache_result; function_duration_gbhr; middleware function_cpu_time_ms; function ttfb p75). Field: own web_vital events, one sample per sample_id, device and path groups, n reported; n<30 marked weak.",
-            "nothing_measured_as_after_yet": true
+            "after_measured_20261127": {
+              "measured_at": "2026-11-27 ~11:10 UTC (read-only, no change to cache, SQL, WAF or thresholds)",
+              "validity_finding": "The after windows did NOT run build 2029-BcTZsiDj (9bf41e6). Per web_vital build tags it served only 26.11 11:04-14:34 UTC (58 samples); it was replaced 26.11 14:37 by 2029-C5ROC4LY (until 27.11 01:30), then 2029-BlkNvGWl (27.11 02:00-05:55), then 2029-BnSB9XOS (27.11 05:51 onward). The matched after windows (26.11 18:00-24:00, 27.11 07:00-10:00) therefore measure builds C5ROC4LY, BlkNvGWl and BnSB9XOS, not the 9bf41e6 change alone. The 24h attribution to 9bf41e6 is NOT valid.",
+              "edge_logs_after_(same_string_match_event_message_like; retention 24h kept for 26.11 18:00 to 27.11 10:00)": {
+                "window_A_26.11_18_24": {
+                  "all_requests": 226729,
+                  "change_list_reads": 914,
+                  "is_number_indexable": 353,
+                  "posts_by_number_strict": 948,
+                  "is_phrase_indexable": 2095,
+                  "number_anchors": 1363,
+                  "gematria_words": 6781,
+                  "node_ua_requests": 17500,
+                  "options_requests": 61976
+                },
+                "window_B_27.11_07_10": {
+                  "all_requests": 68208,
+                  "change_list_reads": 357,
+                  "is_number_indexable": 48,
+                  "posts_by_number_strict": 1193,
+                  "is_phrase_indexable": 2925,
+                  "number_anchors": 1271,
+                  "gematria_words": 7075,
+                  "node_ua_requests": 10754,
+                  "options_requests": 23142
+                },
+                "sum_9h": {
+                  "all_requests": 294937,
+                  "change_list_reads": 1271,
+                  "is_number_indexable": 401,
+                  "posts_by_number_strict": 2141,
+                  "is_phrase_indexable": 5020,
+                  "number_anchors": 2634,
+                  "gematria_words": 13856,
+                  "node_ua_requests": 28254
+                },
+                "vs_baseline_sum_9h": "all_requests 80,828 -> 294,937 (x3.65); change_list_reads 679 -> 1,271 (x1.87); is_number_indexable 322 -> 401; posts_by_number_strict 408 -> 2,141 (x5.2); is_phrase_indexable 3,313 -> 5,020; number_anchors 651 -> 2,634 (x4.0); gematria_words 7,200 -> 13,856; node_ua_requests 14,095 -> 28,254.",
+                "caveat": "Total API requests rose 3.65x between matched windows, so absolute counts are confounded by traffic. The baseline's exact string rules are not in the repository: OPTIONS preflights are counted here (about 27% of requests); the comparison is indicative only. The number-page family (posts_by_number_strict, number_anchors) grew faster than total requests."
+              },
+              "vercel_after": "NOT MEASURED. Every observability query (vercel.request.count by cache_result, function_duration_gbhr, middleware cpu, ttfb; hourly granularity, the project-with-owner-id scope that worked on 25-26.11, and older scope forms) returned HTTP 400 bad_request in this session, including a plain query that had worked before. Not retried further; no figure is invented. Needs a fresh attempt or the dashboard.",
+              "field_web_vital_p75_ms_(own events, one sample per sample_id, final phase preferred, is_bot not true; n<30 is weak)": {
+                "A_before_matched_(BK3LoBjq)": {
+                  "chat_desktop": {
+                    "n": 34,
+                    "ttfb": 1069,
+                    "lcp": 2372,
+                    "fcp": 2244
+                  },
+                  "chat_mobile": {
+                    "n": 20,
+                    "ttfb": 1235,
+                    "lcp": 1841,
+                    "fcp": 1733,
+                    "weak": true
+                  },
+                  "post_desktop": {
+                    "n": 7,
+                    "ttfb": 1260,
+                    "lcp": 2395,
+                    "fcp": 2088,
+                    "weak": true
+                  },
+                  "post_mobile": {
+                    "n": 15,
+                    "ttfb": 1123,
+                    "lcp": 2546,
+                    "fcp": 2408,
+                    "weak": true
+                  }
+                },
+                "B_after_matched_(C5ROC4LY, BlkNvGWl, BnSB9XOS; NOT 9bf41e6)": {
+                  "chat_desktop": {
+                    "n": 71,
+                    "ttfb": 4585,
+                    "lcp": 7748,
+                    "fcp": 6820
+                  },
+                  "chat_mobile": {
+                    "n": 30,
+                    "ttfb": 1012,
+                    "lcp": 1732,
+                    "fcp": 1500
+                  },
+                  "post_desktop": {
+                    "n": 7,
+                    "ttfb": 1445,
+                    "lcp": 2812,
+                    "fcp": 2505,
+                    "weak": true
+                  },
+                  "post_mobile": {
+                    "n": 14,
+                    "ttfb": 1397,
+                    "lcp": 1827,
+                    "fcp": 1820,
+                    "weak": true
+                  }
+                },
+                "per_build_all_hours": {
+                  "BK3LoBjq": {
+                    "post_desktop": {
+                      "n": 782,
+                      "ttfb": 2443,
+                      "lcp": 4148,
+                      "fcp": 2648
+                    },
+                    "post_mobile": {
+                      "n": 34,
+                      "ttfb": 1332,
+                      "lcp": 2478,
+                      "fcp": 2355
+                    },
+                    "chat_desktop": {
+                      "n": 576,
+                      "ttfb": 2472,
+                      "lcp": 3639,
+                      "fcp": 3087
+                    }
+                  },
+                  "BcTZsiDj_(26.11_11:04-14:34_only)": {
+                    "post_desktop": {
+                      "n": 5,
+                      "weak": true,
+                      "ttfb": 877,
+                      "lcp": 1496
+                    },
+                    "post_mobile": {
+                      "n": 4,
+                      "weak": true
+                    },
+                    "chat_desktop": {
+                      "n": 26,
+                      "weak": true,
+                      "ttfb": 2568,
+                      "lcp": 10257
+                    },
+                    "chat_mobile": {
+                      "n": 5,
+                      "weak": true
+                    }
+                  },
+                  "C5ROC4LY": {
+                    "post_desktop": {
+                      "n": 13,
+                      "weak": true,
+                      "ttfb": 952,
+                      "lcp": 1507
+                    },
+                    "post_mobile": {
+                      "n": 16,
+                      "weak": true,
+                      "ttfb": 1337,
+                      "lcp": 1724
+                    },
+                    "chat_desktop": {
+                      "n": 111,
+                      "ttfb": 5064,
+                      "lcp": 8260,
+                      "fcp": 7320
+                    },
+                    "chat_mobile": {
+                      "n": 37,
+                      "ttfb": 936,
+                      "lcp": 1514
+                    }
+                  }
+                }
+              },
+              "findings": [
+                "Posts: every cell has n<30 (desktop 7, mobile 14-15): no conclusion on Posts. The only post cell with n>=30 across builds is BK3LoBjq all hours (desktop n=782, TTFB 2,443 / LCP 4,148), which is a different hour mix.",
+                "/community/chat on desktop is slower in the after window (TTFB p75 1,069 -> 4,585; LCP 2,372 -> 7,748; n 34 -> 71), the same on C5ROC4LY (n=111) and on BcTZsiDj (n=26, weak); chat on phones is not slower (1,235 -> 1,012). Desktop-only and present on three builds suggests a traffic or client mix change (the known /community/chat desktop wave) rather than the 9bf41e6 change; this is NOT proven (no per-request bot signal here).",
+                "The apparent field improvement on Posts (LCP) is within n<30 noise."
+              ],
+              "not_measured": [
+                "Vercel cache_result, function_duration_gbhr, middleware CPU, function TTFB (query errors)",
+                "a clean per-build 24h of 9bf41e6 (it served 3.5 h)",
+                "bot share of the chat desktop samples"
+              ],
+              "recommendation": "Repeat the Vercel part when the tool answers; judge 9bf41e6 only on its own 26.11 11:04-14:34 slice (too small, n<30) or re-measure the current build BnSB9XOS with its own protocol. No change to cache, SQL, WAF or thresholds was made."
+            },
+            "nothing_measured_as_after_yet": false
           }
         },
         "guard": [],
@@ -4315,7 +4495,10 @@
         },
         "code_now": [
           "src/components/experience2029/systemFrame2029.css :: footer reservation (S-12)",
-          "/community/chat thread list"
+          "/community/chat thread list",
+          "src/pages/Stats2029Page.jsx :: settled/open gate, dc slot (branch, not merged)",
+          "src/pages/stats2029.css :: busy min height, footer hidden while busy, discovery slot reserve (branch)",
+          "public-reading-deploy/route-preload.js :: ROUTES (Home, /gematria) + calculatorPreloadComment (branch)"
         ],
         "merged": true,
         "merge_commit": "a5cf3d4878d3480892cf4895a97da652248401eb",
@@ -4332,10 +4515,119 @@
           "after": "17–24.11 phone p75 0.001–0.047; 7 days Posts 0.000 / other 0.041",
           "conditions": "events web_vital (cls, cls_shift_sources); one row per sample",
           "source": "canonical Supabase read 2026-11-25",
-          "after_20261126": "Own web_vital events, 1 sample per sample_id, 24h before (24.11 09:18) vs after (25.11 09:18 -> 26.11 09:18), burst 26.11 00:00-06:00 UTC excluded. /community/chat phone: CLS p75 0.089 -> 0.051, samples above 0.1: 15 of 64 (23%) -> 8 of 50 (16%), average 0.158 -> 0.069. /community/chat desktop: p75 0.029 -> 0.002, above 0.1: 8 of 60 -> 5 of 66, average 0.040 -> 0.055. Home phone: average 0.035 -> 0.008, above 0.1: 3 of 26 -> 1 of 16. Home desktop: average 0.060 -> 0.032. Posts: no sample above 0.1 on desktop; phone 1 -> 0."
+          "after_20261126": "Own web_vital events, 1 sample per sample_id, 24h before (24.11 09:18) vs after (25.11 09:18 -> 26.11 09:18), burst 26.11 00:00-06:00 UTC excluded. /community/chat phone: CLS p75 0.089 -> 0.051, samples above 0.1: 15 of 64 (23%) -> 8 of 50 (16%), average 0.158 -> 0.069. /community/chat desktop: p75 0.029 -> 0.002, above 0.1: 8 of 60 -> 5 of 66, average 0.040 -> 0.055. Home phone: average 0.035 -> 0.008, above 0.1: 3 of 26 -> 1 of 16. Home desktop: average 0.060 -> 0.032. Posts: no sample above 0.1 on desktop; phone 1 -> 0.",
+          "lab_20261128_stats_and_entry": {
+            "branch": "claude/work-public-discovery-log-read-ryfcnx (not merged, not deployed)",
+            "builds": {
+              "before": "main 7092eb91, entry 2029-C_MMDV2b",
+              "after": "work branch, entry 2029-BoekWW8n; public-reading artifact 2029-DIf2WD2z"
+            },
+            "conditions": "Chromium Pixel 7 390 px, Slow 4G 1.6 Mbps / 150 ms, CPU x4 (fast = 20 Mbps / 20 ms); live read-only data; early scroll while loading; n=3-4 per cell",
+            "stats_phone_cls": {
+              "before_slow4g": [
+                1.59,
+                0.55,
+                0.76,
+                0.57,
+                0.55,
+                0.28,
+                0.57
+              ],
+              "after_slow4g": [
+                0.0072,
+                0.0073,
+                0.0073,
+                0.0074
+              ],
+              "before_fast": [
+                1.59,
+                0.087,
+                0.001,
+                0.001
+              ],
+              "after_fast": [
+                0.007,
+                0.0107,
+                0.0107,
+                0.0107
+              ],
+              "recording_cls": {
+                "before": 1.17,
+                "after": 0.012
+              },
+              "first_data_visible_s": {
+                "slow4g": "4.3-4.4 -> 5.3-5.5",
+                "fast": "1.2-1.5 -> 2.2"
+              }
+            },
+            "stats_mechanism": "separate readers land one after another and push the rows below them: weekly trend +375 px, corpus tiles +146 px, discoveries +1,608 px; the footer (drawn when its chunk arrives) is pushed out of view for a reader who scrolled early; a window switch inserted a loading block above the data. Viewport CLS underreports it when the reader has not scrolled (pushed rows are below the fold).",
+            "calculator_entry_live_slow4g": {
+              "gematria": {
+                "text_screen_from_s": 1.2,
+                "typing_field_visible_s": "4.2-4.8",
+                "typed_to_result_ms": "14-19"
+              },
+              "number_345": {
+                "text_screen_s": 1.7,
+                "app_s": 6.4
+              },
+              "post": {
+                "text_screen_s": 1.4,
+                "app_s": "5.2 shell / 6.5 article"
+              },
+              "stats": {
+                "text_screen_s": 1.3,
+                "app_s": 5.0
+              },
+              "cause": "document -> entry (358 KB, ~2.5 s) -> then the page chunks and styles in three waves; the whole document is replaced, so CLS does not see it"
+            },
+            "calculator_hints_local_same_artifact": {
+              "first_visit_slow4g_field_visible_s": "3.56-4.02 (median 3.65) -> 3.24-3.47 (median 3.38)",
+              "return_visit_slow4g_s": "2.31-2.60 -> 0.89-0.99",
+              "first_visit_fast_s": "1.20-1.26 -> 1.24-1.36 (no gain)"
+            },
+            "events_one_entrance": "1 page/view + 1 track_visit; 3 window switches and 20 s idle add none (before = after)",
+            "details": "docs/reviews/speed-jump-20261128/README.md (tools, recordings)",
+            "status_by_surface": {
+              "stats_phone_jump": "FIXED ON BRANCH (lab), not deployed, not field-verified",
+              "calculator_entry_text_screen": "PARTIAL IMPROVEMENT (route hints: return visit 2.4 -> 0.9 s, first visit Slow 4G 3.65 -> 3.38 s, none on a fast network)",
+              "posts_entry_text_screen": "OPEN (no hints; app at ~5.2-6.5 s in the live lab)",
+              "number_pages_entry_text_screen": "OPEN (no hints; app at ~6.4 s in the live lab, graph 326 KB gzip)",
+              "stats_entry_text_screen": "OPEN (app at ~5.0 s)"
+            },
+            "stats_states_20261128": {
+              "full": {
+                "slot_h": 1686,
+                "footer_reachable": true,
+                "cls": 0.003
+              },
+              "few": {
+                "slot_h": 1123,
+                "footer_reachable": true,
+                "cls": 0.013
+              },
+              "empty": {
+                "slot_state": "none",
+                "blank": 0,
+                "footer_reachable": true
+              },
+              "read_failure": {
+                "slot_state": "none",
+                "blank": 0,
+                "footer_reachable": true
+              },
+              "slow_9s": {
+                "while_waiting": "placeholder cards plus a status line (not an empty area)",
+                "footer_reachable": true
+              },
+              "window_switch": "no loading block, no layout shift outside the data swap; aria-pressed follows",
+              "max_gap_between_blocks_px": 20,
+              "residual": "rows below the slot move up to 187 px when discoveries land after the page opens; with few items the page shrinks by 377 px below the fold"
+            }
+          }
         },
         "guard": [],
-        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed.",
+        "open": "Next: /community/chat thread group height before data (largest share); footer on Posts on phones; the desktop shell → app hand-over. Lab scroll test of four Posts shows 0 shifts. | 25.11.2026 after release: live scroll CLS — Home phone 0.118 (h29-sec / sod29-source-arrivals sections that load on approach), desktop 0.024; post 1201 phone 0.000 / desktop 0.007. | 25.11.2026 TWO TARGETED FIXES (branch, PR #1551): (1) /community/chat — the pinned tree-hint strip reserved 46 px on every visit but community_tree_hints is empty (0 rows), so it collapsed every time (+12 px margin = 58 px jump of tools/composer/feed at ≈3 s); now reserved only when this browser last saw pins. Lab, identical local builds, Pixel 5 interleaved n=4: 0.020–0.031 → 0.000; desktop 0.005–0.013 → 0.000. (2) follow box (WatchControl2029) in the home 'source arrivals': the live check line and the explainer share one slot; the explainer keeps the height (live phone deep scroll showed div.sod29-watch 76 → 100 px). Live home phone: normal scroll 0.000 (n=3), deep scroll 0.042–0.106 before; the after value needs the deployed build (the local default build differs in footer feature states). Still open: reply-group height changes on deep scroll in the chat (thread-group 60 → 7 px) and the image date chip (r29-image-date 92 → 52) — not fixed in this package. | 25.11.2026 DEPLOYED (a5cf3d4). AFTER field window (events web_vital, /community/chat and / by device) is scheduled for 26.11.2026 ≈09:30 UTC. | 26.11.2026 AFTER (24h): improvement on phone chat (average 0.158 -> 0.069, share above 0.1: 23% -> 16%) but 8 of 50 phone samples still above 0.1; desktop chat average rose slightly (0.040 -> 0.055, small n). Not yet at the <=0.1 field target. Sample sizes are small (n 16-66); the window spans three builds. | 26.11.2026 CLS SOURCES (own web_vital events, burst excluded, after window): 18 samples are above 0.1: 13 in /community/chat (5 desktop, 8 phone) and 5 elsewhere. Desktop (0.66-0.74, 5 samples, 4 of them back_forward navigations): div.sod29-community-link-previews, div.sod29-community-thread-actions, div.sod29-community-thread-group, article.sod29-community-thread, figcaption, plus main.sod29-content and the rail (nav, rail-foot) shifted by it. Phone (0.19-0.65, 8 samples): button.sod29-community-load and footer.sod29-community-public-footer (the footer moves when \"load more\" grows the feed), details.sod29-section, section.sod29-legacy-chat, span.sod29-community-link-og-copy (link-preview text), div.sod29-community-compose-row, and one aside.sod29-frame-panel (0.647, build DJ8voVVY). Others: / desktop 0.446 (home cosmos and featured spots, old build DJ8voVVY), /codes 0.303 (sectionpulse29), /code 0.262 (els native panel), /gematria phone 0.151 (calcpro hero, back_forward), / phone 0.111 (footer.f29). Reading: the remaining chat shifts are link-preview cards and thread action rows that get their height after data arrives, and the load-more/footer pair; none is a new regression. The existing S-59 improvement is kept; no code was changed. | 28.11.2026 STATS JUMP + ENTRY TEXT SCREEN (branch, no merge/deploy): FIXED on the branch: /stats draws once (waits for the weekly trend, the week before and the corpus, at most 900 ms after the pulse; the discovery slot keeps ~90% of its height; footer hidden while waiting; a window switch keeps the page); lab phone CLS with an early scroll 0.28-1.59 -> 0.007-0.011, cost: data about 1 s later. The calculator (/gematria) gets the Home's route hints with its document (36 hints, that document only): first visit Slow 4G 3.65 -> 3.38 s, return visit 2.4 -> 0.9 s, text and links for Google unchanged, shell budget unchanged. Still open: the same hints for /number, posts and /stats (own measurement each), the live site after a deployment, a real device, the 24 px shell shift at ~1.4 s (CLS 0.0107), and the new open-activity block of PR #1589 must join the /stats wait.",
         "next_owner": "speed session",
         "relates_to_groups": []
       },
@@ -4738,6 +5030,484 @@
             "after": "62 + 62 rows (7.9-7.11), views 60,215 / IL 51,112, sessions 21,519; 124 rows labelled as Google numbers as received (not measured here); outside-window fingerprint unchanged; total 6,288 + 124; the 11-15.11 notes kept; no gap in the ga series from 7.9 to 26.11"
           },
           "pull_requests": "#1575 merged 1d68e2eb4b932130e3ee37f5de54b1a0a3e0b749; #1577 merged 9576ae8206796d032fda2c64d4e849d55c84da53; #1579 merged 34551d3f530b5a6777b4abeecb8dcc34047ca594; #1574 merged 8e3fcee4d2c28e2fd659539d20e42f199a3cc159; #1581 (community load reduction) stays OUT of the unified deployment."
+        },
+        "post_deployment_measurements_20261127": {
+          "status": "BASELINE CAPTURED 27.11.2026 ~02:15 UTC (read-only) for the unified deployment of 66f4176a. Checkpoint 2 (07-13 UTC) measured: no conclusion, because the live build changed (68af7559 from 05:44, 7092eb91 from ~12:47) and field groups have n<30; see checkpoint_2_20261127_07_13.",
+          "deployment": {
+            "id": "dpl_J1KXz94F8JW2K5TYUNSyTdfRgRsP",
+            "source_sha": "66f4176a147b9abe6b2a0fc9fa81473616c60571",
+            "created_utc": "2026-11-27 01:56:42",
+            "ready_utc": "2026-11-27 01:57:46",
+            "aliases_moved_utc": "2026-11-27 ~01:57:52 (sod1820.co.il, www.sod1820.co.il, sod1820.vercel.app)",
+            "previous": "dpl_562GoZWmagD2A7snDnkxZbEzFDmY (source 3205ecd7, created 26.11 14:12, aliased 26.11 ~14:33)",
+            "front_end_build_tag_after": "2029-BlkNvGWl",
+            "front_end_build_tag_before": "2029-C5ROC4LY (first field sample 26.11 14:37 UTC, last 27.11 01:30 UTC)",
+            "post_deploy_canary": "run 45925531011 success (exact SHA re-confirmed)"
+          },
+          "measurement_windows_rule": "Hourly granularity only, whole hours summed (a 6 h granularity snaps to 06-12/12-18 and is not a window). Edge/function logs keep about 24 h, so the before series below were captured on 27.11 ~02:15. Field vitals are compared by the build tag in props.build, one sample per sample_id, n reported, n<30 per group is weak.",
+          "comparability_warning": "There is NO clean quiet-hour window on the previous build 2029-C5ROC4LY: it served 26.11 14:37 -> 27.11 01:57, and its hours 15-24 UTC are the /community/chat wave (about 50k requests per hour against 2-3k). The quiet window W1 (26.11 07-13 UTC) ran on other builds (field tags: 2029-BK3LoBjq until about 10:43, then 2029-BcTZsiDj from about 11:06; BcTZsiDj served until the 14:12-14:33 change to 3205ecd7). Server-side W1 vs after 27.11 07-13 is therefore build-confounded: context only. Valid like-for-like pairs: (1) field vitals by build tag after n>=30 per group; (2) 27.11 18-24 vs 26.11 18-24 only if the wave is absent or present in both and normalised per 1,000 requests; (3) number-family REST reads per number-document request.",
+          "before_vercel_server_26.11": {
+            "W1_quiet_26.11_07-13_UTC_6h (builds BK3LoBjq then BcTZsiDj, confounded)": {
+              "requests": 17041,
+              "edge_cache_HIT_pct": 39.3,
+              "MISS_pct": 54.9,
+              "public_document_invocations": 6634,
+              "card_invocations": 1599,
+              "function_duration_gbhr": 3.13,
+              "middleware_cpu_s": 124.0,
+              "fdt_out_gb": 0.63,
+              "function_ttfb_p75_ms_hourly_median": 987
+            },
+            "W2_wave_26.11_15-24_UTC_9h (build C5ROC4LY)": {
+              "requests": 462002,
+              "edge_cache_HIT_pct": 95.0,
+              "MISS_pct": 4.4,
+              "public_document_invocations": 18209,
+              "card_invocations": 1412,
+              "function_duration_gbhr": 5.41,
+              "middleware_cpu_s": 350.9,
+              "fdt_out_gb": 3.94,
+              "function_ttfb_p75_ms_hourly_median": 851
+            },
+            "public_document_cache_by_window": {
+              "W1": {
+                "requests": 7223,
+                "MISS": 6351,
+                "HIT": 588,
+                "STALE": 284,
+                "MISS_pct": 87.9
+              },
+              "W2": {
+                "requests": 23251,
+                "MISS": 16922,
+                "HIT": 5041,
+                "STALE": 1288,
+                "MISS_pct": 72.8
+              }
+            },
+            "note": "14:00 UTC 26.11 is where requests go from about 3k to 17k, then about 50k per hour until 23:59; 27.11 00:00 9.7k, 01:00 2.1k (the wave ends)."
+          },
+          "before_supabase_api_edge_logs_26.11": {
+            "W1_07-13_requests": 84020,
+            "W1_per_hour": 14003,
+            "W2_15-24_requests": 312009,
+            "W2_per_hour": 34668,
+            "W2_note": "includes 23:00 UTC 69,760 (an unexplained spike hour, not investigated)",
+            "number_family_rest_reads": {
+              "W1": {
+                "gematria_words": 6969,
+                "is_phrase_indexable": 2668,
+                "number_anchors": 818,
+                "is_number_indexable": 343,
+                "posts_by_number_strict": 612,
+                "fn_number_lookup": 476
+              },
+              "W2": {
+                "gematria_words": 9175,
+                "is_phrase_indexable": 3133,
+                "number_anchors": 1722,
+                "is_number_indexable": 509,
+                "posts_by_number_strict": 1178,
+                "fn_number_lookup": 1138
+              }
+            },
+            "change_list_reads": "0 in every hour 26.11 07:00 - 27.11 02:00 (the 26.11 baseline of protocol_9bf41e6 had 460 and 219 per window)"
+          },
+          "supabase_advisors_performance_27.11": "7 lint kinds (no ERROR level): unindexed_foreign_keys INFO, auth_rls_initplan WARN, no_primary_key INFO, unused_index INFO, multiple_permissive_policies WARN, duplicate_index WARN, auth_db_connections_absolute INFO. Same families as before; not compared item by item.",
+          "before_field_vitals_by_build (final phase, one sample per sample_id, p75)": "2029-C5ROC4LY: desktop other n=64 ttfb 406 lcp 553 cls 0.0009; desktop post n=19 ttfb 749 lcp 868; desktop community n=52 ttfb 737 lcp 2991; desktop number n=8 ttfb 1749 lcp 1796 (weak); mobile community n=28 ttfb 761 lcp 1472 cls 0.0288; mobile other n=16 ttfb 611 lcp 1500; mobile post n=12 ttfb 1357 lcp 2108 (weak). After tag 2029-BlkNvGWl at 02:02 UTC: n=30 samples total over four groups (desktop only), all weak.",
+          "checks_27.11_02:00-02:20_UTC": {
+            "sitemap_catalog_number_addresses": "1273 (was 1000 on 3205ecd7), catalog 1,743 url elements",
+            "number_document_10": "HTTP 200, robots index/follow, canonical /number/10, own title and description (fetched through Vercel; plain curl from the cloud environment got 403 from the edge, not circumvented)",
+            "robots_txt": "200: Allow /, Disallow /api/ and /unsubscribe, Sitemap line present",
+            "sitemap_index": "200, content + catalog + phrases pages",
+            "video_2029_events_after_deploy": "0 rows (15 min, plays need a human action); legacy surface video/play has 718 rows last 4.11; NOT a finding",
+            "traffic_daily": "26.11 entrances 1,428 engaged 1,231 bounces 196 suspected 4,959 (classification v4 live since the approved SQL); 27.11 so far entrances 9 suspected 63",
+            "events_since_deploy_15min": "191 events: page/view 66, page/engagement 56, web_vital 31, content/view 4, els 6, entry_2029 7, calculator_2029 3"
+          },
+          "search_console_baseline": {
+            "last_synced_day": "2026-11-23 (gsc-daily-sync runs 05:17 UTC; 3-4 day lag is normal for Google, not yet an alert)",
+            "total_clicks_per_day_9-23.11": "113-202 (dips 13.11 41 and 20.11 45)",
+            "impressions_per_day": "595-1722",
+            "number_pages_with_impressions_per_day": "113-219 (of 1,273 now listed in the catalog sitemap)",
+            "reading": "Indexing effect of the 273 added numbers is NOT measurable before 30.11-7.12; do not read it earlier."
+          },
+          "not_measured_yet": [
+            "after Vercel window under 2029-BlkNvGWl (needs whole hours; first clean candidate 27.11 07-13 UTC, build-confounded against W1)",
+            "after field vitals n>=30 per group",
+            "video_2029 events and embed_refused share (needs real plays)",
+            "Search Console / indexing of the new numbers",
+            "Speed Insights p75 (not yet queried)"
+          ],
+          "next_checkpoints_utc": [
+            "27.11 ~05:30 morning report (preliminary, 02:00-05:30 after-window, excludes protocol-anomalous 00:00-06:30 hours from conclusions)",
+            "27.11 ~13:15 first whole-hour after window 07-13",
+            "28.11 ~00:15 evening window 18-24"
+          ],
+          "protocol_9bf41e6_status": "Superseded: build 2029-BcTZsiDj (9bf41e6) served only about 26.11 10:50-14:33 per field tags; its after-window never ran. This block replaces it for the unified deployment of 66f4176a.",
+          "wave_ended_before_deployment": "/community/chat page-view sessions per UTC hour: 26.11 22:00 447, 23:00 464, 27.11 00:00 63, 01:00 2, 02:00 4. The wave stopped about two hours BEFORE the deployment (01:57): any drop in requests, Supabase API calls or function time between the 26.11 evening and the after-windows is the end of the wave, NOT an effect of the deployment, and must not be reported as an improvement. The 23:00 UTC Supabase API spike (69,760) is the same wave plus gematria_words 2,664 (top paths: posts 8,525, nodes 6,797, topic_cards_public 4,790, users 3,245, gematria_words 2,664).",
+          "checkpoint_2_20261127_07_13": {
+            "measured_at": "2026-11-27 ~13:30 UTC, read-only, whole hours 07:00-13:00 UTC, no change to cache, SQL, WAF or thresholds",
+            "status": "MEASURED, NO CONCLUSION: the window is build-confounded against W1 and every field group has n<30; the live deployment changed twice around it (see deployments_in_window).",
+            "deployments_in_window": {
+              "unified_66f4176a_dpl_J1KXz94F8JW2K5TYUNSyTdfRgRsP": "served the site 27.11 01:57 to about 05:44-05:55 (field tag 2029-BlkNvGWl, last sample 05:55)",
+              "main_68af7559_dpl_6gJd64QreBd7Bp1mwd8VQo616mDX": "created 27.11 05:44:26 UTC by the account owner from main 68af7559 (merge of #1586; includes #1588 release A); field tag 2029-BnSB9XOS from 05:51. This is the build that served 07:00-about 12:47",
+              "main_7092eb91_dpl_2JsYJRnjmUFokfiVDC9ahHrcj5bB": "created 12:40:32 UTC from main 7092eb91 (merge of #1587, gematria display unification); production alias sod1820.co.il updated about 12:47 UTC, so the last ~13 minutes of the window ran a newer build",
+              "reading": "W3 is NOT a clean after-window of the unified deployment 66f4176a: it ran 68af7559 (and the last minutes 7092eb91). W1 ran BK3LoBjq/BcTZsiDj (9bf41e6 era). The pair is confounded in both directions; no change is attributed to any one release."
+            },
+            "vercel_server_side": "NOT MEASURED. Hourly observability queries (requests by cache_result, public-document invocations, function_duration_gbhr, middleware CPU, fdt, ttfb) returned HTTP 400 bad_request again (same error as the S-55 attempt this morning, including a plain vercel.request.count query). No figure is invented.",
+            "supabase_api_edge_logs_W3_27.11_07-13_vs_W1_26.11_07-13": {
+              "requests": {
+                "W1": 84020,
+                "W3": 90900,
+                "change_pct": 8.2
+              },
+              "hourly_requests_W3": {
+                "07": 24610,
+                "08": 36121,
+                "09": 7477,
+                "10": 8137,
+                "11": 6251,
+                "12": 8304,
+                "note": "hours 07-08 hold 67% of the window; hours 09-12 average 7,542 per hour against W1's 14,003 per hour; the window is not uniform"
+              },
+              "per_1000_requests": {
+                "gematria_words": {
+                  "W1": 82.9,
+                  "W3": 101.8,
+                  "W3_count": 9252,
+                  "W1_count": 6969
+                },
+                "is_phrase_indexable": {
+                  "W1": 31.8,
+                  "W3": 43.3,
+                  "W3_count": 3936,
+                  "W1_count": 2668
+                },
+                "number_anchors": {
+                  "W1": 9.7,
+                  "W3": 16.4,
+                  "W3_count": 1489,
+                  "W1_count": 818
+                },
+                "is_number_indexable": {
+                  "W1": 4.1,
+                  "W3": 0.9,
+                  "W3_count": 82,
+                  "W1_count": 343
+                },
+                "posts_by_number_strict": {
+                  "W1": 7.3,
+                  "W3": 15.4,
+                  "W3_count": 1401,
+                  "W1_count": 612
+                },
+                "fn_number_lookup": {
+                  "W1": 5.7,
+                  "W3": 8.2,
+                  "W3_count": 746,
+                  "W1_count": 476
+                },
+                "change_list_reads": {
+                  "W1": 0.0,
+                  "W3": 7.25,
+                  "W3_count": 659,
+                  "W1_count": 0,
+                  "note": "post_document_recent_changes_v1 is read steadily, 92-161 per hour (the S-47/S-55 change-list refresh is active); W1 had none"
+                }
+              },
+              "other": {
+                "options_requests_W3": 26464,
+                "options_share_pct": 29.1,
+                "status_5xx_W3": 3
+              },
+              "reading": "Most number-family reads per 1,000 requests are higher, is_number_indexable is lower (one number-admission read is 4.5x rarer). Different builds, different hour mix (07-08 spike), different traffic: indicative only, not an effect of any change."
+            },
+            "field_web_vital_p75_ms (final phase, one sample per sample_id, is_bot not true; n<30 is weak, ALL cells are weak)": {
+              "W1_26.11_07-13_(BK3LoBjq,BcTZsiDj)": {
+                "community_desktop": {
+                  "n": 34,
+                  "ttfb": 2189,
+                  "lcp": 3660,
+                  "fcp": 3140,
+                  "note": "n>=30"
+                },
+                "community_mobile": {
+                  "n": 7,
+                  "ttfb": 1420,
+                  "lcp": 1938
+                },
+                "post_desktop": {
+                  "n": 7,
+                  "ttfb": 2673,
+                  "lcp": 3564
+                },
+                "post_mobile": {
+                  "n": 9,
+                  "ttfb": 1433,
+                  "lcp": 2635
+                },
+                "other_desktop": {
+                  "n": 8,
+                  "ttfb": 563,
+                  "lcp": 1249
+                },
+                "other_mobile": {
+                  "n": 9,
+                  "ttfb": 534,
+                  "lcp": 940
+                },
+                "number_mobile": {
+                  "n": 2
+                }
+              },
+              "W3_27.11_07-13_(BnSB9XOS)": {
+                "community_desktop": {
+                  "n": 21,
+                  "ttfb": 852,
+                  "lcp": 2648,
+                  "fcp": 2552
+                },
+                "community_mobile": {
+                  "n": 11,
+                  "ttfb": 1294,
+                  "lcp": 1810,
+                  "cls": 0.7595
+                },
+                "post_desktop": {
+                  "n": 6,
+                  "ttfb": 1469,
+                  "lcp": 2812
+                },
+                "post_mobile": {
+                  "n": 13,
+                  "ttfb": 1816,
+                  "lcp": 2137
+                },
+                "other_desktop": {
+                  "n": 8,
+                  "ttfb": 730,
+                  "lcp": 1112
+                },
+                "other_mobile": {
+                  "n": 26,
+                  "ttfb": 532,
+                  "lcp": 720
+                },
+                "number_desktop": {
+                  "n": 10,
+                  "ttfb": 7291,
+                  "lcp": 12028,
+                  "fcp": 8521
+                },
+                "number_mobile": {
+                  "n": 1
+                }
+              },
+              "reading": "No conclusion: the only n>=30 cell is W1 community desktop. Two cells are worth rechecking when n grows (not findings): number pages on desktop TTFB/LCP 7.3/12.0 s (n=10) and community mobile CLS 0.76 (n=11)."
+            },
+            "video_2029_since_deploy_27.11_01:57": {
+              "play_requested": 10,
+              "player_ready": 9,
+              "watch_opened": 3,
+              "provider": "youtube",
+              "embed_refused": 0,
+              "reading": "events arrive on the allow-listed family; 0 embed_refused out of 10 play requests (tiny n)"
+            },
+            "classification_and_traffic": {
+              "traffic_daily_26.11": {
+                "entrances": 1429,
+                "engaged": 1231,
+                "bounces": 197,
+                "views": 3067,
+                "visitors": 1350,
+                "suspected": 4958
+              },
+              "traffic_daily_27.11_until_12:25": {
+                "entrances": 630,
+                "engaged": 69,
+                "bounces": 561,
+                "views": 920,
+                "visitors": 609,
+                "suspected": 324
+              },
+              "engaged_share": "27.11 11% of entrances (69 of 630) against 86% on 26.11: the day is incomplete and 07:00 held a /community/chat burst; not read as a change in site quality, not explained yet",
+              "community_chat_page_view_sessions_per_hour_27.11": "00 63, 01 2, 02 97, 03 6, 04 12, 05 8, 06 3, 07 166, 08 8, 09 3, 10 4, 11 5, 12 7, 13 4: the 26.11 wave (about 450 per hour) did not return; two short bursts at 02:00 (97) and 07:00 (166)"
+            },
+            "runtime_errors_07-13": "one cluster in the project history: Task timed out after 300 seconds on /api/card, count 1 at 27.11 07:57:48 UTC (older occurrences since 21.09 grouped in the same cluster). No other error group.",
+            "sitemap": "sitemap_numbers() = 1,274 (1,273 at the baseline, +1: a number admitted since)",
+            "search_console": "last synced day 2026-11-24 (sync 05:17 UTC 27.11): clicks 107, impressions 1,440; 20-24.11 clicks 45/131/142/113/107. The 3-4 day lag is normal; no effect of the deployments is measurable yet.",
+            "not_measured": [
+              "Vercel server side (query errors)",
+              "field vitals with n>=30 per group",
+              "a clean after-window of 66f4176a (it served 3.7 h before 68af7559 replaced it)",
+              "engaged-share explanation",
+              "bot share of the 02:00 and 07:00 chat bursts"
+            ],
+            "recommendation": "Treat checkpoint 2 as context only. For a decision-grade comparison define the next window on the current build 7092eb91 (serving from about 12:47 UTC) with its own before series, retry the Vercel queries when the tool answers, and wait for n>=30 per field group. No cache, SQL, WAF or threshold change was made."
+          },
+          "checkpoint_3_20261127_18_24": {
+            "measured_at": "2026-11-28 ~00:20 UTC, read-only, whole hours 27.11 18:00-24:00 against 26.11 18:00-24:00; no change to cache, SQL, WAF or thresholds",
+            "status": "NOT COMPARABLE. The /community/chat wave is present in the 26.11 window and absent in the 27.11 window, so the pair fails the rule (present or absent in BOTH). Figures below are context only; no ratio is read as an effect.",
+            "wave_check_community_chat_page_view_sessions_per_hour": {
+              "26.11_18-23": [
+                443,
+                421,
+                422,
+                449,
+                447,
+                464
+              ],
+              "27.11_18-23": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                1
+              ],
+              "reading": "present in W2 (about 440 per hour), absent in W4 (0-1 per hour)"
+            },
+            "builds": {
+              "W2_26.11_18-24": "2029-C5ROC4LY",
+              "W4_27.11_18-24": "2029-CygV-D96 (main 7092eb91, from 27.11 13:08)",
+              "note": "different builds and different traffic: two confounders besides the wave"
+            },
+            "supabase_api_edge_logs": {
+              "W2_26.11_18-24_(captured_27.11_11:10_for_S-55_before_the_24h_retention_expired)": {
+                "requests": 226729,
+                "change_list_reads": 914,
+                "is_number_indexable": 353,
+                "posts_by_number_strict": 948,
+                "is_phrase_indexable": 2095,
+                "number_anchors": 1363,
+                "gematria_words": 6781,
+                "node_ua_requests": 17500,
+                "options_requests": 61976,
+                "fn_number_lookup": "not captured"
+              },
+              "W4_27.11_18-24": {
+                "requests": 25366,
+                "hourly": {
+                  "18": 3693,
+                  "19": 4079,
+                  "20": 4210,
+                  "21": 3231,
+                  "22": 4000,
+                  "23": 6153
+                },
+                "change_list_reads": 423,
+                "is_number_indexable": 65,
+                "posts_by_number_strict": 339,
+                "is_phrase_indexable": 1883,
+                "number_anchors": 353,
+                "gematria_words": 4089,
+                "fn_number_lookup": 35,
+                "node_ua_requests": 8683,
+                "options_requests": 1391
+              },
+              "per_1000_requests_context_only": {
+                "gematria_words": {
+                  "W2": 29.9,
+                  "W4": 161.2
+                },
+                "is_phrase_indexable": {
+                  "W2": 9.2,
+                  "W4": 74.2
+                },
+                "number_anchors": {
+                  "W2": 6.0,
+                  "W4": 13.9
+                },
+                "is_number_indexable": {
+                  "W2": 1.6,
+                  "W4": 2.6
+                },
+                "posts_by_number_strict": {
+                  "W2": 4.2,
+                  "W4": 13.4
+                },
+                "change_list_reads": {
+                  "W2": 4.0,
+                  "W4": 16.7
+                },
+                "node_ua_requests": {
+                  "W2": 77.2,
+                  "W4": 342.3
+                },
+                "options_requests": {
+                  "W2": 273.3,
+                  "W4": 54.8
+                }
+              },
+              "reading": "W4 total requests are 8.9x lower than W2 because the wave is gone, so every per-1,000 ratio rises mechanically (the wave's requests were mostly page and OPTIONS traffic from the chat client). Not an effect of any deployment. 23:00 UTC shows a small burst (6,153 requests; gematria_words 1,151; change_list 111)."
+            },
+            "vercel_server_side": "NOT MEASURED. The hourly observability query returned HTTP 400 bad_request again (third occurrence since S-55).",
+            "field_web_vital": {
+              "W2_26.11_18-24_(C5ROC4LY)": {
+                "community_desktop": {
+                  "n": 60,
+                  "ttfb_p75": 5033,
+                  "lcp_p75": 7823,
+                  "fcp_p75": 7138,
+                  "note": "the only n>=30 cell besides community mobile"
+                },
+                "community_mobile": {
+                  "n": 24,
+                  "ttfb_p75": 906,
+                  "lcp_p75": 1421
+                },
+                "other_desktop": {
+                  "n": 12
+                },
+                "other_mobile": {
+                  "n": 22
+                },
+                "post_desktop": {
+                  "n": 3
+                },
+                "post_mobile": {
+                  "n": 8
+                }
+              },
+              "W4_27.11_18-24_(CygV-D96)": {
+                "all_cells": "n between 1 and 4 (8 samples in total): no figure is reported",
+                "reading": "nothing to compare; the evening traffic is a trickle"
+              }
+            },
+            "video_2029_W4": {
+              "play_requested": 1,
+              "player_ready": 1,
+              "embed_refused": 0
+            },
+            "traffic_daily": {
+              "26.11": {
+                "entrances": 1429,
+                "engaged": 1231,
+                "bounces": 197,
+                "suspected": 4958
+              },
+              "27.11_(final_at_23:25)": {
+                "entrances": 673,
+                "engaged": 91,
+                "bounces": 582,
+                "views": 1017,
+                "visitors": 641,
+                "suspected": 330
+              },
+              "reading": "27.11 engaged share 13.5% against 86.1% on 26.11, with the wave absent; unexplained, not read as a quality change, needs a separate look (how engaged is computed on the new classifier)"
+            },
+            "runtime_errors_W4": "the same single Task timed out after 300 seconds cluster on /api/card, last seen 27.11 18:48:37 UTC (count 1 in the project history for this cluster); no other group",
+            "sitemap_numbers": 1274,
+            "search_console": "last synced day still 2026-11-24 (fetched 27.11 05:17 UTC); the next sync is 28.11 05:17 UTC",
+            "not_measured": [
+              "Vercel server side (query errors)",
+              "a comparable evening pair (the wave exists only on 26.11)",
+              "field vitals n>=30 in W4",
+              "why the engaged share of 27.11 is 13.5%"
+            ],
+            "recommendation": "Close the evening comparison as NOT COMPARABLE. The next useful reads: the Vercel queries when the tool answers, the 28.11 daytime window on build CygV-D96 against its own matched hours, and a separate check of the engaged share on 27.11 (is it a classification effect or traffic mix)."
+          },
+          "runtime_errors_first_30_min": "Vercel runtime errors since the deployment: none (get_runtime_errors, since 30m, 27.11 ~02:15 UTC)."
         }
       },
       {

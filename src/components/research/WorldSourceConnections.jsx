@@ -4,18 +4,6 @@ import SpatialMethodStage2029 from '../gematria2029/SpatialMethodStage2029.jsx';
 import CanonicalMediaFigure2029 from '../experience2029/CanonicalMediaFigure2029.jsx';
 import { WORLD_SOURCE_DIRECTIONS, REVIEWED_SOURCE_WITNESSES, fetchWorldSourceConnections, worldWitnessContext } from '../../lib/research/worldSourceConnections.js';
 
-// Composite operands come from the canonical nested trace. Letter rendering stays with
-// the existing shared Stage; unsupported variants are never relabelled as ordinary Miluy.
-function CompositeTrace({ trace }) {
-  if (trace.trace_kind !== 'COMPOSITE') return null;
-  return <div data-composite-trace>
-    <p>פעולה מן המנוע: {trace.steps?.operator === 'diff' ? 'הפרש' : trace.steps?.operator}</p>
-    {(trace.steps?.components || []).map((component, index) => <p key={index}>
-      {component.component_method} · <b>{component.component_value}</b>
-    </p>)}
-    <p>תוצאת המנוע: <b>{trace.result}</b></p>
-  </div>;
-}
 function Witness({ witness, research, shell, select }) {
   const { source } = witness;
   const remember = (calculation = null) => {
@@ -64,7 +52,6 @@ function Witness({ witness, research, shell, select }) {
             {entry.verified ? <>
               <button className="sod29-action" onClick={() => calculate(entry.verified)}>לעיון בהיכל · {entry.verified.value}</button>
               <p>תוצאה {entry.verified.value} · גרסת שיטה {entry.verified.trace.method_version} · התאמה למנוע אומתה</p>
-              <CompositeTrace trace={entry.verified.trace} />
               <SpatialMethodStage2029 expression={entry.expression} methodKey={entry.method}
                 trace={entry.verified.trace} expectedValue={entry.verified.value} depth="S2"
                 onOpenHeichal={() => calculate(entry.verified)} />

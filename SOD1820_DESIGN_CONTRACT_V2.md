@@ -369,6 +369,10 @@ Because the live route is `/2029/number/:value`, selecting `דף המספר` wit
 
 Desktop Brand hierarchy is singular: the Topbar owns the persistent full approved Brand lockup. The expanded Right Global Rail must not repeat it; its top is a quieter functional navigation header with restrained Brand Atmosphere. The collapsed rail uses a neutral Home/navigation affordance and must never create a crown-only logo.
 
+> CHANGE-RECORD: 27.11.2026 · Human Gate ZURIEL (anchor the gematria display unification in the existing contracts) · pointer to `docs/g3-gematria-presentation-contract-v1.md` § 12; no other rule of this contract changes.
+
+A gematria calculation (the steps, the triangle, the ledger, the composition of a method) is drawn only by the canonical stage defined in `docs/g3-gematria-presentation-contract-v1.md` § 12 (ZURIEL 27.11.2026): one stage for every consumer, the engine's numbers only, Royal buttons (`.r29-btn`), no horizontal overflow at 390px. A surface never adds its own renderer for a trace.
+
 Global rail expansion preference may persist locally as a presentation preference. This does not create a new navigation store or product-truth state.
 
 ### 11.8 One Companion, contextual Projector, one bottom Command Island · Human Gate ZURIEL · 12.10.2026

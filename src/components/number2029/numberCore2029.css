@@ -745,20 +745,6 @@
   color:var(--s29-muted);
   font-size:var(--sod29-number-support,14px);
 }
-.sod29-number-core2029-trace-steps{
-  display:grid;
-  gap:6px;
-  max-height:300px;
-  overflow:auto;
-  overscroll-behavior:contain;
-}
-.sod29-number-core2029-trace-steps span{
-  padding:3px 6px;
-  border:1px solid var(--s29-line);
-  border-radius:8px;
-  color:var(--s29-muted);
-  font-size:14px;
-}
 .sod29-number-core2029-foot{
   display:flex;
   flex-wrap:wrap;
