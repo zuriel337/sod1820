@@ -1,0 +1,432 @@
+{
+  "version": 1,
+  "as_of": "2026-11-27",
+  "note": "Catalog of the events the system is built to receive. status: expected = should arrive now; awaiting_release = needs the SQL allow-list and/or the client release first; preserved = an approved capability that is not yet active (never removed because it is silent, never shown as a failure).",
+  "events": [
+    {
+      "surface": "page",
+      "event": "view",
+      "status": "expected"
+    },
+    {
+      "surface": "page",
+      "event": "engagement",
+      "status": "expected"
+    },
+    {
+      "surface": "arrival",
+      "event": "source",
+      "status": "expected"
+    },
+    {
+      "surface": "performance",
+      "event": "web_vital",
+      "status": "expected"
+    },
+    {
+      "surface": "content",
+      "event": "view",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "calculator_view",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "result_selected",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "first_compute",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "new_compute_from_share",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "raziel_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "method_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "share_created",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "classic_tile_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "words_bar_pick",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "equals_preview_phrase_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "shared_result_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "calculator_2029",
+      "event": "ai_analysis_requested",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "typing",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "search",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "compute",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "select",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "save",
+      "status": "expected"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "view",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "search",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "cross_search",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "ui_action",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "operation_started",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "operation_phase",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "operation_finished",
+      "status": "expected"
+    },
+    {
+      "surface": "els",
+      "event": "cancel_requested",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "orientation_shown",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "orientation_expanded",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "orientation_dismissed",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "first_action",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "exact_return",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "post_media_open",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "post_number_open",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "post_source_open",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "post_source_check_open",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "post_writer_open",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "learn_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "learn_layer",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "learn_help_requested",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "example_tried",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "method_tried",
+      "status": "expected"
+    },
+    {
+      "surface": "entry_2029",
+      "event": "continued_to_research",
+      "status": "expected"
+    },
+    {
+      "surface": "share",
+      "event": "share",
+      "status": "expected"
+    },
+    {
+      "surface": "join",
+      "event": "click",
+      "status": "expected"
+    },
+    {
+      "surface": "video_2029",
+      "event": "play_requested",
+      "status": "expected"
+    },
+    {
+      "surface": "video_2029",
+      "event": "player_ready",
+      "status": "expected"
+    },
+    {
+      "surface": "video_2029",
+      "event": "embed_refused",
+      "status": "expected"
+    },
+    {
+      "surface": "video_2029",
+      "event": "watch_opened",
+      "status": "expected"
+    },
+    {
+      "surface": "app_health",
+      "event": "save_started",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "app_health",
+      "event": "save_confirmed",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "app_health",
+      "event": "save_failed",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "app_health",
+      "event": "auth_failed",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "app_health",
+      "event": "load_failed",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "app_health",
+      "event": "runtime_error",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "number_link_open",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "panel_open",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "panel_close",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "search_submit",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "share_bar_open",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "media_play",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "gallery_open",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "nav_2029",
+      "event": "study_action",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "item_2029",
+      "event": "view",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "calc_outcome_2029",
+      "event": "ai_analysis_result",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "calc_outcome_2029",
+      "event": "compute_failed",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "calc_outcome_2029",
+      "event": "compute_empty",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "calc_outcome_2029",
+      "event": "equals_preview_shown",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "calc_outcome_2029",
+      "event": "equals_preview_all_opened",
+      "status": "awaiting_release"
+    },
+    {
+      "surface": "story_2029",
+      "event": "impression",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "viewer_open",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "item_view",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "next",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "prev",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "close",
+      "status": "preserved"
+    },
+    {
+      "surface": "story_2029",
+      "event": "complete",
+      "status": "preserved"
+    },
+    {
+      "surface": "journey_2029",
+      "event": "start",
+      "status": "preserved"
+    },
+    {
+      "surface": "journey_2029",
+      "event": "step",
+      "status": "preserved"
+    },
+    {
+      "surface": "journey_2029",
+      "event": "save",
+      "status": "preserved"
+    },
+    {
+      "surface": "journey_2029",
+      "event": "resume",
+      "status": "preserved"
+    },
+    {
+      "surface": "journey_2029",
+      "event": "fork",
+      "status": "preserved"
+    },
+    {
+      "surface": "activity_2029",
+      "event": "share",
+      "status": "preserved"
+    }
+  ]
+}

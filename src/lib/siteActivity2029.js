@@ -7,7 +7,8 @@ import { isAnon } from './privacy.js';
 // Same list as admin_2029_analytics (site_activity.sections). Content-free tokens only.
 export const SECTIONS = new Set(['now','personal','raziel','calculator','calculator_advanced','calculator_community','site_search']);
 
-export function startSiteActivity(action, { method, value, wordId, section, expectedUserId, expectedPath } = {}) {
+// A number a person typed or computed is never collected (v14: no personal search content in analytics): there is no `value` here, only the action, the method token, a public word id and the section.
+export function startSiteActivity(action, { method, wordId, section, expectedUserId, expectedPath } = {}) {
   if (isBot() || isAnon()) return () => false;
   const context = captureMeasurement() || (section === 'personal' ? captureMeasurement('/personal') : null);
   const id = globalThis.crypto?.randomUUID?.();
@@ -16,7 +17,6 @@ export function startSiteActivity(action, { method, value, wordId, section, expe
   const props = { action_version: 1, operation_id: id };
   if (SECTIONS.has(section)) props.section = section;
   if (typeof method === 'string' && /^[a-z0-9_:-]{1,48}$/i.test(method)) props.method = method.toLowerCase();
-  if (Number.isSafeInteger(value) && value > 0 && value <= 99999) props.number = value;
   if (typeof wordId === 'string' && /^[0-9a-f-]{36}$/i.test(wordId)) props.word_id = wordId;
   const body = measurementBody(context, 'activity_2029', action, props);
   let sent = false;

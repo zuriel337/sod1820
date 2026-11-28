@@ -41,7 +41,9 @@ function usePublicReading(kind, slug, collection, query, offset) {
     if (kind === "books") read = Promise.all([read, fetch("/book-data/books.preparation.json", {signal:abort.signal})
       .then(response=>response.ok?response.json():null).catch(()=>null)])
       .then(([value,preparation])=>value?{...value,preparation:preparation?.schema === "books-preparation-projection.v1" ? preparation.books : {}}:null);
-    read.then(value => { if (!abort.signal.aborted) setState({ key, status: "ready", value }); })
+    read.then(value => { if (!abort.signal.aborted) { setState({ key, status: "ready", value });
+      // S4: a public cipher opened (the first 12 characters of its public id, as a token; once per session).
+      if (slug && kind === "codes" && value?.id) import("../lib/measurementNav2029.js").then(m => m.itemView("cipher", value.id), () => {}); } })
       .catch(() => { if (!abort.signal.aborted) setState({ key, status: "failed", value: null }); });
     return () => abort.abort();
   }, [key]);

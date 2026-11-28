@@ -53,6 +53,8 @@ export async function trackVisit(path, { measurementPath } = {}) {
   // Capture and send before awaiting the legacy counter: an account may change while it responds.
   try { emit("page", "view", { path, measurementContext: context }); } catch { /* ignore */ }
   firstHit = false;
+  // S4: the click that moves a person from one number to another (lazy; one delegated listener; public build only through emit()).
+  try { void import("./measurementNav2029.js").then(m => m.installNumberLinkMeasure2029()).catch(() => {}); } catch { /* ignore */ }
   try {
     await supabase.rpc("track_visit", {
       p_path: path,

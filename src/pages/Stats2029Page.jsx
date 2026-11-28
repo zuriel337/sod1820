@@ -8,6 +8,7 @@ import { PULSE_WINDOWS, readAdaptivePulse, readResearchPulse, pulseUsable, pulse
 import { fetchHomeSystemPulse2029 } from "../lib/research/home2029Projection.js";
 import { behaviourTrends, halfWeekTrends, addedTrends, weeklyTrend, trendText, trendArrow } from "../lib/weeklyTrend2029.js";
 import { useDiscoveryCenter, DiscoveryTotals, DiscoveryFeatured, DiscoveryLatest, DiscoveryContributions, DiscoveryWriters } from "../components/experience2029/DiscoveryCenter2029.jsx";
+import OpenActivity2029 from "../components/experience2029/OpenActivity2029.jsx";
 import "./stats2029.css";
 
 // /stats (ZURIEL 21.11.2026): the public statistics page. One reader (research_pulse_2029, TI) plus the existing
@@ -80,6 +81,8 @@ export default function Stats2029Page() {
   useEffect(() => { if (open && !shown) setShown(true); }, [open, shown]);
   useEffect(() => { if (!d || grace) return undefined; const t = setTimeout(() => setGrace(true), 900); return () => clearTimeout(t); }, [Boolean(d), grace]);
   const human = d?.totals?.human || {}, unknown = d?.totals?.unknown || {};
+  // A number a person typed or computed is never listed: the server sends only a total behind a fixed mask (an older server answer, a list, is ignored).
+  const computedTotal = d?.computed && !Array.isArray(d.computed) && Number.isSafeInteger(d.computed.events) ? d.computed.events : 0;
   const crawlers = d?.crawlers;
   const added = d?.added || {};
   const sections = (d?.sections || []).filter(x => SECTIONS[x.section]);
@@ -112,10 +115,10 @@ export default function Stats2029Page() {
             <small>{pulseCount(t.recent)} {t.basis === "halves" ? "בחצי השבוע האחרון" : "השבוע"} · {pulseCount(t.earlier)} {t.basis === "halves" ? "בחצי השבוע שלפניו" : "בשבוע ממוצע קודם"}</small>
           </li>)}</ul>
         </section> : null}
-        {(d.numbers?.length || d.content?.length || d.computed?.length || d.phrases?.length) ? <section className="stats29-block" aria-labelledby="stats29-hot">
+        {(d.numbers?.length || d.content?.length || computedTotal > 0 || d.phrases?.length) ? <section className="stats29-block" aria-labelledby="stats29-hot">
           <h2 id="stats29-hot">חם עכשיו</h2>
           {d.numbers?.length ? <><h3>המספרים שנפתחים הכי הרבה</h3><ol className="stats29-chips">{d.numbers.slice(0, 12).map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.events)} פתיחות</small></Link></li>)}</ol></> : null}
-          {d.computed?.length ? <><h3>הערכים שמחושבים הכי הרבה</h3><ol className="stats29-chips">{d.computed.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.events)} חישובים</small></Link></li>)}</ol></> : null}
+          {computedTotal > 0 ? <><h3>חישובים אישיים</h3><ol className="stats29-chips"><li><span><b dir="ltr">*****</b><small>{pulseCount(computedTotal)} חישובים · הערכים אינם מוצגים</small></span></li></ol></> : null}
           {d.content?.length ? <><h3>הפוסטים שנקראים הכי הרבה</h3><ol className="stats29-list">{d.content.map(x => <li key={x.href}><Link to={x.href}>{x.title}</Link><small>{pulseCount(x.events)} קריאות</small></li>)}</ol></> : null}
           {d.phrases?.length ? <><h3>ביטויים מאושרים שנבחרו</h3><ol className="stats29-chips">{d.phrases.map(x => <li key={x.phrase}><span><b>{x.phrase}</b><small>{x.value} · {pulseCount(x.events)} בחירות</small></span></li>)}</ol></> : null}
         </section> : null}
@@ -161,6 +164,7 @@ export default function Stats2029Page() {
           </div>
           {d.history.top_values?.length ? <><h3>הערכים שחושבו הכי הרבה (יוני עד נובמבר 2026)</h3><ol className="stats29-chips">{d.history.top_values.map(x => <li key={x.n}><Link to={"/number/" + x.n}><b>{x.n.toLocaleString("he-IL")}</b><small>{pulseCount(x.count)} חישובים</small></Link></li>)}</ol></> : null}
         </section> : null}
+        <OpenActivity2029 />
         <p className="stats29-note">כל רשימה מציגה רק פריטים שעברו 10 פעולות מ־5 ביקורים לפחות (וערך היסטורי רק מ־30 חישובים), כדי ששום פריט לא יצביע על אדם אחד. מספרים הם פעולות, לא אנשים; חיפושים פרטיים אינם מוצגים לעולם.
           {d.computed_at ? " עודכן " + new Date(d.computed_at).toLocaleString("he-IL", { timeZone: "Asia/Jerusalem" }) + "." : ""}</p>
       </> : null}

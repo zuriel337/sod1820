@@ -627,10 +627,10 @@ function ProExperience() {
                 openExpression(item);
               }}
               onOpenAll={() => {
-                emit("calculator_2029", "equals_preview_all_opened", { props: { surface: "professional", method: canonicalSelection.methodKey } });
+                import("../lib/calculatorOutcome2029.js").then(m => m.recordEqualsPreview("all_opened", { method: canonicalSelection.methodKey }), () => {});
                 openNumber();
               }}
-              onShown={(total) => emit("calculator_2029", "equals_preview_shown", { props: { surface: "professional", method: canonicalSelection.methodKey, count: total } })}
+              onShown={(total) => { import("../lib/calculatorOutcome2029.js").then(m => m.recordEqualsPreview("shown", { method: canonicalSelection.methodKey, count: total }), () => {}); }}
             />
           ) : null}
           {!emptyInput && (wide || effectiveView === "classic" ? null : (effectiveView === "ledger" ? ledgerView : tilesView))}

@@ -105,7 +105,10 @@ test("engagement rejects identity, generic events, out-of-range counters, foreig
     { ...engagement, p_event_type: "view" }, { ...engagement, p_is_bot: true }, { ...engagement, p_path: "/post/raw-slug" },
     { ...engagement, p_app_context: "custom" }, { ...engagement, p_props: { ...p, email: "x@example.invalid" } },
     { ...engagement, p_props: { ...p, engaged_ms: p.visible_ms + 1 } }, { ...engagement, p_props: { ...p, max_scroll_pct: 101 } },
-    { ...engagement, p_props: { ...p, flush_reason: "timer" } }, { ...engagement, p_props: { ...p, engagement_version: 2 } }];
+    { ...engagement, p_props: { ...p, flush_reason: "timer" } }, { ...engagement, p_props: { ...p, engagement_version: 3 } }];
+  // 27.11.2026: version 2 (no automatic first-20-second credit) is valid next to version 1 (stale clients); nothing else is.
+  assert.equal(readingEngagementBody({ ...engagement, p_props: { ...p, engagement_version: 2 } }), true);
+  assert.equal(readingEngagementBody({ ...engagement, p_props: { ...p, engagement_version: 1 } }), true);
   for (const body of invalid) assert.equal(readingEngagementBody(body), false, JSON.stringify(body));
   const h = harness();
   for (const body of invalid) assert.equal((await h.post("/rest/v1/rpc/ingest_event", body)).status, 403, JSON.stringify(body));

@@ -103,16 +103,17 @@ test("ordinary contact and issue forms retain their existing emitters and option
     assert.match(text(gateway.render(gateway.ContactForm, props)), /קיבלנו, תודה/);
 
     const issue = await componentFixture("../IssueReport.jsx", ["IssueReport"], {
-      PUBLIC_READING_RELEASE: false, track: (...args) => events.push(args),
+      // 27.11.2026: an issue report goes to the support store (persistExplicitIssueReport), never to the analytics emitter (track).
+      PUBLIC_READING_RELEASE: false, persistExplicitIssueReport: async payload => { events.push(payload); }, track: () => { throw new Error("analytics must not receive an issue report"); },
     });
     const issueProps = { pathname: "/post/current?private=1#private", surface: "post", sourceHref, initialText: "my note" };
     const issueForm = issue.render(issue.IssueReport, issueProps);
     issueForm.props.onSubmit({ preventDefault() {} });
     issueForm.props.onSubmit({ preventDefault() {} });
-    assert.equal(events.length, 1, "the existing issue emitter remains idempotent");
-    assert.equal(events[0][3].path, "/post/current");
-    assert.equal(events[0][3].message, "my note");
-    assert.equal(events[0][3].source_href, withSource ? "https://preview.example/post/current?page=2" : undefined);
+    assert.equal(events.length, 1, "the support-store sender remains idempotent");
+    assert.equal(events[0].path, "/post/current");
+    assert.equal(events[0].message, "my note");
+    assert.equal(events[0].source_href, withSource ? "https://preview.example/post/current?page=2" : undefined);
   }
 });
 

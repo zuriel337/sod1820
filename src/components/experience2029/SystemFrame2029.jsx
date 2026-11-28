@@ -1437,6 +1437,8 @@ function SystemFrame2029Body({
     }));
     go(finding.href === "/world" ? "/world?focus=context" : finding.href, { preserve: false, state: { sodResearchIntent: "continue" } });
   };
+  // S4: the open panel is reported to the nav measurement once it is loaded (visits.js loads it after the first page is measured); no import here, so the frame does not grow.
+  useEffect(() => { globalThis.sodPanelNav?.(transient?.kind); }, [transient?.kind]);
   const renderTransient = () => {
     if (!transientKind) return null;
     const common = { panelRef, onClose: closeTransient };

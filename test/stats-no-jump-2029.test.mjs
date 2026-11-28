@@ -33,3 +33,10 @@ test("the discovery block is not waited for and its content stays crawlable and 
   assert.doesNotMatch(page, /everything[^;]*center\.status/, "the slowest reader does not delay the page");
   for (const part of ["DiscoveryTotals", "DiscoveryFeatured", "DiscoveryLatest", "DiscoveryContributions", "DiscoveryWriters"]) assert.ok(page.includes(`<${part}`), part);
 });
+
+test("the cumulative open-activity section (#1589) cannot push rows: it is mounted after every other block and draws nothing until its first answer", () => {
+  const comp = read("src/components/experience2029/OpenActivity2029.jsx");
+  assert.ok(page.indexOf("<OpenActivity2029 />") > page.indexOf('id="stats29-since"'), "mounted below the sections, the discoveries and the history");
+  assert.ok(page.indexOf("<OpenActivity2029 />") > page.indexOf("stats29-dc-slot"));
+  assert.match(comp, /if \(state\.loading && !answered\.current\) return null/, "no loading block above or between the rows on the first read");
+});

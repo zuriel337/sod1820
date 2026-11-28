@@ -34,12 +34,12 @@ assert.match(gateway, /actionTried/);
 assert.match(frame, /sod29-header-issue/);
 assert.match(frame, /closeMobileNav\(false\); openIssueReport\(\)/);
 
-// Emits only through the existing telemetry seam; no store/attachment/direct suggestions write
-assert.match(comp, /import \{ track \} from "\.\.\/lib\/tracking\.js"/);
+// 27.11.2026 (v14, SUPPORT TEXT IS NOT ANALYTICS): the report goes to the support store through its own module and NEVER to the analytics seam; no store/attachment/direct suggestions write here
+assert.match(comp, /import \{ persistExplicitIssueReport \} from "\.\.\/lib\/issueReport2029\.js"/);
 for (const forbidden of [/system_suggestions/, /supabase/i, /\.from\(/, /\.rpc\(/, /fetch\(/, /localStorage/, /type="file"/]) {
   assert.equal(forbidden.test(comp), false, `IssueReport must not use ${forbidden}`);
 }
-assert.equal(comp.includes('from "../lib/tracking.js"'), true, "IssueReport stays on canonical tracking seam");
+assert.equal(comp.includes("lib/tracking.js") || /\btrack\(/.test(comp), false, "IssueReport never sends what a person typed to analytics (the tracking seam is not imported or called)");
 
 // Semantic palette only
 const colorRe = /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
@@ -74,17 +74,21 @@ assert.match(aiAnalyze, /אותות מצטברים מהמערכת/);
 const dir = fs.mkdtempSync(path.join(process.cwd(), "node_modules", ".ir-test-"));
 const calls = [];
 globalThis.__irTrack = (...args) => calls.push(args);
+const persisted = [];
+globalThis.__irPersist = (payload) => persisted.push(payload);
 const stub = {
   name: "stub",
   enforce: "pre",
   resolveId(id) {
     if (/lib\/tracking\.js$/.test(id)) return "\0stub-tracking";
     if (/lib\/AuthContext\.jsx$/.test(id)) return "\0stub-auth";
+    if (/lib\/issueReport2029\.js$/.test(id)) return "\0stub-persist";
     return null;
   },
   load(id) {
     if (id === "\0stub-tracking") return "export const track = (...a) => globalThis.__irTrack(...a);";
     if (id === "\0stub-auth") return "export const useAuth = () => ({ user: null });";
+    if (id === "\0stub-persist") return "export const persistExplicitIssueReport = (p) => { globalThis.__irPersist(p); return Promise.resolve({ saved: true }); };";
     return null;
   },
 };
@@ -120,14 +124,15 @@ assert.equal(m.viewportClass(800), "tablet");
 assert.equal(m.viewportClass(1440), "desktop");
 
 const long = "א".repeat(5000) + "\u0000";
-const payload = m.emitIssueReport(ctx, long);
-assert.equal(payload.message.length, m.ISSUE_REPORT_MAX_TEXT);
-assert.equal(calls.length, 1);
-assert.deepEqual(calls[0].slice(0, 3), ["issue_report", "numberscript", "issue_report"]);
-assert.equal(calls[0][3].auth, "anonymous");
+await m.emitIssueReport(ctx, long);
+assert.equal(persisted.length, 1, "one report, one write to the support store");
+assert.equal(persisted[0].message.length, m.ISSUE_REPORT_MAX_TEXT);
+assert.equal(persisted[0].auth, "anonymous");
+assert.equal(calls.length, 0, "nothing a person typed reaches analytics (track is never called)");
 // Text is optional
-const empty = m.emitIssueReport(ctx, "   ");
-assert.equal("message" in empty, false);
+await m.emitIssueReport(ctx, "   ");
+assert.equal("message" in persisted[1], false);
+assert.equal(calls.length, 0);
 
 fs.rmSync(dir, { recursive: true, force: true });
 console.log("issue-report canonical emitter: ok");
