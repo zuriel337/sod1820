@@ -29,6 +29,7 @@ import CommunityPersonalActions2029 from "./CommunityPersonalActions2029.jsx";
 import CommunityTreeHints2029 from "./CommunityTreeHints2029.jsx";
 import { COMMUNITY_PRESENCE_PING_MS, fetchCommunityPresenceOnline, fetchCommunityStaffIds, pingCommunityPresence } from "../../lib/community/communityPresence.js";
 import { fetchTreeHints, parseTreeHintNumbers, setTreeHint } from "../../lib/community/communityTreeHints.js";
+import { useEngagedOrDwell, visibleInterval } from "../../lib/community/communityOnDemandLoad.js";
 import { useCommunityDraft2029 } from "./useCommunityDraft2029.js";
 import { useCommunityReadingPosition2029 } from "./useCommunityReadingPosition2029.js";
 import { historicalCommunityAvatar } from "../../lib/community/communityAvatar.js";
@@ -513,12 +514,16 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // with no pins (the usual case: none exist) the reserved strip collapsed on every visit and the composer and the feed jumped 58 px.
   const [treeHints, setTreeHints] = useState(() => treePinsLastSeen() ? null : []);
   const [treeHintRefresh, setTreeHintRefresh] = useState(0);
+  // On demand (S-64): a browser that has seen pins here before still reads them at once (its strip place is reserved); a first-time or no-pins visitor
+  // reads them when the visitor engages or dwells, so an entrance that leaves within seconds makes no call. The admin toggle reloads at once.
+  const engaged = useEngagedOrDwell();
   useEffect(() => {
+    if (!engaged && !treeHintRefresh && !treePinsLastSeen()) return undefined;
     let live = true;
     const settle = items => { if (!live) return; rememberTreePins(items.length > 0); setTreeHints(items); };
     fetchTreeHints({ limit: 20, href: window.location.href }).then(items => settle(items || [])).catch(() => settle([]) /* the pinned strip is optional */);
     return () => { live = false; };
-  }, [treeHintRefresh]);
+  }, [treeHintRefresh, engaged]);
   const toggleTreeHint = useCallback(async (id, action) => {
     // The numbers are not built into a dedicated form yet (no live recognition feature
     // reads them today) - this prompt is the minimal way to mark them now.
@@ -538,7 +543,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   // person's avatar appears in the chat.
   const [onlineIds, setOnlineIds] = useState(() => new Set());
   const [staffIds, setStaffIds] = useState(() => NO_ONLINE);
-  useEffect(() => { let alive = true; fetchCommunityStaffIds().then(ids => { if (alive && ids.length) setStaffIds(new Set(ids)); }).catch(() => {}); return () => { alive = false; }; }, []);
+  useEffect(() => { if (!engaged) return undefined; let alive = true; fetchCommunityStaffIds().then(ids => { if (alive && ids.length) setStaffIds(new Set(ids)); }).catch(() => {}); return () => { alive = false; }; }, [engaged]);
   useEffect(() => {
     if (!user) return undefined;
     const ping = () => { if (!document.hidden) pingCommunityPresence().catch(() => {}); };
@@ -548,12 +553,13 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
     return () => { clearInterval(timer); document.removeEventListener("visibilitychange", ping); };
   }, [user?.id]);
   useEffect(() => {
+    if (!engaged) return undefined;
     let alive = true;
     const load = () => { fetchCommunityPresenceOnline().then(list => { if (alive) setOnlineIds(new Set(list.map(person => person.id))); }).catch(() => {}); };
     load();
-    const timer = setInterval(load, 60000);
-    return () => { alive = false; clearInterval(timer); };
-  }, []);
+    const stop = visibleInterval(load, 60000);   // only while the tab is visible; one read at once when it returns after a full minute away
+    return () => { alive = false; stop(); };
+  }, [engaged]);
   const refreshGuestUnreviewed = useCallback(async () => {
     if (!canModerateGuests || !user) { setGuestPending(current => current.length ? [] : current); return; }
     const request = ++guestReviewRead.current;
@@ -998,8 +1004,7 @@ export default function CommunityLive2029({ leadingContent = null, trailingConte
   useEffect(() => {
     refreshGuestUnreviewed();
     if (!canModerateGuests || !user) return undefined;
-    const timer = setInterval(refreshGuestUnreviewed, 30000);
-    return () => clearInterval(timer);
+    return visibleInterval(refreshGuestUnreviewed, 30000);   // moderators: only while the tab is visible; refreshed at once when it returns after 30 s away
   }, [refreshGuestUnreviewed, canModerateGuests, user, publishedFeedRefresh, threadRefresh, rows.length]);
 
   // A guest publishes at once, as "אורח", text only. The server enforces limits.

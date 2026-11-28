@@ -67,6 +67,8 @@ async function harness(file, names, overrides = {}) {
     canonicalCommunityAuthorKey: value => value, useCommunityTyping2029: () => ({ typingPeople: { names: [], anonymous: 0 }, notifyTyping() {} }),
     fetchGuestUnreviewed: async () => [], typingLabel: people => people.names.length || people.anonymous ? "x" : "",
     fetchTreeHints: async () => [], setTreeHint: async () => {}, parseTreeHintNumbers: () => [],
+    // On-demand load (S-64): the harness treats the visitor as engaged, so these decoration reads run as before; the timers are inert here.
+    useEngagedOrDwell: () => true, visibleInterval: () => () => {},
     pingCommunityPresence: async () => {}, fetchCommunityPresenceOnline: async () => [], fetchCommunityStaffIds: async () => [], COMMUNITY_PRESENCE_PING_MS: 45000,
     fetchCommunityArchivePage: async () => ({ rows: [], nextOffset: 0, count: 0 }),
     fetchLinkedAccountProfiles: async () => ({}), fetchCommunityReplyCounts: async () => ({}),
