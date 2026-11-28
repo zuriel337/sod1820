@@ -397,6 +397,7 @@ jobs:
           test/now-media-centred-2029.test.mjs
           test/home-live-updates-2029.test.mjs
           test/home-route-preload-2029.test.mjs
+          test/stats-no-jump-2029.test.mjs
           test/home-pinned-lead-early-2029.test.mjs
           test/home-featured-post-2029.test.mjs
           test/speed-centre-2029.test.mjs

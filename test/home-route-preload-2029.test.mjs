@@ -62,3 +62,30 @@ test("hint loader: without the Service Worker API (the app cannot open) the hint
   assert.equal(f.appended.length, 0);
   assert.match(hintLoaderScript2029(["/assets/e.js", "/assets/s.css"]), /^<script>\(function sodHintLoader2029[\s\S]*\)\(window,document,navigator\);__sodHints\(\[\["\/assets\/e\.js"\],\["\/assets\/s\.css",1\]\]\)<\/script>$/);
 });
+
+// The calculator (28.11.2026): same mechanism, its own address. The typing field used to wait for a second and a third wave of requests after the entry ran.
+import { calculatorPreloadComment, CALCULATOR_PRELOAD_MARK } from "../public-reading-deploy/route-preload.js";
+const calcManifest = {
+  ...manifest,
+  "src/pages/CalculatorPro2029Page.jsx": { file: "assets/CalculatorPro2029Page-e.js", isDynamicEntry: true, imports: ["_react.js", "_Shell.js", "_calc.js"], css: ["assets/CalculatorPro2029Page-e.css"], dynamicImports: ["src/components/research/RealityRiver2029.jsx"] },
+  "_calc.js": { file: "assets/calcModel-f.js", imports: ["_react.js"] },
+};
+test("the build lists the calculator's static graph beyond the entry, nothing the calculator loads later", () => {
+  const comment = calculatorPreloadComment(calcManifest);
+  assert.ok(comment.startsWith(`<!--${CALCULATOR_PRELOAD_MARK} `) && comment.endsWith(" -->"));
+  const hrefs = JSON.parse(/__sodHints\((\[[\s\S]*?\])\)/.exec(comment)[1]).map(([href]) => href).sort();
+  assert.deepEqual(hrefs, ["/assets/CalculatorPro2029Page-e.css", "/assets/CalculatorPro2029Page-e.js", "/assets/Sod2029Shell-b.css", "/assets/Sod2029Shell-b.js", "/assets/calcModel-f.js"].sort());
+  assert.ok(!hrefs.includes("/assets/react-1.js") && !hrefs.includes("/assets/RealityRiver2029-d.js"));
+  assert.equal(calculatorPreloadComment({}), "");
+});
+test("each route gets only its own hints: /gematria the calculator's, / the Home's, every other address none", () => {
+  const html = `<head>${homePreloadComment(calcManifest)}${calculatorPreloadComment(calcManifest)}</head>`;
+  const home = withRoutePreloads2029(html, { path: "/", status: 200 });
+  const calc = withRoutePreloads2029(html, { path: "/gematria", status: 200 });
+  assert.ok(home.includes("Home2029Page-a.js") && !home.includes("CalculatorPro2029Page-e.js") && !home.includes(CALCULATOR_PRELOAD_MARK));
+  assert.ok(calc.includes("CalculatorPro2029Page-e.js") && !calc.includes("Home2029Page-a.js") && !calc.includes(HOME_PRELOAD_MARK));
+  for (const [path, status] of [["/post/p-1", 200], ["/gematria", 404], ["/gematria/x", 200]]) {
+    const other = withRoutePreloads2029(html, { path, status });
+    assert.ok(!other.includes("Home2029Page-a") && !other.includes("CalculatorPro2029Page-e") && !other.includes("sod-"), `${path} ${status}: no hints`);
+  }
+});

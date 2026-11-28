@@ -31,11 +31,20 @@ const hintList = hrefs => JSON.stringify(hrefs.map(href => href.endsWith(".css")
 export function hintLoaderScript2029(hrefs) {
   return `<script>(${sodHintLoader2029.toString()})(window,document,navigator);__sodHints(${hintList(hrefs)})</script>`;
 }
-const BLOCK = new RegExp(`<!--${HOME_PRELOAD_MARK} ([\\s\\S]*?) -->`);
 const ASSET = /^\/assets\/[A-Za-z0-9._-]+\.(?:js|css)$/;
 
-/** Build side: the Home's static graph beyond the entry, as preload links inside one inert comment (empty string when the graph is unknown). */
-export function homePreloadComment(manifest, { page = "src/pages/Home2029Page.jsx" } = {}) {
+// One inert comment per route with hints. The Home address stays as it was; the calculator (28.11.2026, "מסך טקסט" before the typing field) is the second:
+// on Slow 4G the document and its text appear at about 1.2 s, the entry runs at about 2.5 s, and only then are the calculator's chunks and styles discovered,
+// one wave after another (the typing field at about 4.3 s on the live site). The same kind of hint the Home has fetches them in parallel with the entry.
+export const CALCULATOR_PRELOAD_MARK = "sod-calculator-preload";
+const ROUTES = [
+  { mark: HOME_PRELOAD_MARK, page: "src/pages/Home2029Page.jsx", paths: new Set(["/"]) },
+  { mark: CALCULATOR_PRELOAD_MARK, page: "src/pages/CalculatorPro2029Page.jsx", paths: new Set(["/gematria"]) },
+];
+const blockPattern = mark => new RegExp(`<!--${mark} ([\\s\\S]*?) -->`);
+
+/** Build side: a route page's static graph beyond the entry, as preload links inside one inert comment (empty string when the graph is unknown). */
+export function routePreloadComment(manifest, { page, mark }) {
   const closure = (key, seen = new Set()) => { if (seen.has(key) || !manifest?.[key]) return seen; seen.add(key); for (const next of manifest[key].imports || []) closure(next, seen); return seen; };
   const entryKey = Object.keys(manifest || {}).find(key => manifest[key]?.isEntry && /(^|\/)2029\.html$/.test(key));
   if (!entryKey || !manifest[page]) return "";
@@ -45,13 +54,20 @@ export function homePreloadComment(manifest, { page = "src/pages/Home2029Page.js
   const styles = [...new Set(keys.flatMap(key => manifest[key].css || []).map(file => `/${file}`))].filter(href => ASSET.test(href));
   if (!scripts.length) return "";
   // Applied by the hint loader above (same URLs, CORS mode "anonymous" like the app's own loader, styles before scripts).
-  return `<!--${HOME_PRELOAD_MARK} <script>__sodHints(${hintList([...styles, ...scripts])})</script> -->`;
+  return `<!--${mark} <script>__sodHints(${hintList([...styles, ...scripts])})</script> -->`;
 }
+/** Build side: the Home's graph (unchanged name and output). */
+export function homePreloadComment(manifest, { page = "src/pages/Home2029Page.jsx" } = {}) { return routePreloadComment(manifest, { page, mark: HOME_PRELOAD_MARK }); }
+/** Build side: the calculator's graph. */
+export function calculatorPreloadComment(manifest) { return routePreloadComment(manifest, { page: "src/pages/CalculatorPro2029Page.jsx", mark: CALCULATOR_PRELOAD_MARK }); }
 
-/** Request side: the Home address gets the hints; every other document loses the comment. */
+/** Request side: a route's address gets its hints; every other document loses every comment. */
 export function withRoutePreloads2029(html, { path, status } = {}) {
-  const document = String(html || "");
-  const match = BLOCK.exec(document);
-  if (!match) return document;
-  return document.replace(match[0], path === "/" && status === 200 ? match[1] : "");
+  let document = String(html || "");
+  for (const { mark, paths } of ROUTES) {
+    const match = blockPattern(mark).exec(document);
+    if (!match) continue;
+    document = document.replace(match[0], paths.has(path) && status === 200 ? match[1] : "");
+  }
+  return document;
 }
