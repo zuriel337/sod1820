@@ -41,10 +41,7 @@ function MethodInspector({
   tab,
   setTab,
   traceState,
-  traceOpen,
-  traceSteps,
   traceDetail,
-  onToggleTrace,
   onRazielAction,
   onExpandRaziel,
   onOpenHeichal,
@@ -103,17 +100,13 @@ function MethodInspector({
         <b>{publicMethodLabel(method)}</b>
         <strong>{method.computedValue ?? "—"}</strong>
       </div>
-      <p>בחרו אות או צעד בהמחשה, או פתחו את הפירוט המלא. בלשונית למד תמצאו הסבר ודוגמה עם הביטוי שלכם.</p>
+      <p>בחרו אות או צעד בהמחשה. בלשונית למד תמצאו הסבר ודוגמה עם הביטוי שלכם.</p>
       <div className="sod29-number-method-inspector-actions">
-        <button type="button" disabled={!traceState?.finding && !traceState?.error} onClick={onToggleTrace}>{traceOpen ? "סגור פירוט" : "איך מחשבים?"}</button>
         {method.computedValue == null ? <span className="sod29-number-method-result-note">נדרש הקשר לחישוב</span> : Number(method.computedValue) !== Number(projection.root)
           ? <span className="sod29-number-method-result-note">תוצאת השיטה שונה ממספר הדף</span>
           : <span className="sod29-number-method-result-note">תוצאת השיטה זהה למספר הדף</span>}
       </div>
       {traceState?.error ? <div className="sod29-number-core2029-note">פירוט החישוב אינו זמין כרגע.</div> : null}
-      {traceOpen && traceState?.finding ? <div className="sod29-number-core2029-trace-steps">
-        {traceSteps.length ? traceSteps.map((step, index) => <span key={`${step}:${index}`}>{step}</span>) : <span>אין צעדי חישוב זמינים להצגה.</span>}
-      </div> : null}
       <SpatialMethodStage2029
         expression={projection.expression}
         methodKey={method.methodKey}
@@ -197,11 +190,8 @@ export default function NumberCore2029({
   systemMethodsLoading = false,
   mode = "page",
   traceState = null,
-  traceOpen = false,
-  traceSteps = [],
   traceDetail = null,
   onMethodSelect,
-  onToggleTrace,
   onOpenCrossing,
   onOpenZero,
   onOpenPage,
@@ -711,10 +701,7 @@ export default function NumberCore2029({
           tab={inspectorTab}
           setTab={setInspectorTab}
           traceState={traceState}
-          traceOpen={traceOpen}
-          traceSteps={traceSteps}
           traceDetail={traceDetail}
-          onToggleTrace={onToggleTrace}
           onRazielAction={onRazielAction}
           onExpandRaziel={onExpandRaziel}
           onOpenHeichal={onOpenHeichal}

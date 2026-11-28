@@ -55,8 +55,8 @@ try {
   console.log("open initial");
   await open(); await ready();
   console.log("initial ready");
-  await inspector.getByRole("button", { name: "איך מחשבים?", exact: true }).click();
-  assert.match(await inspector.innerText(), /סכום עד כאן: 1237/);
+  // the calculation is always drawn by the canonical stage (the "איך מחשבים?" toggle of the plain step list was retired)
+  assert.equal((await inspector.locator(".sod29-spatial-method-stage__result b").first().innerText()).trim(), "1237");
   assert.equal(await inspector.locator(".sod29-spatial-method-stage__letters button").count(), 8);
   const small = page.locator('.sod29-ui-icon[data-icon-shape="number"]').first();
   const large = inspector.locator('.sig-icon__core .sod29-ui-icon');
@@ -98,9 +98,9 @@ try {
       assert.match(await card.innerText(), /—/);
       assert.doesNotMatch(await inspector.locator(".sod29-number-method-calc-line").innerText(), /342000/);
     } else {
-      const button = inspector.getByRole("button", { name: "איך מחשבים?", exact: true });
-      if (await button.count()) await button.click();
-      assert.match(await inspector.locator(".sod29-number-core2029-trace-steps").innerText(), /תוצאה:/);
+      // the calculation is drawn by the one canonical stage of the method (the plain text list of steps was retired with the unification)
+      await inspector.locator(".sod29-spatial-method-stage").first().waitFor();
+      assert.match(await inspector.locator(".sod29-spatial-method-stage").first().innerText(), /תוצאה/);
     }
     await inspector.getByRole("tab", { name: "למד", exact: true }).click();
     assert.match(await inspector.innerText(), /מה השיטה עושה/);

@@ -85,7 +85,7 @@ export default function PersonalHome2029({ signedIn, name, email, avatar, stats,
         </div>
         <span className="r29-badge pa29-badge" data-pa29-badge={signedIn ? "in" : "out"}>{signedIn ? "מחובר" : "אורח"}</span>
       </div>
-      {coins.length ? <div className="pa29-coins" aria-label="תמונת מצב אישית">
+      {coins.length ? <div className="pa29-coins" data-pa29-count={coins.length} aria-label="תמונת מצב אישית">
         {coins.map(coin => <span key={coin.k} className="r29-coin pa29-coin" data-pa29-coin={coin.k}><b>{coin.v}</b><small>{coin.l}</small></span>)}
       </div> : null}
       {primary ? <div className="pa29-actions"><button type="button" className="pa29-primary" data-pa29-primary={primary.id} onClick={() => act(primary)}>{primary.label}</button></div> : null}

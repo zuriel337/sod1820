@@ -106,9 +106,12 @@ assert.match(spatialMethodStage, /data-method-key=\{methodKey\}/);
 assert.match(spatialMethodStage, /isVerifiedMethodTrace/);
 assert.match(read("src/lib/research/gematriaTracePresentation.js"), /trace\.verification\?\.parity === true/);
 assert.match(spatialMethodStage, /HEBREW_LETTER_NAMES_ENGINE_DEFAULT/);
-for (const methodKey of ["רגיל","מילוי","מסתתר","קדמי","משולש מילה"]) {
+for (const methodKey of ["רגיל","מילוי","מסתתר","קדמי"]) {
   assert.equal(spatialMethodStage.includes(`"${methodKey}"`), true, `shared Spatial Method Stage missing method adapter: ${methodKey}`);
 }
+// משולש מילה (and the other prefix triangles) is drawn by the unified mathematical-structure view the same dispatcher reaches (ZURIEL 27.11.2026), not by a second dedicated stage
+assert.match(spatialMethodStage, /TraceFamilyStage2029/);
+assert.match(read("src/components/gematria2029/MethodStructure2029.jsx"), /CUMULATIVE_PREFIX/);
 assert.match(spatialMethodStage, /projectGematriaTrace/);
 assert.match(read("src/lib/research/gematriaTracePresentation.js"), /ADJACENT_DIFFERENCE/);
 assert.match(read("src/lib/research/gematriaTracePresentation.js"), /CUMULATIVE_PREFIX/);

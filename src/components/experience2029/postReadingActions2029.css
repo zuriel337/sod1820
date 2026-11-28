@@ -3,32 +3,41 @@
 }
 .post-reading-action-row {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: start;
   gap: .4rem;
+  max-inline-size: 100%;
+  min-inline-size: 0;
 }
 .post-reading-actions .post-reading-action-row .r29-btn {
   min-block-size: 44px;
   min-inline-size: 44px;
+  max-inline-size: 100%;
   white-space: nowrap;
 }
+/* The save control joins the row (its buttons are row items, so a long label wraps to a new line instead of being clipped by the header), and its status is an
+   ordinary in-flow line of its own: never absolutely placed, always inside the screen, in either text direction. */
 .post-reading-save {
-  display: grid;
-  justify-items: start;
-  gap: .3rem;
-  position: relative;
+  display: contents;
 }
-.post-reading-save > small {
-  position: absolute;
-  z-index: 1;
-  inset-block-start: 100%;
-  inset-inline-start: 0;
-  inline-size: min(240px, 65vw);
+.post-reading-save > small,
+.post-reading-actions > small {
+  flex: 1 0 100%;
+  order: 9;
+  box-sizing: border-box;
+  inline-size: auto;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+  margin-block-start: .15rem;
   padding: .3rem .5rem;
   background: var(--s29-panel);
   color: var(--s29-ink);
   border: 1px solid var(--s29-line);
   border-radius: .5rem;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  text-align: start;
+  line-height: 1.45;
 }
 @media (max-width: 540px) {
   .post-reading-action-row .r29-btn { padding-inline: .55rem; }

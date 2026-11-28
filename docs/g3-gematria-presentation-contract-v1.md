@@ -719,3 +719,19 @@ Live calibration contract:
 This completes the semantic bridge:
 `Reliability owner → Presentation Model → Golden Card`,
 with no parallel ranking or UI truth system.
+
+## 12. Method structure display — one canonical stage for every consumer (ZURIEL, 27.11.2026)
+
+> CHANGE-RECORD: 27.11.2026 · Human Gate ZURIEL (approved the unification and its anchoring in the existing contracts).
+
+This section extends D9 / S2 and the Method Trace; it adds no engine, no store and no parallel renderer. It binds every present and future consumer (Home, Posts and their editor, the Number page and its drawer, the Calculator, the World, the Beit Midrash, the future Heichal).
+
+1. **One entry.** A gematria calculation is shown by `SpatialMethodStage2029` and nothing else. A consumer never draws its own list of steps, ledger, triangle, equation or composite from a trace. `UnitGematria2029` (displays `full` and `letters`), the Number page, the Calculator, the World and the Beit Midrash all reach it.
+2. **Only the engine's numbers.** Everything drawn comes from the verified canonical trace (`gematria_method_trace` → `projectGematriaTrace`, which fails closed). Nothing is calculated for display. A sum or an equation is printed only when the plain re-addition of the engine's own numbers equals the engine's own total; a total the engine does not give (for example a word total of a letter ledger) is not derived.
+3. **The structure follows the method.** Dedicated stages stay canonical for `רגיל`, the `מילוי` family, `קדמי` and `מסתתר`. Every other method is drawn by `MethodStructure2029` according to its trace kind: `CUMULATIVE_PREFIX` as a real triangle of letters (row k holds the first k letters, one triangle per word when the engine resets at each word — `ריבוע`, `ריבוע גדול` — one for the whole phrase when it continues — `משולש מילה` — read from the last letter in `משולש הפוך`), `POSITION_WEIGHTED` as value × position per word, `ADJACENT_DIFFERENCE` as the chain of differences, `LETTER_LEDGER` and `SUBSTITUTION_LEDGER` as the running ledger (a squared value or a substituted letter exactly as the engine gave it). A composite is drawn by `CompositeStage`: each component in the stage of its own method, then the engine's operation.
+4. **A new method is not done until it has a display.** A new active method in the registry must appear in the all-32 coverage test (`test/method-structure-2029.test.mjs`) with a verified trace and either a dedicated stage or a structure view. A trace kind without a view is reported, not drawn as a generic card.
+5. **Narrow screens.** No sideways scrolling inside a method display and no horizontal page overflow at 390px: a wide triangle scales its tiles (never below 20px, text never below 14px), `מסתתר` becomes one vertical chain per word, `קדמי` wraps into a grid. The all-methods sweep (desktop and 390px) is the acceptance.
+6. **Retired duplicates (do not restore):** `GematriaShowcase2029` and its `sod29-gx*` rules, `TriangleWordStage`, `TraceBreakdown2029`, the World's local `CompositeTrace`, and the plain text lists of steps (`traceSteps`) in the Number page, the drawer and the Calculator. Buttons in these displays belong to the Royal button family (`.r29-btn`).
+7. **Speed.** The stage is loaded on demand wherever the consumer is not the Number page; the shell budget does not grow.
+
+Acceptance owners: `test/method-structure-2029.test.mjs` (engine fixture of all 32 methods), `scripts/test-2029-number-preview.mjs`, the Number-page browser test and the World source scripts.

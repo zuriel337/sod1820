@@ -301,21 +301,7 @@
   gap: 4px;
 }
 
-.sod29-calc2029-trace-steps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
 
-.sod29-calc2029-trace-steps span {
-  border: 1px solid var(--s29-line);
-  border-radius: 999px;
-  padding: 6px 9px;
-  color: var(--s29-ink);
-  background: var(--s29-panel);
-  letter-spacing: 0;
-  font-size: 14px;
-}
 
 .sod29-calc2029-next {
   background: color-mix(in srgb, var(--s29-accent) 5%, var(--s29-panel-soft));
