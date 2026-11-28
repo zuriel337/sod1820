@@ -26,10 +26,20 @@ test("while the page waits the footer is not part of it and the slowest block ke
   assert.match(css, /repeating-linear-gradient/, "while it waits the reserved space shows placeholder cards, not an empty area");
   assert.match(page, /className="stats29-dc-wait" role="status"/, "and says what it waits for");
   for (const reserve of ["1500px", "1300px", "700px"]) assert.ok(css.includes(`--stats29-dc-reserve:${reserve}`), reserve);
-  assert.match(page, /<div className="stats29-dc-slot" data-dc-state=\{center\.status\}>/);
+  assert.match(page, /<div className="stats29-dc-slot" data-dc-state=\{center\.status\} ref=\{slotRef\}>/);
 });
 
 test("the discovery block is not waited for and its content stays crawlable and linked as before (same components, same props)", () => {
   assert.doesNotMatch(page, /everything[^;]*center\.status/, "the slowest reader does not delay the page");
   for (const part of ["DiscoveryTotals", "DiscoveryFeatured", "DiscoveryLatest", "DiscoveryContributions", "DiscoveryWriters"]) assert.ok(page.includes(`<${part}`), part);
+});
+
+test("a late discovery answer that changes the slot's height does not move the row the reader is on (keepReadingPlace), and the window line is reserved (no 24 px push of the buttons)", () => {
+  const keeper = read("src/lib/keepReadingPlace2029.js");
+  assert.match(page, /import \{ keepReadingPlace \} from "\.\.\/lib\/keepReadingPlace2029\.js"/);
+  assert.match(page, /keepReadingPlace\(node\)/);
+  assert.match(page, /className="stats29-dc-slot" data-dc-state=\{center\.status\} ref=\{slotRef\}/);
+  assert.match(keeper, /node\.getBoundingClientRect\(\)\.top < 0/, "only a reader inside or below the block is compensated");
+  assert.match(keeper, /anchor\.getBoundingClientRect\(\)\.top - last/, "what the browser already adjusted is not applied twice");
+  assert.match(css, /\.stats29-window span\{[^}]*line-height:24px;min-block-size:24px/, "the window line (its text arrives with the data) is reserved empty");
 });

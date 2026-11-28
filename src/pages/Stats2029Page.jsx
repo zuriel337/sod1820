@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import Sod2029Shell from "../components/experience2029/Sod2029Shell.jsx";
 import NavigationIcon2029 from "../components/experience2029/NavigationIcon2029.jsx";
 import { applySeo } from "../lib/seo.js";
+import { keepReadingPlace } from "../lib/keepReadingPlace2029.js";
 import CanonicalProgress from "../components/CanonicalProgress.jsx";
 import { PULSE_WINDOWS, readAdaptivePulse, readResearchPulse, pulseUsable, pulseCount } from "../lib/researchPulse2029.js";
 import { fetchHomeSystemPulse2029 } from "../lib/research/home2029Projection.js";
@@ -37,6 +38,9 @@ export default function Stats2029Page() {
   // The weekly trend (ZURIEL 25.11.2026): this week against the week before, from the SAME reader and its cache: the 168h payload and the 720h payload
   // (the average week before = (720h minus 168h) over the number of weeks that is). Independent of the window buttons above; a part without data is left out, never drawn as zero.
   const center = useDiscoveryCenter();
+  // The discovery slot is the one block that can change height after the page is drawn (a late answer); a reader below it keeps their place (src/lib/keepReadingPlace2029.js).
+  const stopKeeping = useRef(null);
+  const slotRef = useCallback(node => { stopKeeping.current?.(); stopKeeping.current = node ? keepReadingPlace(node) : null; }, []);
   const [weekly, setWeekly] = useState(null);
   const [before, setBefore] = useState(null);
   // The page appears ONCE (27-28.11.2026, mobile jump): the pulse, the weekly trend, the corpus tiles, the week before and the discovery center are separate readers that
@@ -125,7 +129,7 @@ export default function Stats2029Page() {
         </section> : null}
         <section className="stats29-block" aria-labelledby="stats29-discoveries" data-stats-discoveries="true">
           <h2 id="stats29-discoveries">גילויים ותרומות</h2>
-          <div className="stats29-dc-slot" data-dc-state={center.status}>
+          <div className="stats29-dc-slot" data-dc-state={center.status} ref={slotRef}>
           {center.status === "loading" ? <p className="stats29-dc-wait" role="status">טוען את הגילויים והתרומות…</p> : null}
           <DiscoveryTotals totals={center.totals} />
           <DiscoveryFeatured featured={center.model?.featured} featuredWith={center.model?.featuredWith} mode="stats" />

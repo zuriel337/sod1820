@@ -538,6 +538,9 @@ jobs:
         run: node scripts/build-public-reading-production.mjs
       - name: One first-party visit per real page view (real Chromium, the built artifact and its real worker; guest and member, desktop and phone)
         run: node --test test/measurement-visit-once-2029.browser.mjs
+      # /stats on a phone (28.11.2026): a late block that changes height above the reader must not move the row they are looking at (real Chromium, no network).
+      - name: A late block above the reader keeps their row in place (the statistics discovery slot)
+        run: node --test test/keep-reading-place-2029.browser.mjs
 
   auth-browser-acceptance-2029:
     name: auth-browser-acceptance-2029
