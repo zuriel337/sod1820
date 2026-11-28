@@ -5233,6 +5233,168 @@
             ],
             "recommendation": "Treat checkpoint 2 as context only. For a decision-grade comparison define the next window on the current build 7092eb91 (serving from about 12:47 UTC) with its own before series, retry the Vercel queries when the tool answers, and wait for n>=30 per field group. No cache, SQL, WAF or threshold change was made."
           },
+          "checkpoint_3_20261127_18_24": {
+            "measured_at": "2026-11-28 ~00:20 UTC, read-only, whole hours 27.11 18:00-24:00 against 26.11 18:00-24:00; no change to cache, SQL, WAF or thresholds",
+            "status": "NOT COMPARABLE. The /community/chat wave is present in the 26.11 window and absent in the 27.11 window, so the pair fails the rule (present or absent in BOTH). Figures below are context only; no ratio is read as an effect.",
+            "wave_check_community_chat_page_view_sessions_per_hour": {
+              "26.11_18-23": [
+                443,
+                421,
+                422,
+                449,
+                447,
+                464
+              ],
+              "27.11_18-23": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                1
+              ],
+              "reading": "present in W2 (about 440 per hour), absent in W4 (0-1 per hour)"
+            },
+            "builds": {
+              "W2_26.11_18-24": "2029-C5ROC4LY",
+              "W4_27.11_18-24": "2029-CygV-D96 (main 7092eb91, from 27.11 13:08)",
+              "note": "different builds and different traffic: two confounders besides the wave"
+            },
+            "supabase_api_edge_logs": {
+              "W2_26.11_18-24_(captured_27.11_11:10_for_S-55_before_the_24h_retention_expired)": {
+                "requests": 226729,
+                "change_list_reads": 914,
+                "is_number_indexable": 353,
+                "posts_by_number_strict": 948,
+                "is_phrase_indexable": 2095,
+                "number_anchors": 1363,
+                "gematria_words": 6781,
+                "node_ua_requests": 17500,
+                "options_requests": 61976,
+                "fn_number_lookup": "not captured"
+              },
+              "W4_27.11_18-24": {
+                "requests": 25366,
+                "hourly": {
+                  "18": 3693,
+                  "19": 4079,
+                  "20": 4210,
+                  "21": 3231,
+                  "22": 4000,
+                  "23": 6153
+                },
+                "change_list_reads": 423,
+                "is_number_indexable": 65,
+                "posts_by_number_strict": 339,
+                "is_phrase_indexable": 1883,
+                "number_anchors": 353,
+                "gematria_words": 4089,
+                "fn_number_lookup": 35,
+                "node_ua_requests": 8683,
+                "options_requests": 1391
+              },
+              "per_1000_requests_context_only": {
+                "gematria_words": {
+                  "W2": 29.9,
+                  "W4": 161.2
+                },
+                "is_phrase_indexable": {
+                  "W2": 9.2,
+                  "W4": 74.2
+                },
+                "number_anchors": {
+                  "W2": 6.0,
+                  "W4": 13.9
+                },
+                "is_number_indexable": {
+                  "W2": 1.6,
+                  "W4": 2.6
+                },
+                "posts_by_number_strict": {
+                  "W2": 4.2,
+                  "W4": 13.4
+                },
+                "change_list_reads": {
+                  "W2": 4.0,
+                  "W4": 16.7
+                },
+                "node_ua_requests": {
+                  "W2": 77.2,
+                  "W4": 342.3
+                },
+                "options_requests": {
+                  "W2": 273.3,
+                  "W4": 54.8
+                }
+              },
+              "reading": "W4 total requests are 8.9x lower than W2 because the wave is gone, so every per-1,000 ratio rises mechanically (the wave's requests were mostly page and OPTIONS traffic from the chat client). Not an effect of any deployment. 23:00 UTC shows a small burst (6,153 requests; gematria_words 1,151; change_list 111)."
+            },
+            "vercel_server_side": "NOT MEASURED. The hourly observability query returned HTTP 400 bad_request again (third occurrence since S-55).",
+            "field_web_vital": {
+              "W2_26.11_18-24_(C5ROC4LY)": {
+                "community_desktop": {
+                  "n": 60,
+                  "ttfb_p75": 5033,
+                  "lcp_p75": 7823,
+                  "fcp_p75": 7138,
+                  "note": "the only n>=30 cell besides community mobile"
+                },
+                "community_mobile": {
+                  "n": 24,
+                  "ttfb_p75": 906,
+                  "lcp_p75": 1421
+                },
+                "other_desktop": {
+                  "n": 12
+                },
+                "other_mobile": {
+                  "n": 22
+                },
+                "post_desktop": {
+                  "n": 3
+                },
+                "post_mobile": {
+                  "n": 8
+                }
+              },
+              "W4_27.11_18-24_(CygV-D96)": {
+                "all_cells": "n between 1 and 4 (8 samples in total): no figure is reported",
+                "reading": "nothing to compare; the evening traffic is a trickle"
+              }
+            },
+            "video_2029_W4": {
+              "play_requested": 1,
+              "player_ready": 1,
+              "embed_refused": 0
+            },
+            "traffic_daily": {
+              "26.11": {
+                "entrances": 1429,
+                "engaged": 1231,
+                "bounces": 197,
+                "suspected": 4958
+              },
+              "27.11_(final_at_23:25)": {
+                "entrances": 673,
+                "engaged": 91,
+                "bounces": 582,
+                "views": 1017,
+                "visitors": 641,
+                "suspected": 330
+              },
+              "reading": "27.11 engaged share 13.5% against 86.1% on 26.11, with the wave absent; unexplained, not read as a quality change, needs a separate look (how engaged is computed on the new classifier)"
+            },
+            "runtime_errors_W4": "the same single Task timed out after 300 seconds cluster on /api/card, last seen 27.11 18:48:37 UTC (count 1 in the project history for this cluster); no other group",
+            "sitemap_numbers": 1274,
+            "search_console": "last synced day still 2026-11-24 (fetched 27.11 05:17 UTC); the next sync is 28.11 05:17 UTC",
+            "not_measured": [
+              "Vercel server side (query errors)",
+              "a comparable evening pair (the wave exists only on 26.11)",
+              "field vitals n>=30 in W4",
+              "why the engaged share of 27.11 is 13.5%"
+            ],
+            "recommendation": "Close the evening comparison as NOT COMPARABLE. The next useful reads: the Vercel queries when the tool answers, the 28.11 daytime window on build CygV-D96 against its own matched hours, and a separate check of the engaged share on 27.11 (is it a classification effect or traffic mix)."
+          },
           "runtime_errors_first_30_min": "Vercel runtime errors since the deployment: none (get_runtime_errors, since 30m, 27.11 ~02:15 UTC)."
         }
       },
